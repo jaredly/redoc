@@ -1,0 +1,448 @@
+
+<html>
+<head>
+<title>Reason code</title>
+<style>
+.identifier {
+    color: #000;
+}
+
+.string {
+    color: #33a20d;
+}
+
+.int {
+    color: blue;
+}
+
+.float {
+    color: orange;
+}
+
+#main {
+    color: #aaa;
+    white-space: pre;
+    font-family: 'sf mono', monospace;
+}
+</style>
+<pre id="main">open Play_types;
+open Reprocessing;
+
+let textColor = <span class="identifier">Constants.black</span>;
+
+open Play_draw_player;
+
+let spritePickerPos = env => {
+  <span class="identifier">Geom.Rect.create</span>({Geom.x: <span class="identifier">float_of_int</span>(<span class="identifier">Env.width</span>(<span class="identifier">env</span>)) <span class="identifier">-.</span> <span class="float">30.</span>, y: <span class="float">30.</span>}, <span class="float">50.</span>, <span class="float">60.</span>)
+};
+
+let pauseButton = env => {
+  <span class="identifier">Geom.Rect.create</span>({Geom.x: <span class="identifier">float_of_int</span>(<span class="identifier">Env.width</span>(<span class="identifier">env</span>)) <span class="identifier">-.</span> <span class="float">80.</span>, y: <span class="float">30.</span>}, <span class="float">50.</span>, <span class="float">60.</span>)
+};
+
+let rockPos = (state, v, env) => {
+  open Play_sprites;
+  let module PlayerSprite = (val <span class="identifier">PlayerSprites.getNum</span>(<span class="identifier">state</span>.player.skin): PlayerSprites.Sprite);
+
+  let angle = if (<span class="identifier">v</span>.Geom.magnitude <span class="identifier">></span> <span class="float">5.</span>) {
+    let percent = <span class="identifier">v</span>.Geom.magnitude <span class="identifier">/.</span> <span class="float">200.</span>;
+    let extra = <span class="identifier">Geom.halfPi</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">*.</span> <span class="identifier">percent</span>;
+    (<span class="identifier">state</span>.player.facingLeft ? <span class="identifier">v</span>.Geom.theta <span class="identifier">+.</span> <span class="identifier">extra</span> : <span class="identifier">v</span>.Geom.theta <span class="identifier">+.</span> <span class="identifier">Geom.pi</span> <span class="identifier">-.</span> <span class="identifier">extra</span>)
+  } else <span class="float">{
+    0.
+  }</span>;
+  let (x, y) = <span class="identifier">Geom.tuple</span>(<span class="identifier">state</span>.player.box.pos);
+  let y = <span class="identifier">y</span> <span class="identifier">-.</span> <span class="float">10.</span>;
+
+  let loff = <span class="identifier">state</span>.player.facingLeft ? <span class="float">1.</span> : <span class="float">-1.</span>;
+  let armTop = <span class="identifier">y</span> <span class="identifier">-.</span> <span class="identifier">PlayerSprite.body_height</span> <span class="identifier">*.</span> <span class="identifier">spriteScale</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">+.</span> <span class="float">10.</span>;
+  let arm = {Geom.x: <span class="identifier">x</span> <span class="identifier">+.</span> <span class="identifier">shoulder</span> <span class="identifier">*.</span> <span class="identifier">loff</span> <span class="identifier">*.</span> <span class="float">-1.</span>, y: <span class="identifier">armTop</span>};
+  let relativeToArm = {Geom.theta: <span class="identifier">angle</span> <span class="identifier">+.</span> <span class="identifier">Geom.halfPi</span>, magnitude: <span class="identifier">PlayerSprite.arm_height</span> <span class="identifier">*.</span> <span class="identifier">spriteScale</span>};
+
+  <span class="identifier">Geom.addVectorToPoint</span>(<span class="identifier">relativeToArm</span>, <span class="identifier">arm</span>);
+};
+
+
+let drawSpritePicker = (state, context, env) => {
+  open Play_sprites;
+  let module PlayerSprite = (val <span class="identifier">PlayerSprites.getNum</span>(<span class="identifier">state</span>.player.skin): PlayerSprites.Sprite);
+  let rect = <span class="identifier">spritePickerPos</span>(<span class="identifier">env</span>);
+
+  let scale = <span class="identifier">spriteScale</span> <span class="identifier">*.</span> <span class="float">1.3</span>;
+
+  let dx = <span class="identifier">-.</span><span class="identifier">PlayerSprite.head_rx</span> <span class="identifier">*.</span> <span class="identifier">scale</span>;
+  let dy = <span class="identifier">-.</span><span class="identifier">PlayerSprite.head_height</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">*.</span> <span class="identifier">scale</span>;
+
+  <span class="identifier">PlayerSprite.head</span>(
+    <span class="identifier">context</span>.Shared.charSheet,
+    ~scale=<span class="identifier">scale</span>,
+    /* ~flip=!state.player.facingLeft, */
+    ~flip=false,
+    ~pos=(<span class="identifier">Geom.tuple</span>(<span class="identifier">rect</span>.Geom.Rect.pos <span class="identifier">|></span> <span class="identifier">Geom.addPectorToPoint</span>({<span class="identifier">Geom.dx</span>, <span class="identifier">dy</span>}))),
+    <span class="identifier">env</span>
+  );
+};
+
+let maxWalk = <span class="float">5.</span>;
+let walkSpeed = <span class="float">0.5</span>;
+
+let module MovePlayer = Play_collide.Mover({
+  let gravity = <span class="float">0.5</span>;
+  let friction = <span class="float">0.7</span>;
+  let jump = <span class="float">11.</span>;
+  let bounce = false;
+});
+
+let debugPlayerHits = ({player,userInput, blocks, hitByHit}, context, env) => {
+  let vx = <span class="identifier">Geom.vx</span>(<span class="identifier">player</span>.vel);
+  let acc = <span class="identifier">userInput</span>.left ? (<span class="identifier">vx</span> <span class="identifier">></span> <span class="identifier">-.</span> <span class="identifier">maxWalk</span> ? Geom.{magnitude: <span class="identifier">walkSpeed</span>, theta: <span class="identifier">pi</span>} : <span class="identifier">Geom.v0</span>) : (
+    <span class="identifier">userInput</span>.right ? (<span class="identifier">vx</span> <span class="identifier"><</span> <span class="identifier">maxWalk</span> ? Geom.{magnitude: <span class="identifier">walkSpeed</span>, theta: <span class="float">0.</span>} : <span class="identifier">Geom.v0</span>) : <span class="identifier">Geom.v0</span>
+  );
+  let (isOnGround, (vel, hits)) = <span class="identifier">MovePlayer.moveObject</span>(<span class="identifier">player</span>.box.pos, <span class="identifier">player</span>.vel, <span class="identifier">acc</span>, <span class="identifier">userInput</span>.jump, <span class="identifier">Play_collide.testRect</span>(<span class="identifier">player</span>.box), <span class="identifier">Play_collide.collideRect</span>(<span class="identifier">player</span>.box), <span class="identifier">blocks</span>);
+  /* let (isOnGround2, (vel2, hits2)) = MovePlayer.moveObject(player.box.pos, player.vel, acc, userInput.jump, Play_collide.testRect(player.box), Play_collide.collideRectOld(player.box), blocks); */
+  <span class="identifier">Draw.stroke</span>(<span class="identifier">Constants.white</span>, <span class="identifier">env</span>);
+  <span class="identifier">Draw.noFill</span>(<span class="identifier">env</span>);
+  if (<span class="identifier">isOnGround</span>) {
+    <span class="identifier">GeomDraw.rect</span>(<span class="identifier">player</span>.box, <span class="identifier">env</span>)
+  };
+  <span class="identifier">Draw.strokeWeight</span>(<span class="int">1</span>, <span class="identifier">env</span>);
+  <span class="identifier">List.iteri</span>(
+    (i, (oldVel, newVel, blockPos, playerMoved, blockBox)) => {
+      switch <span class="identifier">hitByHit</span> {
+      | Some(index) when <span class="identifier">index</span> <span class="identifier">mod</span> <span class="identifier">List.length</span>(<span class="identifier">hits</span>) <span class="identifier">!=</span> <span class="identifier">i</span> => ()
+      | _ => {
+        if (<span class="identifier">hitByHit</span> <span class="identifier">!=</span> None) {
+          <span class="identifier">Draw.text</span>(~font=<span class="identifier">context</span>.Shared.smallFont, ~body=<span class="string">"hi"</span>, ~pos=<span class="identifier">Geom.intTuple</span>(<span class="identifier">player</span>.box.pos), <span class="identifier">env</span>);
+        };
+
+        <span class="identifier">Draw.stroke</span>(<span class="identifier">Constants.white</span>, <span class="identifier">env</span>);
+        <span class="identifier">GeomDraw.aabb</span>(<span class="identifier">blockBox</span>, <span class="identifier">env</span>);
+        let pos = <span class="identifier">Geom.addPectorToPoint</span>({Geom.dx: <span class="float">2.</span> <span class="identifier">*.</span> (<span class="identifier">float_of_int</span>(<span class="identifier">i</span>)), dy: <span class="float">2.</span> <span class="identifier">*.</span> (<span class="identifier">float_of_int</span>(<span class="identifier">i</span>))}, <span class="identifier">player</span>.box.pos);
+        <span class="identifier">GeomDraw.vec</span>(<span class="identifier">pos</span>, <span class="identifier">Geom.scaleVector</span>(<span class="identifier">oldVel</span>, <span class="float">1.</span>), <span class="identifier">env</span>);
+        <span class="identifier">Draw.stroke</span>(<span class="identifier">Constants.red</span>, <span class="identifier">env</span>);
+        <span class="identifier">GeomDraw.rect</span>(<span class="identifier">Geom.Rect.ptranslate</span>(<span class="identifier">player</span>.box, <span class="identifier">playerMoved</span>), <span class="identifier">env</span>);
+        <span class="identifier">GeomDraw.vec</span>(
+          <span class="identifier">Geom.addPectorToPoint</span>({Geom.dx: <span class="float">1.</span>, dy: <span class="float">1.</span>}, <span class="identifier">pos</span>),
+          <span class="identifier">Geom.scaleVector</span>(<span class="identifier">newVel</span>, <span class="float">1.</span>),
+          <span class="identifier">env</span>)
+      }
+
+      }
+    },
+    <span class="identifier">hits</span> <span class="identifier">|></span> <span class="identifier">List.rev</span>
+  );
+
+  /* List.iteri(
+    (i, (oldVel, newVel, blockPos, playerMoved, blockBox)) => {
+      Draw.stroke(Constants.green, env);
+      GeomDraw.aabb(blockBox, env);
+      let pos = Geom.addPectorToPoint({Geom.dx: 10. +. 2. *. (float_of_int(i)), dy: 10. +. 2. *. (float_of_int(i))}, player.box.pos);
+      GeomDraw.vec(pos, Geom.scaleVector(oldVel, 1.), env);
+      Draw.stroke(Constants.blue, env);
+      GeomDraw.vec(
+        Geom.addPectorToPoint({Geom.dx: 1., dy: 1.}, pos),
+        Geom.scaleVector(newVel, 1.),
+        env)
+    },
+    hits2 |> List.rev
+  ); */
+
+};
+
+let drawStones = (state, inPosition, context, env) => {
+  <span class="identifier">Draw.fill</span>(<span class="identifier">Reprocessing.Utils.color</span>(~r=<span class="int">150</span>, ~g=<span class="int">150</span>, ~b=<span class="int">170</span>, ~a=<span class="int">255</span>), <span class="identifier">env</span>);
+  <span class="identifier">state</span>.stones <span class="identifier">|></span> <span class="identifier">List.iter</span>(stone => {
+    let {Geom.x,y} = <span class="identifier">stone</span>.Stone.circle.center;
+    switch (<span class="identifier">inPosition</span>(<span class="float">200.</span>, <span class="identifier">stone</span>.Stone.circle.center)) {
+    | None => ()
+    | Some(pos) => {
+      <span class="identifier">drawStone</span>(<span class="identifier">context</span>, <span class="identifier">pos</span>, <span class="identifier">stone</span>, <span class="identifier">env</span>)
+    }
+    };
+  });
+};
+let drawStones = (a, b, c, d) => {
+  <span class="identifier">Profile.start</span>(<span class="string">"drawStones"</span>);
+  <span class="identifier">drawStones</span>(<span class="identifier">a</span>,<span class="identifier">b</span>,<span class="identifier">c</span>,<span class="identifier">d</span>);
+  <span class="identifier">Profile.stop</span>(<span class="string">"drawStones"</span>);
+};
+
+let drawTiles = (state, context, env) => {
+  let (dx, dy, w, h) = <span class="identifier">state</span>.camera;
+
+  let x0 = <span class="identifier">int_of_float</span>(<span class="identifier">dx</span> <span class="identifier">/.</span> <span class="identifier">blockSize</span>) <span class="identifier">-</span> <span class="int">1</span>;
+  let y0 = <span class="identifier">int_of_float</span>(<span class="identifier">dy</span> <span class="identifier">/.</span> <span class="identifier">blockSize</span>);
+  let ww = <span class="identifier">int_of_float</span>(<span class="identifier">w</span> <span class="identifier">/.</span> <span class="identifier">blockSize</span>) <span class="identifier">+</span> <span class="int">3</span>;
+  let hh = <span class="identifier">int_of_float</span>(<span class="identifier">h</span> <span class="identifier">/.</span> <span class="identifier">blockSize</span>) <span class="identifier">+</span> <span class="int">3</span>;
+  for (x in <span class="identifier">x0</span> to <span class="identifier">x0</span> <span class="identifier">+</span> <span class="identifier">ww</span>) {
+    for (y in <span class="identifier">y0</span> to <span class="identifier">y0</span> <span class="identifier">+</span> <span class="identifier">hh</span>) {
+      switch (<span class="identifier">getBlock</span>(<span class="identifier">state</span>.blocks, (<span class="identifier">x</span>, <span class="identifier">y</span>))) {
+      | None => ()
+      | Some(block) => {
+
+        let x = <span class="identifier">float_of_int</span>(<span class="identifier">x</span>) <span class="identifier">*.</span> <span class="identifier">blockSize</span> <span class="identifier">+.</span> <span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">2.</span>;
+        let y = <span class="identifier">float_of_int</span>(<span class="identifier">y</span>) <span class="identifier">*.</span> <span class="identifier">blockSize</span> <span class="identifier">+.</span> <span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">2.</span>;
+        let sprite = switch <span class="identifier">block</span>.Block.kind {
+        | Block.Dirt => <span class="identifier">Play_assets.Tiles.dirt</span>
+        | Block.Rock => <span class="identifier">Play_assets.Tiles.stone</span>
+        };
+
+        let xx = <span class="identifier">mod_float</span>(<span class="identifier">x</span>, <span class="identifier">gameWidth</span>);
+        let xx = <span class="identifier">xx</span> <span class="identifier"><</span> <span class="float">0.</span> ? <span class="identifier">xx</span> <span class="identifier">+.</span> <span class="identifier">gameWidth</span> : <span class="identifier">xx</span>;
+        let rot = <span class="identifier">floor</span>((<span class="identifier">sin</span>(<span class="identifier">xx</span> <span class="identifier">*.</span> <span class="identifier">xx</span> <span class="identifier">+.</span> <span class="identifier">y</span> <span class="identifier">*.</span> <span class="identifier">y</span>) <span class="identifier">+.</span> <span class="float">1.</span>) <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">*.</span> <span class="float">4.</span>);
+        let rot = <span class="identifier">rot</span> <span class="identifier">*.</span> <span class="identifier">Geom.halfPi</span>;
+
+        /* Draw.tint(Reprocessing.Utils.colorf(~r=0.3, ~g=0.5, ~b=1., ~a=1. *. (1. -. block.Block.damage)), env); */
+
+        <span class="identifier">Draw.pushMatrix</span>(<span class="identifier">env</span>);
+        <span class="identifier">Draw.translate</span>(~<span class="identifier">x</span>, ~<span class="identifier">y</span>, <span class="identifier">env</span>);
+        <span class="identifier">Draw.rotate</span>(<span class="identifier">rot</span>, <span class="identifier">env</span>);
+        let pos = (<span class="identifier">-.</span><span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">2.</span>, <span class="identifier">-.</span><span class="identifier">blockSize</span><span class="identifier">/.</span><span class="float">2.</span>);
+        <span class="identifier">sprite</span>(<span class="identifier">context</span>.Shared.tileSheet, ~pos=<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+
+        <span class="identifier">Draw.tint</span>(<span class="identifier">Reprocessing.Utils.colorf</span>(~r=<span class="float">1.</span>, ~g=<span class="float">1.</span>, ~b=<span class="float">1.</span>, ~a=<span class="float">0.5</span>), <span class="identifier">env</span>);
+        if (<span class="identifier">block</span>.Block.damage <span class="identifier">>=</span> <span class="float">0.7</span>) {
+          <span class="identifier">Play_assets.ExtraItems.cracks3</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+          <span class="identifier">Play_assets.ExtraItems.cracks</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+        } else if (<span class="identifier">block</span>.Block.damage <span class="identifier">>=</span> <span class="float">0.4</span>) {
+          <span class="identifier">Play_assets.ExtraItems.cracks2</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+          <span class="identifier">Play_assets.ExtraItems.cracks</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+        } else if (<span class="identifier">block</span>.Block.damage <span class="identifier">></span> <span class="float">0.</span>) {
+          <span class="identifier">Play_assets.ExtraItems.cracks</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+        };
+        <span class="identifier">Draw.noTint</span>(<span class="identifier">env</span>);
+
+        if (<span class="identifier">block</span>.top) {
+          <span class="identifier">Draw.rotate</span>(<span class="identifier">-.</span><span class="identifier">rot</span>, <span class="identifier">env</span>);
+          <span class="identifier">Play_assets.ExtraItems.grass_top</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~pos=(<span class="identifier">-.</span><span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">2.</span>, <span class="identifier">-.</span><span class="identifier">blockSize</span><span class="identifier">/.</span><span class="float">2.</span>), ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+        };
+        <span class="identifier">Draw.popMatrix</span>(<span class="identifier">env</span>);
+
+        /* Draw.stroke(Constants.white, env);
+        Draw.noFill(env);
+        Draw.strokeWeight(1, env);
+        GeomDraw.rect(Geom.Rect.create({Geom.x: x, y: y}, blockSize, blockSize), env); */
+
+      }
+      }
+    }
+  };
+
+};
+let drawTiles = (a, b, c) => {
+  <span class="identifier">Profile.start</span>(<span class="string">"drawTiles"</span>);
+  <span class="identifier">drawTiles</span>(<span class="identifier">a</span>,<span class="identifier">b</span>,<span class="identifier">c</span>);
+  <span class="identifier">Profile.stop</span>(<span class="string">"drawTiles"</span>);
+};
+
+let drawText = (state, inPosition, context, env) => {
+  <span class="identifier">state</span>.textPos <span class="identifier">|></span> <span class="identifier">List.iter</span>(((text, pos)) => {
+    switch (<span class="identifier">inPosition</span>(<span class="float">800.</span>, <span class="identifier">pos</span>)) {
+    | None => ()
+    | Some(pos) => {
+      <span class="identifier">Draw.tint</span>(<span class="identifier">Constants.black</span>, <span class="identifier">env</span>);
+      <span class="identifier">Draw.text</span>(~font=<span class="identifier">context</span>.Shared.smallFont, ~pos=<span class="identifier">Geom.intTuple</span>(<span class="identifier">pos</span>), ~body=<span class="identifier">text</span>, <span class="identifier">env</span>);
+      <span class="identifier">Draw.noTint</span>(<span class="identifier">env</span>);
+      <span class="identifier">Draw.text</span>(~font=<span class="identifier">context</span>.Shared.smallFont, ~pos=<span class="identifier">Geom.intTuple</span>(<span class="identifier">Geom.addPoints</span>(<span class="identifier">pos</span>, {Geom.x: <span class="float">-1.</span>, y: <span class="float">-1.</span>})), ~body=<span class="identifier">text</span>, <span class="identifier">env</span>);
+    }
+    }
+  });
+};
+
+let drawText = (a, b, c, d) => {
+  <span class="identifier">Profile.start</span>(<span class="string">"drawText"</span>);
+  <span class="identifier">drawText</span>(<span class="identifier">a</span>,<span class="identifier">b</span>,<span class="identifier">c</span>, <span class="identifier">d</span>);
+  <span class="identifier">Profile.stop</span>(<span class="string">"drawText"</span>);
+};
+
+let drawWorld = (state, context, env) => {
+  <span class="identifier">Draw.background</span>(<span class="identifier">Utils.color</span>(~r=<span class="int">200</span>, ~g=<span class="int">230</span>, ~b=<span class="int">255</span>, ~a=<span class="int">255</span>), <span class="identifier">env</span>);
+  /* Draw.background(Constants.white, env); */
+
+  let (dx, dy, w, h) = <span class="identifier">state</span>.camera;
+
+  /* let zoom = 5.; */
+  let zoom = <span class="identifier">state</span>.zoom ? <span class="float">4.</span> : <span class="float">1.</span>;
+  <span class="identifier">Draw.translate</span>(~x=<span class="identifier">-.</span><span class="identifier">dx</span> <span class="identifier">*.</span> <span class="identifier">zoom</span>, ~y=<span class="identifier">-.</span><span class="identifier">dy</span> <span class="identifier">*.</span> <span class="identifier">zoom</span>, <span class="identifier">env</span>);
+
+  if (<span class="identifier">state</span>.zoom) {
+    let mpos = <span class="identifier">Geom.fromIntTuple</span>(<span class="identifier">Env.mouse</span>(<span class="identifier">env</span>));
+    let mpos = {Geom.x: <span class="identifier">w</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">-.</span> <span class="identifier">w</span> <span class="identifier">/.</span> <span class="float">8.</span>, y: <span class="identifier">h</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">-.</span> <span class="identifier">h</span> <span class="identifier">/.</span> <span class="float">8.</span>};
+    <span class="identifier">Draw.translate</span>(~x=<span class="identifier">-.</span><span class="identifier">mpos</span>.x<span class="identifier">*.</span><span class="identifier">zoom</span>, ~y=<span class="identifier">-.</span><span class="identifier">mpos</span>.y <span class="identifier">*.</span> <span class="identifier">zoom</span>, <span class="identifier">env</span>);
+    <span class="identifier">Draw.scale</span>(~x=<span class="identifier">zoom</span>, ~y=<span class="identifier">zoom</span>, <span class="identifier">env</span>);
+  };
+
+  <span class="identifier">drawTiles</span>(<span class="identifier">state</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+
+  <span class="identifier">Draw.noStroke</span>(<span class="identifier">env</span>);
+  <span class="identifier">drawPlayer</span>(<span class="identifier">state</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+
+  let inPosition = (drawPadding, {Geom.x, y} as pos) => {
+    let x0 = <span class="identifier">dx</span> <span class="identifier">-.</span> <span class="identifier">drawPadding</span>;
+    let y0 = <span class="identifier">dy</span> <span class="identifier">-.</span> <span class="identifier">drawPadding</span>;
+    let x1 = <span class="identifier">dx</span> <span class="identifier">+.</span> <span class="identifier">w</span> <span class="identifier">+.</span> <span class="identifier">drawPadding</span>;
+    let y1 = <span class="identifier">dy</span> <span class="identifier">+.</span> <span class="identifier">h</span> <span class="identifier">+.</span> <span class="identifier">drawPadding</span>;
+
+    if (<span class="identifier">y</span> <span class="identifier">></span> <span class="identifier">y0</span> <span class="identifier">&&</span> <span class="identifier">y</span> <span class="identifier"><</span> <span class="identifier">y1</span>) {
+      if (<span class="identifier">x</span> <span class="identifier">></span> <span class="identifier">x0</span> <span class="identifier">&&</span> <span class="identifier">x</span> <span class="identifier"><</span> <span class="identifier">x1</span>) {
+        Some(<span class="identifier">pos</span>)
+      } else {
+        let left = <span class="identifier">x</span> <span class="identifier">-.</span> <span class="identifier">gameWidth</span>;
+        if (<span class="identifier">left</span> <span class="identifier">></span> <span class="identifier">x0</span> <span class="identifier">&&</span> <span class="identifier">left</span> <span class="identifier"><</span> <span class="identifier">x1</span>) {
+          Some(<span class="identifier">Geom.addPoints</span>(<span class="identifier">pos</span>, {x: <span class="identifier">-.</span><span class="identifier">gameWidth</span>, y: <span class="float">0.</span>}))
+        } else {
+          let right = <span class="identifier">x</span> <span class="identifier">+.</span> <span class="identifier">gameWidth</span>;
+          if (<span class="identifier">right</span> <span class="identifier">></span> <span class="identifier">x0</span> <span class="identifier">&&</span> <span class="identifier">right</span> <span class="identifier"><</span> <span class="identifier">x1</span>) {
+            Some(<span class="identifier">Geom.addPoints</span>(<span class="identifier">pos</span>, {x: <span class="identifier">+.</span><span class="identifier">gameWidth</span>, y: <span class="float">0.</span>}))
+          } else {
+            None
+          }
+        }
+      };
+    } else {
+      None
+    }
+  };
+
+  <span class="identifier">drawStones</span>(<span class="identifier">state</span>, <span class="identifier">inPosition</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+  /* drawText(state, inPosition, context, env); */
+
+
+
+  /* debugPlayerHits(state, context, env); */
+};
+
+
+let drawWorld = (a, b, c) => {
+  <span class="identifier">Profile.start</span>(<span class="string">"drawWorld"</span>);
+  <span class="identifier">drawWorld</span>(<span class="identifier">a</span>, <span class="identifier">b</span>, <span class="identifier">c</span>);
+  <span class="identifier">Profile.stop</span>(<span class="string">"drawWorld"</span>);
+};
+
+let touchButtons = env => {
+  let bottom = <span class="identifier">Reprocessing.Env.height</span>(<span class="identifier">env</span>) <span class="identifier">|></span> <span class="identifier">float_of_int</span>;
+  let right = <span class="identifier">Reprocessing.Env.width</span>(<span class="identifier">env</span>) <span class="identifier">|></span> <span class="identifier">float_of_int</span>;
+  let buttonSize = <span class="float">50.</span>;
+  let shape = pos => {Geom.Circle.center: <span class="identifier">pos</span>, rad: <span class="identifier">buttonSize</span>};
+  [
+    (`Left, <span class="identifier">shape</span>({Geom.x: <span class="float">75.</span>, y: <span class="identifier">bottom</span> <span class="identifier">-.</span> <span class="float">75.</span>})),
+    (`Right, <span class="identifier">shape</span>({Geom.x: <span class="float">175.</span>, y: <span class="identifier">bottom</span> <span class="identifier">-.</span> <span class="float">75.</span>})),
+    (`Jump, <span class="identifier">shape</span>({Geom.x: <span class="identifier">right</span> <span class="identifier">-.</span> <span class="float">75.</span>, y: <span class="identifier">bottom</span> <span class="identifier">-.</span> <span class="float">75.</span>})),
+  ]
+};
+
+let drawControl = (control, pos, env) => {
+  open Geom;
+  let size = <span class="float">50.</span>;
+  let p1 = {Geom.x: <span class="identifier">-.</span><span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.55</span>, y: <span class="identifier">-.</span><span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.75</span>};
+  let p2 = {Geom.x: <span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.75</span>, y: <span class="float">0.</span>};
+  let p3 = {Geom.x: <span class="identifier">-.</span><span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.55</span>, y: <span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.75</span>};
+  <span class="identifier">Draw.noStroke</span>(<span class="identifier">env</span>);
+  <span class="identifier">Draw.fill</span>(<span class="identifier">Utils.color</span>(~r=<span class="int">0</span>, ~g=<span class="int">0</span>, ~b=<span class="int">0</span>, ~a=<span class="int">50</span>), <span class="identifier">env</span>);
+  /* Draw.strokeWeight(10, env); */
+  <span class="identifier">Draw.translate</span>(~x=<span class="identifier">pos</span>.x, ~y=<span class="identifier">pos</span>.y, <span class="identifier">env</span>);
+  switch <span class="identifier">control</span> {
+  | `Left => {
+    /* Draw.linef(~p1=Geom.tuple(p1), ~p2=Geom.tuple(p2), env); */
+    /* Draw.linef(~p1=Geom.tuple(p2), ~p2=Geom.tuple(p3), env); */
+    <span class="identifier">Draw.trianglef</span>(~p1=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipX</span>(<span class="identifier">p1</span>)), ~p2=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipX</span>(<span class="identifier">p2</span>)), ~p3=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipX</span>(<span class="identifier">p3</span>)), <span class="identifier">env</span>);
+  }
+  | `Right => {
+    <span class="identifier">Draw.trianglef</span>(~p1=<span class="identifier">Geom.tuple</span>(<span class="identifier">p1</span>), ~p2=<span class="identifier">Geom.tuple</span>(<span class="identifier">p2</span>), ~p3=<span class="identifier">Geom.tuple</span>(<span class="identifier">p3</span>), <span class="identifier">env</span>);
+  }
+  | _ => {
+    <span class="identifier">Draw.trianglef</span>(~p1=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipXY</span>(<span class="identifier">p1</span>) <span class="identifier">|></span> <span class="identifier">Geom.flipY</span>), ~p2=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipXY</span>(<span class="identifier">p2</span>) <span class="identifier">|></span> <span class="identifier">Geom.flipY</span>), ~p3=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipXY</span>(<span class="identifier">p3</span>) <span class="identifier">|></span> <span class="identifier">Geom.flipY</span>), <span class="identifier">env</span>);
+  }
+  };
+  <span class="identifier">Draw.translate</span>(~x=<span class="identifier">-.</span><span class="identifier">pos</span>.x, ~y=<span class="identifier">-.</span><span class="identifier">pos</span>.y, <span class="identifier">env</span>);
+};
+
+let joystickCircle = env => {
+  let bottom = <span class="identifier">Reprocessing.Env.height</span>(<span class="identifier">env</span>) <span class="identifier">|></span> <span class="identifier">float_of_int</span>;
+  let pos = {Geom.x: <span class="float">100.</span>, y: <span class="identifier">bottom</span> <span class="identifier">-.</span> <span class="float">100.</span>};
+  {Geom.Circle.center: <span class="identifier">pos</span>, rad: <span class="float">100.</span>}
+};
+
+let arrayAssoc = (value, arr) => {
+  let rec loop = i => {
+    if (<span class="identifier">i</span> <span class="identifier">>=</span> <span class="identifier">Array.length</span>(<span class="identifier">arr</span>)) {
+      <span class="identifier">raise</span>(Not_found)
+    } else {
+      let (a, b) = <span class="identifier"><span class="identifier">arr</span>[<span class="identifier">i</span>]</span>;
+      if (<span class="identifier">a</span> <span class="identifier">==</span> <span class="identifier">value</span>) {
+        <span class="identifier">b</span>
+      } else {
+        <span class="identifier">loop</span>(<span class="identifier">i</span><span class="identifier">+</span><span class="int">1</span>)
+      }
+    }
+  };
+  <span class="identifier">loop</span>(<span class="int">0</span>)
+};
+
+let draw = (state, context, env) => {
+  <span class="identifier">Draw.pushMatrix</span>(<span class="identifier">env</span>);
+  <span class="identifier">drawWorld</span>(<span class="identifier">state</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+  <span class="identifier">Draw.popMatrix</span>(<span class="identifier">env</span>);
+
+  <span class="identifier">drawStone</span>(<span class="identifier">context</span>, {Geom.x: <span class="float">15.</span>, y: <span class="float">15.</span>}, {
+    Play_types.Stone.circle: {Geom.Circle.center: <span class="identifier">Geom.origin</span>, rad: <span class="float">10.</span>},
+    rotation: <span class="float">0.</span>,
+    vel: <span class="identifier">Geom.v0</span>,
+    live: true,
+  }, <span class="identifier">env</span>);
+  let stones = switch (<span class="identifier">arrayAssoc</span>(Inventory.Stone, <span class="identifier">state</span>.player.inventory.slots)) {
+  | exception Not_found => <span class="int">0</span>
+  | x => <span class="identifier">x</span>
+  };
+  <span class="identifier">Reprocessing.Draw.tint</span>(<span class="identifier">textColor</span>, <span class="identifier">env</span>);
+  <span class="identifier">Reprocessing.Draw.text</span>(~font=<span class="identifier">context</span>.smallFont, ~body=<span class="identifier">Printf.sprintf</span>(<span class="string">"%d"</span>, <span class="identifier">stones</span>), ~pos=(<span class="int">30</span>, <span class="int">10</span>), <span class="identifier">env</span>);
+
+  if (<span class="identifier">Reprocessing.Env.isTouchScreen</span>(<span class="identifier">env</span>)) {
+    /* Draw.fill(Utils.color(~r=0, ~g=0, ~b=0, ~a=50), env); */
+    <span class="identifier">touchButtons</span>(<span class="identifier">env</span>) <span class="identifier">|></span> <span class="identifier">List.iter</span>(((action, shape)) => {
+      <span class="identifier">drawControl</span>(<span class="identifier">action</span>, <span class="identifier">shape</span>.Geom.Circle.center, <span class="identifier">env</span>);
+      /* GeomDraw.circle(shape, env); */
+    });
+    /* GeomDraw.circle(joystickCircle(env), env); */
+  };
+
+  <span class="identifier">Reprocessing.Draw.tint</span>(<span class="identifier">textColor</span>, <span class="identifier">env</span>);
+  /* Reprocessing.Draw.text(~font=context.textFont, ~body=Printf.sprintf("Throw rocks"), ~pos=(10, 10), env);
+  let rocks = List.length(state.Play_types.stones);
+  Reprocessing.Draw.text(~font=context.smallFont, ~body=Printf.sprintf("%d %s thrown", rocks, rocks == 1 ? "rock" : "rocks"), ~pos=(10, 40), env); */
+
+  <span class="identifier">Reprocessing.Draw.text</span>(~font=<span class="identifier">context</span>.smallFont, ~body=<span class="string">"by Jared Forsyth"</span>, ~pos=(<span class="int">10</span>, <span class="identifier">int_of_float</span>(<span class="identifier">context</span>.height) <span class="identifier">-</span> <span class="int">60</span>), <span class="identifier">env</span>);
+  <span class="identifier">Reprocessing.Draw.text</span>(~font=<span class="identifier">context</span>.smallFont, ~body=<span class="string">"Made with ReasonML and Reprocessing"</span>, ~pos=(<span class="int">10</span>, <span class="identifier">int_of_float</span>(<span class="identifier">context</span>.height) <span class="identifier">-</span> <span class="int">30</span>), <span class="identifier">env</span>);
+
+
+  let w = <span class="identifier">int_of_float</span>(<span class="identifier">context</span>.width);
+  /* Reprocessing.Draw.text(~font=context.smallFont, ~body="Tap & drag to throw a rock", ~pos=(w - 250, 10), env);
+  Reprocessing.Draw.text(~font=context.smallFont, ~body="Space to change character", ~pos=(w - 250, 30), env); */
+
+  <span class="identifier">Reprocessing.Draw.noTint</span>(<span class="identifier">env</span>);
+
+  <span class="identifier">drawSpritePicker</span>(<span class="identifier">state</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+  /* GeomDraw.rect(pauseButton(env), env); */
+
+  let pause = <span class="identifier">pauseButton</span>(<span class="identifier">env</span>);
+  let bar = <span class="identifier">Geom.Rect.scale</span>(<span class="identifier">pause</span>, <span class="float">0.3</span>, <span class="float">0.6</span>);
+  let left = <span class="identifier">Geom.Rect.translate</span>(<span class="identifier">bar</span>, {Geom.x: <span class="identifier">pause</span>.Geom.Rect.width <span class="identifier">/.</span> <span class="float">4.</span>, y: <span class="float">0.</span>});
+  let right = <span class="identifier">Geom.Rect.translate</span>(<span class="identifier">bar</span>, {Geom.x: <span class="identifier">-.</span><span class="identifier">pause</span>.Geom.Rect.width <span class="identifier">/.</span> <span class="float">4.</span>, y: <span class="float">0.</span>});
+  <span class="identifier">GeomDraw.rect</span>(<span class="identifier">left</span>, <span class="identifier">env</span>);
+  <span class="identifier">GeomDraw.rect</span>(<span class="identifier">right</span>, <span class="identifier">env</span>);
+
+  /* Draw.noFill(env);
+  Draw.stroke(Constants.black, env);
+  Draw.tint(Constants.black, env);
+  Hashtbl.iter((k, v) => {
+    GeomDraw.circle({Geom.Circle.center: Geom.fromTuple(v), rad: 20.}, env);
+    let (x,y) = v;
+    Draw.text(~font=context.smallFont, ~body=string_of_float(k), ~pos=(
+      int_of_float(x +. 30.),
+      int_of_float(y),
+    ), env)
+  }, Env.touches(env));
+  Draw.noTint(env); */
+};
+
+/* let draw = GeomDebug.draw; */</pre>

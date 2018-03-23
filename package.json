@@ -1,0 +1,17 @@
+{
+  "name": "lost-ranger",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "rsb native:hot",
+    "build": "bsb -make-world -backend native"
+  },
+  "keywords": [
+    "BuckleScript"
+  ],
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "bs-platform": "bsansouci/bsb-native#fast"
+  },
+  "dependencies": {}
+}

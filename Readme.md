@@ -1,4 +1,43 @@
-# Ok folks, what's the plan?
+
+
+
+
+
+
+
+# Types gameplan
+
+- the typedtree has each identifier uniquified. So you can see all useages of an identifier.
+- we can match it up either
+  a) aligning the two trees, or
+  b) just tracking Locations in a hashmap
+- b appeals to be more, because I don't actually know if the trees line up 100%. Maybe they do.
+- but b will be easier I think.
+- anyway, lets do it so that you can, while going through the ast, say "what's the type that matches this loc", and I'll see how .. umm often if fails?
+Also I totally want to take advantage of the resolution we've got.
+So mapping those uniqueIds back.
+What does that look like?
+- maybe, adding that as @attributes to all things?
+- that's maybe doable. Could also have a map of (node) to id, type, etc.
+
+Ok, so maybe first pass is:
+collect a listing of:
+- [((cstart, cend), printtype string)]
+
+Thennn hang on to unique IDs
+- [((cstart, cend), id), ...]
+
+Thenn also like paths or stuff? Might have to track each type of thing separately. Can't do homogeneous.
+
+
+
+
+
+
+
+
+# Initial thoughts
+# # Ok folks, what's the plan?
 
 We have raw source code!!!
 

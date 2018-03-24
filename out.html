@@ -3,8 +3,30 @@
 <head>
 <title>Reason code</title>
 <style>
-.identifier {
+.value-identifier {
     color: #000;
+}
+
+.module-identifier {
+  color: #aa0;
+}
+
+.record-module-identifier,
+.field-module-identifier {
+  color: #a0a;
+}
+
+.record-value-identifier,
+.field-value-identifier {
+  color: #0aa;
+}
+
+.unused-identifier {
+  color: #00a;
+}
+
+.declaration-var {
+  color: #a50000;
 }
 
 .string {
@@ -19,6 +41,11 @@
     color: orange;
 }
 
+.operator {
+  color: #9b9bff;
+  font-weight: bold;
+}
+
 #main {
     color: #aaa;
     white-space: pre;
@@ -28,108 +55,108 @@
 <pre id="main">open Play_types;
 open Reprocessing;
 
-let textColor = <span class="identifier">Constants.black</span>;
+let <span class="declaration-var">textColor</span> = <span class="module-identifier">Constants</span>.<span class="value-identifier">black</span>;
 
 open Play_draw_player;
 
-let spritePickerPos = env => {
-  <span class="identifier">Geom.Rect.create</span>({Geom.x: <span class="identifier">float_of_int</span>(<span class="identifier">Env.width</span>(<span class="identifier">env</span>)) <span class="identifier">-.</span> <span class="float">30.</span>, y: <span class="float">30.</span>}, <span class="float">50.</span>, <span class="float">60.</span>)
+let <span class="declaration-var">spritePickerPos</span> = <span class="declaration-var">env</span> => {
+  <span class="module-identifier">Geom</span>.<span class="module-identifier">Rect</span>.<span class="value-identifier">create</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">float_of_int</span>(<span class="module-identifier">Env</span>.<span class="value-identifier">width</span>(<span class="value-identifier">env</span>)) <span class="operator">-.</span> <span class="float">30.</span>, <span class="record-value-identifier">y</span>: <span class="float">30.</span>}, <span class="float">50.</span>, <span class="float">60.</span>)
 };
 
-let pauseButton = env => {
-  <span class="identifier">Geom.Rect.create</span>({Geom.x: <span class="identifier">float_of_int</span>(<span class="identifier">Env.width</span>(<span class="identifier">env</span>)) <span class="identifier">-.</span> <span class="float">80.</span>, y: <span class="float">30.</span>}, <span class="float">50.</span>, <span class="float">60.</span>)
+let <span class="declaration-var">pauseButton</span> = <span class="declaration-var">env</span> => {
+  <span class="module-identifier">Geom</span>.<span class="module-identifier">Rect</span>.<span class="value-identifier">create</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">float_of_int</span>(<span class="module-identifier">Env</span>.<span class="value-identifier">width</span>(<span class="value-identifier">env</span>)) <span class="operator">-.</span> <span class="float">80.</span>, <span class="record-value-identifier">y</span>: <span class="float">30.</span>}, <span class="float">50.</span>, <span class="float">60.</span>)
 };
 
-let rockPos = (state, v, env) => {
+let <span class="declaration-var">rockPos</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">v</span>, <span class="declaration-var">env</span>) => {
   open Play_sprites;
-  let module PlayerSprite = (val <span class="identifier">PlayerSprites.getNum</span>(<span class="identifier">state</span>.player.skin): PlayerSprites.Sprite);
+  let module PlayerSprite = (val <span class="module-identifier">PlayerSprites</span>.<span class="value-identifier">getNum</span>(<span class="value-identifier">state</span>.<span class="field-value-identifier">player</span>.<span class="field-value-identifier">skin</span>): PlayerSprites.Sprite);
 
-  let angle = if (<span class="identifier">v</span>.Geom.magnitude <span class="identifier">></span> <span class="float">5.</span>) {
-    let percent = <span class="identifier">v</span>.Geom.magnitude <span class="identifier">/.</span> <span class="float">200.</span>;
-    let extra = <span class="identifier">Geom.halfPi</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">*.</span> <span class="identifier">percent</span>;
-    (<span class="identifier">state</span>.player.facingLeft ? <span class="identifier">v</span>.Geom.theta <span class="identifier">+.</span> <span class="identifier">extra</span> : <span class="identifier">v</span>.Geom.theta <span class="identifier">+.</span> <span class="identifier">Geom.pi</span> <span class="identifier">-.</span> <span class="identifier">extra</span>)
+  let <span class="declaration-var">angle</span> = if (<span class="value-identifier">v</span>.<span class="field-module-identifier">Geom</span>.<span class="field-value-identifier">magnitude</span> <span class="operator">></span> <span class="float">5.</span>) {
+    let <span class="declaration-var">percent</span> = <span class="value-identifier">v</span>.<span class="field-module-identifier">Geom</span>.<span class="field-value-identifier">magnitude</span> <span class="operator">/.</span> <span class="float">200.</span>;
+    let <span class="declaration-var">extra</span> = <span class="module-identifier">Geom</span>.<span class="value-identifier">halfPi</span> <span class="operator">/.</span> <span class="float">2.</span> <span class="operator">*.</span> <span class="value-identifier">percent</span>;
+    (<span class="value-identifier">state</span>.<span class="field-value-identifier">player</span>.<span class="field-value-identifier">facingLeft</span> <span class="switch-value-identifier">?</span> <span class="value-identifier">v</span>.<span class="field-module-identifier">Geom</span>.<span class="field-value-identifier">theta</span> <span class="operator">+.</span> <span class="value-identifier">extra</span> <span class="switch-value-identifier">:</span> <span class="value-identifier">v</span>.<span class="field-module-identifier">Geom</span>.<span class="field-value-identifier">theta</span> <span class="operator">+.</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">pi</span> <span class="operator">-.</span> <span class="value-identifier">extra</span>)
   } else <span class="float">{
     0.
   }</span>;
-  let (x, y) = <span class="identifier">Geom.tuple</span>(<span class="identifier">state</span>.player.box.pos);
-  let y = <span class="identifier">y</span> <span class="identifier">-.</span> <span class="float">10.</span>;
+  let (<span class="declaration-var">x</span>, <span class="declaration-var">y</span>) = <span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="value-identifier">state</span>.<span class="field-value-identifier">player</span>.<span class="field-value-identifier">box</span>.<span class="field-value-identifier">pos</span>);
+  let <span class="declaration-var">y</span> = <span class="value-identifier">y</span> <span class="operator">-.</span> <span class="float">10.</span>;
 
-  let loff = <span class="identifier">state</span>.player.facingLeft ? <span class="float">1.</span> : <span class="float">-1.</span>;
-  let armTop = <span class="identifier">y</span> <span class="identifier">-.</span> <span class="identifier">PlayerSprite.body_height</span> <span class="identifier">*.</span> <span class="identifier">spriteScale</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">+.</span> <span class="float">10.</span>;
-  let arm = {Geom.x: <span class="identifier">x</span> <span class="identifier">+.</span> <span class="identifier">shoulder</span> <span class="identifier">*.</span> <span class="identifier">loff</span> <span class="identifier">*.</span> <span class="float">-1.</span>, y: <span class="identifier">armTop</span>};
-  let relativeToArm = {Geom.theta: <span class="identifier">angle</span> <span class="identifier">+.</span> <span class="identifier">Geom.halfPi</span>, magnitude: <span class="identifier">PlayerSprite.arm_height</span> <span class="identifier">*.</span> <span class="identifier">spriteScale</span>};
+  let <span class="declaration-var">loff</span> = <span class="value-identifier">state</span>.<span class="field-value-identifier">player</span>.<span class="field-value-identifier">facingLeft</span> <span class="switch-value-identifier">?</span> <span class="float">1.</span> <span class="switch-value-identifier">:</span> <span class="float">-1.</span>;
+  let <span class="declaration-var">armTop</span> = <span class="value-identifier">y</span> <span class="operator">-.</span> <span class="module-identifier">PlayerSprite</span>.<span class="value-identifier">body_height</span> <span class="operator">*.</span> <span class="value-identifier">spriteScale</span> <span class="operator">/.</span> <span class="float">2.</span> <span class="operator">+.</span> <span class="float">10.</span>;
+  let <span class="declaration-var">arm</span> = {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">x</span> <span class="operator">+.</span> <span class="value-identifier">shoulder</span> <span class="operator">*.</span> <span class="value-identifier">loff</span> <span class="operator">*.</span> <span class="float">-1.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">armTop</span>};
+  let <span class="declaration-var">relativeToArm</span> = {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">theta</span>: <span class="value-identifier">angle</span> <span class="operator">+.</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">halfPi</span>, <span class="record-value-identifier">magnitude</span>: <span class="module-identifier">PlayerSprite</span>.<span class="value-identifier">arm_height</span> <span class="operator">*.</span> <span class="value-identifier">spriteScale</span>};
 
-  <span class="identifier">Geom.addVectorToPoint</span>(<span class="identifier">relativeToArm</span>, <span class="identifier">arm</span>);
+  <span class="module-identifier">Geom</span>.<span class="value-identifier">addVectorToPoint</span>(<span class="value-identifier">relativeToArm</span>, <span class="value-identifier">arm</span>);
 };
 
 
-let drawSpritePicker = (state, context, env) => {
+let <span class="declaration-var">drawSpritePicker</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
   open Play_sprites;
-  let module PlayerSprite = (val <span class="identifier">PlayerSprites.getNum</span>(<span class="identifier">state</span>.player.skin): PlayerSprites.Sprite);
-  let rect = <span class="identifier">spritePickerPos</span>(<span class="identifier">env</span>);
+  let module PlayerSprite = (val <span class="module-identifier">PlayerSprites</span>.<span class="value-identifier">getNum</span>(<span class="value-identifier">state</span>.<span class="field-value-identifier">player</span>.<span class="field-value-identifier">skin</span>): PlayerSprites.Sprite);
+  let <span class="declaration-var">rect</span> = <span class="value-identifier">spritePickerPos</span>(<span class="value-identifier">env</span>);
 
-  let scale = <span class="identifier">spriteScale</span> <span class="identifier">*.</span> <span class="float">1.3</span>;
+  let <span class="declaration-var">scale</span> = <span class="value-identifier">spriteScale</span> <span class="operator">*.</span> <span class="float">1.3</span>;
 
-  let dx = <span class="identifier">-.</span><span class="identifier">PlayerSprite.head_rx</span> <span class="identifier">*.</span> <span class="identifier">scale</span>;
-  let dy = <span class="identifier">-.</span><span class="identifier">PlayerSprite.head_height</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">*.</span> <span class="identifier">scale</span>;
+  let <span class="declaration-var">dx</span> = <span class="operator">-.</span><span class="module-identifier">PlayerSprite</span>.<span class="value-identifier">head_rx</span> <span class="operator">*.</span> <span class="value-identifier">scale</span>;
+  let <span class="declaration-var">dy</span> = <span class="operator">-.</span><span class="module-identifier">PlayerSprite</span>.<span class="value-identifier">head_height</span> <span class="operator">/.</span> <span class="float">2.</span> <span class="operator">*.</span> <span class="value-identifier">scale</span>;
 
-  <span class="identifier">PlayerSprite.head</span>(
-    <span class="identifier">context</span>.Shared.charSheet,
-    ~scale=<span class="identifier">scale</span>,
+  <span class="module-identifier">PlayerSprite</span>.<span class="value-identifier">head</span>(
+    <span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">charSheet</span>,
+    ~scale=<span class="value-identifier">scale</span>,
     /* ~flip=!state.player.facingLeft, */
     ~flip=false,
-    ~pos=(<span class="identifier">Geom.tuple</span>(<span class="identifier">rect</span>.Geom.Rect.pos <span class="identifier">|></span> <span class="identifier">Geom.addPectorToPoint</span>({<span class="identifier">Geom.dx</span>, <span class="identifier">dy</span>}))),
-    <span class="identifier">env</span>
+    ~pos=(<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="value-identifier">rect</span>.<span class="field-module-identifier">Geom</span>.<span class="field-module-identifier">Rect</span>.<span class="field-value-identifier">pos</span> <span class="operator">|></span> <span class="module-identifier">Geom</span>.<span class="value-identifier">addPectorToPoint</span>({<span class="record-module-identifier"><span class="value-identifier">Geom</span>.<span class="record-value-identifier">dx</span></span>, <span class="record-value-identifier"><span class="value-identifier">dy</span></span>}))),
+    <span class="value-identifier">env</span>
   );
 };
 
-let maxWalk = <span class="float">5.</span>;
-let walkSpeed = <span class="float">0.5</span>;
+let <span class="declaration-var">maxWalk</span> = <span class="float">5.</span>;
+let <span class="declaration-var">walkSpeed</span> = <span class="float">0.5</span>;
 
 let module MovePlayer = Play_collide.Mover({
-  let gravity = <span class="float">0.5</span>;
-  let friction = <span class="float">0.7</span>;
-  let jump = <span class="float">11.</span>;
-  let bounce = false;
+  let <span class="declaration-var">gravity</span> = <span class="float">0.5</span>;
+  let <span class="declaration-var">friction</span> = <span class="float">0.7</span>;
+  let <span class="declaration-var">jump</span> = <span class="float">11.</span>;
+  let <span class="declaration-var">bounce</span> = false;
 });
 
-let debugPlayerHits = ({player,userInput, blocks, hitByHit}, context, env) => {
-  let vx = <span class="identifier">Geom.vx</span>(<span class="identifier">player</span>.vel);
-  let acc = <span class="identifier">userInput</span>.left ? (<span class="identifier">vx</span> <span class="identifier">></span> <span class="identifier">-.</span> <span class="identifier">maxWalk</span> ? Geom.{magnitude: <span class="identifier">walkSpeed</span>, theta: <span class="identifier">pi</span>} : <span class="identifier">Geom.v0</span>) : (
-    <span class="identifier">userInput</span>.right ? (<span class="identifier">vx</span> <span class="identifier"><</span> <span class="identifier">maxWalk</span> ? Geom.{magnitude: <span class="identifier">walkSpeed</span>, theta: <span class="float">0.</span>} : <span class="identifier">Geom.v0</span>) : <span class="identifier">Geom.v0</span>
+let <span class="declaration-var">debugPlayerHits</span> = ({player,userInput, blocks, hitByHit}, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
+  let <span class="declaration-var">vx</span> = <span class="module-identifier">Geom</span>.<span class="value-identifier">vx</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">vel</span>);
+  let <span class="declaration-var">acc</span> = <span class="value-identifier">userInput</span>.<span class="field-value-identifier">left</span> <span class="switch-value-identifier">?</span> (<span class="value-identifier">vx</span> <span class="operator">></span> <span class="operator">-.</span> <span class="value-identifier">maxWalk</span> <span class="switch-value-identifier">?</span> Geom.{<span class="record-value-identifier">magnitude</span>: <span class="value-identifier">walkSpeed</span>, <span class="record-value-identifier">theta</span>: <span class="value-identifier">pi</span>} <span class="switch-value-identifier">:</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">v0</span>) <span class="switch-value-identifier">:</span> (
+    <span class="value-identifier">userInput</span>.<span class="field-value-identifier">right</span> <span class="switch-value-identifier">?</span> (<span class="value-identifier">vx</span> <span class="operator"><</span> <span class="value-identifier">maxWalk</span> <span class="switch-value-identifier">?</span> Geom.{<span class="record-value-identifier">magnitude</span>: <span class="value-identifier">walkSpeed</span>, <span class="record-value-identifier">theta</span>: <span class="float">0.</span>} <span class="switch-value-identifier">:</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">v0</span>) <span class="switch-value-identifier">:</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">v0</span>
   );
-  let (isOnGround, (vel, hits)) = <span class="identifier">MovePlayer.moveObject</span>(<span class="identifier">player</span>.box.pos, <span class="identifier">player</span>.vel, <span class="identifier">acc</span>, <span class="identifier">userInput</span>.jump, <span class="identifier">Play_collide.testRect</span>(<span class="identifier">player</span>.box), <span class="identifier">Play_collide.collideRect</span>(<span class="identifier">player</span>.box), <span class="identifier">blocks</span>);
+  let (<span class="declaration-var">isOnGround</span>, (<span class="declaration-var">vel</span>, <span class="declaration-var">hits</span>)) = <span class="module-identifier">MovePlayer</span>.<span class="value-identifier">moveObject</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">box</span>.<span class="field-value-identifier">pos</span>, <span class="value-identifier">player</span>.<span class="field-value-identifier">vel</span>, <span class="value-identifier">acc</span>, <span class="value-identifier">userInput</span>.<span class="field-value-identifier">jump</span>, <span class="module-identifier">Play_collide</span>.<span class="value-identifier">testRect</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">box</span>), <span class="module-identifier">Play_collide</span>.<span class="value-identifier">collideRect</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">box</span>), <span class="value-identifier">blocks</span>);
   /* let (isOnGround2, (vel2, hits2)) = MovePlayer.moveObject(player.box.pos, player.vel, acc, userInput.jump, Play_collide.testRect(player.box), Play_collide.collideRectOld(player.box), blocks); */
-  <span class="identifier">Draw.stroke</span>(<span class="identifier">Constants.white</span>, <span class="identifier">env</span>);
-  <span class="identifier">Draw.noFill</span>(<span class="identifier">env</span>);
-  if (<span class="identifier">isOnGround</span>) {
-    <span class="identifier">GeomDraw.rect</span>(<span class="identifier">player</span>.box, <span class="identifier">env</span>)
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">stroke</span>(<span class="module-identifier">Constants</span>.<span class="value-identifier">white</span>, <span class="value-identifier">env</span>);
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">noFill</span>(<span class="value-identifier">env</span>);
+  if (<span class="value-identifier">isOnGround</span>) {
+    <span class="module-identifier">GeomDraw</span>.<span class="value-identifier">rect</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">box</span>, <span class="value-identifier">env</span>)
   };
-  <span class="identifier">Draw.strokeWeight</span>(<span class="int">1</span>, <span class="identifier">env</span>);
-  <span class="identifier">List.iteri</span>(
-    (i, (oldVel, newVel, blockPos, playerMoved, blockBox)) => {
-      switch <span class="identifier">hitByHit</span> {
-      | Some(index) when <span class="identifier">index</span> <span class="identifier">mod</span> <span class="identifier">List.length</span>(<span class="identifier">hits</span>) <span class="identifier">!=</span> <span class="identifier">i</span> => ()
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">strokeWeight</span>(<span class="int">1</span>, <span class="value-identifier">env</span>);
+  <span class="module-identifier">List</span>.<span class="value-identifier">iteri</span>(
+    (<span class="declaration-var">i</span>, (<span class="declaration-var">oldVel</span>, <span class="declaration-var">newVel</span>, <span class="declaration-var">blockPos</span>, <span class="declaration-var">playerMoved</span>, <span class="declaration-var">blockBox</span>)) => {
+      switch <span class="value-identifier">hitByHit</span> {
+      | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">index</span>) when <span class="value-identifier">index</span> <span class="value-identifier">mod</span> <span class="module-identifier">List</span>.<span class="value-identifier">length</span>(<span class="value-identifier">hits</span>) <span class="operator">!=</span> <span class="value-identifier">i</span> => ()
       | _ => {
-        if (<span class="identifier">hitByHit</span> <span class="identifier">!=</span> None) {
-          <span class="identifier">Draw.text</span>(~font=<span class="identifier">context</span>.Shared.smallFont, ~body=<span class="string">"hi"</span>, ~pos=<span class="identifier">Geom.intTuple</span>(<span class="identifier">player</span>.box.pos), <span class="identifier">env</span>);
+        if (<span class="value-identifier">hitByHit</span> <span class="operator">!=</span> None) {
+          <span class="module-identifier">Draw</span>.<span class="value-identifier">text</span>(~font=<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">smallFont</span>, ~body=<span class="string">"hi"</span>, ~pos=<span class="module-identifier">Geom</span>.<span class="value-identifier">intTuple</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">box</span>.<span class="field-value-identifier">pos</span>), <span class="value-identifier">env</span>);
         };
 
-        <span class="identifier">Draw.stroke</span>(<span class="identifier">Constants.white</span>, <span class="identifier">env</span>);
-        <span class="identifier">GeomDraw.aabb</span>(<span class="identifier">blockBox</span>, <span class="identifier">env</span>);
-        let pos = <span class="identifier">Geom.addPectorToPoint</span>({Geom.dx: <span class="float">2.</span> <span class="identifier">*.</span> (<span class="identifier">float_of_int</span>(<span class="identifier">i</span>)), dy: <span class="float">2.</span> <span class="identifier">*.</span> (<span class="identifier">float_of_int</span>(<span class="identifier">i</span>))}, <span class="identifier">player</span>.box.pos);
-        <span class="identifier">GeomDraw.vec</span>(<span class="identifier">pos</span>, <span class="identifier">Geom.scaleVector</span>(<span class="identifier">oldVel</span>, <span class="float">1.</span>), <span class="identifier">env</span>);
-        <span class="identifier">Draw.stroke</span>(<span class="identifier">Constants.red</span>, <span class="identifier">env</span>);
-        <span class="identifier">GeomDraw.rect</span>(<span class="identifier">Geom.Rect.ptranslate</span>(<span class="identifier">player</span>.box, <span class="identifier">playerMoved</span>), <span class="identifier">env</span>);
-        <span class="identifier">GeomDraw.vec</span>(
-          <span class="identifier">Geom.addPectorToPoint</span>({Geom.dx: <span class="float">1.</span>, dy: <span class="float">1.</span>}, <span class="identifier">pos</span>),
-          <span class="identifier">Geom.scaleVector</span>(<span class="identifier">newVel</span>, <span class="float">1.</span>),
-          <span class="identifier">env</span>)
+        <span class="module-identifier">Draw</span>.<span class="value-identifier">stroke</span>(<span class="module-identifier">Constants</span>.<span class="value-identifier">white</span>, <span class="value-identifier">env</span>);
+        <span class="module-identifier">GeomDraw</span>.<span class="value-identifier">aabb</span>(<span class="value-identifier">blockBox</span>, <span class="value-identifier">env</span>);
+        let <span class="declaration-var">pos</span> = <span class="module-identifier">Geom</span>.<span class="value-identifier">addPectorToPoint</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">dx</span>: <span class="float">2.</span> <span class="operator">*.</span> (<span class="value-identifier">float_of_int</span>(<span class="value-identifier">i</span>)), <span class="record-value-identifier">dy</span>: <span class="float">2.</span> <span class="operator">*.</span> (<span class="value-identifier">float_of_int</span>(<span class="value-identifier">i</span>))}, <span class="value-identifier">player</span>.<span class="field-value-identifier">box</span>.<span class="field-value-identifier">pos</span>);
+        <span class="module-identifier">GeomDraw</span>.<span class="value-identifier">vec</span>(<span class="value-identifier">pos</span>, <span class="module-identifier">Geom</span>.<span class="value-identifier">scaleVector</span>(<span class="value-identifier">oldVel</span>, <span class="float">1.</span>), <span class="value-identifier">env</span>);
+        <span class="module-identifier">Draw</span>.<span class="value-identifier">stroke</span>(<span class="module-identifier">Constants</span>.<span class="value-identifier">red</span>, <span class="value-identifier">env</span>);
+        <span class="module-identifier">GeomDraw</span>.<span class="value-identifier">rect</span>(<span class="module-identifier">Geom</span>.<span class="module-identifier">Rect</span>.<span class="value-identifier">ptranslate</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">box</span>, <span class="value-identifier">playerMoved</span>), <span class="value-identifier">env</span>);
+        <span class="module-identifier">GeomDraw</span>.<span class="value-identifier">vec</span>(
+          <span class="module-identifier">Geom</span>.<span class="value-identifier">addPectorToPoint</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">dx</span>: <span class="float">1.</span>, <span class="record-value-identifier">dy</span>: <span class="float">1.</span>}, <span class="value-identifier">pos</span>),
+          <span class="module-identifier">Geom</span>.<span class="value-identifier">scaleVector</span>(<span class="value-identifier">newVel</span>, <span class="float">1.</span>),
+          <span class="value-identifier">env</span>)
       }
 
       }
     },
-    <span class="identifier">hits</span> <span class="identifier">|></span> <span class="identifier">List.rev</span>
+    <span class="value-identifier">hits</span> <span class="operator">|></span> <span class="module-identifier">List</span>.<span class="value-identifier">rev</span>
   );
 
   /* List.iteri(
@@ -149,74 +176,74 @@ let debugPlayerHits = ({player,userInput, blocks, hitByHit}, context, env) => {
 
 };
 
-let drawStones = (state, inPosition, context, env) => {
-  <span class="identifier">Draw.fill</span>(<span class="identifier">Reprocessing.Utils.color</span>(~r=<span class="int">150</span>, ~g=<span class="int">150</span>, ~b=<span class="int">170</span>, ~a=<span class="int">255</span>), <span class="identifier">env</span>);
-  <span class="identifier">state</span>.stones <span class="identifier">|></span> <span class="identifier">List.iter</span>(stone => {
-    let {Geom.x,y} = <span class="identifier">stone</span>.Stone.circle.center;
-    switch (<span class="identifier">inPosition</span>(<span class="float">200.</span>, <span class="identifier">stone</span>.Stone.circle.center)) {
-    | None => ()
-    | Some(pos) => {
-      <span class="identifier">drawStone</span>(<span class="identifier">context</span>, <span class="identifier">pos</span>, <span class="identifier">stone</span>, <span class="identifier">env</span>)
+let <span class="declaration-var">drawStones</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">inPosition</span>, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">fill</span>(<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Utils</span>.<span class="value-identifier">color</span>(~r=<span class="int">150</span>, ~g=<span class="int">150</span>, ~b=<span class="int">170</span>, ~a=<span class="int">255</span>), <span class="value-identifier">env</span>);
+  <span class="value-identifier">state</span>.<span class="field-value-identifier">stones</span> <span class="operator">|></span> <span class="module-identifier">List</span>.<span class="value-identifier">iter</span>(<span class="declaration-var">stone</span> => {
+    let {Geom.x,y} = <span class="value-identifier">stone</span>.<span class="field-module-identifier">Stone</span>.<span class="field-value-identifier">circle</span>.<span class="field-value-identifier">center</span>;
+    switch (<span class="value-identifier">inPosition</span>(<span class="float">200.</span>, <span class="value-identifier">stone</span>.<span class="field-module-identifier">Stone</span>.<span class="field-value-identifier">circle</span>.<span class="field-value-identifier">center</span>)) {
+    | <span class="switch-module-identifier">None</span> => ()
+    | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">pos</span>) => {
+      <span class="value-identifier">drawStone</span>(<span class="value-identifier">context</span>, <span class="value-identifier">pos</span>, <span class="value-identifier">stone</span>, <span class="value-identifier">env</span>)
     }
     };
   });
 };
-let drawStones = (a, b, c, d) => {
-  <span class="identifier">Profile.start</span>(<span class="string">"drawStones"</span>);
-  <span class="identifier">drawStones</span>(<span class="identifier">a</span>,<span class="identifier">b</span>,<span class="identifier">c</span>,<span class="identifier">d</span>);
-  <span class="identifier">Profile.stop</span>(<span class="string">"drawStones"</span>);
+let <span class="declaration-var">drawStones</span> = (<span class="declaration-var">a</span>, <span class="declaration-var">b</span>, <span class="declaration-var">c</span>, <span class="declaration-var">d</span>) => {
+  <span class="module-identifier">Profile</span>.<span class="value-identifier">start</span>(<span class="string">"drawStones"</span>);
+  <span class="value-identifier">drawStones</span>(<span class="value-identifier">a</span>,<span class="value-identifier">b</span>,<span class="value-identifier">c</span>,<span class="value-identifier">d</span>);
+  <span class="module-identifier">Profile</span>.<span class="value-identifier">stop</span>(<span class="string">"drawStones"</span>);
 };
 
-let drawTiles = (state, context, env) => {
-  let (dx, dy, w, h) = <span class="identifier">state</span>.camera;
+let <span class="declaration-var">drawTiles</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
+  let (<span class="declaration-var">dx</span>, <span class="declaration-var">dy</span>, <span class="declaration-var">w</span>, <span class="declaration-var">h</span>) = <span class="value-identifier">state</span>.<span class="field-value-identifier">camera</span>;
 
-  let x0 = <span class="identifier">int_of_float</span>(<span class="identifier">dx</span> <span class="identifier">/.</span> <span class="identifier">blockSize</span>) <span class="identifier">-</span> <span class="int">1</span>;
-  let y0 = <span class="identifier">int_of_float</span>(<span class="identifier">dy</span> <span class="identifier">/.</span> <span class="identifier">blockSize</span>);
-  let ww = <span class="identifier">int_of_float</span>(<span class="identifier">w</span> <span class="identifier">/.</span> <span class="identifier">blockSize</span>) <span class="identifier">+</span> <span class="int">3</span>;
-  let hh = <span class="identifier">int_of_float</span>(<span class="identifier">h</span> <span class="identifier">/.</span> <span class="identifier">blockSize</span>) <span class="identifier">+</span> <span class="int">3</span>;
-  for (x in <span class="identifier">x0</span> to <span class="identifier">x0</span> <span class="identifier">+</span> <span class="identifier">ww</span>) {
-    for (y in <span class="identifier">y0</span> to <span class="identifier">y0</span> <span class="identifier">+</span> <span class="identifier">hh</span>) {
-      switch (<span class="identifier">getBlock</span>(<span class="identifier">state</span>.blocks, (<span class="identifier">x</span>, <span class="identifier">y</span>))) {
-      | None => ()
-      | Some(block) => {
+  let <span class="declaration-var">x0</span> = <span class="value-identifier">int_of_float</span>(<span class="value-identifier">dx</span> <span class="operator">/.</span> <span class="value-identifier">blockSize</span>) <span class="operator">-</span> <span class="int">1</span>;
+  let <span class="declaration-var">y0</span> = <span class="value-identifier">int_of_float</span>(<span class="value-identifier">dy</span> <span class="operator">/.</span> <span class="value-identifier">blockSize</span>);
+  let <span class="declaration-var">ww</span> = <span class="value-identifier">int_of_float</span>(<span class="value-identifier">w</span> <span class="operator">/.</span> <span class="value-identifier">blockSize</span>) <span class="operator">+</span> <span class="int">3</span>;
+  let <span class="declaration-var">hh</span> = <span class="value-identifier">int_of_float</span>(<span class="value-identifier">h</span> <span class="operator">/.</span> <span class="value-identifier">blockSize</span>) <span class="operator">+</span> <span class="int">3</span>;
+  for (x in <span class="value-identifier">x0</span> to <span class="value-identifier">x0</span> <span class="operator">+</span> <span class="value-identifier">ww</span>) {
+    for (y in <span class="value-identifier">y0</span> to <span class="value-identifier">y0</span> <span class="operator">+</span> <span class="value-identifier">hh</span>) {
+      switch (<span class="value-identifier">getBlock</span>(<span class="value-identifier">state</span>.<span class="field-value-identifier">blocks</span>, (<span class="value-identifier">x</span>, <span class="value-identifier">y</span>))) {
+      | <span class="switch-module-identifier">None</span> => ()
+      | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">block</span>) => {
 
-        let x = <span class="identifier">float_of_int</span>(<span class="identifier">x</span>) <span class="identifier">*.</span> <span class="identifier">blockSize</span> <span class="identifier">+.</span> <span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">2.</span>;
-        let y = <span class="identifier">float_of_int</span>(<span class="identifier">y</span>) <span class="identifier">*.</span> <span class="identifier">blockSize</span> <span class="identifier">+.</span> <span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">2.</span>;
-        let sprite = switch <span class="identifier">block</span>.Block.kind {
-        | Block.Dirt => <span class="identifier">Play_assets.Tiles.dirt</span>
-        | Block.Rock => <span class="identifier">Play_assets.Tiles.stone</span>
+        let <span class="declaration-var">x</span> = <span class="value-identifier">float_of_int</span>(<span class="value-identifier">x</span>) <span class="operator">*.</span> <span class="value-identifier">blockSize</span> <span class="operator">+.</span> <span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">2.</span>;
+        let <span class="declaration-var">y</span> = <span class="value-identifier">float_of_int</span>(<span class="value-identifier">y</span>) <span class="operator">*.</span> <span class="value-identifier">blockSize</span> <span class="operator">+.</span> <span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">2.</span>;
+        let <span class="declaration-var">sprite</span> = switch <span class="value-identifier">block</span>.<span class="field-module-identifier">Block</span>.<span class="field-value-identifier">kind</span> {
+        | <span class="switch-module-identifier">Block</span>.<span class="switch-module-identifier">Dirt</span> => <span class="module-identifier">Play_assets</span>.<span class="module-identifier">Tiles</span>.<span class="value-identifier">dirt</span>
+        | <span class="switch-module-identifier">Block</span>.<span class="switch-module-identifier">Rock</span> => <span class="module-identifier">Play_assets</span>.<span class="module-identifier">Tiles</span>.<span class="value-identifier">stone</span>
         };
 
-        let xx = <span class="identifier">mod_float</span>(<span class="identifier">x</span>, <span class="identifier">gameWidth</span>);
-        let xx = <span class="identifier">xx</span> <span class="identifier"><</span> <span class="float">0.</span> ? <span class="identifier">xx</span> <span class="identifier">+.</span> <span class="identifier">gameWidth</span> : <span class="identifier">xx</span>;
-        let rot = <span class="identifier">floor</span>((<span class="identifier">sin</span>(<span class="identifier">xx</span> <span class="identifier">*.</span> <span class="identifier">xx</span> <span class="identifier">+.</span> <span class="identifier">y</span> <span class="identifier">*.</span> <span class="identifier">y</span>) <span class="identifier">+.</span> <span class="float">1.</span>) <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">*.</span> <span class="float">4.</span>);
-        let rot = <span class="identifier">rot</span> <span class="identifier">*.</span> <span class="identifier">Geom.halfPi</span>;
+        let <span class="declaration-var">xx</span> = <span class="value-identifier">mod_float</span>(<span class="value-identifier">x</span>, <span class="value-identifier">gameWidth</span>);
+        let <span class="declaration-var">xx</span> = <span class="value-identifier">xx</span> <span class="operator"><</span> <span class="float">0.</span> <span class="switch-value-identifier">?</span> <span class="value-identifier">xx</span> <span class="operator">+.</span> <span class="value-identifier">gameWidth</span> <span class="switch-value-identifier">:</span> <span class="value-identifier">xx</span>;
+        let <span class="declaration-var">rot</span> = <span class="value-identifier">floor</span>((<span class="value-identifier">sin</span>(<span class="value-identifier">xx</span> <span class="operator">*.</span> <span class="value-identifier">xx</span> <span class="operator">+.</span> <span class="value-identifier">y</span> <span class="operator">*.</span> <span class="value-identifier">y</span>) <span class="operator">+.</span> <span class="float">1.</span>) <span class="operator">/.</span> <span class="float">2.</span> <span class="operator">*.</span> <span class="float">4.</span>);
+        let <span class="declaration-var">rot</span> = <span class="value-identifier">rot</span> <span class="operator">*.</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">halfPi</span>;
 
         /* Draw.tint(Reprocessing.Utils.colorf(~r=0.3, ~g=0.5, ~b=1., ~a=1. *. (1. -. block.Block.damage)), env); */
 
-        <span class="identifier">Draw.pushMatrix</span>(<span class="identifier">env</span>);
-        <span class="identifier">Draw.translate</span>(~<span class="identifier">x</span>, ~<span class="identifier">y</span>, <span class="identifier">env</span>);
-        <span class="identifier">Draw.rotate</span>(<span class="identifier">rot</span>, <span class="identifier">env</span>);
-        let pos = (<span class="identifier">-.</span><span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">2.</span>, <span class="identifier">-.</span><span class="identifier">blockSize</span><span class="identifier">/.</span><span class="float">2.</span>);
-        <span class="identifier">sprite</span>(<span class="identifier">context</span>.Shared.tileSheet, ~pos=<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+        <span class="module-identifier">Draw</span>.<span class="value-identifier">pushMatrix</span>(<span class="value-identifier">env</span>);
+        <span class="module-identifier">Draw</span>.<span class="value-identifier">translate</span>(~<span class="value-identifier">x</span>, ~<span class="value-identifier">y</span>, <span class="value-identifier">env</span>);
+        <span class="module-identifier">Draw</span>.<span class="value-identifier">rotate</span>(<span class="value-identifier">rot</span>, <span class="value-identifier">env</span>);
+        let <span class="declaration-var">pos</span> = (<span class="operator">-.</span><span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">2.</span>, <span class="operator">-.</span><span class="value-identifier">blockSize</span><span class="operator">/.</span><span class="float">2.</span>);
+        <span class="value-identifier">sprite</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">tileSheet</span>, ~pos=<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
 
-        <span class="identifier">Draw.tint</span>(<span class="identifier">Reprocessing.Utils.colorf</span>(~r=<span class="float">1.</span>, ~g=<span class="float">1.</span>, ~b=<span class="float">1.</span>, ~a=<span class="float">0.5</span>), <span class="identifier">env</span>);
-        if (<span class="identifier">block</span>.Block.damage <span class="identifier">>=</span> <span class="float">0.7</span>) {
-          <span class="identifier">Play_assets.ExtraItems.cracks3</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
-          <span class="identifier">Play_assets.ExtraItems.cracks</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
-        } else if (<span class="identifier">block</span>.Block.damage <span class="identifier">>=</span> <span class="float">0.4</span>) {
-          <span class="identifier">Play_assets.ExtraItems.cracks2</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
-          <span class="identifier">Play_assets.ExtraItems.cracks</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
-        } else if (<span class="identifier">block</span>.Block.damage <span class="identifier">></span> <span class="float">0.</span>) {
-          <span class="identifier">Play_assets.ExtraItems.cracks</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~<span class="identifier">pos</span>, ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+        <span class="module-identifier">Draw</span>.<span class="value-identifier">tint</span>(<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Utils</span>.<span class="value-identifier">colorf</span>(~r=<span class="float">1.</span>, ~g=<span class="float">1.</span>, ~b=<span class="float">1.</span>, ~a=<span class="float">0.5</span>), <span class="value-identifier">env</span>);
+        if (<span class="value-identifier">block</span>.<span class="field-module-identifier">Block</span>.<span class="field-value-identifier">damage</span> <span class="operator">>=</span> <span class="float">0.7</span>) {
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks3</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+        } else if (<span class="value-identifier">block</span>.<span class="field-module-identifier">Block</span>.<span class="field-value-identifier">damage</span> <span class="operator">>=</span> <span class="float">0.4</span>) {
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks2</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+        } else if (<span class="value-identifier">block</span>.<span class="field-module-identifier">Block</span>.<span class="field-value-identifier">damage</span> <span class="operator">></span> <span class="float">0.</span>) {
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
         };
-        <span class="identifier">Draw.noTint</span>(<span class="identifier">env</span>);
+        <span class="module-identifier">Draw</span>.<span class="value-identifier">noTint</span>(<span class="value-identifier">env</span>);
 
-        if (<span class="identifier">block</span>.top) {
-          <span class="identifier">Draw.rotate</span>(<span class="identifier">-.</span><span class="identifier">rot</span>, <span class="identifier">env</span>);
-          <span class="identifier">Play_assets.ExtraItems.grass_top</span>(<span class="identifier">context</span>.Shared.extraItemsSheet, ~pos=(<span class="identifier">-.</span><span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">2.</span>, <span class="identifier">-.</span><span class="identifier">blockSize</span><span class="identifier">/.</span><span class="float">2.</span>), ~scale=<span class="identifier">blockSize</span> <span class="identifier">/.</span> <span class="float">128.</span>, ~flip=false, <span class="identifier">env</span>);
+        if (<span class="value-identifier">block</span>.<span class="field-value-identifier">top</span>) {
+          <span class="module-identifier">Draw</span>.<span class="value-identifier">rotate</span>(<span class="operator">-.</span><span class="value-identifier">rot</span>, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">grass_top</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~pos=(<span class="operator">-.</span><span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">2.</span>, <span class="operator">-.</span><span class="value-identifier">blockSize</span><span class="operator">/.</span><span class="float">2.</span>), ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
         };
-        <span class="identifier">Draw.popMatrix</span>(<span class="identifier">env</span>);
+        <span class="module-identifier">Draw</span>.<span class="value-identifier">popMatrix</span>(<span class="value-identifier">env</span>);
 
         /* Draw.stroke(Constants.white, env);
         Draw.noFill(env);
@@ -229,71 +256,71 @@ let drawTiles = (state, context, env) => {
   };
 
 };
-let drawTiles = (a, b, c) => {
-  <span class="identifier">Profile.start</span>(<span class="string">"drawTiles"</span>);
-  <span class="identifier">drawTiles</span>(<span class="identifier">a</span>,<span class="identifier">b</span>,<span class="identifier">c</span>);
-  <span class="identifier">Profile.stop</span>(<span class="string">"drawTiles"</span>);
+let <span class="declaration-var">drawTiles</span> = (<span class="declaration-var">a</span>, <span class="declaration-var">b</span>, <span class="declaration-var">c</span>) => {
+  <span class="module-identifier">Profile</span>.<span class="value-identifier">start</span>(<span class="string">"drawTiles"</span>);
+  <span class="value-identifier">drawTiles</span>(<span class="value-identifier">a</span>,<span class="value-identifier">b</span>,<span class="value-identifier">c</span>);
+  <span class="module-identifier">Profile</span>.<span class="value-identifier">stop</span>(<span class="string">"drawTiles"</span>);
 };
 
-let drawText = (state, inPosition, context, env) => {
-  <span class="identifier">state</span>.textPos <span class="identifier">|></span> <span class="identifier">List.iter</span>(((text, pos)) => {
-    switch (<span class="identifier">inPosition</span>(<span class="float">800.</span>, <span class="identifier">pos</span>)) {
-    | None => ()
-    | Some(pos) => {
-      <span class="identifier">Draw.tint</span>(<span class="identifier">Constants.black</span>, <span class="identifier">env</span>);
-      <span class="identifier">Draw.text</span>(~font=<span class="identifier">context</span>.Shared.smallFont, ~pos=<span class="identifier">Geom.intTuple</span>(<span class="identifier">pos</span>), ~body=<span class="identifier">text</span>, <span class="identifier">env</span>);
-      <span class="identifier">Draw.noTint</span>(<span class="identifier">env</span>);
-      <span class="identifier">Draw.text</span>(~font=<span class="identifier">context</span>.Shared.smallFont, ~pos=<span class="identifier">Geom.intTuple</span>(<span class="identifier">Geom.addPoints</span>(<span class="identifier">pos</span>, {Geom.x: <span class="float">-1.</span>, y: <span class="float">-1.</span>})), ~body=<span class="identifier">text</span>, <span class="identifier">env</span>);
+let <span class="declaration-var">drawText</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">inPosition</span>, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
+  <span class="value-identifier">state</span>.<span class="field-value-identifier">textPos</span> <span class="operator">|></span> <span class="module-identifier">List</span>.<span class="value-identifier">iter</span>(((<span class="declaration-var">text</span>, <span class="declaration-var">pos</span>)) => {
+    switch (<span class="value-identifier">inPosition</span>(<span class="float">800.</span>, <span class="value-identifier">pos</span>)) {
+    | <span class="switch-module-identifier">None</span> => ()
+    | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">pos</span>) => {
+      <span class="module-identifier">Draw</span>.<span class="value-identifier">tint</span>(<span class="module-identifier">Constants</span>.<span class="value-identifier">black</span>, <span class="value-identifier">env</span>);
+      <span class="module-identifier">Draw</span>.<span class="value-identifier">text</span>(~font=<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">smallFont</span>, ~pos=<span class="module-identifier">Geom</span>.<span class="value-identifier">intTuple</span>(<span class="value-identifier">pos</span>), ~body=<span class="value-identifier">text</span>, <span class="value-identifier">env</span>);
+      <span class="module-identifier">Draw</span>.<span class="value-identifier">noTint</span>(<span class="value-identifier">env</span>);
+      <span class="module-identifier">Draw</span>.<span class="value-identifier">text</span>(~font=<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">smallFont</span>, ~pos=<span class="module-identifier">Geom</span>.<span class="value-identifier">intTuple</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">addPoints</span>(<span class="value-identifier">pos</span>, {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">-1.</span>, <span class="record-value-identifier">y</span>: <span class="float">-1.</span>})), ~body=<span class="value-identifier">text</span>, <span class="value-identifier">env</span>);
     }
     }
   });
 };
 
-let drawText = (a, b, c, d) => {
-  <span class="identifier">Profile.start</span>(<span class="string">"drawText"</span>);
-  <span class="identifier">drawText</span>(<span class="identifier">a</span>,<span class="identifier">b</span>,<span class="identifier">c</span>, <span class="identifier">d</span>);
-  <span class="identifier">Profile.stop</span>(<span class="string">"drawText"</span>);
+let <span class="declaration-var">drawText</span> = (<span class="declaration-var">a</span>, <span class="declaration-var">b</span>, <span class="declaration-var">c</span>, <span class="declaration-var">d</span>) => {
+  <span class="module-identifier">Profile</span>.<span class="value-identifier">start</span>(<span class="string">"drawText"</span>);
+  <span class="value-identifier">drawText</span>(<span class="value-identifier">a</span>,<span class="value-identifier">b</span>,<span class="value-identifier">c</span>, <span class="value-identifier">d</span>);
+  <span class="module-identifier">Profile</span>.<span class="value-identifier">stop</span>(<span class="string">"drawText"</span>);
 };
 
-let drawWorld = (state, context, env) => {
-  <span class="identifier">Draw.background</span>(<span class="identifier">Utils.color</span>(~r=<span class="int">200</span>, ~g=<span class="int">230</span>, ~b=<span class="int">255</span>, ~a=<span class="int">255</span>), <span class="identifier">env</span>);
+let <span class="declaration-var">drawWorld</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">background</span>(<span class="module-identifier">Utils</span>.<span class="value-identifier">color</span>(~r=<span class="int">200</span>, ~g=<span class="int">230</span>, ~b=<span class="int">255</span>, ~a=<span class="int">255</span>), <span class="value-identifier">env</span>);
   /* Draw.background(Constants.white, env); */
 
-  let (dx, dy, w, h) = <span class="identifier">state</span>.camera;
+  let (<span class="declaration-var">dx</span>, <span class="declaration-var">dy</span>, <span class="declaration-var">w</span>, <span class="declaration-var">h</span>) = <span class="value-identifier">state</span>.<span class="field-value-identifier">camera</span>;
 
   /* let zoom = 5.; */
-  let zoom = <span class="identifier">state</span>.zoom ? <span class="float">4.</span> : <span class="float">1.</span>;
-  <span class="identifier">Draw.translate</span>(~x=<span class="identifier">-.</span><span class="identifier">dx</span> <span class="identifier">*.</span> <span class="identifier">zoom</span>, ~y=<span class="identifier">-.</span><span class="identifier">dy</span> <span class="identifier">*.</span> <span class="identifier">zoom</span>, <span class="identifier">env</span>);
+  let <span class="declaration-var">zoom</span> = <span class="value-identifier">state</span>.<span class="field-value-identifier">zoom</span> <span class="switch-value-identifier">?</span> <span class="float">4.</span> <span class="switch-value-identifier">:</span> <span class="float">1.</span>;
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">translate</span>(~x=<span class="operator">-.</span><span class="value-identifier">dx</span> <span class="operator">*.</span> <span class="value-identifier">zoom</span>, ~y=<span class="operator">-.</span><span class="value-identifier">dy</span> <span class="operator">*.</span> <span class="value-identifier">zoom</span>, <span class="value-identifier">env</span>);
 
-  if (<span class="identifier">state</span>.zoom) {
-    let mpos = <span class="identifier">Geom.fromIntTuple</span>(<span class="identifier">Env.mouse</span>(<span class="identifier">env</span>));
-    let mpos = {Geom.x: <span class="identifier">w</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">-.</span> <span class="identifier">w</span> <span class="identifier">/.</span> <span class="float">8.</span>, y: <span class="identifier">h</span> <span class="identifier">/.</span> <span class="float">2.</span> <span class="identifier">-.</span> <span class="identifier">h</span> <span class="identifier">/.</span> <span class="float">8.</span>};
-    <span class="identifier">Draw.translate</span>(~x=<span class="identifier">-.</span><span class="identifier">mpos</span>.x<span class="identifier">*.</span><span class="identifier">zoom</span>, ~y=<span class="identifier">-.</span><span class="identifier">mpos</span>.y <span class="identifier">*.</span> <span class="identifier">zoom</span>, <span class="identifier">env</span>);
-    <span class="identifier">Draw.scale</span>(~x=<span class="identifier">zoom</span>, ~y=<span class="identifier">zoom</span>, <span class="identifier">env</span>);
+  if (<span class="value-identifier">state</span>.<span class="field-value-identifier">zoom</span>) {
+    let <span class="declaration-var">mpos</span> = <span class="module-identifier">Geom</span>.<span class="value-identifier">fromIntTuple</span>(<span class="module-identifier">Env</span>.<span class="value-identifier">mouse</span>(<span class="value-identifier">env</span>));
+    let <span class="declaration-var">mpos</span> = {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">w</span> <span class="operator">/.</span> <span class="float">2.</span> <span class="operator">-.</span> <span class="value-identifier">w</span> <span class="operator">/.</span> <span class="float">8.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">h</span> <span class="operator">/.</span> <span class="float">2.</span> <span class="operator">-.</span> <span class="value-identifier">h</span> <span class="operator">/.</span> <span class="float">8.</span>};
+    <span class="module-identifier">Draw</span>.<span class="value-identifier">translate</span>(~x=<span class="operator">-.</span><span class="value-identifier">mpos</span>.<span class="field-value-identifier">x</span><span class="operator">*.</span><span class="value-identifier">zoom</span>, ~y=<span class="operator">-.</span><span class="value-identifier">mpos</span>.<span class="field-value-identifier">y</span> <span class="operator">*.</span> <span class="value-identifier">zoom</span>, <span class="value-identifier">env</span>);
+    <span class="module-identifier">Draw</span>.<span class="value-identifier">scale</span>(~x=<span class="value-identifier">zoom</span>, ~y=<span class="value-identifier">zoom</span>, <span class="value-identifier">env</span>);
   };
 
-  <span class="identifier">drawTiles</span>(<span class="identifier">state</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+  <span class="value-identifier">drawTiles</span>(<span class="value-identifier">state</span>, <span class="value-identifier">context</span>, <span class="value-identifier">env</span>);
 
-  <span class="identifier">Draw.noStroke</span>(<span class="identifier">env</span>);
-  <span class="identifier">drawPlayer</span>(<span class="identifier">state</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">noStroke</span>(<span class="value-identifier">env</span>);
+  <span class="value-identifier">drawPlayer</span>(<span class="value-identifier">state</span>, <span class="value-identifier">context</span>, <span class="value-identifier">env</span>);
 
-  let inPosition = (drawPadding, {Geom.x, y} as pos) => {
-    let x0 = <span class="identifier">dx</span> <span class="identifier">-.</span> <span class="identifier">drawPadding</span>;
-    let y0 = <span class="identifier">dy</span> <span class="identifier">-.</span> <span class="identifier">drawPadding</span>;
-    let x1 = <span class="identifier">dx</span> <span class="identifier">+.</span> <span class="identifier">w</span> <span class="identifier">+.</span> <span class="identifier">drawPadding</span>;
-    let y1 = <span class="identifier">dy</span> <span class="identifier">+.</span> <span class="identifier">h</span> <span class="identifier">+.</span> <span class="identifier">drawPadding</span>;
+  let <span class="declaration-var">inPosition</span> = (<span class="declaration-var">drawPadding</span>, {Geom.x, y} as <span class="declaration-var">pos</span>) => {
+    let <span class="declaration-var">x0</span> = <span class="value-identifier">dx</span> <span class="operator">-.</span> <span class="value-identifier">drawPadding</span>;
+    let <span class="declaration-var">y0</span> = <span class="value-identifier">dy</span> <span class="operator">-.</span> <span class="value-identifier">drawPadding</span>;
+    let <span class="declaration-var">x1</span> = <span class="value-identifier">dx</span> <span class="operator">+.</span> <span class="value-identifier">w</span> <span class="operator">+.</span> <span class="value-identifier">drawPadding</span>;
+    let <span class="declaration-var">y1</span> = <span class="value-identifier">dy</span> <span class="operator">+.</span> <span class="value-identifier">h</span> <span class="operator">+.</span> <span class="value-identifier">drawPadding</span>;
 
-    if (<span class="identifier">y</span> <span class="identifier">></span> <span class="identifier">y0</span> <span class="identifier">&&</span> <span class="identifier">y</span> <span class="identifier"><</span> <span class="identifier">y1</span>) {
-      if (<span class="identifier">x</span> <span class="identifier">></span> <span class="identifier">x0</span> <span class="identifier">&&</span> <span class="identifier">x</span> <span class="identifier"><</span> <span class="identifier">x1</span>) {
-        Some(<span class="identifier">pos</span>)
+    if (<span class="value-identifier">y</span> <span class="operator">></span> <span class="value-identifier">y0</span> <span class="operator">&&</span> <span class="value-identifier">y</span> <span class="operator"><</span> <span class="value-identifier">y1</span>) {
+      if (<span class="value-identifier">x</span> <span class="operator">></span> <span class="value-identifier">x0</span> <span class="operator">&&</span> <span class="value-identifier">x</span> <span class="operator"><</span> <span class="value-identifier">x1</span>) {
+        Some(<span class="value-identifier">pos</span>)
       } else {
-        let left = <span class="identifier">x</span> <span class="identifier">-.</span> <span class="identifier">gameWidth</span>;
-        if (<span class="identifier">left</span> <span class="identifier">></span> <span class="identifier">x0</span> <span class="identifier">&&</span> <span class="identifier">left</span> <span class="identifier"><</span> <span class="identifier">x1</span>) {
-          Some(<span class="identifier">Geom.addPoints</span>(<span class="identifier">pos</span>, {x: <span class="identifier">-.</span><span class="identifier">gameWidth</span>, y: <span class="float">0.</span>}))
+        let <span class="declaration-var">left</span> = <span class="value-identifier">x</span> <span class="operator">-.</span> <span class="value-identifier">gameWidth</span>;
+        if (<span class="value-identifier">left</span> <span class="operator">></span> <span class="value-identifier">x0</span> <span class="operator">&&</span> <span class="value-identifier">left</span> <span class="operator"><</span> <span class="value-identifier">x1</span>) {
+          Some(<span class="module-identifier">Geom</span>.<span class="value-identifier">addPoints</span>(<span class="value-identifier">pos</span>, {<span class="record-value-identifier">x</span>: <span class="operator">-.</span><span class="value-identifier">gameWidth</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>}))
         } else {
-          let right = <span class="identifier">x</span> <span class="identifier">+.</span> <span class="identifier">gameWidth</span>;
-          if (<span class="identifier">right</span> <span class="identifier">></span> <span class="identifier">x0</span> <span class="identifier">&&</span> <span class="identifier">right</span> <span class="identifier"><</span> <span class="identifier">x1</span>) {
-            Some(<span class="identifier">Geom.addPoints</span>(<span class="identifier">pos</span>, {x: <span class="identifier">+.</span><span class="identifier">gameWidth</span>, y: <span class="float">0.</span>}))
+          let <span class="declaration-var">right</span> = <span class="value-identifier">x</span> <span class="operator">+.</span> <span class="value-identifier">gameWidth</span>;
+          if (<span class="value-identifier">right</span> <span class="operator">></span> <span class="value-identifier">x0</span> <span class="operator">&&</span> <span class="value-identifier">right</span> <span class="operator"><</span> <span class="value-identifier">x1</span>) {
+            Some(<span class="module-identifier">Geom</span>.<span class="value-identifier">addPoints</span>(<span class="value-identifier">pos</span>, {<span class="record-value-identifier">x</span>: <span class="operator">+.</span><span class="value-identifier">gameWidth</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>}))
           } else {
             None
           }
@@ -304,7 +331,7 @@ let drawWorld = (state, context, env) => {
     }
   };
 
-  <span class="identifier">drawStones</span>(<span class="identifier">state</span>, <span class="identifier">inPosition</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+  <span class="value-identifier">drawStones</span>(<span class="value-identifier">state</span>, <span class="value-identifier">inPosition</span>, <span class="value-identifier">context</span>, <span class="value-identifier">env</span>);
   /* drawText(state, inPosition, context, env); */
 
 
@@ -313,123 +340,123 @@ let drawWorld = (state, context, env) => {
 };
 
 
-let drawWorld = (a, b, c) => {
-  <span class="identifier">Profile.start</span>(<span class="string">"drawWorld"</span>);
-  <span class="identifier">drawWorld</span>(<span class="identifier">a</span>, <span class="identifier">b</span>, <span class="identifier">c</span>);
-  <span class="identifier">Profile.stop</span>(<span class="string">"drawWorld"</span>);
+let <span class="declaration-var">drawWorld</span> = (<span class="declaration-var">a</span>, <span class="declaration-var">b</span>, <span class="declaration-var">c</span>) => {
+  <span class="module-identifier">Profile</span>.<span class="value-identifier">start</span>(<span class="string">"drawWorld"</span>);
+  <span class="value-identifier">drawWorld</span>(<span class="value-identifier">a</span>, <span class="value-identifier">b</span>, <span class="value-identifier">c</span>);
+  <span class="module-identifier">Profile</span>.<span class="value-identifier">stop</span>(<span class="string">"drawWorld"</span>);
 };
 
-let touchButtons = env => {
-  let bottom = <span class="identifier">Reprocessing.Env.height</span>(<span class="identifier">env</span>) <span class="identifier">|></span> <span class="identifier">float_of_int</span>;
-  let right = <span class="identifier">Reprocessing.Env.width</span>(<span class="identifier">env</span>) <span class="identifier">|></span> <span class="identifier">float_of_int</span>;
-  let buttonSize = <span class="float">50.</span>;
-  let shape = pos => {Geom.Circle.center: <span class="identifier">pos</span>, rad: <span class="identifier">buttonSize</span>};
+let <span class="declaration-var">touchButtons</span> = <span class="declaration-var">env</span> => {
+  let <span class="declaration-var">bottom</span> = <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">height</span>(<span class="value-identifier">env</span>) <span class="operator">|></span> <span class="value-identifier">float_of_int</span>;
+  let <span class="declaration-var">right</span> = <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">width</span>(<span class="value-identifier">env</span>) <span class="operator">|></span> <span class="value-identifier">float_of_int</span>;
+  let <span class="declaration-var">buttonSize</span> = <span class="float">50.</span>;
+  let <span class="declaration-var">shape</span> = <span class="declaration-var">pos</span> => {<span class="record-module-identifier">Geom</span>.<span class="record-module-identifier">Circle</span>.<span class="record-value-identifier">center</span>: <span class="value-identifier">pos</span>, <span class="record-value-identifier">rad</span>: <span class="value-identifier">buttonSize</span>};
   [
-    (`Left, <span class="identifier">shape</span>({Geom.x: <span class="float">75.</span>, y: <span class="identifier">bottom</span> <span class="identifier">-.</span> <span class="float">75.</span>})),
-    (`Right, <span class="identifier">shape</span>({Geom.x: <span class="float">175.</span>, y: <span class="identifier">bottom</span> <span class="identifier">-.</span> <span class="float">75.</span>})),
-    (`Jump, <span class="identifier">shape</span>({Geom.x: <span class="identifier">right</span> <span class="identifier">-.</span> <span class="float">75.</span>, y: <span class="identifier">bottom</span> <span class="identifier">-.</span> <span class="float">75.</span>})),
+    (`Left, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">75.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),
+    (`Right, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">175.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),
+    (`Jump, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">right</span> <span class="operator">-.</span> <span class="float">75.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),
   ]
 };
 
-let drawControl = (control, pos, env) => {
+let <span class="declaration-var">drawControl</span> = (<span class="declaration-var">control</span>, <span class="declaration-var">pos</span>, <span class="declaration-var">env</span>) => {
   open Geom;
-  let size = <span class="float">50.</span>;
-  let p1 = {Geom.x: <span class="identifier">-.</span><span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.55</span>, y: <span class="identifier">-.</span><span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.75</span>};
-  let p2 = {Geom.x: <span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.75</span>, y: <span class="float">0.</span>};
-  let p3 = {Geom.x: <span class="identifier">-.</span><span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.55</span>, y: <span class="identifier">size</span> <span class="identifier">*.</span> <span class="float">0.75</span>};
-  <span class="identifier">Draw.noStroke</span>(<span class="identifier">env</span>);
-  <span class="identifier">Draw.fill</span>(<span class="identifier">Utils.color</span>(~r=<span class="int">0</span>, ~g=<span class="int">0</span>, ~b=<span class="int">0</span>, ~a=<span class="int">50</span>), <span class="identifier">env</span>);
+  let <span class="declaration-var">size</span> = <span class="float">50.</span>;
+  let <span class="declaration-var">p1</span> = {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="operator">-.</span><span class="value-identifier">size</span> <span class="operator">*.</span> <span class="float">0.55</span>, <span class="record-value-identifier">y</span>: <span class="operator">-.</span><span class="value-identifier">size</span> <span class="operator">*.</span> <span class="float">0.75</span>};
+  let <span class="declaration-var">p2</span> = {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">size</span> <span class="operator">*.</span> <span class="float">0.75</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>};
+  let <span class="declaration-var">p3</span> = {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="operator">-.</span><span class="value-identifier">size</span> <span class="operator">*.</span> <span class="float">0.55</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">size</span> <span class="operator">*.</span> <span class="float">0.75</span>};
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">noStroke</span>(<span class="value-identifier">env</span>);
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">fill</span>(<span class="module-identifier">Utils</span>.<span class="value-identifier">color</span>(~r=<span class="int">0</span>, ~g=<span class="int">0</span>, ~b=<span class="int">0</span>, ~a=<span class="int">50</span>), <span class="value-identifier">env</span>);
   /* Draw.strokeWeight(10, env); */
-  <span class="identifier">Draw.translate</span>(~x=<span class="identifier">pos</span>.x, ~y=<span class="identifier">pos</span>.y, <span class="identifier">env</span>);
-  switch <span class="identifier">control</span> {
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">translate</span>(~x=<span class="value-identifier">pos</span>.<span class="field-value-identifier">x</span>, ~y=<span class="value-identifier">pos</span>.<span class="field-value-identifier">y</span>, <span class="value-identifier">env</span>);
+  switch <span class="value-identifier">control</span> {
   | `Left => {
     /* Draw.linef(~p1=Geom.tuple(p1), ~p2=Geom.tuple(p2), env); */
     /* Draw.linef(~p1=Geom.tuple(p2), ~p2=Geom.tuple(p3), env); */
-    <span class="identifier">Draw.trianglef</span>(~p1=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipX</span>(<span class="identifier">p1</span>)), ~p2=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipX</span>(<span class="identifier">p2</span>)), ~p3=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipX</span>(<span class="identifier">p3</span>)), <span class="identifier">env</span>);
+    <span class="module-identifier">Draw</span>.<span class="value-identifier">trianglef</span>(~p1=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">flipX</span>(<span class="value-identifier">p1</span>)), ~p2=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">flipX</span>(<span class="value-identifier">p2</span>)), ~p3=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">flipX</span>(<span class="value-identifier">p3</span>)), <span class="value-identifier">env</span>);
   }
   | `Right => {
-    <span class="identifier">Draw.trianglef</span>(~p1=<span class="identifier">Geom.tuple</span>(<span class="identifier">p1</span>), ~p2=<span class="identifier">Geom.tuple</span>(<span class="identifier">p2</span>), ~p3=<span class="identifier">Geom.tuple</span>(<span class="identifier">p3</span>), <span class="identifier">env</span>);
+    <span class="module-identifier">Draw</span>.<span class="value-identifier">trianglef</span>(~p1=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="value-identifier">p1</span>), ~p2=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="value-identifier">p2</span>), ~p3=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="value-identifier">p3</span>), <span class="value-identifier">env</span>);
   }
   | _ => {
-    <span class="identifier">Draw.trianglef</span>(~p1=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipXY</span>(<span class="identifier">p1</span>) <span class="identifier">|></span> <span class="identifier">Geom.flipY</span>), ~p2=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipXY</span>(<span class="identifier">p2</span>) <span class="identifier">|></span> <span class="identifier">Geom.flipY</span>), ~p3=<span class="identifier">Geom.tuple</span>(<span class="identifier">Geom.flipXY</span>(<span class="identifier">p3</span>) <span class="identifier">|></span> <span class="identifier">Geom.flipY</span>), <span class="identifier">env</span>);
+    <span class="module-identifier">Draw</span>.<span class="value-identifier">trianglef</span>(~p1=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">flipXY</span>(<span class="value-identifier">p1</span>) <span class="operator">|></span> <span class="module-identifier">Geom</span>.<span class="value-identifier">flipY</span>), ~p2=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">flipXY</span>(<span class="value-identifier">p2</span>) <span class="operator">|></span> <span class="module-identifier">Geom</span>.<span class="value-identifier">flipY</span>), ~p3=<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">flipXY</span>(<span class="value-identifier">p3</span>) <span class="operator">|></span> <span class="module-identifier">Geom</span>.<span class="value-identifier">flipY</span>), <span class="value-identifier">env</span>);
   }
   };
-  <span class="identifier">Draw.translate</span>(~x=<span class="identifier">-.</span><span class="identifier">pos</span>.x, ~y=<span class="identifier">-.</span><span class="identifier">pos</span>.y, <span class="identifier">env</span>);
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">translate</span>(~x=<span class="operator">-.</span><span class="value-identifier">pos</span>.<span class="field-value-identifier">x</span>, ~y=<span class="operator">-.</span><span class="value-identifier">pos</span>.<span class="field-value-identifier">y</span>, <span class="value-identifier">env</span>);
 };
 
-let joystickCircle = env => {
-  let bottom = <span class="identifier">Reprocessing.Env.height</span>(<span class="identifier">env</span>) <span class="identifier">|></span> <span class="identifier">float_of_int</span>;
-  let pos = {Geom.x: <span class="float">100.</span>, y: <span class="identifier">bottom</span> <span class="identifier">-.</span> <span class="float">100.</span>};
-  {Geom.Circle.center: <span class="identifier">pos</span>, rad: <span class="float">100.</span>}
+let <span class="declaration-var">joystickCircle</span> = <span class="declaration-var">env</span> => {
+  let <span class="declaration-var">bottom</span> = <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">height</span>(<span class="value-identifier">env</span>) <span class="operator">|></span> <span class="value-identifier">float_of_int</span>;
+  let <span class="declaration-var">pos</span> = {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">100.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">100.</span>};
+  {<span class="record-module-identifier">Geom</span>.<span class="record-module-identifier">Circle</span>.<span class="record-value-identifier">center</span>: <span class="value-identifier">pos</span>, <span class="record-value-identifier">rad</span>: <span class="float">100.</span>}
 };
 
-let arrayAssoc = (value, arr) => {
-  let rec loop = i => {
-    if (<span class="identifier">i</span> <span class="identifier">>=</span> <span class="identifier">Array.length</span>(<span class="identifier">arr</span>)) {
-      <span class="identifier">raise</span>(Not_found)
+let <span class="declaration-var">arrayAssoc</span> = (<span class="declaration-var">value</span>, <span class="declaration-var">arr</span>) => {
+  let rec <span class="declaration-var">loop</span> = <span class="declaration-var">i</span> => {
+    if (<span class="value-identifier">i</span> <span class="operator">>=</span> <span class="module-identifier">Array</span>.<span class="value-identifier">length</span>(<span class="value-identifier">arr</span>)) {
+      <span class="value-identifier">raise</span>(Not_found)
     } else {
-      let (a, b) = <span class="identifier"><span class="identifier">arr</span>[<span class="identifier">i</span>]</span>;
-      if (<span class="identifier">a</span> <span class="identifier">==</span> <span class="identifier">value</span>) {
-        <span class="identifier">b</span>
+      let (<span class="declaration-var">a</span>, <span class="declaration-var">b</span>) = <span class="module-identifier"><span class="value-identifier">ar</span>r</span><span class="value-identifier">[<span class="value-identifier">i</span>]</span>;
+      if (<span class="value-identifier">a</span> <span class="operator">==</span> <span class="value-identifier">value</span>) {
+        <span class="value-identifier">b</span>
       } else {
-        <span class="identifier">loop</span>(<span class="identifier">i</span><span class="identifier">+</span><span class="int">1</span>)
+        <span class="value-identifier">loop</span>(<span class="value-identifier">i</span><span class="operator">+</span><span class="int">1</span>)
       }
     }
   };
-  <span class="identifier">loop</span>(<span class="int">0</span>)
+  <span class="value-identifier">loop</span>(<span class="int">0</span>)
 };
 
-let draw = (state, context, env) => {
-  <span class="identifier">Draw.pushMatrix</span>(<span class="identifier">env</span>);
-  <span class="identifier">drawWorld</span>(<span class="identifier">state</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
-  <span class="identifier">Draw.popMatrix</span>(<span class="identifier">env</span>);
+let <span class="declaration-var">draw</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">pushMatrix</span>(<span class="value-identifier">env</span>);
+  <span class="value-identifier">drawWorld</span>(<span class="value-identifier">state</span>, <span class="value-identifier">context</span>, <span class="value-identifier">env</span>);
+  <span class="module-identifier">Draw</span>.<span class="value-identifier">popMatrix</span>(<span class="value-identifier">env</span>);
 
-  <span class="identifier">drawStone</span>(<span class="identifier">context</span>, {Geom.x: <span class="float">15.</span>, y: <span class="float">15.</span>}, {
-    Play_types.Stone.circle: {Geom.Circle.center: <span class="identifier">Geom.origin</span>, rad: <span class="float">10.</span>},
-    rotation: <span class="float">0.</span>,
-    vel: <span class="identifier">Geom.v0</span>,
-    live: true,
-  }, <span class="identifier">env</span>);
-  let stones = switch (<span class="identifier">arrayAssoc</span>(Inventory.Stone, <span class="identifier">state</span>.player.inventory.slots)) {
-  | exception Not_found => <span class="int">0</span>
-  | x => <span class="identifier">x</span>
+  <span class="value-identifier">drawStone</span>(<span class="value-identifier">context</span>, {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">15.</span>, <span class="record-value-identifier">y</span>: <span class="float">15.</span>}, {
+    <span class="record-module-identifier">Play_types</span>.<span class="record-module-identifier">Stone</span>.<span class="record-value-identifier">circle</span>: {<span class="record-module-identifier">Geom</span>.<span class="record-module-identifier">Circle</span>.<span class="record-value-identifier">center</span>: <span class="module-identifier">Geom</span>.<span class="value-identifier">origin</span>, <span class="record-value-identifier">rad</span>: <span class="float">10.</span>},
+    <span class="record-value-identifier">rotation</span>: <span class="float">0.</span>,
+    <span class="record-value-identifier">vel</span>: <span class="module-identifier">Geom</span>.<span class="value-identifier">v0</span>,
+    <span class="record-value-identifier">live</span>: true,
+  }, <span class="value-identifier">env</span>);
+  let <span class="declaration-var">stones</span> = switch (<span class="value-identifier">arrayAssoc</span>(Inventory.Stone, <span class="value-identifier">state</span>.<span class="field-value-identifier">player</span>.<span class="field-value-identifier">inventory</span>.<span class="field-value-identifier">slots</span>)) {
+  | exception <span class="switch-module-identifier">Not_found</span> => <span class="int">0</span>
+  | <span class="declaration-var">x</span> => <span class="value-identifier">x</span>
   };
-  <span class="identifier">Reprocessing.Draw.tint</span>(<span class="identifier">textColor</span>, <span class="identifier">env</span>);
-  <span class="identifier">Reprocessing.Draw.text</span>(~font=<span class="identifier">context</span>.smallFont, ~body=<span class="identifier">Printf.sprintf</span>(<span class="string">"%d"</span>, <span class="identifier">stones</span>), ~pos=(<span class="int">30</span>, <span class="int">10</span>), <span class="identifier">env</span>);
+  <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Draw</span>.<span class="value-identifier">tint</span>(<span class="value-identifier">textColor</span>, <span class="value-identifier">env</span>);
+  <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Draw</span>.<span class="value-identifier">text</span>(~font=<span class="value-identifier">context</span>.<span class="field-value-identifier">smallFont</span>, ~body=<span class="module-identifier">Printf</span>.<span class="value-identifier">sprintf</span>(<span class="string">"%d"</span>, <span class="value-identifier">stones</span>), ~pos=(<span class="int">30</span>, <span class="int">10</span>), <span class="value-identifier">env</span>);
 
-  if (<span class="identifier">Reprocessing.Env.isTouchScreen</span>(<span class="identifier">env</span>)) {
+  if (<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">isTouchScreen</span>(<span class="value-identifier">env</span>)) {
     /* Draw.fill(Utils.color(~r=0, ~g=0, ~b=0, ~a=50), env); */
-    <span class="identifier">touchButtons</span>(<span class="identifier">env</span>) <span class="identifier">|></span> <span class="identifier">List.iter</span>(((action, shape)) => {
-      <span class="identifier">drawControl</span>(<span class="identifier">action</span>, <span class="identifier">shape</span>.Geom.Circle.center, <span class="identifier">env</span>);
+    <span class="value-identifier">touchButtons</span>(<span class="value-identifier">env</span>) <span class="operator">|></span> <span class="module-identifier">List</span>.<span class="value-identifier">iter</span>(((<span class="declaration-var">action</span>, <span class="declaration-var">shape</span>)) => {
+      <span class="value-identifier">drawControl</span>(<span class="value-identifier">action</span>, <span class="value-identifier">shape</span>.<span class="field-module-identifier">Geom</span>.<span class="field-module-identifier">Circle</span>.<span class="field-value-identifier">center</span>, <span class="value-identifier">env</span>);
       /* GeomDraw.circle(shape, env); */
     });
     /* GeomDraw.circle(joystickCircle(env), env); */
   };
 
-  <span class="identifier">Reprocessing.Draw.tint</span>(<span class="identifier">textColor</span>, <span class="identifier">env</span>);
+  <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Draw</span>.<span class="value-identifier">tint</span>(<span class="value-identifier">textColor</span>, <span class="value-identifier">env</span>);
   /* Reprocessing.Draw.text(~font=context.textFont, ~body=Printf.sprintf("Throw rocks"), ~pos=(10, 10), env);
   let rocks = List.length(state.Play_types.stones);
   Reprocessing.Draw.text(~font=context.smallFont, ~body=Printf.sprintf("%d %s thrown", rocks, rocks == 1 ? "rock" : "rocks"), ~pos=(10, 40), env); */
 
-  <span class="identifier">Reprocessing.Draw.text</span>(~font=<span class="identifier">context</span>.smallFont, ~body=<span class="string">"by Jared Forsyth"</span>, ~pos=(<span class="int">10</span>, <span class="identifier">int_of_float</span>(<span class="identifier">context</span>.height) <span class="identifier">-</span> <span class="int">60</span>), <span class="identifier">env</span>);
-  <span class="identifier">Reprocessing.Draw.text</span>(~font=<span class="identifier">context</span>.smallFont, ~body=<span class="string">"Made with ReasonML and Reprocessing"</span>, ~pos=(<span class="int">10</span>, <span class="identifier">int_of_float</span>(<span class="identifier">context</span>.height) <span class="identifier">-</span> <span class="int">30</span>), <span class="identifier">env</span>);
+  <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Draw</span>.<span class="value-identifier">text</span>(~font=<span class="value-identifier">context</span>.<span class="field-value-identifier">smallFont</span>, ~body=<span class="string">"by Jared Forsyth"</span>, ~pos=(<span class="int">10</span>, <span class="value-identifier">int_of_float</span>(<span class="value-identifier">context</span>.<span class="field-value-identifier">height</span>) <span class="operator">-</span> <span class="int">60</span>), <span class="value-identifier">env</span>);
+  <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Draw</span>.<span class="value-identifier">text</span>(~font=<span class="value-identifier">context</span>.<span class="field-value-identifier">smallFont</span>, ~body=<span class="string">"Made with ReasonML and Reprocessing"</span>, ~pos=(<span class="int">10</span>, <span class="value-identifier">int_of_float</span>(<span class="value-identifier">context</span>.<span class="field-value-identifier">height</span>) <span class="operator">-</span> <span class="int">30</span>), <span class="value-identifier">env</span>);
 
 
-  let w = <span class="identifier">int_of_float</span>(<span class="identifier">context</span>.width);
+  let <span class="declaration-var">w</span> = <span class="value-identifier">int_of_float</span>(<span class="value-identifier">context</span>.<span class="field-value-identifier">width</span>);
   /* Reprocessing.Draw.text(~font=context.smallFont, ~body="Tap & drag to throw a rock", ~pos=(w - 250, 10), env);
   Reprocessing.Draw.text(~font=context.smallFont, ~body="Space to change character", ~pos=(w - 250, 30), env); */
 
-  <span class="identifier">Reprocessing.Draw.noTint</span>(<span class="identifier">env</span>);
+  <span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Draw</span>.<span class="value-identifier">noTint</span>(<span class="value-identifier">env</span>);
 
-  <span class="identifier">drawSpritePicker</span>(<span class="identifier">state</span>, <span class="identifier">context</span>, <span class="identifier">env</span>);
+  <span class="value-identifier">drawSpritePicker</span>(<span class="value-identifier">state</span>, <span class="value-identifier">context</span>, <span class="value-identifier">env</span>);
   /* GeomDraw.rect(pauseButton(env), env); */
 
-  let pause = <span class="identifier">pauseButton</span>(<span class="identifier">env</span>);
-  let bar = <span class="identifier">Geom.Rect.scale</span>(<span class="identifier">pause</span>, <span class="float">0.3</span>, <span class="float">0.6</span>);
-  let left = <span class="identifier">Geom.Rect.translate</span>(<span class="identifier">bar</span>, {Geom.x: <span class="identifier">pause</span>.Geom.Rect.width <span class="identifier">/.</span> <span class="float">4.</span>, y: <span class="float">0.</span>});
-  let right = <span class="identifier">Geom.Rect.translate</span>(<span class="identifier">bar</span>, {Geom.x: <span class="identifier">-.</span><span class="identifier">pause</span>.Geom.Rect.width <span class="identifier">/.</span> <span class="float">4.</span>, y: <span class="float">0.</span>});
-  <span class="identifier">GeomDraw.rect</span>(<span class="identifier">left</span>, <span class="identifier">env</span>);
-  <span class="identifier">GeomDraw.rect</span>(<span class="identifier">right</span>, <span class="identifier">env</span>);
+  let <span class="declaration-var">pause</span> = <span class="value-identifier">pauseButton</span>(<span class="value-identifier">env</span>);
+  let <span class="declaration-var">bar</span> = <span class="module-identifier">Geom</span>.<span class="module-identifier">Rect</span>.<span class="value-identifier">scale</span>(<span class="value-identifier">pause</span>, <span class="float">0.3</span>, <span class="float">0.6</span>);
+  let <span class="declaration-var">left</span> = <span class="module-identifier">Geom</span>.<span class="module-identifier">Rect</span>.<span class="value-identifier">translate</span>(<span class="value-identifier">bar</span>, {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">pause</span>.<span class="field-module-identifier">Geom</span>.<span class="field-module-identifier">Rect</span>.<span class="field-value-identifier">width</span> <span class="operator">/.</span> <span class="float">4.</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>});
+  let <span class="declaration-var">right</span> = <span class="module-identifier">Geom</span>.<span class="module-identifier">Rect</span>.<span class="value-identifier">translate</span>(<span class="value-identifier">bar</span>, {<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="operator">-.</span><span class="value-identifier">pause</span>.<span class="field-module-identifier">Geom</span>.<span class="field-module-identifier">Rect</span>.<span class="field-value-identifier">width</span> <span class="operator">/.</span> <span class="float">4.</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>});
+  <span class="module-identifier">GeomDraw</span>.<span class="value-identifier">rect</span>(<span class="value-identifier">left</span>, <span class="value-identifier">env</span>);
+  <span class="module-identifier">GeomDraw</span>.<span class="value-identifier">rect</span>(<span class="value-identifier">right</span>, <span class="value-identifier">env</span>);
 
   /* Draw.noFill(env);
   Draw.stroke(Constants.black, env);

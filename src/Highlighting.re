@@ -2,68 +2,161 @@
 open Parsetree;
 
 module F = (Collect: {
-  let lident: (Longident.t, Location.t) => unit;
+  let lident: (Longident.t, Location.t, string) => unit;
+  let pat_var: (string, Location.t) => unit;
   let constant: ([< `Int | `Float | `Char | `String], Location.t) => unit;
 }) => {
+
+  let constantType = constant => switch constant {
+  | Asttypes.Const_int(_) => `Int
+  | Asttypes.Const_char(_) => `Char
+  | Asttypes.Const_string(_, _) => `String
+  | Asttypes.Const_float(_) => `Float
+  | Asttypes.Const_int32(_) => `Int
+  | Asttypes.Const_int64(_) => `Int
+  | Asttypes.Const_nativeint(_) => `Int
+  };
+
+  let rec mapPat = (prefix, {ppat_desc, ppat_loc}) => {
+    let mapPat = mapPat(prefix);
+    switch ppat_desc {
+    | Ppat_any => ()
+    | Ppat_var({txt, loc}) => Collect.pat_var(txt, loc)
+    | Ppat_alias(pat, {txt, loc}) => {
+      mapPat(pat);
+      Collect.pat_var(txt, loc)
+    }
+    | Ppat_constant(constant) => Collect.constant(constantType(constant), ppat_loc)
+    | Ppat_interval(start, send) => ()
+    | Ppat_tuple(items) => List.iter(mapPat, items)
+    | Ppat_construct({txt, loc}, args) => {
+      Collect.lident(txt, loc, prefix); /* maybe distinguish that this is in a pattern */
+      switch  args {
+        | None => ()
+        | Some(pat) => mapPat(pat)
+      };
+    }
+    | Ppat_variant(label, arg) => ()
+    | Ppat_record(attributes, closedFlag) => ()
+    | Ppat_array(contents) => ()
+    | Ppat_or(left, right) => {mapPat(left); mapPat(right)}
+    | Ppat_constraint(pat, typ) => mapPat(pat)
+    | Ppat_type({txt, loc}) => Collect.lident(txt, loc, "type-")
+    | Ppat_lazy(pat) => mapPat(pat)
+    | Ppat_unpack({txt, loc}) => Collect.pat_var(txt, loc)
+    | Ppat_exception(pat) => mapPat(pat)
+    | Ppat_extension(ext) => ()
+    }
+  };
+
   let mapper = {
     ...Ast_mapper.default_mapper,
+    structure_item: (mapper, {pstr_desc, pstr_loc} as str) => {
+      switch pstr_desc {
+      | Pstr_value(recFlag, bindings) => {
+        bindings |> List.iter(({pvb_pat, pvb_expr, pvb_loc}) => {
+          mapPat("top-let-", pvb_pat);
+          ()
+        })
+      }
+      /* | Pstr_primitive(_) => failwith("<case>")
+      | Pstr_type(_) => failwith("<case>")
+      | Pstr_typext(_) => failwith("<case>")
+      | Pstr_exception(_) => failwith("<case>")
+      | Pstr_module(_) => failwith("<case>")
+      | Pstr_recmodule(_) => failwith("<case>")
+      | Pstr_modtype(_) => failwith("<case>")
+      | Pstr_open(_) => failwith("<case>")
+      | Pstr_class(_) => failwith("<case>")
+      | Pstr_class_type(_) => failwith("<case>")
+      | Pstr_include(_) => failwith("<case>")
+      | Pstr_attribute(_) => failwith("<case>")
+      | Pstr_extension(_, _) => failwith("<case>") */
+      | _ => ()
+      };
+      Ast_mapper.default_mapper.structure_item(mapper, str);
+    },
     expr: (mapper, {pexp_desc, pexp_loc} as expr) => {
       switch pexp_desc {
       | Pexp_ident({txt, loc}) => {
-        Collect.lident(txt, loc);
+        Collect.lident(txt, loc, "");
         ()
       }
       | Pexp_let(isRecursive, bindings, scopedExpression) => {
-
+        bindings |> List.iter(({pvb_pat, pvb_expr, pvb_loc}) => {
+          mapPat("let-", pvb_pat);
+        });
         ()
       }
       | Pexp_constant(constant) => {
-        let typ = switch constant {
-        | Asttypes.Const_int(_) => `Int
-        | Asttypes.Const_char(_) => `Char
-        | Asttypes.Const_string(_, _) => `String
-        | Asttypes.Const_float(_) => `Float
-        | Asttypes.Const_int32(_) => `Int
-        | Asttypes.Const_int64(_) => `Int
-        | Asttypes.Const_nativeint(_) => `Int
-        };
-        Collect.constant(typ, pexp_loc);
+        Collect.constant(constantType(constant), pexp_loc);
         ()
       }
 
+      | Pexp_fun(label, default, pattern, body) => {
+        mapPat("arg-", pattern);
+        ()
+      }
+
+      | Pexp_apply(target, arguments) => {
+        arguments |> List.iter(((label, argument)) => {
+          if (label == "") {
+            ()
+          } else {
+            /* :( don't have location info for the label */
+            ()
+          }
+          ;()
+        })
+        ;
+        ()
+      }
+      | Pexp_tuple(items) => {
+        /* TODO handle parens */
+        ()
+      }
+
+      | Pexp_match(arg, items) => {
+        items |> List.iter(({pc_lhs, pc_guard, pc_rhs}) => {
+          mapPat("switch-", pc_lhs)
+          ;
+          ()
+        })
+      }
+
+      | Pexp_field(expr, {txt, loc}) => Collect.lident(txt, loc, "field-")
+      | Pexp_record(items, maybeSpread) => {
+        items |> List.iter((({Asttypes.txt, loc}, value)) => {
+          Collect.lident(txt, loc, "record-")
+        })
+      }
+
       /*
-      | Pexp_constant(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_let(_, _, _) => failwith("<case>")
       | Pexp_function(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_fun(_, _, _, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_apply(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_match(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_try(_, _) => failwith("<case>")
-      | Pexp_tuple(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_construct(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_variant(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_record(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_field(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_setfield(_, _, _) => failwith("<case>")
+      | Pexp_match(_, _) => failwith("<case>")
+      | Pexp_try(_, _) => failwith("<case>")
+      | Pexp_construct(_, _) => failwith("<case>")
+      | Pexp_variant(_, _) => failwith("<case>")
+      | Pexp_setfield(_, _, _) => failwith("<case>")
       | Pexp_array(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_ifthenelse(_, _, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_sequence(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_while(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_for(_, _, _, _, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_constraint(_, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_coerce(_, _, _) => failwith("<case>")
-      | [@implicit_arity] Pexp_send(_, _) => failwith("<case>")
+      | Pexp_ifthenelse(_, _, _) => failwith("<case>")
+      | Pexp_sequence(_, _) => failwith("<case>")
+      | Pexp_while(_, _) => failwith("<case>")
+      | Pexp_for(_, _, _, _, _) => failwith("<case>")
+      | Pexp_constraint(_, _) => failwith("<case>")
+      | Pexp_coerce(_, _, _) => failwith("<case>")
+      | Pexp_send(_, _) => failwith("<case>")
       | Pexp_new(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_setinstvar(_, _) => failwith("<case>")
+      | Pexp_setinstvar(_, _) => failwith("<case>")
       | Pexp_override(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_letmodule(_, _, _) => failwith("<case>")
+      | Pexp_letmodule(_, _, _) => failwith("<case>")
       | Pexp_assert(_) => failwith("<case>")
       | Pexp_lazy(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_poly(_, _) => failwith("<case>")
+      | Pexp_poly(_, _) => failwith("<case>")
       | Pexp_object(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_newtype(_, _) => failwith("<case>")
+      | Pexp_newtype(_, _) => failwith("<case>")
       | Pexp_pack(_) => failwith("<case>")
-      | [@implicit_arity] Pexp_open(_, _, _) => failwith("<case>")
+      | Pexp_open(_, _, _) => failwith("<case>")
       | Pexp_extension(_) => failwith("<case>")
       */
       | _ => ()
@@ -77,9 +170,42 @@ module F = (Collect: {
 
 let highlight = (text, ast) => {
   let ranges = ref([]);
-  let addRange = (loc, className) => ranges := [(loc, className), ...ranges^];
+  let addNums = (cstart, cend, className) => ranges := [(cstart, cend, className), ...ranges^];
+  let addRange = (loc, className) => addNums(loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, className);
+
+  let addIdentifier = (cstart, cend, txt, prefix) => {
+    let cls = if (txt.[0] >= 'A' && txt.[0] <= 'Z') {
+      "module-identifier"
+    } else if (txt.[0] == '_') {
+      "unused-identifier"
+    } else if (txt.[0] < 'a' || txt.[0] > 'z') {
+      "operator"
+    } else {
+      "value-identifier"
+    };
+    addNums(cstart, cend, prefix ++ cls);
+  };
+
+  let rec addLident = (lident: Longident.t, cstart, cend, prefix) => {
+    switch lident {
+    | Longident.Lident(txt) => addIdentifier(cstart, cend, txt, prefix)
+    | Longident.Ldot(lident, txt) => {
+      addLident(lident, cstart, cend - String.length(txt) - 1, prefix);
+      addIdentifier(cend - String.length(txt), cend, txt, prefix)
+    }
+    | Longident.Lapply(first, second) => ()
+    }
+  };
   let module Mapper = F({
-    let lident = (ident, loc) => addRange(loc, "identifier");
+    let lident = (ident, loc, prefix) => {
+      addLident(ident, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, prefix)
+      /* switch ident {
+    | Longident.Lident(name) when name.[0] == '_' => addRange(loc, "unused-identifier")
+    | Longident.Lident(name) when 'A' > name.[0] || 'z' < name.[0] => addRange(loc, "operator")
+    | _ => addLident(ident, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum) */
+    /* | _ => addRange(loc, "identifier"); */
+    };
+    let pat_var = (str, loc) => addRange(loc, "declaration-var");
     let constant = (t, loc) => addRange(loc, switch t {
     | `String => "string"
     | `Int => "int"
@@ -88,13 +214,11 @@ let highlight = (text, ast) => {
     });
   });
   Mapper.mapper.structure(Mapper.mapper, ast) |> ignore;
-  let ranges = ranges^ |> List.sort(((aloc, _), (bloc, _)) => {
-    let sdiff = aloc.Location.loc_start.Lexing.pos_cnum -
-    bloc.Location.loc_start.Lexing.pos_cnum;
+  let ranges = ranges^ |> List.sort(((ast, ae, _), (bst, be, _)) => {
+    let sdiff = ast - bst;
     /** If they start at the same time, the *larger* range should go First */
     if (sdiff === 0) {
-      bloc.Location.loc_end.Lexing.pos_cnum -
-      aloc.Location.loc_end.Lexing.pos_cnum
+      be - ae
     } else {
       sdiff
     }
@@ -102,8 +226,8 @@ let highlight = (text, ast) => {
   /** Yolo this might be overkill? */
   let inserts = Array.make(String.length(text), []);
   let closes = Array.make(String.length(text), 0);
-  ranges |> List.iter((({Location.loc_start: {Lexing.pos_cnum}, loc_end: {Lexing.pos_cnum: cend}}, className)) => {
-    inserts[pos_cnum] = [className, ...inserts[pos_cnum]];
+  ranges |> List.iter(((cstart, cend, className)) => {
+    inserts[cstart] = [className, ...inserts[cstart]];
     closes[cend] = closes[cend] + 1;
     /* inserts[cend] = [className, ...inserts[cend]]; */
   });

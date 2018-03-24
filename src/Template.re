@@ -4,8 +4,30 @@ let header = {|
 <head>
 <title>Reason code</title>
 <style>
-.identifier {
+.value-identifier {
     color: #000;
+}
+
+.module-identifier {
+  color: #aa0;
+}
+
+.record-module-identifier,
+.field-module-identifier {
+  color: #a0a;
+}
+
+.record-value-identifier,
+.field-value-identifier {
+  color: #0aa;
+}
+
+.unused-identifier {
+  color: #00a;
+}
+
+.declaration-var {
+  color: #a50000;
 }
 
 .string {
@@ -18,6 +40,11 @@ let header = {|
 
 .float {
     color: orange;
+}
+
+.operator {
+  color: #9b9bff;
+  font-weight: bold;
 }
 
 #main {

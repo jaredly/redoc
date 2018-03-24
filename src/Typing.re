@@ -2,7 +2,7 @@
 
 
 module type Collector = {
-  let add: (string, ~mend: Lexing.position=?, ~depth: int=?, Types.type_expr, Location.t) => unit;
+  let add: (~mend: Lexing.position=?, ~depth: int=?, Types.type_expr, Location.t) => unit;
 };
 
 module F = (Collector: Collector) => {
@@ -12,36 +12,36 @@ module F = (Collector: Collector) => {
       switch item.str_desc {
       | Tstr_value(isrec, bindings) =>
         List.iter(
-          (binding) => Collector.add("binding", binding.vb_expr.exp_type, binding.vb_loc),
+          (binding) => Collector.add(binding.vb_expr.exp_type, binding.vb_loc),
           bindings
         )
       | _ => ()
       }
     );
-  let enter_pattern = (pat) => Typedtree.(Collector.add("pattern", pat.pat_type, pat.pat_loc));
-  let enter_core_type = (typ) => Typedtree.(Collector.add("type", typ.ctyp_type, typ.ctyp_loc));
   let depth = ref(0);
+  let enter_pattern = (pat) => Typedtree.(Collector.add(~depth=depth^, pat.pat_type, pat.pat_loc));
+  let enter_core_type = (typ) => Typedtree.(Collector.add(~depth=depth^, typ.ctyp_type, typ.ctyp_loc));
   let enter_type_declaration = (typ) =>
     Typedtree.(
       switch typ.typ_type.Types.type_manifest {
-      | Some((x)) => Collector.add("type", x, typ.typ_loc)
+      | Some((x)) => Collector.add(~depth=depth^, x, typ.typ_loc)
       | _ => ()
       }
     );
   let enter_expression = (expr) => {
     open Typedtree;
-    Collector.add(~depth=depth^, "expression", expr.exp_type, expr.Typedtree.exp_loc);
+    Collector.add(~depth=depth^, expr.exp_type, expr.Typedtree.exp_loc);
     switch expr.exp_desc {
     | Texp_let(isrec, bindings, rest) =>
       List.iter(
-        (binding) => Collector.add("expr_binding", binding.vb_expr.exp_type, binding.vb_loc),
+        (binding) => Collector.add(~depth=depth^, binding.vb_expr.exp_type, binding.vb_loc),
         bindings
       )
     | Texp_record(items, ext) =>
       List.iter(
         ((loc, label, expr)) =>
           Collector.add(
-            "record_field",
+            ~depth=depth^,
             expr.exp_type,
             ~mend=expr.exp_loc.Location.loc_end,
             loc.Asttypes.loc
@@ -68,7 +68,7 @@ let ppos = (pos) =>
     )
   );
 
-let entry = (kind, loc, ~depth, ~mend=?, typ) => {
+let entry = (loc, ~depth, ~mend=?, typ) => {
   open Location;
   let mend =
     switch mend {
@@ -76,8 +76,7 @@ let entry = (kind, loc, ~depth, ~mend=?, typ) => {
     | None => loc.loc_end
     };
   Printf.sprintf(
-    {|{"kind": %S, "depth": %d, "start": %s, "end": %s, "type": %S}|},
-    kind,
+    {|{"depth": %d, "start": %s, "end": %s, "type": %S}|},
     depth,
     ppos(loc.loc_start),
     ppos(mend),
@@ -92,18 +91,17 @@ let type_to_string = (typ) => {
   Format.flush_str_formatter();
 };
 
-let display_type = (name, typ, ~depth=0, ~mend=?, loc) =>
+let display_type = (typ, ~depth=0, ~mend=?, loc) =>
   Location.(
     if (! loc.loc_ghost) {
       try {
-        let txt = entry(name, loc, ~depth=depth, ~mend=?mend, type_to_string(typ));
+        let txt = entry(loc, ~depth=depth, ~mend=?mend, type_to_string(typ));
         print_endline(txt);
       } {
-      | _ => Printf.printf("%s\n", name)
+      | _ => ()
       };
     }
   );
-
 
 let findTypes = ( path) =>
   {
@@ -115,8 +113,9 @@ let findTypes = ( path) =>
         (
           F(
             {
-              let add = (name, ~mend=?, ~depth=0, typ, loc) =>
-                types:=[(name, typ, loc, mend, depth), ...types^];
+              let add = (~mend=?, ~depth=0, typ, loc) => if (!loc.Location.loc_ghost) {
+                types:=[(typ, loc, mend, depth), ...types^];
+              }
             }
           )
         )
@@ -125,8 +124,8 @@ let findTypes = ( path) =>
     | Implementation(structure) =>
       Iter.iter_structure(structure);
       List.iter(
-        ((name, typ, loc, mend, depth)) =>
-          display_type(name, typ, ~depth=depth, ~mend=?mend, loc),
+        ((typ, loc, mend, depth)) =>
+          display_type(typ, ~depth=depth, ~mend=?mend, loc),
         types^
       );
     | _ => exit(1)

@@ -5,7 +5,7 @@ let header = {|
 <title>Reason code</title>
 <style>
 body {
-  padding: 30px 50px;
+  padding: 30px;
 }
 .value-identifier {
     color: #000;
@@ -15,11 +15,16 @@ body {
   color: #aa0;
 }
 
+.let-module-identifier,
+.constructor-module-identifier,
+.switch-module-identifier,
 .record-module-identifier,
 .field-module-identifier {
   color: #a0a;
 }
 
+.let-value-identifier,
+.switch-value-identifier,
 .record-value-identifier,
 .field-value-identifier {
   color: #0aa;
@@ -39,6 +44,10 @@ body {
 
 .int {
     color: blue;
+}
+
+.boolean {
+    color: red;
 }
 
 .float {

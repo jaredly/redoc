@@ -3,6 +3,9 @@
 <head>
 <title>Reason code</title>
 <style>
+body {
+  padding: 30px;
+}
 .value-identifier {
     color: #000;
 }
@@ -11,11 +14,16 @@
   color: #aa0;
 }
 
+.let-module-identifier,
+.constructor-module-identifier,
+.switch-module-identifier,
 .record-module-identifier,
 .field-module-identifier {
   color: #a0a;
 }
 
+.let-value-identifier,
+.switch-value-identifier,
 .record-value-identifier,
 .field-value-identifier {
   color: #0aa;
@@ -35,6 +43,10 @@
 
 .int {
     color: blue;
+}
+
+.boolean {
+    color: red;
 }
 
 .float {
@@ -104,7 +116,7 @@ let <span class="declaration-var">drawSpritePicker</span> = (<span class="declar
     <span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">charSheet</span>,
     ~scale=<span class="value-identifier">scale</span>,
     /* ~flip=!state.player.facingLeft, */
-    ~flip=false,
+    ~flip=<span class="boolean">false</span>,
     ~pos=(<span class="module-identifier">Geom</span>.<span class="value-identifier">tuple</span>(<span class="value-identifier">rect</span>.<span class="field-module-identifier">Geom</span>.<span class="field-module-identifier">Rect</span>.<span class="field-value-identifier">pos</span> <span class="operator">|></span> <span class="module-identifier">Geom</span>.<span class="value-identifier">addPectorToPoint</span>({<span class="record-module-identifier"><span class="value-identifier">Geom</span>.<span class="record-value-identifier">dx</span></span>, <span class="record-value-identifier"><span class="value-identifier">dy</span></span>}))),
     <span class="value-identifier">env</span>
   );
@@ -117,10 +129,10 @@ let module MovePlayer = Play_collide.Mover({
   let <span class="declaration-var">gravity</span> = <span class="float">0.5</span>;
   let <span class="declaration-var">friction</span> = <span class="float">0.7</span>;
   let <span class="declaration-var">jump</span> = <span class="float">11.</span>;
-  let <span class="declaration-var">bounce</span> = false;
+  let <span class="declaration-var">bounce</span> = <span class="boolean">false</span>;
 });
 
-let <span class="declaration-var">debugPlayerHits</span> = ({player,userInput, blocks, hitByHit}, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
+let <span class="declaration-var">debugPlayerHits</span> = ({<span class="arg-value-identifier"><span class="declaration-var">player</span></span>,<span class="arg-value-identifier"><span class="declaration-var">userInput</span></span>, <span class="arg-value-identifier"><span class="declaration-var">blocks</span></span>, <span class="arg-value-identifier"><span class="declaration-var">hitByHit</span></span>}, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
   let <span class="declaration-var">vx</span> = <span class="module-identifier">Geom</span>.<span class="value-identifier">vx</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">vel</span>);
   let <span class="declaration-var">acc</span> = <span class="value-identifier">userInput</span>.<span class="field-value-identifier">left</span> <span class="switch-value-identifier">?</span> (<span class="value-identifier">vx</span> <span class="operator">></span> <span class="operator">-.</span> <span class="value-identifier">maxWalk</span> <span class="switch-value-identifier">?</span> Geom.{<span class="record-value-identifier">magnitude</span>: <span class="value-identifier">walkSpeed</span>, <span class="record-value-identifier">theta</span>: <span class="value-identifier">pi</span>} <span class="switch-value-identifier">:</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">v0</span>) <span class="switch-value-identifier">:</span> (
     <span class="value-identifier">userInput</span>.<span class="field-value-identifier">right</span> <span class="switch-value-identifier">?</span> (<span class="value-identifier">vx</span> <span class="operator"><</span> <span class="value-identifier">maxWalk</span> <span class="switch-value-identifier">?</span> Geom.{<span class="record-value-identifier">magnitude</span>: <span class="value-identifier">walkSpeed</span>, <span class="record-value-identifier">theta</span>: <span class="float">0.</span>} <span class="switch-value-identifier">:</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">v0</span>) <span class="switch-value-identifier">:</span> <span class="module-identifier">Geom</span>.<span class="value-identifier">v0</span>
@@ -136,9 +148,9 @@ let <span class="declaration-var">debugPlayerHits</span> = ({player,userInput, b
   <span class="module-identifier">List</span>.<span class="value-identifier">iteri</span>(
     (<span class="declaration-var">i</span>, (<span class="declaration-var">oldVel</span>, <span class="declaration-var">newVel</span>, <span class="declaration-var">blockPos</span>, <span class="declaration-var">playerMoved</span>, <span class="declaration-var">blockBox</span>)) => {
       switch <span class="value-identifier">hitByHit</span> {
-      | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">index</span>) when <span class="value-identifier">index</span> <span class="value-identifier">mod</span> <span class="module-identifier">List</span>.<span class="value-identifier">length</span>(<span class="value-identifier">hits</span>) <span class="operator">!=</span> <span class="value-identifier">i</span> => ()
+      | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">index</span>) when <span class="value-identifier">index</span> <span class="value-identifier">mod</span> <span class="module-identifier">List</span>.<span class="value-identifier">length</span>(<span class="value-identifier">hits</span>) <span class="operator">!=</span> <span class="value-identifier">i</span> => <span class="constructor-operator">()</span>
       | _ => {
-        if (<span class="value-identifier">hitByHit</span> <span class="operator">!=</span> None) {
+        if (<span class="value-identifier">hitByHit</span> <span class="operator">!=</span> <span class="constructor-module-identifier">None</span>) {
           <span class="module-identifier">Draw</span>.<span class="value-identifier">text</span>(~font=<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">smallFont</span>, ~body=<span class="string">"hi"</span>, ~pos=<span class="module-identifier">Geom</span>.<span class="value-identifier">intTuple</span>(<span class="value-identifier">player</span>.<span class="field-value-identifier">box</span>.<span class="field-value-identifier">pos</span>), <span class="value-identifier">env</span>);
         };
 
@@ -179,9 +191,9 @@ let <span class="declaration-var">debugPlayerHits</span> = ({player,userInput, b
 let <span class="declaration-var">drawStones</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">inPosition</span>, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
   <span class="module-identifier">Draw</span>.<span class="value-identifier">fill</span>(<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Utils</span>.<span class="value-identifier">color</span>(~r=<span class="int">150</span>, ~g=<span class="int">150</span>, ~b=<span class="int">170</span>, ~a=<span class="int">255</span>), <span class="value-identifier">env</span>);
   <span class="value-identifier">state</span>.<span class="field-value-identifier">stones</span> <span class="operator">|></span> <span class="module-identifier">List</span>.<span class="value-identifier">iter</span>(<span class="declaration-var">stone</span> => {
-    let {Geom.x,y} = <span class="value-identifier">stone</span>.<span class="field-module-identifier">Stone</span>.<span class="field-value-identifier">circle</span>.<span class="field-value-identifier">center</span>;
+    let {<span class="let-module-identifier"><span class="declaration-var">Geom</span>.<span class="let-value-identifier">x</span></span>,<span class="let-value-identifier"><span class="declaration-var">y</span></span>} = <span class="value-identifier">stone</span>.<span class="field-module-identifier">Stone</span>.<span class="field-value-identifier">circle</span>.<span class="field-value-identifier">center</span>;
     switch (<span class="value-identifier">inPosition</span>(<span class="float">200.</span>, <span class="value-identifier">stone</span>.<span class="field-module-identifier">Stone</span>.<span class="field-value-identifier">circle</span>.<span class="field-value-identifier">center</span>)) {
-    | <span class="switch-module-identifier">None</span> => ()
+    | <span class="switch-module-identifier">None</span> => <span class="constructor-operator">()</span>
     | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">pos</span>) => {
       <span class="value-identifier">drawStone</span>(<span class="value-identifier">context</span>, <span class="value-identifier">pos</span>, <span class="value-identifier">stone</span>, <span class="value-identifier">env</span>)
     }
@@ -204,7 +216,7 @@ let <span class="declaration-var">drawTiles</span> = (<span class="declaration-v
   for (x in <span class="value-identifier">x0</span> to <span class="value-identifier">x0</span> <span class="operator">+</span> <span class="value-identifier">ww</span>) {
     for (y in <span class="value-identifier">y0</span> to <span class="value-identifier">y0</span> <span class="operator">+</span> <span class="value-identifier">hh</span>) {
       switch (<span class="value-identifier">getBlock</span>(<span class="value-identifier">state</span>.<span class="field-value-identifier">blocks</span>, (<span class="value-identifier">x</span>, <span class="value-identifier">y</span>))) {
-      | <span class="switch-module-identifier">None</span> => ()
+      | <span class="switch-module-identifier">None</span> => <span class="constructor-operator">()</span>
       | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">block</span>) => {
 
         let <span class="declaration-var">x</span> = <span class="value-identifier">float_of_int</span>(<span class="value-identifier">x</span>) <span class="operator">*.</span> <span class="value-identifier">blockSize</span> <span class="operator">+.</span> <span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">2.</span>;
@@ -225,23 +237,23 @@ let <span class="declaration-var">drawTiles</span> = (<span class="declaration-v
         <span class="module-identifier">Draw</span>.<span class="value-identifier">translate</span>(~<span class="value-identifier">x</span>, ~<span class="value-identifier">y</span>, <span class="value-identifier">env</span>);
         <span class="module-identifier">Draw</span>.<span class="value-identifier">rotate</span>(<span class="value-identifier">rot</span>, <span class="value-identifier">env</span>);
         let <span class="declaration-var">pos</span> = (<span class="operator">-.</span><span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">2.</span>, <span class="operator">-.</span><span class="value-identifier">blockSize</span><span class="operator">/.</span><span class="float">2.</span>);
-        <span class="value-identifier">sprite</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">tileSheet</span>, ~pos=<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+        <span class="value-identifier">sprite</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">tileSheet</span>, ~pos=<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=<span class="boolean">false</span>, <span class="value-identifier">env</span>);
 
         <span class="module-identifier">Draw</span>.<span class="value-identifier">tint</span>(<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Utils</span>.<span class="value-identifier">colorf</span>(~r=<span class="float">1.</span>, ~g=<span class="float">1.</span>, ~b=<span class="float">1.</span>, ~a=<span class="float">0.5</span>), <span class="value-identifier">env</span>);
         if (<span class="value-identifier">block</span>.<span class="field-module-identifier">Block</span>.<span class="field-value-identifier">damage</span> <span class="operator">>=</span> <span class="float">0.7</span>) {
-          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks3</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
-          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks3</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=<span class="boolean">false</span>, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=<span class="boolean">false</span>, <span class="value-identifier">env</span>);
         } else if (<span class="value-identifier">block</span>.<span class="field-module-identifier">Block</span>.<span class="field-value-identifier">damage</span> <span class="operator">>=</span> <span class="float">0.4</span>) {
-          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks2</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
-          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks2</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=<span class="boolean">false</span>, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=<span class="boolean">false</span>, <span class="value-identifier">env</span>);
         } else if (<span class="value-identifier">block</span>.<span class="field-module-identifier">Block</span>.<span class="field-value-identifier">damage</span> <span class="operator">></span> <span class="float">0.</span>) {
-          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">cracks</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~<span class="value-identifier">pos</span>, ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=<span class="boolean">false</span>, <span class="value-identifier">env</span>);
         };
         <span class="module-identifier">Draw</span>.<span class="value-identifier">noTint</span>(<span class="value-identifier">env</span>);
 
         if (<span class="value-identifier">block</span>.<span class="field-value-identifier">top</span>) {
           <span class="module-identifier">Draw</span>.<span class="value-identifier">rotate</span>(<span class="operator">-.</span><span class="value-identifier">rot</span>, <span class="value-identifier">env</span>);
-          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">grass_top</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~pos=(<span class="operator">-.</span><span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">2.</span>, <span class="operator">-.</span><span class="value-identifier">blockSize</span><span class="operator">/.</span><span class="float">2.</span>), ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=false, <span class="value-identifier">env</span>);
+          <span class="module-identifier">Play_assets</span>.<span class="module-identifier">ExtraItems</span>.<span class="value-identifier">grass_top</span>(<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">extraItemsSheet</span>, ~pos=(<span class="operator">-.</span><span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">2.</span>, <span class="operator">-.</span><span class="value-identifier">blockSize</span><span class="operator">/.</span><span class="float">2.</span>), ~scale=<span class="value-identifier">blockSize</span> <span class="operator">/.</span> <span class="float">128.</span>, ~flip=<span class="boolean">false</span>, <span class="value-identifier">env</span>);
         };
         <span class="module-identifier">Draw</span>.<span class="value-identifier">popMatrix</span>(<span class="value-identifier">env</span>);
 
@@ -265,7 +277,7 @@ let <span class="declaration-var">drawTiles</span> = (<span class="declaration-v
 let <span class="declaration-var">drawText</span> = (<span class="declaration-var">state</span>, <span class="declaration-var">inPosition</span>, <span class="declaration-var">context</span>, <span class="declaration-var">env</span>) => {
   <span class="value-identifier">state</span>.<span class="field-value-identifier">textPos</span> <span class="operator">|></span> <span class="module-identifier">List</span>.<span class="value-identifier">iter</span>(((<span class="declaration-var">text</span>, <span class="declaration-var">pos</span>)) => {
     switch (<span class="value-identifier">inPosition</span>(<span class="float">800.</span>, <span class="value-identifier">pos</span>)) {
-    | <span class="switch-module-identifier">None</span> => ()
+    | <span class="switch-module-identifier">None</span> => <span class="constructor-operator">()</span>
     | <span class="switch-module-identifier">Some</span>(<span class="declaration-var">pos</span>) => {
       <span class="module-identifier">Draw</span>.<span class="value-identifier">tint</span>(<span class="module-identifier">Constants</span>.<span class="value-identifier">black</span>, <span class="value-identifier">env</span>);
       <span class="module-identifier">Draw</span>.<span class="value-identifier">text</span>(~font=<span class="value-identifier">context</span>.<span class="field-module-identifier">Shared</span>.<span class="field-value-identifier">smallFont</span>, ~pos=<span class="module-identifier">Geom</span>.<span class="value-identifier">intTuple</span>(<span class="value-identifier">pos</span>), ~body=<span class="value-identifier">text</span>, <span class="value-identifier">env</span>);
@@ -304,7 +316,7 @@ let <span class="declaration-var">drawWorld</span> = (<span class="declaration-v
   <span class="module-identifier">Draw</span>.<span class="value-identifier">noStroke</span>(<span class="value-identifier">env</span>);
   <span class="value-identifier">drawPlayer</span>(<span class="value-identifier">state</span>, <span class="value-identifier">context</span>, <span class="value-identifier">env</span>);
 
-  let <span class="declaration-var">inPosition</span> = (<span class="declaration-var">drawPadding</span>, {Geom.x, y} as <span class="declaration-var">pos</span>) => {
+  let <span class="declaration-var">inPosition</span> = (<span class="declaration-var">drawPadding</span>, {<span class="arg-module-identifier"><span class="declaration-var">Geom</span>.<span class="arg-value-identifier">x</span></span>, <span class="arg-value-identifier"><span class="declaration-var">y</span></span>} as <span class="declaration-var">pos</span>) => {
     let <span class="declaration-var">x0</span> = <span class="value-identifier">dx</span> <span class="operator">-.</span> <span class="value-identifier">drawPadding</span>;
     let <span class="declaration-var">y0</span> = <span class="value-identifier">dy</span> <span class="operator">-.</span> <span class="value-identifier">drawPadding</span>;
     let <span class="declaration-var">x1</span> = <span class="value-identifier">dx</span> <span class="operator">+.</span> <span class="value-identifier">w</span> <span class="operator">+.</span> <span class="value-identifier">drawPadding</span>;
@@ -312,22 +324,22 @@ let <span class="declaration-var">drawWorld</span> = (<span class="declaration-v
 
     if (<span class="value-identifier">y</span> <span class="operator">></span> <span class="value-identifier">y0</span> <span class="operator">&&</span> <span class="value-identifier">y</span> <span class="operator"><</span> <span class="value-identifier">y1</span>) {
       if (<span class="value-identifier">x</span> <span class="operator">></span> <span class="value-identifier">x0</span> <span class="operator">&&</span> <span class="value-identifier">x</span> <span class="operator"><</span> <span class="value-identifier">x1</span>) {
-        Some(<span class="value-identifier">pos</span>)
+        <span class="constructor-module-identifier">Some</span>(<span class="value-identifier">pos</span>)
       } else {
         let <span class="declaration-var">left</span> = <span class="value-identifier">x</span> <span class="operator">-.</span> <span class="value-identifier">gameWidth</span>;
         if (<span class="value-identifier">left</span> <span class="operator">></span> <span class="value-identifier">x0</span> <span class="operator">&&</span> <span class="value-identifier">left</span> <span class="operator"><</span> <span class="value-identifier">x1</span>) {
-          Some(<span class="module-identifier">Geom</span>.<span class="value-identifier">addPoints</span>(<span class="value-identifier">pos</span>, {<span class="record-value-identifier">x</span>: <span class="operator">-.</span><span class="value-identifier">gameWidth</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>}))
+          <span class="constructor-module-identifier">Some</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">addPoints</span>(<span class="value-identifier">pos</span>, {<span class="record-value-identifier">x</span>: <span class="operator">-.</span><span class="value-identifier">gameWidth</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>}))
         } else {
           let <span class="declaration-var">right</span> = <span class="value-identifier">x</span> <span class="operator">+.</span> <span class="value-identifier">gameWidth</span>;
           if (<span class="value-identifier">right</span> <span class="operator">></span> <span class="value-identifier">x0</span> <span class="operator">&&</span> <span class="value-identifier">right</span> <span class="operator"><</span> <span class="value-identifier">x1</span>) {
-            Some(<span class="module-identifier">Geom</span>.<span class="value-identifier">addPoints</span>(<span class="value-identifier">pos</span>, {<span class="record-value-identifier">x</span>: <span class="operator">+.</span><span class="value-identifier">gameWidth</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>}))
+            <span class="constructor-module-identifier">Some</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">addPoints</span>(<span class="value-identifier">pos</span>, {<span class="record-value-identifier">x</span>: <span class="operator">+.</span><span class="value-identifier">gameWidth</span>, <span class="record-value-identifier">y</span>: <span class="float">0.</span>}))
           } else {
-            None
+            <span class="constructor-module-identifier">None</span>
           }
         }
       };
     } else {
-      None
+      <span class="constructor-module-identifier">None</span>
     }
   };
 
@@ -352,9 +364,9 @@ let <span class="declaration-var">touchButtons</span> = <span class="declaration
   let <span class="declaration-var">buttonSize</span> = <span class="float">50.</span>;
   let <span class="declaration-var">shape</span> = <span class="declaration-var">pos</span> => {<span class="record-module-identifier">Geom</span>.<span class="record-module-identifier">Circle</span>.<span class="record-value-identifier">center</span>: <span class="value-identifier">pos</span>, <span class="record-value-identifier">rad</span>: <span class="value-identifier">buttonSize</span>};
   [
-    (`Left, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">75.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),
-    (`Right, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">175.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),
-    (`Jump, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">right</span> <span class="operator">-.</span> <span class="float">75.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),
+    <span class="constructor-operator"><span class="constructor-operator">(`Left, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">75.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),
+    <span class="constructor-operator">(`Right, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="float">175.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),
+    <span class="constructor-operator">(`Jump, <span class="value-identifier">shape</span>({<span class="record-module-identifier">Geom</span>.<span class="record-value-identifier">x</span>: <span class="value-identifier">right</span> <span class="operator">-.</span> <span class="float">75.</span>, <span class="record-value-identifier">y</span>: <span class="value-identifier">bottom</span> <span class="operator">-.</span> <span class="float">75.</span>})),</span></span></span></span>
   ]
 };
 
@@ -393,7 +405,7 @@ let <span class="declaration-var">joystickCircle</span> = <span class="declarati
 let <span class="declaration-var">arrayAssoc</span> = (<span class="declaration-var">value</span>, <span class="declaration-var">arr</span>) => {
   let rec <span class="declaration-var">loop</span> = <span class="declaration-var">i</span> => {
     if (<span class="value-identifier">i</span> <span class="operator">>=</span> <span class="module-identifier">Array</span>.<span class="value-identifier">length</span>(<span class="value-identifier">arr</span>)) {
-      <span class="value-identifier">raise</span>(Not_found)
+      <span class="value-identifier">raise</span>(<span class="constructor-module-identifier">Not_found</span>)
     } else {
       let (<span class="declaration-var">a</span>, <span class="declaration-var">b</span>) = <span class="module-identifier"><span class="value-identifier">ar</span>r</span><span class="value-identifier">[<span class="value-identifier">i</span>]</span>;
       if (<span class="value-identifier">a</span> <span class="operator">==</span> <span class="value-identifier">value</span>) {
@@ -415,9 +427,9 @@ let <span class="declaration-var">draw</span> = (<span class="declaration-var">s
     <span class="record-module-identifier">Play_types</span>.<span class="record-module-identifier">Stone</span>.<span class="record-value-identifier">circle</span>: {<span class="record-module-identifier">Geom</span>.<span class="record-module-identifier">Circle</span>.<span class="record-value-identifier">center</span>: <span class="module-identifier">Geom</span>.<span class="value-identifier">origin</span>, <span class="record-value-identifier">rad</span>: <span class="float">10.</span>},
     <span class="record-value-identifier">rotation</span>: <span class="float">0.</span>,
     <span class="record-value-identifier">vel</span>: <span class="module-identifier">Geom</span>.<span class="value-identifier">v0</span>,
-    <span class="record-value-identifier">live</span>: true,
+    <span class="record-value-identifier">live</span>: <span class="boolean">true</span>,
   }, <span class="value-identifier">env</span>);
-  let <span class="declaration-var">stones</span> = switch (<span class="value-identifier">arrayAssoc</span>(Inventory.Stone, <span class="value-identifier">state</span>.<span class="field-value-identifier">player</span>.<span class="field-value-identifier">inventory</span>.<span class="field-value-identifier">slots</span>)) {
+  let <span class="declaration-var">stones</span> = switch (<span class="value-identifier">arrayAssoc</span>(<span class="constructor-module-identifier">Inventory</span>.<span class="constructor-module-identifier">Stone</span>, <span class="value-identifier">state</span>.<span class="field-value-identifier">player</span>.<span class="field-value-identifier">inventory</span>.<span class="field-value-identifier">slots</span>)) {
   | exception <span class="switch-module-identifier">Not_found</span> => <span class="int">0</span>
   | <span class="declaration-var">x</span> => <span class="value-identifier">x</span>
   };

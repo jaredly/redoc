@@ -4,7 +4,7 @@ open Parsetree;
 module F = (Collect: {
   let lident: (Longident.t, Location.t, string) => unit;
   let pat_var: (string, Location.t) => unit;
-  let constant: ([< `Int | `Float | `Char | `String], Location.t) => unit;
+  let constant: ([< `Int | `Float | `Char | `String | `Boolean], Location.t) => unit;
 }) => {
 
   let constantType = constant => switch constant {
@@ -37,7 +37,12 @@ module F = (Collect: {
       };
     }
     | Ppat_variant(label, arg) => ()
-    | Ppat_record(attributes, closedFlag) => ()
+    | Ppat_record(attributes, closedFlag) => {
+      attributes |> List.iter((({Asttypes.txt, loc}, pat)) => {
+        Collect.lident(txt, loc, prefix);
+        mapPat(pat)
+      })
+    }
     | Ppat_array(contents) => ()
     | Ppat_or(left, right) => {mapPat(left); mapPat(right)}
     | Ppat_constraint(pat, typ) => mapPat(pat)
@@ -130,12 +135,17 @@ module F = (Collect: {
           Collect.lident(txt, loc, "record-")
         })
       }
+      | Pexp_construct({txt: Lident("true" | "false"), loc}, arg) => {
+        Collect.constant(`Boolean, pexp_loc)
+      }
+      | Pexp_construct({txt, loc}, arg) => {
+        Collect.lident(txt, loc, "constructor-")
+      }
 
       /*
       | Pexp_function(_) => failwith("<case>")
       | Pexp_match(_, _) => failwith("<case>")
       | Pexp_try(_, _) => failwith("<case>")
-      | Pexp_construct(_, _) => failwith("<case>")
       | Pexp_variant(_, _) => failwith("<case>")
       | Pexp_setfield(_, _, _) => failwith("<case>")
       | Pexp_array(_) => failwith("<case>")
@@ -211,6 +221,7 @@ let highlight = (text, ast) => {
     | `Int => "int"
     | `Float => "float"
     | `Char => "char"
+    | `Boolean => "boolean"
     });
   });
   Mapper.mapper.structure(Mapper.mapper, ast) |> ignore;

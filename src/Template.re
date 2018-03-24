@@ -4,6 +4,9 @@ let header = {|
 <head>
 <title>Reason code</title>
 <style>
+body {
+  padding: 30px 50px;
+}
 .value-identifier {
     color: #000;
 }

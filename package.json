@@ -1,5 +1,5 @@
 {
-  "name": "lost-ranger",
+  "name": "docre",
   "version": "0.0.1",
   "scripts": {
     "start": "rsb native:hot",

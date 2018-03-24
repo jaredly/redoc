@@ -177,8 +177,18 @@ module F = (Collect: {
 
 };
 
+let locPair = ({Location.loc_start, loc_end}) => (loc_start.pos_cnum, loc_end.pos_cnum);
 
-let highlight = (text, ast) => {
+let buildLocBindingMap = bindings => {
+  let map = Hashtbl.create(100);
+  Hashtbl.iter((stamp, ((_, loc), uses)) => {
+    Hashtbl.replace(map, locPair(loc), stamp);
+    uses |> List.iter(((_, loc)) => Hashtbl.replace(map, locPair(loc), stamp))
+  }, bindings);
+  map
+};
+
+let collect = ast => {
   let ranges = ref([]);
   let addNums = (cstart, cend, className) => ranges := [(cstart, cend, className), ...ranges^];
   let addRange = (loc, className) => addNums(loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, className);
@@ -225,7 +235,7 @@ let highlight = (text, ast) => {
     });
   });
   Mapper.mapper.structure(Mapper.mapper, ast) |> ignore;
-  let ranges = ranges^ |> List.sort(((ast, ae, _), (bst, be, _)) => {
+  ranges^ |> List.sort(((ast, ae, _), (bst, be, _)) => {
     let sdiff = ast - bst;
     /** If they start at the same time, the *larger* range should go First */
     if (sdiff === 0) {
@@ -234,10 +244,22 @@ let highlight = (text, ast) => {
       sdiff
     }
   });
+};
+
+let highlight = (text, ast, bindings) => {
+
+  let bindingMap = buildLocBindingMap(bindings);
+  let ranges = collect(ast);
+
   /** Yolo this might be overkill? */
   let inserts = Array.make(String.length(text), []);
   let closes = Array.make(String.length(text), 0);
   ranges |> List.iter(((cstart, cend, className)) => {
+    let idClass = switch (Hashtbl.find(bindingMap, (cstart, cend))) {
+    | exception Not_found => ""
+    | stamp => " binding-" ++ string_of_int(stamp)
+    };
+    let className = className ++ idClass;
     inserts[cstart] = [className, ...inserts[cstart]];
     closes[cend] = closes[cend] + 1;
     /* inserts[cend] = [className, ...inserts[cend]]; */

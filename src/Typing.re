@@ -3,21 +3,11 @@ module type Collector = {
   let add: (~mend: Lexing.position=?, ~depth: int=?, Types.type_expr, Location.t) => unit;
   let ident: (Path.t, Location.t) => unit;
   let declaration: (Ident.t, Location.t) => unit;
+  let open_: (Path.t, Location.t) => unit;
 };
 
 module F = (Collector: Collector) => {
   include TypedtreeIter.DefaultIteratorArgument;
-  let enter_structure_item = (item) =>
-    Typedtree.(
-      switch item.str_desc {
-      | Tstr_value(isrec, bindings) =>
-        List.iter(
-          (binding) => Collector.add(binding.vb_expr.exp_type, binding.vb_loc),
-          bindings
-        )
-      | _ => ()
-      }
-    );
   let depth = ref(0);
   let enter_core_type = (typ) => {
     open Typedtree;
@@ -49,8 +39,17 @@ module F = (Collector: Collector) => {
   let enter_structure_item = str => {
     open Typedtree;
     switch str.str_desc {
+    | Tstr_value(isrec, bindings) =>
+      List.iter(
+        (binding) => Collector.add(binding.vb_expr.exp_type, binding.vb_loc),
+        bindings
+      )
     | Tstr_module({mb_id, mb_name: {txt, loc}}) => {
       Collector.declaration(mb_id, loc);
+    }
+    | Tstr_open({open_path, open_txt: {txt, loc}}) => {
+      Collector.ident(open_path, loc);
+      Collector.open_(open_path, loc)
     }
     | _ => ()
     }
@@ -178,10 +177,13 @@ let collectTypes = annots => {
     }
   };
 
+  let open_ = (path, loc) => ();
+
   let module Config = {
     let add = add;
     let ident=ident;
     let declaration=declaration;
+    let open_ = open_;
   };
   let module Iter = TypedtreeIter.MakeIterator((F(Config)));
 

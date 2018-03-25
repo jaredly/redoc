@@ -18,6 +18,7 @@ body {
   color: #aa0;
 }
 
+.open-module-identifier,
 .type-module-identifier,
 .let-module-identifier,
 .constructor-module-identifier,
@@ -27,6 +28,7 @@ body {
   color: #a0a;
 }
 
+.open-value-identifier,
 .type-value-identifier,
 .let-value-identifier,
 .switch-value-identifier,

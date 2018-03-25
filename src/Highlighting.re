@@ -65,6 +65,7 @@ module F = (Collect: {
         })
       }
       | Pstr_module({pmb_name: {txt, loc}}) => Collect.pat_var(txt, loc)
+      | Pstr_open({popen_lid: {txt, loc}}) => Collect.lident(txt, loc, "open-")
       /* | Pstr_primitive(_) => failwith("<case>")
       | Pstr_type(_) => failwith("<case>")
       | Pstr_typext(_) => failwith("<case>")

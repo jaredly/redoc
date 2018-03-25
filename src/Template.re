@@ -70,7 +70,7 @@ body {
 .hovered {
   background-color: #d4ffe2;
 }
-span {
+/* span {
   display: inline-block;
   position: relative;
 }
@@ -78,6 +78,12 @@ span {
   position: absolute;
   top: 100%;
   left: 0;
+} */
+[data-global]:not(.operator) {
+  font-style: italic;
+  /* text-decoration: underline;
+  text-decoration-color: rgba(0, 0, 0, 0.5);
+  text-decoration-style: dashed; */
 }
 </style>
 |};

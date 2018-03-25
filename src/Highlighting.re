@@ -179,15 +179,6 @@ module F = (Collect: {
 
 let locPair = ({Location.loc_start, loc_end}) => (loc_start.pos_cnum, loc_end.pos_cnum);
 
-let buildLocBindingMap = bindings => {
-  let map = Hashtbl.create(100);
-  Hashtbl.iter((stamp, ((_, loc), uses)) => {
-    Hashtbl.replace(map, locPair(loc), stamp);
-    uses |> List.iter(((_, loc)) => Hashtbl.replace(map, locPair(loc), stamp))
-  }, bindings);
-  map
-};
-
 let collect = ast => {
   let ranges = ref([]);
   let addNums = (cstart, cend, className) => ranges := [(cstart, cend, className), ...ranges^];
@@ -241,9 +232,27 @@ let collect = ast => {
   });
 };
 
-let highlight = (text, ast, bindings) => {
+let buildLocBindingMap = bindings => {
+  let map = Hashtbl.create(100);
+  Hashtbl.iter((stamp, ((_, loc), uses)) => {
+    Hashtbl.replace(map, locPair(loc), stamp);
+    uses |> List.iter(((_, loc)) => Hashtbl.replace(map, locPair(loc), stamp))
+  }, bindings);
+  map
+};
+
+let buildExternalsMap = externals => {
+  let map = Hashtbl.create(100);
+  externals |> List.iter(((path, loc)) => {
+    Hashtbl.replace(map, locPair(loc), path)
+  });
+  map
+};
+
+let highlight = (text, ast, bindings, externals) => {
 
   let bindingMap = buildLocBindingMap(bindings);
+  let externalsMap = buildExternalsMap(externals);
   let ranges = collect(ast);
 
   /** Yolo this might be overkill? */
@@ -252,8 +261,11 @@ let highlight = (text, ast, bindings) => {
   ranges |> List.iter(((cstart, cend, className)) => {
     /* TODO also handle externals I think */
     let id = switch (Hashtbl.find(bindingMap, (cstart, cend))) {
-    | exception Not_found => None
-    | stamp => Some(stamp)
+    | exception Not_found => switch (Hashtbl.find(externalsMap, (cstart, cend))) {
+      | exception Not_found => `Normal
+      | path => `Global
+      }
+    | stamp => `Local(stamp)
     };
     inserts[cstart] = [(className, id), ...inserts[cstart]];
     closes[cend] = closes[cend] + 1;
@@ -263,8 +275,9 @@ let highlight = (text, ast, bindings) => {
   let openTag = (name, id) => {
     "<span class=\"" ++ name ++ "\"" ++ (
       switch id {
-      | None => ""
-      | Some(num) => " data-id=\"" ++ string_of_int(num) ++ "\""
+      | `Normal => ""
+      | `Global => " data-global"
+      | `Local(num) => " data-id=\"" ++ string_of_int(num) ++ "\""
       }
     ) ++ ">"
      /*

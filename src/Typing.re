@@ -175,5 +175,5 @@ let collectTypes = annots => {
   | _ => failwith("Not a valid cmt file")
   };
 
-  (types, bindings, externals)
+  (types, bindings, externals^)
 };

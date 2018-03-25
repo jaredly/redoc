@@ -19,20 +19,39 @@ module F = (Collector: Collector) => {
       }
     );
   let depth = ref(0);
-  let enter_core_type = (typ) => Typedtree.(Collector.add(~depth=depth^, typ.ctyp_type, typ.ctyp_loc));
-  let enter_type_declaration = (typ) =>
-    Typedtree.(
-      switch typ.typ_type.Types.type_manifest {
-      | Some((x)) => Collector.add(~depth=depth^, x, typ.typ_loc)
-      | _ => ()
-      }
-    );
+  let enter_core_type = (typ) => {
+    open Typedtree;
+    Collector.add(~depth=depth^, typ.ctyp_type, typ.ctyp_loc);
+    switch typ.ctyp_desc {
+    | Ttyp_constr(path, {txt, loc}, args) => {
+      Collector.ident(path, loc)
+    }
+    | _ => ()
+    }
+  };
+  let enter_type_declaration = (typ) => {
+    open Typedtree;
+    switch typ.typ_type.Types.type_manifest {
+    | Some((x)) => Collector.add(~depth=depth^, x, typ.typ_loc)
+    | _ => ()
+    };
+    Collector.declaration(typ.typ_id, typ.typ_name.loc)
+  };
   let enter_pattern = pat => {
     open Typedtree;
     Collector.add(~depth=depth^, pat.pat_type, pat.pat_loc);
     switch (pat.pat_desc) {
     | Tpat_var(ident, {txt, loc}) => Collector.declaration(ident, loc)
     | Tpat_alias(_, ident, {txt, loc}) => Collector.declaration(ident, loc)
+    | _ => ()
+    }
+  };
+  let enter_structure_item = str => {
+    open Typedtree;
+    switch str.str_desc {
+    | Tstr_module({mb_id, mb_name: {txt, loc}}) => {
+      Collector.declaration(mb_id, loc);
+    }
     | _ => ()
     }
   };

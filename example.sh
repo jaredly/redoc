@@ -2,7 +2,7 @@
 # This should be the base of a bucklescript project
 base=~/clone/games/lost-ranger
 # And this is the module you want to inspect
-name=src/Play_step
+name=src/Play_types
 # NOTE: you have to have built the project already to produce the artifacts.
 
 ./lib/bs/native/main.native \

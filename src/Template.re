@@ -18,6 +18,7 @@ body {
   color: #aa0;
 }
 
+.type-module-identifier,
 .let-module-identifier,
 .constructor-module-identifier,
 .switch-module-identifier,
@@ -26,6 +27,7 @@ body {
   color: #a0a;
 }
 
+.type-value-identifier,
 .let-value-identifier,
 .switch-value-identifier,
 .record-value-identifier,
@@ -80,11 +82,31 @@ body {
   left: 0;
 } */
 [data-global]:not(.operator) {
-  font-style: italic;
+  /* font-style: italic; */
+  background-color: #fff3f2;
   /* text-decoration: underline;
   text-decoration-color: rgba(0, 0, 0, 0.5);
   text-decoration-style: dashed; */
 }
+
+
+/* .module-identifier,
+.let-module-identifier,
+.constructor-module-identifier,
+.switch-module-identifier,
+.record-module-identifier,
+.field-module-identifier,
+.let-value-identifier,
+.switch-value-identifier,
+.record-value-identifier,
+.field-value-identifier,
+.unused-identifier,
+.declaration-var {
+  color: #000;
+} */
+
+
+
 </style>
 |};
 

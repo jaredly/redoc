@@ -64,6 +64,7 @@ module F = (Collect: {
           ()
         })
       }
+      | Pstr_module({pmb_name: {txt, loc}}) => Collect.pat_var(txt, loc)
       /* | Pstr_primitive(_) => failwith("<case>")
       | Pstr_type(_) => failwith("<case>")
       | Pstr_typext(_) => failwith("<case>")
@@ -80,6 +81,17 @@ module F = (Collect: {
       | _ => ()
       };
       Ast_mapper.default_mapper.structure_item(mapper, str);
+    },
+    type_declaration: (mapper, {ptype_name: {txt, loc}} as decl) => {
+      Collect.pat_var(txt, loc);
+      Ast_mapper.default_mapper.type_declaration(mapper, decl)
+    },
+    typ: (mapper, typ) => {
+      switch typ.ptyp_desc {
+      | Ptyp_constr({txt, loc}, args) => Collect.lident(txt, loc, "type-")
+      | _ => ()
+      };
+      Ast_mapper.default_mapper.typ(mapper, typ)
     },
     expr: (mapper, {pexp_desc, pexp_loc} as expr) => {
       switch pexp_desc {
@@ -185,11 +197,12 @@ let collect = ast => {
   let addRange = (loc, className) => addNums(loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, className);
 
   let addIdentifier = (cstart, cend, txt, prefix) => {
+    let txt = String.trim(txt);
     let cls = if (txt.[0] >= 'A' && txt.[0] <= 'Z') {
       "module-identifier"
     } else if (txt.[0] == '_') {
       "unused-identifier"
-    } else if (txt.[0] < 'a' || txt.[0] > 'z') {
+    } else if (txt.[0] < 'a' || txt.[0] > 'z' || txt.[0] == '!' || txt == "!" || txt == "not") {
       "operator"
     } else {
       "value-identifier"

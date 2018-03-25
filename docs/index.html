@@ -87,10 +87,10 @@ let <span class="declaration-var" data-id="1054">maybeSave</span> = (<span class
     if (<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">saveUserData</span>(~key=<span class="value-identifier">storageKey</span>, ~value=<span class="value-identifier" data-id="1057">num</span>, <span class="value-identifier" data-id="1056">env</span>)) {
       {...<span class="value-identifier" data-id="1055">state</span>, <span class="record-value-identifier">lastSavedHighScore</span>: <span class="value-identifier" data-id="1057">num</span>}
     } else {
-      <span class="value-identifier">state</span>
+      <span class="value-identifier" data-id="1055">state</span>
     }
   } else {
-    <span class="value-identifier">state</span>
+    <span class="value-identifier" data-id="1055">state</span>
   }
 };
 
@@ -144,7 +144,7 @@ let <span class="declaration-var" data-id="1201">getTouchInput</span> = (<span c
   };
   <span class="module-identifier">Hashtbl</span>.<span class="value-identifier">fold</span>((<span class="declaration-var" data-id="1244">key</span>, <span class="declaration-var" data-id="1245">pos</span>, <span class="declaration-var" data-id="1246">input</span>) => {
     if (<span class="constructor-module-identifier">Some</span>(<span class="value-identifier" data-id="1244">key</span>) <span class="operator">==</span> <span class="value-identifier" data-id="1204">throwId</span>) {
-      <span class="value-identifier">input</span> /* skip this one */
+      <span class="value-identifier" data-id="1246">input</span> /* skip this one */
     } else {
       switch (<span class="module-identifier">Play_touch</span>.<span class="value-identifier">joystickButton</span>(<span class="module-identifier">Geom</span>.<span class="value-identifier">fromTuple</span>(<span class="value-identifier" data-id="1245">pos</span>), <span class="value-identifier" data-id="1203">env</span>)) {
       | <span class="switch-module-identifier">Some</span>(`Left) => {...<span class="value-identifier" data-id="1246">input</span>, <span class="record-value-identifier">left</span>: <span class="boolean">true</span>}
@@ -179,7 +179,7 @@ let <span class="declaration-var" data-id="1253">handleResize</span> = (<span cl
     if (<span class="module-identifier">Env</span>.<span class="value-identifier">width</span>(<span class="value-identifier" data-id="1255">env</span>) <span class="operator">!=</span> <span class="value-identifier">int_of_float</span>(<span class="value-identifier" data-id="1258">w</span>) <span class="operator">||</span> <span class="module-identifier">Env</span>.<span class="value-identifier">height</span>(<span class="value-identifier" data-id="1255">env</span>) <span class="operator">!=</span> <span class="value-identifier">int_of_float</span>(<span class="value-identifier" data-id="1259">h</span>)) {
       {...<span class="value-identifier" data-id="1254">state</span>, <span class="record-value-identifier">camera</span>: (<span class="value-identifier" data-id="1256">x</span>, <span class="value-identifier" data-id="1257">y</span>, <span class="value-identifier">float_of_int</span>(<span class="module-identifier">Env</span>.<span class="value-identifier">width</span>(<span class="value-identifier" data-id="1255">env</span>)), <span class="value-identifier">float_of_int</span>(<span class="module-identifier">Env</span>.<span class="value-identifier">height</span>(<span class="value-identifier" data-id="1255">env</span>)))}
     } else {
-      <span class="value-identifier">state</span>
+      <span class="value-identifier" data-id="1254">state</span>
     }
 };
 
@@ -242,10 +242,10 @@ let <span class="declaration-var" data-id="1276">attack</span> = (<span class="d
 
 let <span class="declaration-var" data-id="1287">dig</span> = (<span class="declaration-var" data-id="1288">state</span>, <span class="declaration-var" data-id="1289">player</span>, <span class="declaration-var" data-id="1290">userInput</span>, <span class="declaration-var" data-id="1291">facingLeft</span>, <span class="declaration-var" data-id="1292">env</span>) => {
   if (<span class="value-identifier">!</span><span class="value-identifier" data-id="1290">userInput</span>.<span class="field-value-identifier">action</span> <span class="operator">||</span> <span class="value-identifier" data-id="1289">player</span>.<span class="field-value-identifier">throw</span> <span class="operator">!==</span> <span class="constructor-module-identifier">None</span>) {
-    <span class="value-identifier">player</span>
+    <span class="value-identifier" data-id="1289">player</span>
   } else {
     let (<span class="declaration-var" data-id="1293">actionTimer</span>, <span class="declaration-var" data-id="1294">looped</span>) = <span class="module-identifier">Timer</span>.<span class="value-identifier">incLoop</span>(<span class="value-identifier" data-id="1289">player</span>.<span class="field-value-identifier">actionTimer</span>, <span class="value-identifier" data-id="1292">env</span>);
-    if (<span class="value-identifier">looped</span>) {
+    if (<span class="value-identifier" data-id="1294">looped</span>) {
       let <span class="declaration-var" data-id="1295">pos</span> = <span class="value-identifier" data-id="1289">player</span>.<span class="field-value-identifier">box</span>.<span class="field-module-identifier">Geom</span>.<span class="field-module-identifier">Rect</span>.<span class="field-value-identifier">pos</span>;
       let (<span class="declaration-var" data-id="1296">x</span>, <span class="declaration-var" data-id="1297">y</span>) = <span class="value-identifier">blockPos</span>(<span class="value-identifier" data-id="1295">pos</span>);
       <span class="string">/** So far we only strike down */</span>
@@ -309,7 +309,7 @@ let <span class="declaration-var" data-id="1336">step</span> = (<span class="dec
   let <span class="declaration-var" data-id="1343">userInput</span> = if (<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">isTouchScreen</span>(<span class="value-identifier" data-id="1339">env</span>)) {
     <span class="value-identifier" data-id="1247">mergeInputs</span>(<span class="value-identifier" data-id="1342">userInput</span>, <span class="value-identifier" data-id="1201">getTouchInput</span>(<span class="value-identifier" data-id="1340">state</span>, <span class="value-identifier" data-id="1339">env</span>));
   } else {
-    <span class="value-identifier">userInput</span>
+    <span class="value-identifier" data-id="1342">userInput</span>
   };
 
   let <span class="declaration-var" data-id="1344">player</span> = <span class="value-identifier" data-id="1340">state</span>.<span class="field-value-identifier">player</span>;
@@ -328,7 +328,7 @@ let <span class="declaration-var" data-id="1336">step</span> = (<span class="dec
   let <span class="declaration-var" data-id="1356">player</span> = if (<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">keyPressed</span>(<span class="constructor-module-identifier">Reprocessing</span>.<span class="constructor-module-identifier">Events</span>.<span class="constructor-module-identifier">Space</span>, <span class="value-identifier" data-id="1339">env</span>)) {
     <span class="module-identifier">Play_touch</span>.<span class="value-identifier">switchSkin</span>(<span class="value-identifier" data-id="1355">player</span>)
   } else {
-    <span class="value-identifier">player</span>
+    <span class="value-identifier" data-id="1355">player</span>
   };
   let <span class="declaration-var" data-id="1357">player</span> = {...<span class="value-identifier" data-id="1356">player</span>, <span class="record-value-identifier" data-id="1351"><span class="value-identifier" data-id="1351">facingLeft</span></span>, <span class="record-value-identifier" data-id="1353"><span class="value-identifier" data-id="1353">walkTimer</span></span>};
 
@@ -337,7 +337,7 @@ let <span class="declaration-var" data-id="1336">step</span> = (<span class="dec
   let <span class="declaration-var" data-id="1359">state</span> = if (<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">frameCount</span>(<span class="value-identifier" data-id="1339">env</span>) <span class="value-identifier">mod</span> <span class="int">100</span> <span class="operator">==</span> <span class="int">0</span>) {
     <span class="value-identifier" data-id="1054">maybeSave</span>(<span class="value-identifier" data-id="1340">state</span>, <span class="value-identifier" data-id="1339">env</span>)
   } else {
-    <span class="value-identifier">state</span>
+    <span class="value-identifier" data-id="1340">state</span>
   };
 
   {
@@ -374,7 +374,7 @@ let <span class="declaration-var" data-id="1365">stepDebug</span> = (<span class
     <span class="switch-value-identifier">?</span> {...<span class="value-identifier" data-id="1366">state</span>, <span class="record-value-identifier">zoom</span>: <span class="value-identifier">!</span><span class="value-identifier" data-id="1366">state</span>.<span class="field-value-identifier">zoom</span>}
     <span class="switch-value-identifier">:</span> <span class="value-identifier" data-id="1366">state</span>;
   if (<span class="value-identifier" data-id="1369">state</span>.<span class="field-value-identifier">paused</span>) {
-    <span class="value-identifier">state</span>
+    <span class="value-identifier" data-id="1369">state</span>
   } else if (<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">keyPressed</span>(<span class="constructor-module-identifier">Reprocessing</span>.<span class="constructor-module-identifier">Events</span>.<span class="constructor-module-identifier">Q</span>, <span class="value-identifier" data-id="1368">env</span>)) {
     <span class="value-identifier" data-id="1360">fillWithRocks</span>(<span class="value-identifier" data-id="1369">state</span>, <span class="value-identifier" data-id="1368">env</span>)
   } else if (<span class="module-identifier">Reprocessing</span>.<span class="module-identifier">Env</span>.<span class="value-identifier">keyPressed</span>(<span class="constructor-module-identifier">Reprocessing</span>.<span class="constructor-module-identifier">Events</span>.<span class="constructor-module-identifier">F</span>, <span class="value-identifier" data-id="1368">env</span>)) {
@@ -388,7 +388,7 @@ let <span class="declaration-var" data-id="1365">stepDebug</span> = (<span class
       | <span class="switch-module-identifier">None</span> => <span class="constructor-module-identifier">Some</span>(<span class="int">0</span>)
       }}
     } else {
-      <span class="value-identifier">state</span>
+      <span class="value-identifier" data-id="1369">state</span>
     }
   } else {
     <span class="value-identifier" data-id="1336">step</span>(<span class="value-identifier" data-id="1369">state</span>, <span class="value-identifier" data-id="1367">context</span>, <span class="value-identifier" data-id="1368">env</span>);

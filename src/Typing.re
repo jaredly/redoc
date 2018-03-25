@@ -1,6 +1,4 @@
 
-
-
 module type Collector = {
   let add: (~mend: Lexing.position=?, ~depth: int=?, Types.type_expr, Location.t) => unit;
   let ident: (Path.t, Location.t) => unit;
@@ -53,8 +51,8 @@ module F = (Collector: Collector) => {
         (binding) => Collector.add(~depth=depth^, binding.vb_expr.exp_type, binding.vb_loc),
         bindings
       )
-    | Texp_ident(path, ident, value_description) => {
-      Collector.ident(path, expr.Typedtree.exp_loc)
+    | Texp_ident(path, {txt, loc}, value_description) => {
+      Collector.ident(path, loc)
     }
     | Texp_record(items, ext) =>
       List.iter(
@@ -104,52 +102,10 @@ let entry = (loc, ~depth, ~mend=?, typ) => {
 };
 
 
-
 let type_to_string = (typ) => {
   Printtyp.type_expr(Format.str_formatter, typ);
   Format.flush_str_formatter();
 };
-
-let display_type = (typ, ~depth=0, ~mend=?, loc) =>
-  Location.(
-    if (! loc.loc_ghost) {
-      try {
-        let txt = entry(loc, ~depth=depth, ~mend=?mend, type_to_string(typ));
-        print_endline(txt);
-      } {
-      | _ => ()
-      };
-    }
-  );
-
-/* let findTypes = ( path) =>
-  {
-    open Cmt_format;
-    let {cmt_annots, cmt_comments, cmt_imports} = read_cmt(path);
-    let types = ref([]);
-    module Iter =
-      TypedtreeIter.MakeIterator(
-        (
-          F(
-            {
-              let add = (~mend=?, ~depth=0, typ, loc) => if (!loc.Location.loc_ghost) {
-                types:=[(typ, loc, mend, depth), ...types^];
-              }
-            }
-          )
-        )
-      );
-    switch cmt_annots {
-    | Implementation(structure) =>
-      Iter.iter_structure(structure);
-      List.iter(
-        ((typ, loc, mend, depth)) =>
-          display_type(typ, ~depth=depth, ~mend=?mend, loc),
-        types^
-      );
-    | _ => exit(1)
-    };
-  }; */
 
 type externalsUsed = list((Path.t, Location.t));
 
@@ -161,6 +117,15 @@ type bindings = Hashtbl.t(int, list((Ident.t, Location.t)));
    */
   /* let ident = (path, loc) => (); */
   /* let declaration = (ident, loc) => (); */
+
+let truncateLoc = (length, {Location.loc_start, loc_end} as loc) => {
+  ...loc,
+  loc_start,
+  loc_end: {
+    ...loc_start,
+    pos_cnum: loc_start.pos_cnum + length
+  }
+};
 
 let collectTypes = annots => {
   let types = Hashtbl.create(100);
@@ -178,22 +143,19 @@ let collectTypes = annots => {
     Hashtbl.replace(bindings, ident.Ident.stamp, ((ident, loc), []));
   };
   let ident = (path, loc) => {
-    switch path {
-    | Path.Pident(ident) => {
-      if (Ident.global(ident)) {
-        print_endline("some global ideant")
-      } else {
-        switch (Hashtbl.find(bindings, ident.Ident.stamp)) {
-        /* | exception Not_found => print_endline("Getting an ident but stamp not defined " ++ string_of_int(ident.Ident.stamp)) */
-        | exception Not_found => failwith("Getting an ident but declaration not recorded: " ++ string_of_int(ident.Ident.stamp) ++ " " ++ ident.Ident.name)
-        | (binding, uses) => Hashtbl.replace(bindings, ident.Ident.stamp, (
-          binding,
-          [(path, loc), ...uses]
-        ))
-        }
+    let {Ident.stamp, name} = Path.head(path);
+    if (stamp == 0) {
+      externals := [(path, loc), ...externals^]
+    } else {
+      let loc = truncateLoc(String.length(name), loc);
+      switch (Hashtbl.find(bindings, stamp)) {
+      | exception Not_found => print_endline("Getting an ident but stamp not defined " ++ string_of_int(stamp))
+      /* | exception Not_found => failwith("Getting an ident but declaration not recorded: " ++ string_of_int(stamp)) */
+      | (binding, uses) => Hashtbl.replace(bindings, stamp, (
+        binding,
+        [(path, loc), ...uses]
+      ))
       }
-    }
-    | _ => externals := [(path, loc), ...externals^]
     }
   };
 

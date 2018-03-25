@@ -267,6 +267,12 @@ let highlight = (text, ast, bindings) => {
       | Some(num) => " data-id=\"" ++ string_of_int(num) ++ "\""
       }
     ) ++ ">"
+     /*
+     /* for viewing witch identifiers have numbers */
+      ++ (switch id {
+    | None => ""
+    | Some(num) => "<span class=\"id-badge\">" ++ string_of_int(num) ++ "</span>"
+    }) */
   };
 
   let t = ref(text);

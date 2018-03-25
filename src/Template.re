@@ -70,6 +70,15 @@ body {
 .hovered {
   background-color: #d4ffe2;
 }
+span {
+  display: inline-block;
+  position: relative;
+}
+.id-badge {
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
 </style>
 |};
 

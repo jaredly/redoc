@@ -5,5 +5,4 @@ npm-debug.log
 /lib/
 /node_modules/
 .vscode
-public/assets
 log_types.txt

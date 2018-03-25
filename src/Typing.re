@@ -9,11 +9,90 @@ module type Collector = {
 module F = (Collector: Collector) => {
   include TypedtreeIter.DefaultIteratorArgument;
   let depth = ref(0);
+
+  type openn = {mutable used: list(Longident.t), path: Path.t, loc: Location.t};
+  type open_stack = {
+    mutable closed: list(openn),
+    mutable opens: list(openn),
+    parent: option(open_stack)
+  };
+  let root_stack = {opens: [{
+    used: [],
+    loc: Location.none,
+    path: Path.Pident({
+      Ident.name: "Pervasives",
+      stamp: 0,
+      flags: 1,
+    })
+  }], parent: None, closed: []};
+  let closed_stacks = ref([]);
+  let open_stack = ref(root_stack);
+  let new_stack = () => open_stack := {parent: Some(open_stack^), opens: [], closed: []};
+  let pop_stack = () => switch (open_stack^.parent) {
+  | Some(parent) => {
+    print_endline("Popping");
+    closed_stacks := [open_stack^, ...closed_stacks^];
+    open_stack := parent
+  }
+  | None => ()
+  };
+
+  let add_open = (path, loc) => {
+    print_endline("Add open " ++ Path.name(path));
+    open_stack^.opens = [{path, loc, used: []}, ...open_stack^.opens];
+  };
+  let pop_open = () => {
+    switch (open_stack^.opens) {
+    | [] => ()
+    | [top, ...rest] => {
+      open_stack^.opens = rest;
+      open_stack^.closed = [top, ...open_stack^.closed];
+    }
+    }
+  };
+
+  let rec usesOpen = (ident, path) => switch (ident, path) {
+  | (Longident.Lident(name), Path.Pdot(path, pname, _)) => true
+  | (Longident.Lident(_), Path.Pident(_)) => false
+  | (Longident.Ldot(ident, _), Path.Pdot(path, _, _)) => usesOpen(ident, path)
+  | _ => failwith("Cannot relative "  ++ Path.name(path))
+  };
+
+  let rec relative = (ident, path) => switch (ident, path) {
+  | (Longident.Lident(name), Path.Pdot(path, pname, _)) when pname == name => path
+  | (Longident.Ldot(ident, _), Path.Pdot(path, _, _)) => relative(ident, path)
+  | _ => failwith("Cannot relative "  ++ Path.name(path))
+  };
+
+  let add_use = (path, ident, loc) => {
+    let openNeedle = relative(ident, path);
+    let rec loop = stack => {
+      let rec inner = opens => switch opens {
+      | [] => switch stack.parent {
+      | Some(parent) => loop(parent)
+      | None => print_endline("Unable to find an open to meet my needs: " ++ String.concat(".", Longident.flatten(ident))  )
+      }
+      | [{path} as one, ...rest] when Path.same(path, openNeedle) =>  {
+        /* print_endline("Matched " ++ Path.name(path) ++ " "); */
+        one.used = [ident, ...one.used];
+      }
+      | [_, ...rest] => inner(rest)
+      };
+      inner(stack.opens)
+    };
+    loop(open_stack^)
+  };
+
+
+
   let enter_core_type = (typ) => {
     open Typedtree;
     Collector.add(~depth=depth^, typ.ctyp_type, typ.ctyp_loc);
     switch typ.ctyp_desc {
     | Ttyp_constr(path, {txt, loc}, args) => {
+      if (usesOpen(txt, path)) {
+        add_use(path, txt, loc);
+      };
       Collector.ident(path, loc)
     }
     | _ => ()
@@ -46,14 +125,23 @@ module F = (Collector: Collector) => {
       )
     | Tstr_module({mb_id, mb_name: {txt, loc}}) => {
       Collector.declaration(mb_id, loc);
+      new_stack();
     }
     | Tstr_open({open_path, open_txt: {txt, loc}}) => {
+      if (usesOpen(txt, open_path)) {
+        add_use(open_path, txt, loc);
+      };
       Collector.ident(open_path, loc);
-      Collector.open_(open_path, loc)
+      Collector.open_(open_path, loc);
+      add_open(open_path, loc);
     }
     | _ => ()
     }
   };
+  let leave_structure_item = str => Typedtree.(switch str.str_desc {
+  | Tstr_module(_) => pop_stack()
+  | _ => ()
+  });
   let enter_expression = (expr) => {
     open Typedtree;
     Collector.add(~depth=depth^, expr.exp_type, expr.Typedtree.exp_loc);
@@ -70,6 +158,9 @@ module F = (Collector: Collector) => {
         bindings
       )
     | Texp_ident(path, {txt, loc}, value_description) => {
+      if (usesOpen(txt, path)) {
+        add_use(path, txt, loc);
+      };
       Collector.ident(path, loc)
     }
     | Texp_record(items, ext) =>
@@ -86,9 +177,20 @@ module F = (Collector: Collector) => {
       | Texp_construct loc desc args => Collector.add "constructor"  */
     | _ => ()
     };
+    expr.exp_extra |> List.iter(((ex, loc, _)) => switch ex {
+    | Texp_open(_, path, {txt, loc}, _) => add_open(path, loc)
+    | _ => ()
+    });
     depth :=depth^ + 1;
   };
-  let exit_expression = (expr) => depth :=depth^ - 1;
+  let leave_expression = (expr) => {
+    depth :=depth^ - 1;
+    open Typedtree;
+    expr.exp_extra |> List.iter(((ex, loc, _)) => switch ex {
+    | Texp_open(_, path, {txt, loc}, _) => pop_open()
+    | _ => ()
+    });
+  };
 };
 
 
@@ -185,7 +287,8 @@ let collectTypes = annots => {
     let declaration=declaration;
     let open_ = open_;
   };
-  let module Iter = TypedtreeIter.MakeIterator((F(Config)));
+  let module IterSource = F(Config);
+  let module Iter = TypedtreeIter.MakeIterator(IterSource);
 
   switch annots {
   | Cmt_format.Implementation(structure) => {
@@ -195,6 +298,15 @@ let collectTypes = annots => {
   }
   | _ => failwith("Not a valid cmt file")
   };
+
+  open IterSource;
+  let all_opens = IterSource.root_stack.opens @ IterSource.root_stack.closed @ List.concat(
+    List.map(op => op.opens @ op.closed, IterSource.closed_stacks^)
+  );
+  print_endline(string_of_int(List.length(all_opens)));
+  all_opens |> List.iter(({path, loc, used}) => {
+    print_endline(Path.name(path) ++ ": " ++ String.concat(", ", List.map(n => String.concat(".", Longident.flatten(n)), used)));
+  });
 
   (types, bindings, externals^)
 };

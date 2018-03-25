@@ -219,11 +219,6 @@ let collect = ast => {
   let module Mapper = F({
     let lident = (ident, loc, prefix) => {
       addLident(ident, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, prefix)
-      /* switch ident {
-    | Longident.Lident(name) when name.[0] == '_' => addRange(loc, "unused-identifier")
-    | Longident.Lident(name) when 'A' > name.[0] || 'z' < name.[0] => addRange(loc, "operator")
-    | _ => addLident(ident, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum) */
-    /* | _ => addRange(loc, "identifier"); */
     };
     let pat_var = (str, loc) => addRange(loc, "declaration-var");
     let constant = (t, loc) => addRange(loc, switch t {
@@ -255,15 +250,24 @@ let highlight = (text, ast, bindings) => {
   let inserts = Array.make(String.length(text), []);
   let closes = Array.make(String.length(text), 0);
   ranges |> List.iter(((cstart, cend, className)) => {
-    let idClass = switch (Hashtbl.find(bindingMap, (cstart, cend))) {
-    | exception Not_found => ""
-    | stamp => " binding-" ++ string_of_int(stamp)
+    /* TODO also handle externals I think */
+    let id = switch (Hashtbl.find(bindingMap, (cstart, cend))) {
+    | exception Not_found => None
+    | stamp => Some(stamp)
     };
-    let className = className ++ idClass;
-    inserts[cstart] = [className, ...inserts[cstart]];
+    inserts[cstart] = [(className, id), ...inserts[cstart]];
     closes[cend] = closes[cend] + 1;
     /* inserts[cend] = [className, ...inserts[cend]]; */
   });
+
+  let openTag = (name, id) => {
+    "<span class=\"" ++ name ++ "\"" ++ (
+      switch id {
+      | None => ""
+      | Some(num) => " data-id=\"" ++ string_of_int(num) ++ "\""
+      }
+    ) ++ ">"
+  };
 
   let t = ref(text);
   let rec loop = (i, offset) => {
@@ -281,7 +285,7 @@ let highlight = (text, ast, bindings) => {
       } else {
         let rec loop = inserts => switch inserts {
         | [] => ""
-        | [name, ...rest] => "<span class=\"" ++ name ++ "\">" ++ loop(rest)
+        | [(name, id), ...rest] => openTag(name, id) ++ loop(rest)
         };
         loop(inserts[i])
       });

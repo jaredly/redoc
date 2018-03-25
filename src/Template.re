@@ -3,6 +3,9 @@ let header = {|
 <html>
 <head>
 <title>Reason code</title>
+<script>
+
+</script>
 <style>
 body {
   padding: 30px;
@@ -64,9 +67,36 @@ body {
     white-space: pre;
     font-family: 'sf mono', monospace;
 }
+.hovered {
+  background-color: #d4ffe2;
+}
 </style>
 |};
 
+let final = {|
+<script>
+
+  document.getElementById('main').addEventListener('mouseover', evt => {
+    const id = evt.target.getAttribute('data-id')
+    if (id) {
+      [].map.call(document.querySelectorAll('[data-id="' + id + '"]'), el => {
+        el.classList.add('hovered')
+      })
+    }
+  })
+
+  document.getElementById('main').addEventListener('mouseout', evt => {
+    const id = evt.target.getAttribute('data-id')
+    if (id) {
+      [].map.call(document.querySelectorAll('[data-id="' + id + '"]'), el => {
+        el.classList.remove('hovered')
+      })
+    }
+  })
+
+</script>
+|};
+
 let make = body => {
-  header ++ "<pre id=\"main\">" ++ body ++ "</pre>"
+  header ++ "<pre id=\"main\">" ++ body ++ "</pre>" ++ final
 };

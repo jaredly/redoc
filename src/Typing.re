@@ -205,7 +205,11 @@ let collectTypes = annots => {
   let module Iter = TypedtreeIter.MakeIterator((F(Config)));
 
   switch annots {
-  | Cmt_format.Implementation(structure) => Iter.iter_structure(structure)
+  | Cmt_format.Implementation(structure) => {
+    Printtyped.implementation(Format.str_formatter, structure);
+    Files.writeFile("./log_types.txt", Format.flush_str_formatter()) |> ignore;
+    Iter.iter_structure(structure)
+  }
   | _ => failwith("Not a valid cmt file")
   };
 

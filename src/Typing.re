@@ -6,16 +6,18 @@ module type Collector = {
   let open_: (Path.t, Location.t) => unit;
 };
 
+type openn = {mutable used: list(Longident.t), path: Path.t, loc: Location.t};
+type open_stack = {
+  mutable closed: list(openn),
+  mutable opens: list(openn),
+  parent: option(open_stack)
+};
+
+
 module F = (Collector: Collector) => {
   include TypedtreeIter.DefaultIteratorArgument;
   let depth = ref(0);
 
-  type openn = {mutable used: list(Longident.t), path: Path.t, loc: Location.t};
-  type open_stack = {
-    mutable closed: list(openn),
-    mutable opens: list(openn),
-    parent: option(open_stack)
-  };
   let root_stack = {opens: [{
     used: [],
     loc: Location.none,
@@ -308,5 +310,5 @@ let collectTypes = annots => {
     print_endline(Path.name(path) ++ ": " ++ String.concat(", ", List.map(n => String.concat(".", Longident.flatten(n)), used)));
   });
 
-  (types, bindings, externals^)
+  (types, bindings, externals^, all_opens)
 };

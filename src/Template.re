@@ -85,10 +85,16 @@ body {
 } */
 [data-global]:not(.operator) {
   /* font-style: italic; */
-  background-color: #fff3f2;
+  /* background-color: #fff3f2; */
   /* text-decoration: underline;
   text-decoration-color: rgba(0, 0, 0, 0.5);
   text-decoration-style: dashed; */
+}
+
+.open-exposing {
+  box-shadow: 0 0 5px #d2d2d2;
+  border-radius: 3px;
+  padding: 2px;
 }
 
 

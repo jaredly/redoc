@@ -3,7 +3,7 @@ let unwrap = (m, x) => switch x { | None => failwith(m) | Some(x) => x };
 
 let main = (source, cmt, mlast, output) => {
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
-  let (types, bindings, externals) = Typing.collectTypes(annots);
+  let (types, bindings, externals, all_opens) = Typing.collectTypes(annots);
 
   /*
   /** Example: showing usages: */
@@ -16,7 +16,7 @@ let main = (source, cmt, mlast, output) => {
 
   let text = Files.readFile(source) |> unwrap("Unable to read source file");
   let structure = ReadMlast.read_ast(mlast);
-  let highlighted = Highlighting.highlight(text, structure, bindings, externals);
+  let highlighted = Highlighting.highlight(text, structure, bindings, externals, all_opens);
   Files.writeFile(output, Template.make(highlighted)) |> ignore;
 };
 

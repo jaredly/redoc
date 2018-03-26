@@ -263,35 +263,58 @@ let buildExternalsMap = externals => {
   map
 };
 
-let highlight = (text, ast, bindings, externals) => {
+let highlight = (text, ast, bindings, externals, all_opens) => {
 
   let bindingMap = buildLocBindingMap(bindings);
   let externalsMap = buildExternalsMap(externals);
   let ranges = collect(ast);
 
   /** Yolo this might be overkill? */
-  let inserts = Array.make(String.length(text), []);
-  let closes = Array.make(String.length(text), 0);
+  let tag_starts = Array.make(String.length(text), []);
+  let tag_closes = Array.make(String.length(text), 0);
   ranges |> List.iter(((cstart, cend, className)) => {
     /* TODO also handle externals I think */
     let id = switch (Hashtbl.find(bindingMap, (cstart, cend))) {
     | exception Not_found => switch (Hashtbl.find(externalsMap, (cstart, cend))) {
       | exception Not_found => `Normal
-      | path => `Global
+      | path => `Global(Path.name(path))
       }
     | stamp => `Local(stamp)
     };
-    inserts[cstart] = [(className, id), ...inserts[cstart]];
-    closes[cend] = closes[cend] + 1;
+    tag_starts[cstart] = [(className, id), ...tag_starts[cstart]];
+    tag_closes[cend] = tag_closes[cend] + 1;
     /* inserts[cend] = [className, ...inserts[cend]]; */
+  });
+
+  let extra_inserts = Array.make(String.length(text), []);
+  let globalTag = (path, lident) => {
+    let show = String.concat(".", Longident.flatten(lident));
+    let id = Path.name(path) ++ "." ++ show;
+    Printf.sprintf({|<span class="declaration-var" data-id="global-%s">%s</span>|}, id, show)
+  };
+  all_opens |> List.iter(({Typing.path, loc, used}) => {
+    if (!loc.Location.loc_ghost) {
+      let i = loc.Location.loc_end.pos_cnum;
+      print_endline(string_of_int(i));
+      extra_inserts[i] = [
+        Printf.sprintf(
+          {| <span class="open-exposing">exposing (%s)</span>|},
+          used |> List.map(globalTag(path)) |> String.concat(", ")
+        ),
+        ...extra_inserts[i]
+      ];
+    } else {
+      print_endline("Skipping a ghost open :/")
+    }
+    /* print_endline(Path.name(path) ++ ": " ++ String.concat(", ", List.map(n => String.concat(".", Longident.flatten(n)), used))); */
   });
 
   let openTag = (name, id) => {
     "<span class=\"" ++ name ++ "\"" ++ (
       switch id {
       | `Normal => ""
-      | `Global => " data-global"
-      | `Local(num) => " data-id=\"" ++ string_of_int(num) ++ "\""
+      | `Global(path) => " data-global data-id=\"global-" ++ path ++ "\""
+      | `Local(num) => " data-id=\"local-" ++ string_of_int(num) ++ "\""
       }
     ) ++ ">"
      /*
@@ -304,27 +327,35 @@ let highlight = (text, ast, bindings, externals) => {
 
   let t = ref(text);
   let rec loop = (i, offset) => {
-    if (i >= Array.length(closes)) {
+    if (i >= Array.length(tag_closes)) {
       ()
     } else {
-      let additional = if (closes[i] == 0) {
+      let additional = if (tag_closes[i] == 0) {
         ""
       } else {
         let rec loop = i => i > 0 ? "</span>" ++ loop(i - 1) : "";
-        loop(closes[i])
+        loop(tag_closes[i])
       };
-      let additional = additional ++ (if (inserts[i] == []) {
+
+      let additional = additional ++ (if (extra_inserts[i] == []) {
+        ""
+      } else {
+        String.concat("", extra_inserts[i])
+      });
+
+      let additional = additional ++ (if (tag_starts[i] == []) {
         ""
       } else {
         let rec loop = inserts => switch inserts {
         | [] => ""
         | [(name, id), ...rest] => openTag(name, id) ++ loop(rest)
         };
-        loop(inserts[i])
+        loop(tag_starts[i])
       });
+
       t := String.sub(t^, 0, i + offset) ++ additional ++ String.sub(t^, i + offset, String.length(t^) - i - offset);
       loop(i + 1, offset + (String.length(additional)))
-      }
+    }
   };
   loop(0, 0);
   t^

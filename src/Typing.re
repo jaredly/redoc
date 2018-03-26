@@ -20,7 +20,14 @@ module F = (Collector: Collector) => {
 
   let root_stack = {opens: [{
     used: [],
-    loc: Location.none,
+    loc: {
+      let pos = {Lexing.pos_fname: "", pos_lnum: 1, pos_cnum: 0, pos_bol: 0};
+      {
+        Location.loc_ghost: false,
+        loc_start: pos,
+        loc_end: pos
+      }
+    },
     path: Path.Pident({
       Ident.name: "Pervasives",
       stamp: 0,
@@ -260,23 +267,27 @@ let collectTypes = annots => {
   };
   let externals = ref([]);
   let bindings = Hashtbl.create(100);
+  let locToPath = Hashtbl.create(100);
 
   let declaration = (ident, loc) => {
     Hashtbl.replace(bindings, ident.Ident.stamp, ((ident, loc), []));
   };
   let ident = (path, loc) => {
-    let {Ident.stamp, name} = Path.head(path);
-    if (stamp == 0) {
-      externals := [(path, loc), ...externals^]
-    } else {
-      let loc = truncateLoc(String.length(name), loc);
-      switch (Hashtbl.find(bindings, stamp)) {
-      | exception Not_found => print_endline("Getting an ident but stamp not defined " ++ string_of_int(stamp))
-      /* | exception Not_found => failwith("Getting an ident but declaration not recorded: " ++ string_of_int(stamp)) */
-      | (binding, uses) => Hashtbl.replace(bindings, stamp, (
-        binding,
-        [(path, loc), ...uses]
-      ))
+    if (!loc.Location.loc_ghost) {
+      Hashtbl.replace(locToPath, (loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum), path);
+      let {Ident.stamp, name} = Path.head(path);
+      if (stamp == 0) {
+        externals := [(path, loc), ...externals^]
+      } else {
+        let loc = truncateLoc(String.length(name), loc);
+        switch (Hashtbl.find(bindings, stamp)) {
+        | exception Not_found => print_endline("Getting an ident but stamp not defined " ++ string_of_int(stamp))
+        /* | exception Not_found => failwith("Getting an ident but declaration not recorded: " ++ string_of_int(stamp)) */
+        | (binding, uses) => Hashtbl.replace(bindings, stamp, (
+          binding,
+          [(path, loc), ...uses]
+        ))
+        }
       }
     }
   };
@@ -310,5 +321,5 @@ let collectTypes = annots => {
     print_endline(Path.name(path) ++ ": " ++ String.concat(", ", List.map(n => String.concat(".", Longident.flatten(n)), used)));
   });
 
-  (types, bindings, externals^, all_opens)
+  (types, bindings, externals^, all_opens, locToPath)
 };

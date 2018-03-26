@@ -192,14 +192,28 @@ module F = (Collect: {
 
 let locPair = ({Location.loc_start, loc_end}) => (loc_start.pos_cnum, loc_end.pos_cnum);
 
-let collect = ast => {
-  let ranges = ref([]);
-  let addNums = (cstart, cend, className) => ranges := [(cstart, cend, className), ...ranges^];
-  let addRange = (loc, className) => addNums(loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, className);
+let rec pathName = path => {
+  switch path {
+  | Path.Pident({Ident.stamp, name}) => stamp == 0 ? name ++ "!" : name ++ "/" ++ string_of_int(stamp)
+  | Path.Pdot(path, name, _) => pathName(path) ++ "." ++ name
+  | Path.Papply(one, two) => failwith("cannot path name an apply") /* TBH I just don't understand apply */
+  }
+};
 
-  let addIdentifier = (cstart, cend, txt, prefix) => {
+
+let collect = (ast, bindingsMap, externalsMap, locToPath) => {
+  let ranges = ref([]);
+  let addNums = (cstart, cend, className, id) => ranges := [(cstart, cend, className, id), ...ranges^];
+  let addRange = (loc, className, id) => {
+    if (!loc.Location.loc_ghost) {
+      addNums(loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, className, id);
+    }
+  };
+
+  let addIdentifier = (cstart, cend, txt, prefix, id) => {
     let txt = String.trim(txt);
     let cls = if (txt.[0] >= 'A' && txt.[0] <= 'Z') {
+      print_endline("Mod " ++ txt);
       "module-identifier"
     } else if (txt.[0] == '_') {
       "unused-identifier"
@@ -208,34 +222,71 @@ let collect = ast => {
     } else {
       "value-identifier"
     };
-    addNums(cstart, cend, prefix ++ cls);
+    addNums(cstart, cend, prefix ++ cls, id);
   };
 
-  let rec addLident = (lident: Longident.t, cstart, cend, prefix) => {
-    switch lident {
-    | Longident.Lident(txt) => addIdentifier(cstart, cend, txt, prefix)
-    | Longident.Ldot(lident, txt) => {
-      addLident(lident, cstart, cend - String.length(txt) - 1, prefix);
-      addIdentifier(cend - String.length(txt), cend, txt, prefix)
+  let getId = (name, cstart, cend) => {
+    switch (Hashtbl.find(locToPath, (cstart, cend))) {
+    | exception Not_found => {
+      switch (Hashtbl.find(bindingsMap, (cstart, cend))) {
+      | exception Not_found => `Normal
+      | stamp => `Full(name ++ "/" ++ string_of_int(stamp))
+      };
     }
-    | Longident.Lapply(first, second) => ()
+    | path => `Full(pathName(path))
     }
   };
+
+  let idForLoc = (name, {Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}) => {
+    getId(name, pos_cnum, cend)
+  };
+
+  let addLident = (lident: Longident.t, cstart, cend, prefix) => {
+    switch lident {
+    | Longident.Lident("()") => addNums(cstart, cend, "unit", `Normal)
+    | _ => {
+      switch (Hashtbl.find(locToPath, (cstart, cend))) {
+      | exception Not_found => {
+        print_endline("No binding path for " ++ string_of_int(cstart) ++ "-" ++ string_of_int(cend) ++ (String.concat(".", Longident.flatten(lident))));
+        ()
+      }
+      | path => {
+        let rec loop = (lident, cstart, cend, path) => {
+          switch (lident, path) {
+          | (Longident.Lident(txt), _) => addIdentifier(cstart, cend, txt, prefix, `Full(pathName(path)))
+          | (Longident.Ldot(lident, txt), Path.Pdot(pleft, pname, _)) => {
+            loop(lident, cstart, cend - String.length(txt) - 1, pleft);
+            addIdentifier(cend - String.length(txt), cend, txt, prefix, `Full(pathName(path)))
+          }
+          | (Longident.Lapply(first, second), _) => ()
+          | _ => ()
+          }
+        };
+        loop(lident,cstart, cend, path)
+      }
+      }
+    }
+    }
+  };
+
   let module Mapper = F({
     let lident = (ident, loc, prefix) => {
-      addLident(ident, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, prefix)
+      if (!loc.Location.loc_ghost) {
+        addLident(ident, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, prefix)
+      };
     };
-    let pat_var = (str, loc) => addRange(loc, "declaration-var");
+    let pat_var = (str, loc) => addRange(loc, "declaration-var", idForLoc(str, loc));
     let constant = (t, loc) => addRange(loc, switch t {
     | `String => "string"
     | `Int => "int"
     | `Float => "float"
     | `Char => "char"
     | `Boolean => "boolean"
-    });
+    }, `Normal);
   });
+
   Mapper.mapper.structure(Mapper.mapper, ast) |> ignore;
-  ranges^ |> List.sort(((ast, ae, _), (bst, be, _)) => {
+  ranges^ |> List.sort(((ast, ae, _, _), (bst, be, _, _)) => {
     let sdiff = ast - bst;
     /** If they start at the same time, the *larger* range should go First */
     if (sdiff === 0) {
@@ -263,34 +314,25 @@ let buildExternalsMap = externals => {
   map
 };
 
-let highlight = (text, ast, bindings, externals, all_opens) => {
+let highlight = (text, ast, bindings, externals, all_opens, locToPath) => {
 
   let bindingMap = buildLocBindingMap(bindings);
   let externalsMap = buildExternalsMap(externals);
-  let ranges = collect(ast);
+  let ranges = collect(ast, bindingMap, externalsMap, locToPath);
 
   /** Yolo this might be overkill? */
   let tag_starts = Array.make(String.length(text), []);
   let tag_closes = Array.make(String.length(text), 0);
-  ranges |> List.iter(((cstart, cend, className)) => {
-    /* TODO also handle externals I think */
-    let id = switch (Hashtbl.find(bindingMap, (cstart, cend))) {
-    | exception Not_found => switch (Hashtbl.find(externalsMap, (cstart, cend))) {
-      | exception Not_found => `Normal
-      | path => `Global(Path.name(path))
-      }
-    | stamp => `Local(stamp)
-    };
+  ranges |> List.iter(((cstart, cend, className, id)) => {
     tag_starts[cstart] = [(className, id), ...tag_starts[cstart]];
     tag_closes[cend] = tag_closes[cend] + 1;
-    /* inserts[cend] = [className, ...inserts[cend]]; */
   });
 
   let extra_inserts = Array.make(String.length(text), []);
   let globalTag = (path, lident) => {
     let show = String.concat(".", Longident.flatten(lident));
-    let id = Path.name(path) ++ "." ++ show;
-    Printf.sprintf({|<span class="declaration-var" data-id="global-%s">%s</span>|}, id, show)
+    let id = pathName(path) ++ "." ++ show;
+    Printf.sprintf({|<span class="declaration-var" data-id="%s">%s</span>|}, id, show)
   };
   all_opens |> List.iter(({Typing.path, loc, used}) => {
     if (!loc.Location.loc_ghost) {
@@ -298,7 +340,11 @@ let highlight = (text, ast, bindings, externals, all_opens) => {
       print_endline(string_of_int(i));
       extra_inserts[i] = [
         Printf.sprintf(
-          {| <span class="open-exposing">exposing (%s)</span>|},
+          {|%s <span class="open-exposing">exposing (%s)</span>|},
+          switch path {
+          | Path.Pident({name: "Pervasives"}) => "open Pervasives"
+          | _ => ""
+          },
           used |> List.map(globalTag(path)) |> String.concat(", ")
         ),
         ...extra_inserts[i]
@@ -306,22 +352,21 @@ let highlight = (text, ast, bindings, externals, all_opens) => {
     } else {
       print_endline("Skipping a ghost open :/")
     }
-    /* print_endline(Path.name(path) ++ ": " ++ String.concat(", ", List.map(n => String.concat(".", Longident.flatten(n)), used))); */
   });
 
   let openTag = (name, id) => {
     "<span class=\"" ++ name ++ "\"" ++ (
       switch id {
       | `Normal => ""
-      | `Global(path) => " data-global data-id=\"global-" ++ path ++ "\""
-      | `Local(num) => " data-id=\"local-" ++ string_of_int(num) ++ "\""
+      | `Opened(id) => " data-opened data-id=\"" ++ id ++ "\""
+      | `Full(id) => " data-id=\"" ++ id ++ "\""
       }
     ) ++ ">"
-     /*
+/*
      /* for viewing witch identifiers have numbers */
       ++ (switch id {
-    | None => ""
-    | Some(num) => "<span class=\"id-badge\">" ++ string_of_int(num) ++ "</span>"
+    | `Normal => ""
+    | `Opened(id) | `Full(id) => "<span class=\"id-badge\">" ++ id ++ "</span>"
     }) */
   };
 

@@ -73,15 +73,18 @@ body {
 .hovered {
   background-color: #d4ffe2;
 }
+
 /* span {
   display: inline-block;
   position: relative;
 }
 .id-badge {
   position: absolute;
+  font-size: 0.5em;
   top: 100%;
   left: 0;
 } */
+
 [data-global]:not(.operator) {
   /* font-style: italic; */
   /* background-color: #fff3f2; */
@@ -115,7 +118,7 @@ body {
 
 
 </style>
-<pre id="main">
+<pre id="main">open Pervasives <span class="open-exposing">exposing (<span class="declaration-var" data-id="Pervasives!.+.">+.</span>, <span class="declaration-var" data-id="Pervasives!.+">+</span>)</span>
 <span class="string">/**
  * Here's some documentaition
  *
@@ -124,41 +127,44 @@ body {
  * let y = 20;
  * ```
  */</span>
-let <span class="declaration-var" data-id="local-1008">awesome</span> = <span class="arg-operator">()</span> => <span class="int">10</span>;
+let <span class="declaration-var" data-id="awesome/1008">awesome</span> = <span class="unit">()</span> => <span class="int">10</span>;
 
-module <span class="declaration-var" data-id="local-1010">Something</span> = {
-  let <span class="declaration-var" data-id="local-1009">inner</span> = <span class="int">20</span>;
+module <span class="declaration-var" data-id="Something/1010">Something</span> = {
+  let <span class="declaration-var" data-id="inner/1009">inner</span> = <span class="int">20</span>;
 };
-open <span class="open-module-identifier" data-id="local-1010">Something</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="global-Something.inner">inner</span>)</span>;
+open <span class="open-module-identifier" data-id="Something/1010">Something</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="Something/1010.inner">inner</span>)</span>;
 
-let <span class="declaration-var" data-id="local-1011">party</span> = <span class="arg-operator">()</span> => {
-  let <span class="declaration-var" data-id="local-1012">x</span> = <span class="value-identifier">inner</span>;
-  let <span class="declaration-var" data-id="local-1013">y</span> = <span class="module-identifier" data-id="local-1010">Something</span>.<span class="value-identifier">inner</span>;
-  <span class="value-identifier" data-id="local-1012">x</span> <span class="operator" data-global data-id="global-Pervasives.+">+</span> <span class="value-identifier" data-id="local-1013">y</span>;
+let <span class="declaration-var" data-id="party/1011">party</span> = <span class="unit">()</span> => {
+  let <span class="declaration-var" data-id="x/1012">x</span> = <span class="value-identifier" data-id="Something/1010.inner">inner</span>;
+  let <span class="declaration-var" data-id="y/1013">y</span> = <span class="module-identifier" data-id="Something/1010">Something</span>.<span class="value-identifier" data-id="Something/1010.inner">inner</span>;
+  <span class="value-identifier" data-id="x/1012">x</span> <span class="operator" data-id="Pervasives!.+">+</span> <span class="value-identifier" data-id="y/1013">y</span>;
 };
 
-type <span class="declaration-var" data-id="local-1014">awesome</span> =
+type <span class="declaration-var" data-id="awesome/1014">awesome</span> =
   | Hello
-  | Folks(<span class="type-value-identifier">int</span>);
+  | Folks(<span class="type-value-identifier" data-id="int/1">int</span>);
 
-open <span class="open-module-identifier" data-global data-id="global-Geom">Geom</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="global-Geom.halfPi">halfPi</span>, <span class="declaration-var" data-id="global-Geom.thetaDiff">thetaDiff</span>)</span>;
-let <span class="declaration-var" data-id="local-1087">things</span> = <span class="arg-operator">()</span> => {
-  let <span class="declaration-var" data-id="local-1088">x</span> = <span class="module-identifier">Geom</span>.<span class="value-identifier">thetaDiff</span>(<span class="float">0.</span>, <span class="float">1.</span>);
-  let <span class="declaration-var" data-id="local-1089">y</span> = <span class="value-identifier" data-global data-id="global-Geom.thetaDiff">thetaDiff</span>(<span class="float">2.</span>, <span class="value-identifier" data-global data-id="global-Geom.halfPi">halfPi</span>);
-  let <span class="declaration-var" data-id="local-1090">z</span> = <span class="constructor-module-identifier">Hello</span>;
-  <span class="value-identifier" data-id="local-1088">x</span> <span class="operator" data-global data-id="global-Pervasives.+.">+.</span> <span class="value-identifier" data-id="local-1089">y</span>;
+open <span class="open-module-identifier" data-id="Geom!">Geom</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="Geom!.halfPi">halfPi</span>, <span class="declaration-var" data-id="Geom!.thetaDiff">thetaDiff</span>)</span>;
+let <span class="declaration-var" data-id="things/1087">things</span> = <span class="unit">()</span> => {
+  let <span class="declaration-var" data-id="x/1088">x</span> = <span class="module-identifier" data-id="Geom!">Geom</span>.<span class="value-identifier" data-id="Geom!.thetaDiff">thetaDiff</span>(<span class="float">0.</span>, <span class="float">1.</span>);
+  let <span class="declaration-var" data-id="y/1089">y</span> = <span class="value-identifier" data-id="Geom!.thetaDiff">thetaDiff</span>(<span class="float">2.</span>, <span class="value-identifier" data-id="Geom!.halfPi">halfPi</span>);
+  let <span class="declaration-var" data-id="z/1090">z</span> = Hello;
+  <span class="value-identifier" data-id="x/1088">x</span> <span class="operator" data-id="Pervasives!.+.">+.</span> <span class="value-identifier" data-id="y/1089">y</span>;
 };
 
-module <span class="declaration-var" data-id="local-1095">Inner</span> = {
-  type <span class="declaration-var" data-id="local-1091">other</span> = A |B | C(<span class="type-value-identifier" data-id="local-1091">other</span>);
+module <span class="declaration-var" data-id="Inner/1095">Inner</span> = {
+  type <span class="declaration-var" data-id="other/1091">other</span> = A |B | C(<span class="type-value-identifier" data-id="other/1091">other</span>);
 };
 
-open <span class="open-module-identifier" data-id="local-1095">Inner</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="global-Inner.other">other</span>)</span>;
+open <span class="open-module-identifier" data-id="Inner/1095">Inner</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="Inner/1095.other">other</span>)</span>;
 
-type <span class="declaration-var" data-id="local-1096">m</span> = <span class="type-value-identifier" data-id="local-1095">other</span>;
-let <span class="declaration-var" data-id="local-1097">z</span> = <span class="constructor-module-identifier">Inner</span>.<span class="constructor-module-identifier">A</span>;
-let <span class="declaration-var" data-id="local-1098">b</span> = <span class="constructor-module-identifier">B</span>;
-let <span class="declaration-var" data-id="local-1099">c</span> = <span class="constructor-module-identifier">C</span>(<span class="constructor-module-identifier">Inner</span>.<span class="constructor-module-identifier">A</span>);</pre>
+type <span class="declaration-var" data-id="m/1096">m</span> = <span class="type-value-identifier" data-id="Inner/1095.other">other</span>;
+let <span class="declaration-var" data-id="z/1097">z</span> = Inner.A;
+let <span class="declaration-var" data-id="b/1098">b</span> = B;
+let <span class="declaration-var" data-id="c/1099">c</span> = C(Inner.A);
+
+let <span class="declaration-var" data-id="a/1100">a</span> = [|<span class="int">1</span>,<span class="int">2</span>|];
+<span class="value-identifier" data-id="a/1100">a</span>[<span class="int">0</span>] = <span class="int">10</span>;</pre>
 <script>
 
   document.getElementById('main').addEventListener('mouseover', evt => {

@@ -74,15 +74,18 @@ body {
 .hovered {
   background-color: #d4ffe2;
 }
+
 /* span {
   display: inline-block;
   position: relative;
 }
 .id-badge {
   position: absolute;
+  font-size: 0.5em;
   top: 100%;
   left: 0;
 } */
+
 [data-global]:not(.operator) {
   /* font-style: italic; */
   /* background-color: #fff3f2; */

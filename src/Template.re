@@ -75,6 +75,10 @@ body {
   background-color: #d4ffe2;
 }
 
+.type-hovered {
+  outline: 1px solid #aaa;
+}
+
 /* span {
   display: inline-block;
   position: relative;
@@ -131,6 +135,17 @@ let final = {|
         el.classList.add('hovered')
       })
     }
+    let el = evt.target
+    while (el && el !== document.body) {
+      const type = el.getAttribute('data-type')
+      if (type) {
+        console.log(TYPES_LIST[type])
+        ;[].map.call(document.querySelectorAll('.type-hovered'), x => x.classList.remove('type-hovered'))
+        el.classList.add('type-hovered')
+        break
+      }
+      el = el.parentElement
+    }
   })
 
   document.getElementById('main').addEventListener('mouseout', evt => {
@@ -145,6 +160,6 @@ let final = {|
 </script>
 |};
 
-let make = body => {
-  header ++ "<pre id=\"main\">" ++ body ++ "</pre>" ++ final
+let make = (body, typeText) => {
+  header ++ "<pre id=\"main\">" ++ body ++ "</pre><script>" ++ typeText ++ "</script>" ++ final
 };

@@ -16,8 +16,8 @@ let main = (source, cmt, mlast, output) => {
 
   let text = Files.readFile(source) |> unwrap("Unable to read source file");
   let structure = ReadMlast.read_ast(mlast);
-  let highlighted = Highlighting.highlight(text, structure, bindings, externals, all_opens, locToPath);
-  Files.writeFile(output, Template.make(highlighted)) |> ignore;
+  let (highlighted, typeText) = Highlighting.highlight(text, structure, types, bindings, externals, all_opens, locToPath);
+  Files.writeFile(output, Template.make(highlighted, typeText)) |> ignore;
 };
 
 let main = () => {

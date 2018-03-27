@@ -201,7 +201,7 @@ let rec pathName = path => {
 };
 
 
-let collect = (ast, bindingsMap, externalsMap, locToPath) => {
+let collect = (ast, bindingsMap, locToPath) => {
   let ranges = ref([]);
   let addNums = (cstart, cend, className, id) => ranges := [(cstart, cend, className, id), ...ranges^];
   let addRange = (loc, className, id) => {
@@ -213,7 +213,7 @@ let collect = (ast, bindingsMap, externalsMap, locToPath) => {
   let addIdentifier = (cstart, cend, txt, prefix, id) => {
     let txt = String.trim(txt);
     let cls = if (txt.[0] >= 'A' && txt.[0] <= 'Z') {
-      print_endline("Mod " ++ txt);
+      /* print_endline("Mod " ++ txt); */
       "module-identifier"
     } else if (txt.[0] == '_') {
       "unused-identifier"
@@ -227,13 +227,8 @@ let collect = (ast, bindingsMap, externalsMap, locToPath) => {
 
   let getId = (name, cstart, cend) => {
     switch (Hashtbl.find(locToPath, (cstart, cend))) {
-    | exception Not_found => {
-      switch (Hashtbl.find(bindingsMap, (cstart, cend))) {
-      | exception Not_found => `Normal
-      | stamp => `Full(name ++ "/" ++ string_of_int(stamp))
-      };
-    }
-    | path => `Full(pathName(path))
+    | exception Not_found => `Normal
+    | path => `Full(path |> Typing.toString(pathName))
     }
   };
 
@@ -251,18 +246,33 @@ let collect = (ast, bindingsMap, externalsMap, locToPath) => {
         ()
       }
       | path => {
+        let (name, inner) = switch lident {
+        | Longident.Lident(txt) => (txt, None)
+        | Ldot(inner, txt) => (txt, Some(inner))
+        | Lapply(_) => assert(false)
+        };
+        addIdentifier(cend - String.length(name), cend, name, prefix, `Full(path |> Typing.toString(pathName)));
+        let innerPath = switch (Typing.contents(path)) {
+        | Pident(x) => Path.Pident(x)
+        | Pdot(inner, x, _) => inner
+        | Papply(_, _) => assert(false)
+        };
         let rec loop = (lident, cstart, cend, path) => {
+          let id = (path, Typing.Module) |> Typing.toString(pathName);
           switch (lident, path) {
-          | (Longident.Lident(txt), _) => addIdentifier(cstart, cend, txt, prefix, `Full(pathName(path)))
-          | (Longident.Ldot(lident, txt), Path.Pdot(pleft, pname, _)) => {
-            loop(lident, cstart, cend - String.length(txt) - 1, pleft);
-            addIdentifier(cend - String.length(txt), cend, txt, prefix, `Full(pathName(path)))
+          | (Longident.Lident(txt), _) => addIdentifier(cstart, cend, txt, prefix, `Full(id))
+          | (Longident.Ldot(inner, txt), Path.Pdot(pleft, pname, _)) => {
+            loop(inner, cstart, cend - String.length(txt) - 1, pleft);
+            addIdentifier(cend - String.length(txt), cend, txt, prefix, `Full(id))
           }
           | (Longident.Lapply(first, second), _) => ()
           | _ => ()
           }
         };
-        loop(lident,cstart, cend, path)
+        switch inner {
+        | None => ()
+        | Some(inner) => loop(inner, cstart, cend - String.length(name) - 1, innerPath)
+        }
       }
       }
     }
@@ -314,11 +324,10 @@ let buildExternalsMap = externals => {
   map
 };
 
-let highlight = (text, ast, bindings, externals, all_opens, locToPath) => {
+let highlight = (text, ast, types, bindings, externals, all_opens, locToPath) => {
 
   let bindingMap = buildLocBindingMap(bindings);
-  let externalsMap = buildExternalsMap(externals);
-  let ranges = collect(ast, bindingMap, externalsMap, locToPath);
+  let ranges = collect(ast, bindingMap, locToPath);
 
   /** Yolo this might be overkill? */
   let tag_starts = Array.make(String.length(text), []);
@@ -328,25 +337,42 @@ let highlight = (text, ast, bindings, externals, all_opens, locToPath) => {
     tag_closes[cend] = tag_closes[cend] + 1;
   });
 
+  let typeId = ref(0);
+  let typeList = ref([]);
+  types |> Hashtbl.iter((({Lexing.pos_cnum: cstart}, {Lexing.pos_cnum: cend}), typExpr) => {
+    tag_starts[cstart] = [("type", `Type(typeId^)), ...tag_starts[cstart]];
+    tag_closes[cend] = tag_closes[cend] + 1;
+    typeList := [typExpr, ...typeList^];
+    typeId := typeId^ + 1;
+  });
+
+  let rec addLidents = Longident.((p1, p2) => switch (p1, p2) {
+  | (a, Lident(c)) => Ldot(a, c)
+  | (a, Ldot(b, c)) => Ldot(addLidents(a, b), c)
+  | _ => assert(false)
+  });
+
   let extra_inserts = Array.make(String.length(text), []);
-  let globalTag = (path, lident) => {
-    let show = String.concat(".", Longident.flatten(lident));
-    let id = pathName(path) ++ "." ++ show;
+  let globalTag = (path, (innerPath, tag)) => {
+    let show = Typing.toString(lident => String.concat(".", Longident.flatten(lident)), (innerPath, tag));
+    let id = (Typing.addLidentToPath(path, innerPath), tag) |> Typing.toString(pathName);
     Printf.sprintf({|<span class="declaration-var" data-id="%s">%s</span>|}, id, show)
   };
   all_opens |> List.iter(({Typing.path, loc, used}) => {
     if (!loc.Location.loc_ghost) {
       let i = loc.Location.loc_end.pos_cnum;
       print_endline(string_of_int(i));
+      let isPervasives = switch path {
+        | Path.Pident({name: "Pervasives"}) =>true
+        | _ => false
+      };
+      let used = List.sort_uniq(compare, used);
       extra_inserts[i] = [
         Printf.sprintf(
           {|%s <span class="open-exposing">exposing (%s)</span>|},
-          switch path {
-          | Path.Pident({name: "Pervasives"}) => "open Pervasives"
-          | _ => ""
-          },
+          (isPervasives ? "open Pervasives" : ""),
           used |> List.map(globalTag(path)) |> String.concat(", ")
-        ),
+        ) ++ (isPervasives ? "\n" : ""),
         ...extra_inserts[i]
       ];
     } else {
@@ -358,6 +384,7 @@ let highlight = (text, ast, bindings, externals, all_opens, locToPath) => {
     "<span class=\"" ++ name ++ "\"" ++ (
       switch id {
       | `Normal => ""
+      | `Type(id) => " data-type=\"" ++ string_of_int(id) ++ "\""
       | `Opened(id) => " data-opened data-id=\"" ++ id ++ "\""
       | `Full(id) => " data-id=\"" ++ id ++ "\""
       }
@@ -403,7 +430,12 @@ let highlight = (text, ast, bindings, externals, all_opens, locToPath) => {
     }
   };
   loop(0, 0);
-  t^
+
+  let to_string = (f, v) => {f(Format.str_formatter, v); Format.flush_str_formatter()};
+  let typeText = List.rev(typeList^) |> List.map(to_string(Printtyp.type_expr)) |> List.map(s => Printf.sprintf({|%S|}, s)) |> String.concat(",\n  ")
+  |> full => "window.TYPES_LIST = [" ++ full ++ "]";
+
+  (t^, typeText)
 
   /* let rec loop = (text, ranges, offset) => {
     switch ranges {

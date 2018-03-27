@@ -1,16 +1,106 @@
 
-module type Collector = {
-  let add: (~mend: Lexing.position=?, ~depth: int=?, Types.type_expr, Location.t) => unit;
-  let ident: (Path.t, Location.t) => unit;
-  let declaration: (Ident.t, Location.t) => unit;
-  let open_: (Path.t, Location.t) => unit;
+type tag = Type | Value | Module | Constructor(string) | Attribute(string);
+
+type ident('a) = ('a, tag);
+
+let mapIdent = (fn, (a, tag)) => (fn(a), tag);
+
+let contents = ((a, _)) => a;
+
+let toString = (fn, (a, tag)) => switch tag {
+| Type => "type: " ++ fn(a)
+| Value => "value: " ++ fn(a)
+| Constructor(b) => "constructor: " ++ fn(a) ++ " - " ++ b
+| Attribute(b) => "constructor: " ++ fn(a) ++ " - " ++ b
+| Module => "module: " ++ fn(a)
 };
 
-type openn = {mutable used: list(Longident.t), path: Path.t, loc: Location.t};
+module type Collector = {
+  let add: (~mend: Lexing.position=?, ~depth: int=?, Types.type_expr, Location.t) => unit;
+  let ident: (ident(Path.t), Location.t) => unit;
+  let declaration: (ident(Ident.t), Location.t) => unit;
+};
+
+/*
+- `open` -- which "open" did this non-fully-qualified usage come from? (this is a special one)
+
+
+Ohhhhh wait I don't need to do that, because I can just look at the type of the expression.
+So we're all good.
+
+// these are the ones that we don't get for free via IDs
+- `type`
+  - `type Constructor`
+  - `type .attribute`
+
+Scopes I need to keep track of:
+- `Module`
+- `ModuleType`
+- `value`
+
+
+
+OOooooooh
+ok, so maybe I need to differentiate between type references and value references?
+like for `open` tracking.
+Do I need to do that for other things?
+Yes.
+The `id` can't just be `Some/12.one`, it has to distinguish whether it's a type, or a value.
+
+Ok, so for paths, I probably want:
+
+`Type(Path.t)
+`Value(Path.t)
+`Constructor(Path.t, string)
+`Attribute(Path.t, string)
+
+
+Thiiis also means that I'll want to separate things out in the exposing.
+
+open Something exposing (a,b,c) types (some (A | B | C), othertype {one, two, three}, finaltype)
+
+ */
+
+type openn = {mutable used: list(ident(Longident.t)), path: Path.t, loc: Location.t};
 type open_stack = {
   mutable closed: list(openn),
   mutable opens: list(openn),
   parent: option(open_stack)
+};
+
+/*
+let rec convertLidentToPath = lident => switch lident {
+| Lident(text) =>
+}; */
+
+let rec pathToLident = Longident.(Path.(path => switch path {
+| Pident({Ident.name}) => Lident(name)
+| Pdot(a, b, _) => Ldot(pathToLident(a), b)
+| _ => assert(false)
+}));
+
+let rec addLidentToPath = (path, lident) => {
+  open Path;
+  open Longident;
+
+  switch lident {
+  | Lident(text) => Pdot(path, text, 0)
+  | Ldot(lident, text) => Pdot(addLidentToPath(path, lident), text, 0)
+  | Lapply(_, _) => failwith("I dont know what these are")
+  }
+};
+
+let rec usesOpen = (ident, path) => switch (ident, path) {
+| (Longident.Lident(name), Path.Pdot(path, pname, _)) => true
+| (Longident.Lident(_), Path.Pident(_)) => false
+| (Longident.Ldot(ident, _), Path.Pdot(path, _, _)) => usesOpen(ident, path)
+| _ => failwith("Cannot relative "  ++ Path.name(path) ++ " " ++ String.concat(".", Longident.flatten(ident)))
+};
+
+let rec relative = (ident, path) => switch (ident, path) {
+| (Longident.Lident(name), Path.Pdot(path, pname, _)) when pname == name => path
+| (Longident.Ldot(ident, _), Path.Pdot(path, _, _)) => relative(ident, path)
+| _ => failwith("Cannot relative "  ++ Path.name(path) ++ " " ++ String.concat(".", Longident.flatten(ident)))
 };
 
 
@@ -47,7 +137,6 @@ module F = (Collector: Collector) => {
   };
 
   let add_open = (path, loc) => {
-    print_endline("Add open " ++ Path.name(path));
     open_stack^.opens = [{path, loc, used: []}, ...open_stack^.opens];
   };
   let pop_open = () => {
@@ -60,20 +149,7 @@ module F = (Collector: Collector) => {
     }
   };
 
-  let rec usesOpen = (ident, path) => switch (ident, path) {
-  | (Longident.Lident(name), Path.Pdot(path, pname, _)) => true
-  | (Longident.Lident(_), Path.Pident(_)) => false
-  | (Longident.Ldot(ident, _), Path.Pdot(path, _, _)) => usesOpen(ident, path)
-  | _ => failwith("Cannot relative "  ++ Path.name(path))
-  };
-
-  let rec relative = (ident, path) => switch (ident, path) {
-  | (Longident.Lident(name), Path.Pdot(path, pname, _)) when pname == name => path
-  | (Longident.Ldot(ident, _), Path.Pdot(path, _, _)) => relative(ident, path)
-  | _ => failwith("Cannot relative "  ++ Path.name(path))
-  };
-
-  let add_use = (path, ident, loc) => {
+  let add_use = ((path, tag), ident, loc) => {
     let openNeedle = relative(ident, path);
     let rec loop = stack => {
       let rec inner = opens => switch opens {
@@ -83,7 +159,7 @@ module F = (Collector: Collector) => {
       }
       | [{path} as one, ...rest] when Path.same(path, openNeedle) =>  {
         /* print_endline("Matched " ++ Path.name(path) ++ " "); */
-        one.used = [ident, ...one.used];
+        one.used = [(ident, tag), ...one.used];
       }
       | [_, ...rest] => inner(rest)
       };
@@ -92,17 +168,15 @@ module F = (Collector: Collector) => {
     loop(open_stack^)
   };
 
-
-
   let enter_core_type = (typ) => {
     open Typedtree;
     Collector.add(~depth=depth^, typ.ctyp_type, typ.ctyp_loc);
     switch typ.ctyp_desc {
     | Ttyp_constr(path, {txt, loc}, args) => {
       if (usesOpen(txt, path)) {
-        add_use(path, txt, loc);
+        add_use((path, Type), txt, loc);
       };
-      Collector.ident(path, loc)
+      Collector.ident((path, Type), loc)
     }
     | _ => ()
     }
@@ -113,14 +187,14 @@ module F = (Collector: Collector) => {
     | Some((x)) => Collector.add(~depth=depth^, x, typ.typ_loc)
     | _ => ()
     };
-    Collector.declaration(typ.typ_id, typ.typ_name.loc)
+    Collector.declaration((typ.typ_id, Type), typ.typ_name.loc)
   };
   let enter_pattern = pat => {
     open Typedtree;
     Collector.add(~depth=depth^, pat.pat_type, pat.pat_loc);
     switch (pat.pat_desc) {
-    | Tpat_var(ident, {txt, loc}) => Collector.declaration(ident, loc)
-    | Tpat_alias(_, ident, {txt, loc}) => Collector.declaration(ident, loc)
+    | Tpat_var(ident, {txt, loc}) => Collector.declaration((ident, Value), loc)
+    | Tpat_alias(_, ident, {txt, loc}) => Collector.declaration((ident, Value), loc)
     | _ => ()
     }
   };
@@ -133,15 +207,14 @@ module F = (Collector: Collector) => {
         bindings
       )
     | Tstr_module({mb_id, mb_name: {txt, loc}}) => {
-      Collector.declaration(mb_id, loc);
+      Collector.declaration((mb_id, Module), loc);
       new_stack();
     }
     | Tstr_open({open_path, open_txt: {txt, loc}}) => {
       if (usesOpen(txt, open_path)) {
-        add_use(open_path, txt, loc);
+        add_use((open_path, Module), txt, loc);
       };
-      Collector.ident(open_path, loc);
-      Collector.open_(open_path, loc);
+      Collector.ident((open_path, Module), loc);
       add_open(open_path, loc);
     }
     | _ => ()
@@ -158,7 +231,7 @@ module F = (Collector: Collector) => {
     | Texp_for(ident, _, _, _, _, _) => {
       /* TODO I'm not super happy about this because the loc is not around the actual declaration :/ */
       /* But wait!! On the parsetree side, we do have a good loc. Soo we'll have to do extra work, but we can get it done. */
-      Collector.declaration(ident, expr.Typedtree.exp_loc)
+      Collector.declaration((ident, Value), expr.Typedtree.exp_loc)
     }
 
     | Texp_let(isrec, bindings, rest) =>
@@ -168,9 +241,9 @@ module F = (Collector: Collector) => {
       )
     | Texp_ident(path, {txt, loc}, value_description) => {
       if (usesOpen(txt, path)) {
-        add_use(path, txt, loc);
+        add_use((path, Value), txt, loc);
       };
-      Collector.ident(path, loc)
+      Collector.ident((path, Value), loc)
     }
     | Texp_record(items, ext) =>
       List.iter(
@@ -182,8 +255,87 @@ module F = (Collector: Collector) => {
             loc.Asttypes.loc
           ),
         items
-      ) /* TODO
+      )
+       /* TODO
       | Texp_construct loc desc args => Collector.add "constructor"  */
+    | Texp_construct({txt, loc}, {Types.cstr_name, cstr_loc}, args) => {
+      switch (expr.exp_type.Types.desc) {
+      | Tconstr(path, args, _) => {
+        /*
+         * Ok, so
+         *
+         * E: Inner.A
+         * T: Inner.other
+         *
+         * full path: Inner.other.A
+         *
+         * E: A
+         * T: Inner.other
+         *
+         * full path: Inner.other.A
+         *
+         * E: Inner.Thing.B
+         * T: Inner.Thing.thing
+         *
+         * full path: Inner.Thing.thing.B
+         *
+         * E: Thing.B
+         * T: Inner.Thing.thing
+         *
+         * full path: Inner.Thing.thing.B
+         *
+         * E: Awesome.Hello
+         * T: Awesome!.hello
+         *
+         * full path: Awesome.hello.Hello
+         */
+
+        let typeName = switch path {
+        | Path.Pdot(path, typename, _) => typename
+        | Pident({Ident.name}) => name
+        | _ => assert(false)
+        };
+        let (constructorName, typeTxt) = Longident.(switch txt {
+        | Longident.Lident(name) => (name, Lident(typeName))
+        | Ldot(left, name) => (name, Ldot(left, typeName))
+        | Lapply(_) => assert(false)
+        });
+
+        let fullPath = Path.Pdot(path, constructorName, 0);
+
+        Collector.ident((path, Constructor(constructorName)), loc);
+
+        if (usesOpen(typeTxt, path)) {
+          add_use((path, Constructor(constructorName)), typeTxt, loc)
+        };
+        /* switch path {
+        | Path.Pdot(path, typename, _) => {
+          if (usesOpen(txt, addLidentToPath(path, txt))) {
+            add_use(fullPath,
+            Longident.(switch txt {
+            | Longident.Lident(text) => Ldot(Lident(typename), text)
+            | Ldot(lident, text) => Ldot(Ldot(lident, typename), text)
+            | _ => failwith("what is apply")
+            })
+            , loc);
+            print_endline("Found use " ++ Path.name(fullPath) ++ " " ++ String.concat(".", Longident.flatten(txt)))
+          } else {
+            print_endline("No use")
+          };
+        }
+        | _ => ()
+        } */
+      }
+      | _ => print_endline("a constructor wasn't typed as a constructor?")
+      };
+      /* WHYYY is it a Longident instead of a Path?? Do I have to do the work myself?? */
+      /* Ok, the lcoation in there is also useless... */
+      /* Location.print(Format.str_formatter, cstr_loc);
+      Location.print(Format.str_formatter, loc);
+      print_endline(Format.flush_str_formatter() ++ " >> " ++ cstr_name); */
+      ()
+      /* Collector.ident(Path.Pident(Ident.create())) */
+    }
     | _ => ()
     };
     expr.exp_extra |> List.iter(((ex, loc, _)) => switch ex {
@@ -269,13 +421,10 @@ let collectTypes = annots => {
   let bindings = Hashtbl.create(100);
   let locToPath = Hashtbl.create(100);
 
-  let declaration = (ident, loc) => {
-    Hashtbl.replace(bindings, ident.Ident.stamp, ((ident, loc), []));
-  };
   let ident = (path, loc) => {
     if (!loc.Location.loc_ghost) {
       Hashtbl.replace(locToPath, (loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum), path);
-      let {Ident.stamp, name} = Path.head(path);
+      /* let {Ident.stamp, name} = Path.head(path);
       if (stamp == 0) {
         externals := [(path, loc), ...externals^]
       } else {
@@ -288,17 +437,19 @@ let collectTypes = annots => {
           [(path, loc), ...uses]
         ))
         }
-      }
+      } */
     }
   };
 
-  let open_ = (path, loc) => ();
+  let declaration = (decl, loc) => {
+    ident(mapIdent(id => Path.Pident(id), decl), loc)
+    /* Hashtbl.replace(bindings, ident.Ident.stamp, ((ident, loc), [])); */
+  };
 
   let module Config = {
     let add = add;
-    let ident=ident;
-    let declaration=declaration;
-    let open_ = open_;
+    let ident = ident;
+    let declaration = declaration;
   };
   let module IterSource = F(Config);
   let module Iter = TypedtreeIter.MakeIterator(IterSource);
@@ -312,13 +463,12 @@ let collectTypes = annots => {
   | _ => failwith("Not a valid cmt file")
   };
 
-  open IterSource;
   let all_opens = IterSource.root_stack.opens @ IterSource.root_stack.closed @ List.concat(
     List.map(op => op.opens @ op.closed, IterSource.closed_stacks^)
   );
   print_endline(string_of_int(List.length(all_opens)));
   all_opens |> List.iter(({path, loc, used}) => {
-    print_endline(Path.name(path) ++ ": " ++ String.concat(", ", List.map(n => String.concat(".", Longident.flatten(n)), used)));
+    print_endline(Path.name(path) ++ ": " ++ String.concat(", ", List.map(toString(n => String.concat(".", Longident.flatten(n))), used)));
   });
 
   (types, bindings, externals^, all_opens, locToPath)

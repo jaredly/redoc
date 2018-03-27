@@ -74,6 +74,10 @@ body {
   background-color: #d4ffe2;
 }
 
+.type-hovered {
+  outline: 1px solid #aaa;
+}
+
 /* span {
   display: inline-block;
   position: relative;
@@ -118,8 +122,9 @@ body {
 
 
 </style>
-<pre id="main">open Pervasives <span class="open-exposing">exposing (<span class="declaration-var" data-id="Pervasives!.+.">+.</span>, <span class="declaration-var" data-id="Pervasives!.+">+</span>)</span>
-<span class="string">/**
+<pre id="main">open Pervasives <span class="open-exposing">exposing (<span class="declaration-var" data-id="value: Pervasives!.+">value: +</span>, <span class="declaration-var" data-id="value: Pervasives!.+.">value: +.</span>)</span>
+
+<span class="type" data-type="74"><span class="string">/**
  * Here's some documentaition
  *
  * ```
@@ -127,44 +132,156 @@ body {
  * let y = 20;
  * ```
  */</span>
-let <span class="declaration-var" data-id="awesome/1008">awesome</span> = <span class="unit">()</span> => <span class="int">10</span>;
+let <span class="type" data-type="3"><span class="declaration-var" data-id="value: awesome/1008">awesome</span></span> = <span class="type" data-type="100"><span class="type" data-type="72"><span class="unit">()</span></span> => <span class="type" data-type="92"><span class="int">10</span></span></span></span>;
 
-module <span class="declaration-var" data-id="Something/1010">Something</span> = {
-  let <span class="declaration-var" data-id="inner/1009">inner</span> = <span class="int">20</span>;
+module <span class="declaration-var" data-id="module: Something/1010">Something</span> = {
+  <span class="type" data-type="29">let <span class="type" data-type="85"><span class="declaration-var" data-id="value: inner/1009">inner</span></span> = <span class="type" data-type="33"><span class="int">20</span></span></span>;
 };
-open <span class="open-module-identifier" data-id="Something/1010">Something</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="Something/1010.inner">inner</span>)</span>;
+open <span class="open-module-identifier" data-id="module: Something/1010">Something</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="value: Something/1010.inner">value: inner</span>)</span>;
 
-let <span class="declaration-var" data-id="party/1011">party</span> = <span class="unit">()</span> => {
-  let <span class="declaration-var" data-id="x/1012">x</span> = <span class="value-identifier" data-id="Something/1010.inner">inner</span>;
-  let <span class="declaration-var" data-id="y/1013">y</span> = <span class="module-identifier" data-id="Something/1010">Something</span>.<span class="value-identifier" data-id="Something/1010.inner">inner</span>;
-  <span class="value-identifier" data-id="x/1012">x</span> <span class="operator" data-id="Pervasives!.+">+</span> <span class="value-identifier" data-id="y/1013">y</span>;
-};
+<span class="type" data-type="31">let <span class="type" data-type="44"><span class="declaration-var" data-id="value: party/1011">party</span></span> = <span class="type" data-type="82"><span class="type" data-type="43"><span class="unit">()</span></span> => <span class="type" data-type="20">{
+  <span class="type" data-type="25">let <span class="type" data-type="42"><span class="declaration-var" data-id="value: x/1012">x</span></span> = <span class="type" data-type="70"><span class="value-identifier" data-id="value: Something/1010.inner">inner</span></span></span>;
+  <span class="type" data-type="46"><span class="type" data-type="37">let <span class="type" data-type="65"><span class="declaration-var" data-id="value: y/1013">y</span></span> = <span class="type" data-type="89"><span class="module-identifier" data-id="module: Something/1010">Something</span>.<span class="value-identifier" data-id="value: Something/1010.inner">inner</span></span></span>;
+  <span class="type" data-type="99"><span class="type" data-type="80"><span class="value-identifier" data-id="value: x/1012">x</span></span> <span class="type" data-type="8"><span class="operator" data-id="value: Pervasives!.+">+</span></span> <span class="type" data-type="12"><span class="value-identifier" data-id="value: y/1013">y</span></span>;</span></span>
+}</span></span></span>;
 
-type <span class="declaration-var" data-id="awesome/1014">awesome</span> =
+type <span class="declaration-var" data-id="type: awesome/1014">awesome</span> =
   | Hello
-  | Folks(<span class="type-value-identifier" data-id="int/1">int</span>);
+  | Folks(<span class="type" data-type="54"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
 
-open <span class="open-module-identifier" data-id="Geom!">Geom</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="Geom!.halfPi">halfPi</span>, <span class="declaration-var" data-id="Geom!.thetaDiff">thetaDiff</span>)</span>;
-let <span class="declaration-var" data-id="things/1087">things</span> = <span class="unit">()</span> => {
-  let <span class="declaration-var" data-id="x/1088">x</span> = <span class="module-identifier" data-id="Geom!">Geom</span>.<span class="value-identifier" data-id="Geom!.thetaDiff">thetaDiff</span>(<span class="float">0.</span>, <span class="float">1.</span>);
-  let <span class="declaration-var" data-id="y/1089">y</span> = <span class="value-identifier" data-id="Geom!.thetaDiff">thetaDiff</span>(<span class="float">2.</span>, <span class="value-identifier" data-id="Geom!.halfPi">halfPi</span>);
-  let <span class="declaration-var" data-id="z/1090">z</span> = Hello;
-  <span class="value-identifier" data-id="x/1088">x</span> <span class="operator" data-id="Pervasives!.+.">+.</span> <span class="value-identifier" data-id="y/1089">y</span>;
+open <span class="open-module-identifier" data-id="module: Geom!">Geom</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="value: Geom!.halfPi">value: halfPi</span>, <span class="declaration-var" data-id="value: Geom!.thetaDiff">value: thetaDiff</span>)</span>;
+<span class="type" data-type="96">let <span class="type" data-type="2"><span class="declaration-var" data-id="value: things/1087">things</span></span> = <span class="type" data-type="98"><span class="type" data-type="47"><span class="unit">()</span></span> => <span class="type" data-type="48">{
+  <span class="type" data-type="78">let <span class="type" data-type="14"><span class="declaration-var" data-id="value: x/1088">x</span></span> = <span class="type" data-type="84"><span class="type" data-type="24"><span class="module-identifier" data-id="module: Geom!">Geom</span>.<span class="value-identifier" data-id="value: Geom!.thetaDiff">thetaDiff</span></span>(<span class="type" data-type="58"><span class="float">0.</span></span>, <span class="type" data-type="30"><span class="float">1.</span></span>)</span></span>;
+  <span class="type" data-type="87"><span class="type" data-type="13">let <span class="type" data-type="50"><span class="declaration-var" data-id="value: y/1089">y</span></span> = <span class="type" data-type="64"><span class="type" data-type="0"><span class="value-identifier" data-id="value: Geom!.thetaDiff">thetaDiff</span></span>(<span class="type" data-type="38"><span class="float">2.</span></span>, <span class="type" data-type="63"><span class="value-identifier" data-id="value: Geom!.halfPi">halfPi</span></span>)</span></span>;
+  <span class="type" data-type="32"><span class="type" data-type="7">let <span class="type" data-type="1"><span class="declaration-var" data-id="value: z/1090">z</span></span> = <span class="type" data-type="91"><span class="constructor-module-identifier" data-id="constructor: awesome/1014 - Hello">Hello</span></span></span>;
+  <span class="type" data-type="77"><span class="type" data-type="57"><span class="value-identifier" data-id="value: x/1088">x</span></span> <span class="type" data-type="88"><span class="operator" data-id="value: Pervasives!.+.">+.</span></span> <span class="type" data-type="97"><span class="value-identifier" data-id="value: y/1089">y</span></span>;</span></span></span>
+}</span></span></span>;
+
+module <span class="declaration-var" data-id="module: Inner/1096">Inner</span> = {
+  type <span class="declaration-var" data-id="type: other/1091">other</span> = A |B | C(<span class="type" data-type="86"><span class="type-value-identifier" data-id="type: other/1091">other</span></span>);
+  <span class="type" data-type="28">let <span class="type" data-type="5"><span class="declaration-var" data-id="value: other/1095">other</span></span> = <span class="type" data-type="16"><span class="int">10</span></span></span>;
 };
 
-module <span class="declaration-var" data-id="Inner/1095">Inner</span> = {
-  type <span class="declaration-var" data-id="other/1091">other</span> = A |B | C(<span class="type-value-identifier" data-id="other/1091">other</span>);
-};
+open <span class="open-module-identifier" data-id="module: Inner/1096">Inner</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="type: Inner/1096.other">type: other</span>, <span class="declaration-var" data-id="value: Inner/1096.other">value: other</span>, <span class="declaration-var" data-id="constructor: Inner/1096.other - B">constructor: other - B</span>, <span class="declaration-var" data-id="constructor: Inner/1096.other - C">constructor: other - C</span>)</span>;
 
-open <span class="open-module-identifier" data-id="Inner/1095">Inner</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="Inner/1095.other">other</span>)</span>;
+<span class="type" data-type="76">type <span class="declaration-var" data-id="type: m/1097">m</span> = <span class="type" data-type="18"><span class="type-value-identifier" data-id="type: Inner/1096.other">other</span></span></span>;
+<span class="type" data-type="27">let <span class="type" data-type="71"><span class="declaration-var" data-id="value: otherval/1098">otherval</span></span> = <span class="type" data-type="73"><span class="module-identifier" data-id="module: Inner/1096">Inner</span>.<span class="value-identifier" data-id="value: Inner/1096.other">other</span></span></span>;
+<span class="type" data-type="4">let <span class="type" data-type="11"><span class="declaration-var" data-id="value: other/1099">other</span></span> = <span class="type" data-type="94"><span class="value-identifier" data-id="value: Inner/1096.other">other</span></span></span>;
+<span class="type" data-type="19">let <span class="type" data-type="26"><span class="declaration-var" data-id="value: z/1100">z</span></span> = <span class="type" data-type="75"><span class="constructor-module-identifier" data-id="module: Inner/1096">Inner</span>.<span class="constructor-module-identifier" data-id="constructor: Inner/1096.other - A">A</span></span></span>;
+<span class="type" data-type="53">let <span class="type" data-type="15"><span class="declaration-var" data-id="value: b/1101">b</span></span> = <span class="type" data-type="59"><span class="constructor-module-identifier" data-id="constructor: Inner/1096.other - B">B</span></span></span>;
+<span class="type" data-type="6">let <span class="type" data-type="95"><span class="declaration-var" data-id="value: c/1102">c</span></span> = <span class="type" data-type="17"><span class="constructor-module-identifier" data-id="constructor: Inner/1096.other - C">C</span>(<span class="type" data-type="61">Inner.A</span>)</span></span>;
 
-type <span class="declaration-var" data-id="m/1096">m</span> = <span class="type-value-identifier" data-id="Inner/1095.other">other</span>;
-let <span class="declaration-var" data-id="z/1097">z</span> = Inner.A;
-let <span class="declaration-var" data-id="b/1098">b</span> = B;
-let <span class="declaration-var" data-id="c/1099">c</span> = C(Inner.A);
+<span class="type" data-type="52">let <span class="type" data-type="81"><span class="declaration-var" data-id="value: a/1103">a</span></span> = <span class="type" data-type="93">[|<span class="type" data-type="83"><span class="int">1</span></span>,<span class="type" data-type="34"><span class="int">2</span></span>|]</span></span>;
+<span class="type" data-type="90"><span class="type" data-type="41"><span class="value-identifier" data-id="value: a/1103">a</span></span>[<span class="type" data-type="60"><span class="int">0</span></span>] = <span class="type" data-type="35"><span class="int">10</span></span></span>;
 
-let <span class="declaration-var" data-id="a/1100">a</span> = [|<span class="int">1</span>,<span class="int">2</span>|];
-<span class="value-identifier" data-id="a/1100">a</span>[<span class="int">0</span>] = <span class="int">10</span>;</pre>
+type <span class="declaration-var" data-id="type: a/1104">a</span> = A|C|B;
+type <span class="declaration-var" data-id="type: c/1108">c</span> = A|C|B;
+type <span class="declaration-var" data-id="type: b/1112">b</span> = A|B(<span class="type" data-type="23"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
+<span class="type" data-type="49">let <span class="type" data-type="67"><span class="declaration-var" data-id="value: x/1115">x</span></span> = <span class="type" data-type="69"><span class="constructor-module-identifier" data-id="constructor: b/1112 - B">B</span>(<span class="type" data-type="22"><span class="int">1</span></span>)</span></span>;
+<span class="type" data-type="66">let <span class="type" data-type="9"><span class="declaration-var" data-id="value: z/1116">z</span></span>:<span class="type" data-type="40"><span class="type-value-identifier" data-id="type: c/1108">c</span></span> = <span class="type" data-type="56"><span class="constructor-module-identifier" data-id="constructor: c/1108 - A">A</span></span></span>;
+<span class="type" data-type="36">let <span class="type" data-type="10"><span class="declaration-var" data-id="value: z/1117">z</span></span>:<span class="type" data-type="45"><span class="type-value-identifier" data-id="type: a/1104">a</span></span> = <span class="type" data-type="68"><span class="constructor-module-identifier" data-id="constructor: a/1104 - A">A</span></span></span>;
+<span class="type" data-type="62">let <span class="type" data-type="51"><span class="declaration-var" data-id="value: m/1118">m</span></span> = <span class="type" data-type="21"><span class="constructor-module-identifier" data-id="constructor: b/1112 - A">A</span></span></span>;
+<span class="type" data-type="39">let <span class="type" data-type="55"><span class="declaration-var" data-id="value: n/1119">n</span></span> = <span class="type" data-type="79"><span class="constructor-module-identifier" data-id="constructor: b/1112 - A">A</span></span></span>;</pre><script>window.TYPES_LIST = ["float",
+  "awesome",
+  "unit -> float",
+  "unit -> int",
+  "int",
+  "int",
+  "Inner.other",
+  "float",
+  "int -> int -> int",
+  "c",
+  "a",
+  "int",
+  "int",
+  "float",
+  "float",
+  "Inner.other",
+  "int",
+  "Inner.other",
+  "Inner.other",
+  "Inner.other",
+  "int",
+  "b",
+  "int",
+  "int",
+  "float",
+  "int",
+  "Inner.other",
+  "int",
+  "int",
+  "int",
+  "float",
+  "unit -> int",
+  "awesome",
+  "int",
+  "int",
+  "int",
+  "a",
+  "int",
+  "float",
+  "b",
+  "c",
+  "int array",
+  "int",
+  "unit",
+  "unit -> int",
+  "a",
+  "int",
+  "unit -> float",
+  "float",
+  "b",
+  "float",
+  "b",
+  "int array",
+  "Inner.other",
+  "int",
+  "b",
+  "c",
+  "float",
+  "float",
+  "Inner.other",
+  "int",
+  "Inner.other",
+  "b",
+  "float",
+  "float -> float -> float",
+  "int",
+  "c",
+  "b",
+  "a",
+  "b",
+  "int",
+  "int",
+  "unit",
+  "int",
+  "unit -> int",
+  "Inner.other",
+  "Inner.other",
+  "float",
+  "float",
+  "b",
+  "int",
+  "int array",
+  "unit -> int",
+  "int",
+  "float -> float -> float",
+  "int",
+  "other",
+  "float",
+  "float -> float -> float",
+  "int",
+  "unit",
+  "awesome",
+  "int",
+  "int array",
+  "int",
+  "Inner.other",
+  "unit -> float",
+  "float",
+  "unit",
+  "int",
+  "unit -> int"]</script>
 <script>
 
   document.getElementById('main').addEventListener('mouseover', evt => {
@@ -173,6 +290,17 @@ let <span class="declaration-var" data-id="a/1100">a</span> = [|<span class="int
       [].map.call(document.querySelectorAll('[data-id="' + id + '"]'), el => {
         el.classList.add('hovered')
       })
+    }
+    let el = evt.target
+    while (el && el !== document.body) {
+      const type = el.getAttribute('data-type')
+      if (type) {
+        console.log(TYPES_LIST[type])
+        ;[].map.call(document.querySelectorAll('.type-hovered'), x => x.classList.remove('type-hovered'))
+        el.classList.add('type-hovered')
+        break
+      }
+      el = el.parentElement
     }
   })
 

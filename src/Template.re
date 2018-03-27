@@ -18,6 +18,11 @@ body {
   color: #aa0;
 }
 
+.type-value-identifier,
+.type-module-identifier {
+  color: #1400a5;
+}
+
 .open-module-identifier,
 .type-module-identifier,
 .let-module-identifier,
@@ -29,7 +34,6 @@ body {
 }
 
 .open-value-identifier,
-.type-value-identifier,
 .let-value-identifier,
 .switch-value-identifier,
 .record-value-identifier,
@@ -50,15 +54,15 @@ body {
 }
 
 .int {
-    color: blue;
+    color: #5656cc;
 }
 
 .boolean {
-    color: red;
+    color: #ff8f8f;
 }
 
 .float {
-    color: orange;
+    color: #d49523;
 }
 
 .operator {
@@ -99,9 +103,18 @@ body {
 }
 
 .open-exposing {
-  box-shadow: 0 0 5px #d2d2d2;
+  box-shadow: 0 0 2px #d2d2d2;
   border-radius: 3px;
-  padding: 2px;
+  padding: 0 2px;
+}
+
+.open-record,
+.open-type {
+  color: #1400a5;
+}
+
+.open-value {
+  color: #000;
 }
 
 
@@ -120,13 +133,29 @@ body {
   color: #000;
 } */
 
-
+#type_hover {
+  position: absolute;
+  margin-top: 30px;
+  margin-left: 10px;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  font-family: 'sf mono', monospace;
+  background-color: white;
+  box-shadow: 0 0 2px #aaa;
+}
 
 </style>
 |};
 
 let final = {|
+  <div id="type_hover">Hello</div>
 <script>
+
+  const t = document.getElementById('type_hover')
+  document.getElementById('main').addEventListener('mousemove', evt => {
+    t.style.top = evt.pageY + 'px'
+    t.style.left = evt.pageX + 'px'
+  });
 
   document.getElementById('main').addEventListener('mouseover', evt => {
     const id = evt.target.getAttribute('data-id')
@@ -139,7 +168,8 @@ let final = {|
     while (el && el !== document.body) {
       const type = el.getAttribute('data-type')
       if (type) {
-        console.log(TYPES_LIST[type])
+        t.innerText = TYPES_LIST[type]
+        /* console.log(TYPES_LIST[type]) */
         ;[].map.call(document.querySelectorAll('.type-hovered'), x => x.classList.remove('type-hovered'))
         el.classList.add('type-hovered')
         break
@@ -150,6 +180,7 @@ let final = {|
 
   document.getElementById('main').addEventListener('mouseout', evt => {
     const id = evt.target.getAttribute('data-id')
+      evt.target.classList.remove('type-hovered')
     if (id) {
       [].map.call(document.querySelectorAll('[data-id="' + id + '"]'), el => {
         el.classList.remove('hovered')

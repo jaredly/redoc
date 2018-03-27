@@ -29,6 +29,10 @@ module F = (Collect: {
     | Ppat_constant(constant) => Collect.constant(constantType(constant), ppat_loc)
     | Ppat_interval(start, send) => ()
     | Ppat_tuple(items) => List.iter(mapPat, items)
+    | Ppat_construct({txt: Lident("true" | "false"), loc}, _) => {
+      Collect.constant(`Boolean, loc)
+    }
+    /* TODO list constructors, [] :: */
     | Ppat_construct({txt, loc}, args) => {
       Collect.lident(txt, loc, prefix); /* maybe distinguish that this is in a pattern */
       switch  args {
@@ -335,6 +339,74 @@ let buildExternalsMap = externals => {
   map
 };
 
+let pushHashList = (hash, key, value) => Hashtbl.replace(hash, key, switch (Hashtbl.find(hash, key)) {
+| exception Not_found => [value]
+| items => [value, ...items]
+});
+
+let mapHash = (hash, fn) => Hashtbl.fold((k, v, l) => [fn(k, v), ...l], hash, []);
+
+let showUses = (openPath, uses) => {
+  let attrs = Hashtbl.create(50);
+  let constrs = Hashtbl.create(50);
+  let normals = List.filter(((innerPath, tag)) => {
+    switch (tag) {
+    | Typing.Constructor(name) => {pushHashList(constrs, innerPath, name); false}
+    | Attribute(name) => {pushHashList(attrs, innerPath, name); false}
+    | _ => true
+    }
+  }, uses);
+  let normals = normals |> List.filter(((innerPath, tag)) => {
+    switch tag {
+    | Typing.Type => !(Hashtbl.mem(attrs, innerPath) || Hashtbl.mem(constrs, innerPath))
+    | _ => true
+    }
+  });
+  List.concat([
+    (normals |> List.map(((lident, tag)) => {
+      let fullPath = Typing.addLidentToPath(openPath, lident);
+      Printf.sprintf(
+        {|<span class="open-%s" data-id="%s">%s</span>|},
+        switch tag {
+        | Typing.Type => "type"
+        | Value => "value"
+        | _ => "item"
+        },
+        Typing.toString(pathName, (fullPath, tag)),
+        Typing.showLident(lident)
+      )
+    })),
+    mapHash(attrs, (path, attrs) => {
+      let fullPath = Typing.addLidentToPath(openPath, path);
+      Printf.sprintf(
+        {|<span class="open-record" data-id="%s">%s</span>|},
+        Typing.toString(pathName, (fullPath, Typing.Type)),
+        Typing.showLident(path)
+      ) ++ " {" ++ String.concat(", ", attrs |> List.map(attr => {
+        Printf.sprintf(
+          {|<span class="open-record-attribute" data-id="%s">%s</span>|},
+          Typing.toString(pathName, (fullPath, Typing.Attribute(attr))),
+          attr
+        )
+      })) ++ "}"
+    }),
+    mapHash(constrs, (path, attrs) => {
+      let fullPath = Typing.addLidentToPath(openPath, path);
+      Printf.sprintf(
+        {|<span class="open-type" data-id="%s">%s</span>|},
+        Typing.toString(pathName, (fullPath, Typing.Type)),
+        Typing.showLident(path)
+      ) ++ " (" ++ String.concat("|", attrs |> List.map(attr => {
+        Printf.sprintf(
+          {|<span class="open-type-constructor" data-id="%s">%s</span>|},
+          Typing.toString(pathName, (fullPath, Typing.Constructor(attr))),
+          attr
+        )
+      })) ++ ")"
+    }),
+  ]) |> String.concat(", ")
+};
+
 let highlight = (text, ast, types, bindings, externals, all_opens, locToPath) => {
 
   let bindingMap = buildLocBindingMap(bindings);
@@ -381,7 +453,8 @@ let highlight = (text, ast, types, bindings, externals, all_opens, locToPath) =>
         Printf.sprintf(
           {|%s <span class="open-exposing">exposing (%s)</span>|},
           (isPervasives ? "open Pervasives" : ""),
-          used |> List.map(globalTag(path)) |> String.concat(", ")
+          showUses(path, used)
+          /* used |> List.map(globalTag(path)) |> String.concat(", ") */
         ) ++ (isPervasives ? "\n" : ""),
         ...extra_inserts[i]
       ];

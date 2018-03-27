@@ -205,12 +205,75 @@ module F = (Collector: Collector) => {
     };
     Collector.declaration((typ.typ_id, Type), typ.typ_name.loc)
   };
+
+  let handleConstructor = (path, txt) => {
+    let typeName = switch path {
+    | Path.Pdot(path, typename, _) => typename
+    | Pident({Ident.name}) => name
+    | _ => assert(false)
+    };
+
+    Longident.(switch txt {
+    | Longident.Lident(name) => (name, Lident(typeName))
+    | Ldot(left, name) => (name, Ldot(left, typeName))
+    | Lapply(_) => assert(false)
+    });
+  };
+
+  let handleRecord = (path, txt) => {
+    let typeName = switch path {
+    | Path.Pdot(path, typename, _) => typename
+    | Pident({Ident.name}) => name
+    | _ => assert(false)
+    };
+
+    Longident.(switch txt {
+    | Lident(name) => Lident(typeName)
+    | Ldot(inner, name) => Ldot(inner, typeName)
+    | Lapply(_) => assert(false)
+    });
+  };
+
+
   let enter_pattern = pat => {
     open Typedtree;
     Collector.add(~depth=depth^, pat.pat_type, pat.pat_loc);
     switch (pat.pat_desc) {
     | Tpat_var(ident, {txt, loc}) => Collector.declaration((ident, Value), loc)
     | Tpat_alias(_, ident, {txt, loc}) => Collector.declaration((ident, Value), loc)
+    | Tpat_construct({txt, loc}, desc, args) => {
+      switch (dig(pat.pat_type).Types.desc) {
+      | Tconstr(path, args, _) => {
+        let (constructorName, typeTxt) = handleConstructor(path, txt);
+        Collector.ident((path, Constructor(constructorName)), loc);
+
+        if (usesOpen(typeTxt, path)) {
+          add_use((path, Constructor(constructorName)), typeTxt, loc)
+        };
+      }
+      | _ => print_endline("a constructor wasn't typed as a constructor?" ++ {
+        Printtyp.type_expr(Format.str_formatter, pat.pat_type);
+        Format.flush_str_formatter()
+      })
+    }
+    }
+    | Tpat_record(items, isClosed) => items |> List.iter((({Asttypes.txt, loc}, label, value)) => {
+
+        switch (dig(label.Types.lbl_res).Types.desc) {
+        | Tconstr(path, args, _) => {
+          Collector.ident((path, Attribute(label.Types.lbl_name)), loc);
+          let typeTxt = handleRecord(path, txt);
+          if (usesOpen(typeTxt, path)) {
+            add_use(~inferable=true, (path, Attribute(label.Types.lbl_name)), typeTxt, loc)
+          };
+        }
+        | _ => print_endline("Record not a constr " ++ {
+          Printtyp.type_expr(Format.str_formatter, pat.pat_type);
+          Format.flush_str_formatter()
+        })
+        };
+
+    })
     | _ => ()
     }
   };
@@ -261,6 +324,7 @@ module F = (Collector: Collector) => {
   | Tstr_module(_) => pop_stack()
   | _ => ()
   });
+
   let enter_expression = (expr) => {
     open Typedtree;
     expr.exp_extra |> List.iter(((ex, loc, _)) => switch ex {
@@ -290,20 +354,8 @@ module F = (Collector: Collector) => {
       Collector.add(~depth=depth^, label.Types.lbl_res, loc);
       switch (dig(label.Types.lbl_res).Types.desc) {
       | Tconstr(path, args, _) => {
-        Collector.ident((path, Attribute(label.Types.lbl_name)), loc);
-
-          let typeName = switch path {
-          | Path.Pdot(path, typename, _) => typename
-          | Pident({Ident.name}) => name
-          | _ => assert(false)
-          };
-
-          let typeTxt = Longident.(switch txt {
-          | Lident(name) => Lident(typeName)
-          | Ldot(inner, name) => Ldot(inner, typeName)
-          | Lapply(_) => assert(false)
-          });
-
+          Collector.ident((path, Attribute(label.Types.lbl_name)), loc);
+          let typeTxt = handleRecord(path, txt);
           if (usesOpen(typeTxt, path)) {
             add_use(~inferable=true, (path, Attribute(label.Types.lbl_name)), typeTxt, loc)
           };
@@ -322,21 +374,8 @@ module F = (Collector: Collector) => {
 
         switch (dig(label.Types.lbl_res).Types.desc) {
         | Tconstr(path, args, _) => {
-
           Collector.ident((path, Attribute(label.Types.lbl_name)), loc);
-
-          let typeName = switch path {
-          | Path.Pdot(path, typename, _) => typename
-          | Pident({Ident.name}) => name
-          | _ => assert(false)
-          };
-
-          let typeTxt = Longident.(switch txt {
-          | Lident(name) => Lident(typeName)
-          | Ldot(inner, name) => Ldot(inner, typeName)
-          | Lapply(_) => assert(false)
-          });
-
+          let typeTxt = handleRecord(path, txt);
           if (usesOpen(typeTxt, path)) {
             add_use((path, Attribute(label.Types.lbl_name)), typeTxt, loc)
           };
@@ -351,20 +390,8 @@ module F = (Collector: Collector) => {
     | Texp_construct({txt, loc}, {Types.cstr_name, cstr_loc}, args) => {
       switch (dig(expr.exp_type).Types.desc) {
       | Tconstr(path, args, _) => {
-        let typeName = switch path {
-        | Path.Pdot(path, typename, _) => typename
-        | Pident({Ident.name}) => name
-        | _ => assert(false)
-        };
-
-        let (constructorName, typeTxt) = Longident.(switch txt {
-        | Longident.Lident(name) => (name, Lident(typeName))
-        | Ldot(left, name) => (name, Ldot(left, typeName))
-        | Lapply(_) => assert(false)
-        });
-
+        let (constructorName, typeTxt) = handleConstructor(path, txt);
         Collector.ident((path, Constructor(constructorName)), loc);
-
         if (usesOpen(typeTxt, path)) {
           add_use((path, Constructor(constructorName)), typeTxt, loc)
         };

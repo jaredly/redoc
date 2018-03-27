@@ -211,12 +211,20 @@ module F = (Collector: Collector) => {
     }
     | Tstr_type(decls) => List.iter(
       decl => {
+        /* TODO figure this out */
+        switch (decl.typ_type.type_manifest) {
+        | None => ()
+        | Some(exp) => Collector.add(exp, str.str_loc)
+        };
         switch (decl.typ_kind) {
         | Ttype_variant(constructors) => {
           constructors |> List.iter(({cd_id, cd_name: {txt, loc}}) => (
             Collector.declaration((decl.typ_id, Constructor(txt)), loc)
           ))
         }
+        | Ttype_record(labels) => labels |> List.iter(({ld_id, ld_name: {txt, loc}}) => (
+            Collector.declaration((decl.typ_id, Attribute(txt)), loc)
+          ))
         | _ => ()
         }
       },
@@ -259,13 +267,26 @@ module F = (Collector: Collector) => {
     }
     | Texp_record(items, ext) =>
       List.iter(
-        ((loc, label, expr)) =>
-          Collector.add(
-            ~depth=depth^,
-            expr.exp_type,
-            ~mend=expr.exp_loc.Location.loc_end,
-            loc.Asttypes.loc
-          ),
+        (({Asttypes.txt, loc}, label, ex)) =>
+          {
+            Collector.add(
+              ~depth=depth^,
+              expr.exp_type,
+              ~mend=expr.exp_loc.Location.loc_end,
+              loc
+            );
+            switch (expr.exp_type.Types.desc) {
+            | Tlink({desc: Tconstr(path, args, _)})
+            | Tsubst({desc: Tconstr(path, args, _)})
+            | Tconstr(path, args, _) => {
+              Collector.ident((path, Attribute(label.Types.lbl_name)), loc)
+            }
+            | _ => print_endline("Record not a record " ++ {
+              Printtyp.type_expr(Format.str_formatter, expr.exp_type);
+              Format.flush_str_formatter()
+            })
+            };
+          },
         items
       )
 

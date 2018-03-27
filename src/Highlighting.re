@@ -69,6 +69,9 @@ module F = (Collect: {
         | Ptype_variant(constructors) => constructors |> List.iter(({pcd_name: {txt, loc}}) => {
           Collect.pat_var(txt, loc)
         })
+        | Ptype_record(labels) => labels |> List.iter(({pld_name: {txt, loc}}) => (
+          Collect.pat_var(txt, loc)
+           ))
         | _ => ()
         }
       })

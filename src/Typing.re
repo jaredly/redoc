@@ -129,7 +129,6 @@ module F = (Collector: Collector) => {
   let new_stack = () => open_stack := {parent: Some(open_stack^), opens: [], closed: []};
   let pop_stack = () => switch (open_stack^.parent) {
   | Some(parent) => {
-    print_endline("Popping");
     closed_stacks := [open_stack^, ...closed_stacks^];
     open_stack := parent
   }
@@ -256,40 +255,12 @@ module F = (Collector: Collector) => {
           ),
         items
       )
-       /* TODO
-      | Texp_construct loc desc args => Collector.add "constructor"  */
+
     | Texp_construct({txt, loc}, {Types.cstr_name, cstr_loc}, args) => {
       switch (expr.exp_type.Types.desc) {
+      | Tlink({desc: Tconstr(path, args, _)})
+      | Tsubst({desc: Tconstr(path, args, _)})
       | Tconstr(path, args, _) => {
-        /*
-         * Ok, so
-         *
-         * E: Inner.A
-         * T: Inner.other
-         *
-         * full path: Inner.other.A
-         *
-         * E: A
-         * T: Inner.other
-         *
-         * full path: Inner.other.A
-         *
-         * E: Inner.Thing.B
-         * T: Inner.Thing.thing
-         *
-         * full path: Inner.Thing.thing.B
-         *
-         * E: Thing.B
-         * T: Inner.Thing.thing
-         *
-         * full path: Inner.Thing.thing.B
-         *
-         * E: Awesome.Hello
-         * T: Awesome!.hello
-         *
-         * full path: Awesome.hello.Hello
-         */
-
         let typeName = switch path {
         | Path.Pdot(path, typename, _) => typename
         | Pident({Ident.name}) => name
@@ -308,34 +279,15 @@ module F = (Collector: Collector) => {
         if (usesOpen(typeTxt, path)) {
           add_use((path, Constructor(constructorName)), typeTxt, loc)
         };
-        /* switch path {
-        | Path.Pdot(path, typename, _) => {
-          if (usesOpen(txt, addLidentToPath(path, txt))) {
-            add_use(fullPath,
-            Longident.(switch txt {
-            | Longident.Lident(text) => Ldot(Lident(typename), text)
-            | Ldot(lident, text) => Ldot(Ldot(lident, typename), text)
-            | _ => failwith("what is apply")
-            })
-            , loc);
-            print_endline("Found use " ++ Path.name(fullPath) ++ " " ++ String.concat(".", Longident.flatten(txt)))
-          } else {
-            print_endline("No use")
-          };
-        }
-        | _ => ()
-        } */
       }
-      | _ => print_endline("a constructor wasn't typed as a constructor?")
+      | _ => print_endline("a constructor wasn't typed as a constructor?" ++ {
+        Location.print(Format.str_formatter, cstr_loc);
+        Printtyp.type_expr(Format.str_formatter, expr.exp_type);
+        Format.flush_str_formatter()
+      })
       };
-      /* WHYYY is it a Longident instead of a Path?? Do I have to do the work myself?? */
-      /* Ok, the lcoation in there is also useless... */
-      /* Location.print(Format.str_formatter, cstr_loc);
-      Location.print(Format.str_formatter, loc);
-      print_endline(Format.flush_str_formatter() ++ " >> " ++ cstr_name); */
-      ()
-      /* Collector.ident(Path.Pident(Ident.create())) */
     }
+
     | _ => ()
     };
     expr.exp_extra |> List.iter(((ex, loc, _)) => switch ex {
@@ -466,10 +418,10 @@ let collectTypes = annots => {
   let all_opens = IterSource.root_stack.opens @ IterSource.root_stack.closed @ List.concat(
     List.map(op => op.opens @ op.closed, IterSource.closed_stacks^)
   );
-  print_endline(string_of_int(List.length(all_opens)));
-  all_opens |> List.iter(({path, loc, used}) => {
+  /* print_endline(string_of_int(List.length(all_opens))); */
+  /* all_opens |> List.iter(({path, loc, used}) => {
     print_endline(Path.name(path) ++ ": " ++ String.concat(", ", List.map(toString(n => String.concat(".", Longident.flatten(n))), used)));
-  });
+  }); */
 
   (types, bindings, externals^, all_opens, locToPath)
 };

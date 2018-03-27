@@ -361,7 +361,6 @@ let highlight = (text, ast, types, bindings, externals, all_opens, locToPath) =>
   all_opens |> List.iter(({Typing.path, loc, used}) => {
     if (!loc.Location.loc_ghost) {
       let i = loc.Location.loc_end.pos_cnum;
-      print_endline(string_of_int(i));
       let isPervasives = switch path {
         | Path.Pident({name: "Pervasives"}) =>true
         | _ => false

@@ -64,6 +64,14 @@ module F = (Collect: {
           ()
         })
       }
+      | Pstr_type(decls) => decls |> List.iter(({ptype_name: {txt, loc}, ptype_kind}) => {
+        switch ptype_kind {
+        | Ptype_variant(constructors) => constructors |> List.iter(({pcd_name: {txt, loc}}) => {
+          Collect.pat_var(txt, loc)
+        })
+        | _ => ()
+        }
+      })
       | Pstr_module({pmb_name: {txt, loc}}) => Collect.pat_var(txt, loc)
       | Pstr_open({popen_lid: {txt, loc}}) => Collect.lident(txt, loc, "open-")
       /* | Pstr_primitive(_) => failwith("<case>")

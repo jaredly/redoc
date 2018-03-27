@@ -146,8 +146,8 @@ open <span class="open-module-identifier" data-id="module: Something/1010">Somet
 }</span></span></span>;
 
 type <span class="declaration-var" data-id="type: awesome/1014">awesome</span> =
-  | Hello
-  | Folks(<span class="type" data-type="54"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
+  | <span class="declaration-var" data-id="constructor: awesome/1014 - Hello">Hello</span>
+  | <span class="declaration-var" data-id="constructor: awesome/1014 - Folks">Folks</span>(<span class="type" data-type="54"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
 
 open <span class="open-module-identifier" data-id="module: Geom!">Geom</span> <span class="open-exposing">exposing (<span class="declaration-var" data-id="value: Geom!.halfPi">value: halfPi</span>, <span class="declaration-var" data-id="value: Geom!.thetaDiff">value: thetaDiff</span>)</span>;
 <span class="type" data-type="96">let <span class="type" data-type="2"><span class="declaration-var" data-id="value: things/1087">things</span></span> = <span class="type" data-type="98"><span class="type" data-type="47"><span class="unit">()</span></span> => <span class="type" data-type="48">{
@@ -158,7 +158,7 @@ open <span class="open-module-identifier" data-id="module: Geom!">Geom</span> <s
 }</span></span></span>;
 
 module <span class="declaration-var" data-id="module: Inner/1096">Inner</span> = {
-  type <span class="declaration-var" data-id="type: other/1091">other</span> = A |B | C(<span class="type" data-type="86"><span class="type-value-identifier" data-id="type: other/1091">other</span></span>);
+  type <span class="declaration-var" data-id="type: other/1091">other</span> = <span class="declaration-var" data-id="constructor: other/1091 - A">A</span> |<span class="declaration-var" data-id="constructor: other/1091 - B">B</span> | <span class="declaration-var" data-id="constructor: other/1091 - C">C</span>(<span class="type" data-type="86"><span class="type-value-identifier" data-id="type: other/1091">other</span></span>);
   <span class="type" data-type="28">let <span class="type" data-type="5"><span class="declaration-var" data-id="value: other/1095">other</span></span> = <span class="type" data-type="16"><span class="int">10</span></span></span>;
 };
 
@@ -174,9 +174,9 @@ open <span class="open-module-identifier" data-id="module: Inner/1096">Inner</sp
 <span class="type" data-type="52">let <span class="type" data-type="81"><span class="declaration-var" data-id="value: a/1103">a</span></span> = <span class="type" data-type="93">[|<span class="type" data-type="83"><span class="int">1</span></span>,<span class="type" data-type="34"><span class="int">2</span></span>|]</span></span>;
 <span class="type" data-type="90"><span class="type" data-type="41"><span class="value-identifier" data-id="value: a/1103">a</span></span>[<span class="type" data-type="60"><span class="int">0</span></span>] = <span class="type" data-type="35"><span class="int">10</span></span></span>;
 
-type <span class="declaration-var" data-id="type: a/1104">a</span> = A|C|B;
-type <span class="declaration-var" data-id="type: c/1108">c</span> = A|C|B;
-type <span class="declaration-var" data-id="type: b/1112">b</span> = A|B(<span class="type" data-type="23"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
+type <span class="declaration-var" data-id="type: a/1104">a</span> = <span class="declaration-var" data-id="constructor: a/1104 - A">A</span>|<span class="declaration-var" data-id="constructor: a/1104 - C">C</span>|<span class="declaration-var" data-id="constructor: a/1104 - B">B</span>;
+type <span class="declaration-var" data-id="type: c/1108">c</span> = <span class="declaration-var" data-id="constructor: c/1108 - A">A</span>|<span class="declaration-var" data-id="constructor: c/1108 - C">C</span>|<span class="declaration-var" data-id="constructor: c/1108 - B">B</span>;
+type <span class="declaration-var" data-id="type: b/1112">b</span> = <span class="declaration-var" data-id="constructor: b/1112 - A">A</span>|<span class="declaration-var" data-id="constructor: b/1112 - B">B</span>(<span class="type" data-type="23"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
 <span class="type" data-type="49">let <span class="type" data-type="67"><span class="declaration-var" data-id="value: x/1115">x</span></span> = <span class="type" data-type="69"><span class="constructor-module-identifier" data-id="constructor: b/1112 - B">B</span>(<span class="type" data-type="22"><span class="int">1</span></span>)</span></span>;
 <span class="type" data-type="66">let <span class="type" data-type="9"><span class="declaration-var" data-id="value: z/1116">z</span></span>:<span class="type" data-type="40"><span class="type-value-identifier" data-id="type: c/1108">c</span></span> = <span class="type" data-type="56"><span class="constructor-module-identifier" data-id="constructor: c/1108 - A">A</span></span></span>;
 <span class="type" data-type="36">let <span class="type" data-type="10"><span class="declaration-var" data-id="value: z/1117">z</span></span>:<span class="type" data-type="45"><span class="type-value-identifier" data-id="type: a/1104">a</span></span> = <span class="type" data-type="68"><span class="constructor-module-identifier" data-id="constructor: a/1104 - A">A</span></span></span>;

@@ -209,6 +209,19 @@ module F = (Collector: Collector) => {
       Collector.declaration((mb_id, Module), loc);
       new_stack();
     }
+    | Tstr_type(decls) => List.iter(
+      decl => {
+        switch (decl.typ_kind) {
+        | Ttype_variant(constructors) => {
+          constructors |> List.iter(({cd_id, cd_name: {txt, loc}}) => (
+            Collector.declaration((decl.typ_id, Constructor(txt)), loc)
+          ))
+        }
+        | _ => ()
+        }
+      },
+      decls
+    )
     | Tstr_open({open_path, open_txt: {txt, loc}}) => {
       if (usesOpen(txt, open_path)) {
         add_use((open_path, Module), txt, loc);

@@ -19,6 +19,9 @@ let showPath = Path.name;
 
 let showLident = l => String.concat(".", Longident.flatten(l));
 
+let showLoc = loc => {Location.print(Format.str_formatter, loc); Format.flush_str_formatter()};
+let showType = loc => {Printtyp.type_expr(Format.str_formatter, loc); Format.flush_str_formatter()};
+
 module type Collector = {
   let add: (~mend: Lexing.position=?, ~depth: int=?, Types.type_expr, Location.t) => unit;
   let ident: (ident(Path.t), Location.t) => unit;
@@ -159,14 +162,16 @@ module F = (Collector: Collector) => {
       | [] => switch stack.parent {
       | Some(parent) => loop(parent)
       | None => if (!inferable) {
-        print_endline("Unable to find an open to meet my needs: " ++ String.concat(".", Longident.flatten(ident))  )
+        print_endline("Unable to find an open to meet my needs: " ++ showLident(ident) ++ ": " ++ showLoc(loc)  )
       }
       }
       | [{path} as one, ...rest] when Path.same(path, openNeedle) =>  {
         /* print_endline("Matched " ++ Path.name(path) ++ " "); */
         one.used = [(ident, tag), ...one.used];
       }
-      | [_, ...rest] => inner(rest)
+      | [{path}, ...rest] => {
+        inner(rest)
+      }
       };
       inner(stack.opens)
     };
@@ -258,6 +263,10 @@ module F = (Collector: Collector) => {
   });
   let enter_expression = (expr) => {
     open Typedtree;
+    expr.exp_extra |> List.iter(((ex, loc, _)) => switch ex {
+    | Texp_open(_, path, {txt, loc}, _) => add_open(path, loc)
+    | _ => ()
+    });
     Collector.add(~depth=depth^, expr.exp_type, expr.Typedtree.exp_loc);
     switch expr.exp_desc {
     | Texp_for(ident, _, _, _, _, _) => {
@@ -310,8 +319,10 @@ module F = (Collector: Collector) => {
           ~mend=expr.exp_loc.Location.loc_end,
           loc
         );
-        switch (dig(expr.exp_type).Types.desc) {
+
+        switch (dig(label.Types.lbl_res).Types.desc) {
         | Tconstr(path, args, _) => {
+
           Collector.ident((path, Attribute(label.Types.lbl_name)), loc);
 
           let typeName = switch path {
@@ -367,10 +378,6 @@ module F = (Collector: Collector) => {
 
     | _ => ()
     };
-    expr.exp_extra |> List.iter(((ex, loc, _)) => switch ex {
-    | Texp_open(_, path, {txt, loc}, _) => add_open(path, loc)
-    | _ => ()
-    });
     depth :=depth^ + 1;
   };
   let leave_expression = (expr) => {

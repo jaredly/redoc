@@ -10,10 +10,14 @@ let contents = ((a, _)) => a;
 let toString = (fn, (a, tag)) => switch tag {
 | Type => "type: " ++ fn(a)
 | Value => "value: " ++ fn(a)
-| Constructor(b) => "constructor: " ++ fn(a) ++ " - " ++ b
-| Attribute(b) => "constructor: " ++ fn(a) ++ " - " ++ b
+| Constructor(b) => "constr: " ++ fn(a) ++ " - " ++ b
+| Attribute(b) => "attr: " ++ fn(a) ++ " - " ++ b
 | Module => "module: " ++ fn(a)
 };
+
+let showPath = Path.name;
+
+let showLident = l => String.concat(".", Longident.flatten(l));
 
 module type Collector = {
   let add: (~mend: Lexing.position=?, ~depth: int=?, Types.type_expr, Location.t) => unit;
@@ -148,13 +152,15 @@ module F = (Collector: Collector) => {
     }
   };
 
-  let add_use = ((path, tag), ident, loc) => {
+  let add_use = (~inferable=false, (path, tag), ident, loc) => {
     let openNeedle = relative(ident, path);
     let rec loop = stack => {
       let rec inner = opens => switch opens {
       | [] => switch stack.parent {
       | Some(parent) => loop(parent)
-      | None => print_endline("Unable to find an open to meet my needs: " ++ String.concat(".", Longident.flatten(ident))  )
+      | None => if (!inferable) {
+        print_endline("Unable to find an open to meet my needs: " ++ String.concat(".", Longident.flatten(ident))  )
+      }
       }
       | [{path} as one, ...rest] when Path.same(path, openNeedle) =>  {
         /* print_endline("Matched " ++ Path.name(path) ++ " "); */
@@ -165,6 +171,12 @@ module F = (Collector: Collector) => {
       inner(stack.opens)
     };
     loop(open_stack^)
+  };
+
+  let rec dig = typ => switch typ.Types.desc {
+  | Types.Tlink(inner) => dig(inner)
+  | Types.Tsubst(inner) => dig(inner)
+  | _ => typ
   };
 
   let enter_core_type = (typ) => {
@@ -265,48 +277,80 @@ module F = (Collector: Collector) => {
       };
       Collector.ident((path, Value), loc)
     }
+    | Texp_field(inner, {txt, loc}, label) => {
+      Collector.add(~depth=depth^, label.Types.lbl_res, loc);
+      switch (dig(label.Types.lbl_res).Types.desc) {
+      | Tconstr(path, args, _) => {
+        Collector.ident((path, Attribute(label.Types.lbl_name)), loc);
+
+          let typeName = switch path {
+          | Path.Pdot(path, typename, _) => typename
+          | Pident({Ident.name}) => name
+          | _ => assert(false)
+          };
+
+          let typeTxt = Longident.(switch txt {
+          | Lident(name) => Lident(typeName)
+          | Ldot(inner, name) => Ldot(inner, typeName)
+          | Lapply(_) => assert(false)
+          });
+
+          if (usesOpen(typeTxt, path)) {
+            add_use(~inferable=true, (path, Attribute(label.Types.lbl_name)), typeTxt, loc)
+          };
+      }
+      | _ => print_endline("Field access wasn't constructor")
+      }
+    }
     | Texp_record(items, ext) =>
-      List.iter(
-        (({Asttypes.txt, loc}, label, ex)) =>
-          {
-            Collector.add(
-              ~depth=depth^,
-              expr.exp_type,
-              ~mend=expr.exp_loc.Location.loc_end,
-              loc
-            );
-            switch (expr.exp_type.Types.desc) {
-            | Tlink({desc: Tconstr(path, args, _)})
-            | Tsubst({desc: Tconstr(path, args, _)})
-            | Tconstr(path, args, _) => {
-              Collector.ident((path, Attribute(label.Types.lbl_name)), loc)
-            }
-            | _ => print_endline("Record not a record " ++ {
-              Printtyp.type_expr(Format.str_formatter, expr.exp_type);
-              Format.flush_str_formatter()
-            })
-            };
-          },
-        items
-      )
+      List.iter((({Asttypes.txt, loc}, label, ex)) => {
+        Collector.add(
+          ~depth=depth^,
+          expr.exp_type,
+          ~mend=expr.exp_loc.Location.loc_end,
+          loc
+        );
+        switch (dig(expr.exp_type).Types.desc) {
+        | Tconstr(path, args, _) => {
+          Collector.ident((path, Attribute(label.Types.lbl_name)), loc);
+
+          let typeName = switch path {
+          | Path.Pdot(path, typename, _) => typename
+          | Pident({Ident.name}) => name
+          | _ => assert(false)
+          };
+
+          let typeTxt = Longident.(switch txt {
+          | Lident(name) => Lident(typeName)
+          | Ldot(inner, name) => Ldot(inner, typeName)
+          | Lapply(_) => assert(false)
+          });
+
+          if (usesOpen(typeTxt, path)) {
+            add_use((path, Attribute(label.Types.lbl_name)), typeTxt, loc)
+          };
+        }
+        | _ => print_endline("Record not a constr " ++ {
+          Printtyp.type_expr(Format.str_formatter, expr.exp_type);
+          Format.flush_str_formatter()
+        })
+        };
+      }, items)
 
     | Texp_construct({txt, loc}, {Types.cstr_name, cstr_loc}, args) => {
-      switch (expr.exp_type.Types.desc) {
-      | Tlink({desc: Tconstr(path, args, _)})
-      | Tsubst({desc: Tconstr(path, args, _)})
+      switch (dig(expr.exp_type).Types.desc) {
       | Tconstr(path, args, _) => {
         let typeName = switch path {
         | Path.Pdot(path, typename, _) => typename
         | Pident({Ident.name}) => name
         | _ => assert(false)
         };
+
         let (constructorName, typeTxt) = Longident.(switch txt {
         | Longident.Lident(name) => (name, Lident(typeName))
         | Ldot(left, name) => (name, Ldot(left, typeName))
         | Lapply(_) => assert(false)
         });
-
-        let fullPath = Path.Pdot(path, constructorName, 0);
 
         Collector.ident((path, Constructor(constructorName)), loc);
 
@@ -315,7 +359,6 @@ module F = (Collector: Collector) => {
         };
       }
       | _ => print_endline("a constructor wasn't typed as a constructor?" ++ {
-        Location.print(Format.str_formatter, cstr_loc);
         Printtyp.type_expr(Format.str_formatter, expr.exp_type);
         Format.flush_str_formatter()
       })

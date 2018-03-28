@@ -429,18 +429,18 @@ let highlight = (text, ast, types, bindings, externals, all_opens, locToPath) =>
     typeId := typeId^ + 1;
   });
 
-  let rec addLidents = Longident.((p1, p2) => switch (p1, p2) {
+  /* let rec addLidents = Longident.((p1, p2) => switch (p1, p2) {
   | (a, Lident(c)) => Ldot(a, c)
   | (a, Ldot(b, c)) => Ldot(addLidents(a, b), c)
   | _ => assert(false)
-  });
+  }); */
 
   let extra_inserts = Array.make(String.length(text), []);
-  let globalTag = (path, (innerPath, tag)) => {
+  /* let globalTag = (path, (innerPath, tag)) => {
     let show = Typing.toString(lident => String.concat(".", Longident.flatten(lident)), (innerPath, tag));
     let id = (Typing.addLidentToPath(path, innerPath), tag) |> Typing.toString(pathName);
     Printf.sprintf({|<span class="declaration-var" data-id="%s">%s</span>|}, id, show)
-  };
+  }; */
   all_opens |> List.iter(({Typing.path, loc, used}) => {
     if (!loc.Location.loc_ghost) {
       let i = loc.Location.loc_end.pos_cnum;

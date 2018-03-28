@@ -9,7 +9,7 @@
     "BuckleScript"
   ],
   "esy": {
-    "build": [["jbuilder", "build"]],
+    "build": [["jbuilder", "build", "@install"]],
     "buildsInSource": true
   },
   "repository": {

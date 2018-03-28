@@ -1,4 +1,5 @@
 
+
 /* https://github.com/BuckleScript/bucklescript/blob/ea857727f1d327d69fe9363a4f77f22e3c685d18/jscomp/common/ml_binary.ml */
 let read_ast = ic => {
   let magic = Config.ast_impl_magic_number;

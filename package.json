@@ -8,10 +8,30 @@
   "keywords": [
     "BuckleScript"
   ],
+  "esy": {
+    "build": [["jbuilder", "build"]],
+    "buildsInSource": true
+  },
+  "repository": {
+    "url": "what",
+    "type": "git"
+  },
+  "description": "wat",
   "author": "",
   "license": "",
-  "devDependencies": {
-    "bs-platform": "bsansouci/bsb-native#fast"
+  "dependencies": {
+    "@opam/omd": "1.3.1",
+    "ocaml": "4.2.3004",
+    "@opam/reason": "^3.0.0",
+    "@opam/ocaml-migrate-parsetree": "*",
+    "@opam/merlin": "^3.0.5",
+    "@opam/jbuilder": "*"
   },
-  "dependencies": {}
+  "// bs-platform": "bsansouci/bsb-native#esy-support",
+  "resolutions": {
+    "**/@opam/result": "1.2.0",
+    "**/ocaml": "4.2.3004"
+  },
+  "devDependencies": {
+  }
 }

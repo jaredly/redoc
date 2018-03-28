@@ -1,0 +1,6 @@
+
+
+(executable
+ ((name ppx)
+  (public_name ppx)
+  (libraries (omd compiler-libs.common))))

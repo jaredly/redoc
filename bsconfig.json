@@ -9,7 +9,7 @@
     "src",
   ],
   "bs-dependencies": [],
-  "ocaml-dependencies": ["compiler-libs", "unix"],
+  "ocamlfind-dependencies": ["compiler-libs", "unix"],
   "entries": [{
     "backend": "native",
     "main-module": "Main"

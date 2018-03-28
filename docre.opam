@@ -1,0 +1,18 @@
+opam-version: "1.2"
+name: "docre"
+version: "0.0.1"
+license: ""
+dev-repo: "what.git"
+homepage: "what"
+bug-reports: "what/issues"
+authors: [ "" ]
+maintainer: ""
+tags: [ "BuckleScript" ]
+depends: [
+  "reason" { build & >=  "1.13.3" }
+  "jbuilder" {build}
+]
+build: [
+  [ "jbuilder" "build" ]
+]
+available: [ ocaml-version = "4.02.3" ]

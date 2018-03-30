@@ -10,28 +10,12 @@
  * - from there, everything should just work?? in terms of picking up tokens & types & stuff....
 */
 
-let stripStars = str => {
-  Str.split(Str.regexp_string("\n"), str) |> List.map(line => {
-    if (line == " *") {
-      ""
-    } else if (String.length(line) >= 3) {
-      if (String.sub(line, 0, 3) == " * ") {
-        String.sub(line, 3, String.length(line) - 3)
-      } else {
-        line
-      }
-    } else {
-      line
-    }
-  }) |> String.concat("\n")
-};
-
 let rec white = num => if (num <= 0) { "" } else {" " ++ white(num - 1)};
 
 let splitLines = text => Str.split(Str.regexp_string("\n"), text);
 
 let getCodeBlocks = (docString, loc) => {
-  let markdown = stripStars(docString);
+  let (offset, markdown) = docString.[0] == ' ' ? (1, String.sub(docString, 1, String.length(docString) - 1)) : (0, docString);
   let mst = Omd.of_string(markdown);
   let codeBlocks = ref([]);
   let pos = ref(0);
@@ -44,32 +28,10 @@ let getCodeBlocks = (docString, loc) => {
         let found = Str.search_forward(Str.regexp_string(body), markdown, pos^);
         pos := found + String.length(body);
 
-        let markLines = splitLines(String.sub(markdown, 0, found));
-        let num = List.length(markLines);
-        let origLines = splitLines(docString);
-
-        let rec loop = (i, lines) => {
-          if (i >= num) {
-            0
-          } else {
-            switch lines {
-            | [] => assert(false)
-            | [line, ...rest] => min(3, String.length(line)) + loop(i + 1, rest)
-            }
-          }
-        };
-        let offset = loop(0, origLines);
-
-        let spaced = splitLines(body) |> List.map(line => {
-          "   " ++ line
-        }) |> String.concat("\n");
-
-        /* let offset = String.sub(markdown, 0, found) |> splitLines |> List.length; */
-
         /* Ok I now need to pad with spaces n stuff to make it at the right place relative to the start of the docblock */
-        let totalOffset = 1 + found + loc.Location.loc_start.Lexing.pos_cnum + 3 + offset;
+        let totalOffset = found + loc.Location.loc_start.Lexing.pos_cnum + offset + 3;
         print_endline("Offset " ++ string_of_int(totalOffset));
-        let paddedBody = white(totalOffset - 6) ++ "()=>{\n" ++ spaced ++ "}";
+        let paddedBody = white(totalOffset - 6) ++ "()=>{\n" ++ body ++ "}";
         codeBlocks := [paddedBody, ...codeBlocks^]
       };
       None
@@ -81,11 +43,17 @@ let getCodeBlocks = (docString, loc) => {
 };
 
 let parseCodeBlock = (codeBlock) => {
-  Files.writeFile("./code.re", codeBlock) |> ignore;
-  let (_, success) = Commands_native.execSync(~cmd="refmt --print binary < code.re > code.ast", ());
-  let ic = open_in_bin("./code.ast");
+  let tmp = Filename.get_temp_dir_name();
+  let txt = Filename.concat(tmp, string_of_float(Random.float(100.)));
+  let astFile = txt ++ ".ast";
+  /* TODO get a real tmpfile */
+  Files.writeFile(txt, codeBlock) |> ignore;
+  let (_, success) = Commands_native.execSync(~cmd="refmt --print binary --parse re < " ++ txt ++ " > " ++ astFile, ());
+  let ic = open_in_bin(astFile);
   let ast: Parsetree.structure = ReadMlast.read_ml_ast(ic);
   close_in(ic);
+  Unix.unlink(txt);
+  Unix.unlink(astFile);
   /* Ast_helper.Str.eval(Ast_helper.Exp.constant(Asttypes.Const_int(10))); */
   ast
 };

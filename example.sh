@@ -13,3 +13,9 @@ ${base}/${name}.re \
 ${base}/lib/bs/js/${name}.cmt \
 ${base}/lib/bs/js/${name}.mlast \
 docs/index.html
+
+./_build/install/default/bin/docre \
+${base}/lib/bs/js/${name}.cmt \
+${base}/lib/bs/js/${name}.mlast \
+docs/doc.html
+

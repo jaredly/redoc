@@ -10,51 +10,62 @@ let rec findDocAttribute = attributes => {
   }
 };
 
-let rec findMainDoc = (structure) => {
-  switch structure {
-  | [] => None
-  | [{pstr_desc: Pstr_attribute(({txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}])))}, ...rest] => Some(doc)
-  | [{pstr_desc: Pstr_value(_)}, ..._] => None
-  | [item, ...rest] => findMainDoc(rest)
+let rec hasNoDoc = attributes => {
+  switch attributes {
+  | [] => false
+  | [({Asttypes.txt: "nodoc"}, _), ...rest] => true
+  | [_, ...rest] => hasNoDoc(rest)
   }
 };
 
-let defaultMain = name => "# " ++ name ++ "\n\nThis module does not have a toplevel documentation block.\n\n@all";
+let defaultMain = name => "<span class='missing'>This module does not have a toplevel documentation block.</span>\n\n@all";
 
-type docItem = Value(Types.type_desc) | Type(Types.type_declaration) | Module(list(doc)) | StandaloneDoc(string)
+type docItem = Value(Types.type_expr) | Type(Types.type_declaration) | Module(list(doc)) | StandaloneDoc(string)
 and doc = (string, option(string), docItem);
 
 let foldOpt = (fn, items, base) => List.fold_left((items, item) => switch (fn(item)) { | None => items | Some(x) => [x, ...items]}, base, items);
 
 let rec findAllDocs = (structure, typesByLoc) => {
   open Parsetree;
-  List.fold_left((items, item) => switch (item.pstr_desc) {
+  List.fold_left(((global, items), item) => switch (item.pstr_desc) {
   | Pstr_value(_, bindings) => foldOpt(({pvb_loc, pvb_expr, pvb_pat, pvb_attributes}) =>
-    switch (pvb_pat.ppat_desc) {
-    | Ppat_var({Asttypes.txt}) => switch (List.assoc(pvb_loc, typesByLoc)) {
-      | exception Not_found => {print_endline("Unable to find binding type by loc"); None}
-      | `Type(_) => {print_endline("Expected a value, not a type declaration"); None}
-      | `Value(typ) => Some((txt, findDocAttribute(pvb_attributes), Value(typ)))
+    if (!hasNoDoc(pvb_attributes)) {
+      switch (pvb_pat.ppat_desc) {
+      | Ppat_var({Asttypes.txt}) => switch (List.assoc(pvb_loc, typesByLoc)) {
+        | exception Not_found => {print_endline("Unable to find binding type for value by loc " ++ txt); None}
+        | `Type(_) => {print_endline("Expected a value, not a type declaration"); None}
+        | `Value(typ) => Some((txt, findDocAttribute(pvb_attributes), Value(typ)))
+        }
+      | _ => None
       }
-    | _ => None
-    }, bindings, items)
+    } else {None}
+    , bindings, items) |> a => (global, a)
   | Pstr_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
-    [("", None, StandaloneDoc(doc)), ...items]
+    if (items == [] && global == None) {
+      (Some(doc), [])
+    } else {
+      (global, [("", None, StandaloneDoc(doc)), ...items])
+    }
   }
   | Pstr_type(decls) => foldOpt(({ptype_name: {txt}, ptype_loc, ptype_attributes}) =>
-    switch (List.assoc(ptype_loc, typesByLoc)) {
-    | exception Not_found => {print_endline("unable to find bindings type by loc"); None}
-    | `Value(_) => {print_endline("expected tyep, nto value"); None}
-    | `Type(typ) => Some((txt, findDocAttribute(ptype_attributes), Type(typ)))
-    }, decls, items)
+    if (!hasNoDoc(ptype_attributes)) {
+      switch (List.assoc(ptype_loc, typesByLoc)) {
+      | exception Not_found => {print_endline("unable to find bindings type by loc " ++ txt); None}
+      | `Value(_) => {print_endline("expected tyep, nto value"); None}
+      | `Type(typ) => Some((txt, findDocAttribute(ptype_attributes), Type(typ)))
+      }
+    } else {None}, decls, items) |> a => (global, a)
   | Pstr_module({pmb_attributes, pmb_loc, pmb_name: {txt}, pmb_expr: {pmod_desc: Pmod_structure(structure)}}) => {
-    [(txt, findDocAttribute(pmb_attributes), Module(findAllDocs(structure, typesByLoc))), ...items]
+    if (hasNoDoc(pmb_attributes)) {
+      (global, items)
+    } else {
+      let (docc, contents) = findAllDocs(structure, typesByLoc);
+      (global, [(txt, docc, Module(contents)), ...items])
+    }
   }
-  | _ => items
-  }, [], structure);
+  | _ => (global, items)
+  }, (None, []), structure);
 };
-
-let generateDoc = doc => "";
 
 let rec organizeTypes = types => {
   open Typedtree;
@@ -62,7 +73,7 @@ let rec organizeTypes = types => {
     (typs, item) => {
       switch (item.str_desc) {
       | Tstr_value(_rec, bindings) => (
-        List.map(({vb_loc, vb_expr: {exp_type: {desc}}}) => (vb_loc, `Value(desc)), bindings) @ typs
+        List.map(({vb_loc, vb_expr: {exp_type}}) => (vb_loc, `Value(exp_type)), bindings) @ typs
       )
       | Tstr_type(decls) => List.map(({typ_type, typ_loc}) => (typ_loc, `Type(typ_type)), decls) @ typs
       | Tstr_module({mb_expr: {mod_type, mod_desc: Tmod_structure(structure)}}) => {
@@ -84,30 +95,125 @@ let rec findByName = (allDocs, name) => {
   }
 };
 
+let rec findTypeByName = (allDocs, name) => {
+  switch allDocs {
+  | [] => None
+  | [(n, _, Type(_)) as doc, ...rest] when n == name => Some(doc)
+  | [_, ...rest] => findByName(rest, name)
+  }
+};
+
+let rec findValueByName = (allDocs, name) => {
+  switch allDocs {
+  | [] => None
+  | [(n, _, Value(_)) as doc, ...rest] when n == name => Some(doc)
+  | [_, ...rest] => findByName(rest, name)
+  }
+};
+
+let rec generateDoc = (path, (name, docstring, content)) => {
+  let id = String.concat(".", path @ [name]);
+  switch content {
+  | Module(items) => Printf.sprintf({|<h4 class='module'> module <a href="#module-%s" id="module-%s">%s</a></h4><div class='body module-body'>|}, id, id, name) ++
+  docsForModule(path, name, switch docstring {
+    | None => defaultMain(name)
+    | Some(doc) => doc
+    }, items) ++ "</div>"
+  | Value(typ) => {
+    Printtyp.type_expr(Format.str_formatter, typ);
+    let t = Format.flush_str_formatter();
+    Printf.sprintf({| <h4> let <a href="#value-%s" id="value-%s">%s</a> : %s </h4> |}, id, id, name, String.trim(t)) ++ "\n\n<div class='body '>" ++ switch docstring {
+    | None => "<span class='missing'>No documentation for this value</span>"
+    | Some(doc) => Omd.to_html(Omd.of_string(doc))
+    } ++ "</div>"
+  }
+  | Type(typ) => {
+    Printtyp.type_declaration({Ident.name, stamp: 0, flags: 0}, Format.str_formatter, typ);
+    let t = Format.flush_str_formatter();
+    let link = Printf.sprintf({|<a href="#type-%s" id="type-%s">%s</a>|}, id, id, name);
+    let t = Str.replace_first(Str.regexp_string(name), link, t);
+    /* TODO parse out the (name) so I can highlight it n stuff */
+    "<h4>" ++ String.trim(t) ++ "</h4>\n\n<div class='body'>" ++ switch docstring {
+    | None => "<span class='missing'>No documentation for this value</span>"
+    | Some(doc) => Omd.to_html(Omd.of_string(doc))
+    } ++ "</div>"
+  }
+  | StandaloneDoc(doc) => Omd.to_html(Omd.of_string(doc))
+  }
+}
+
+and docsForModule = (path, name, main, contents) => {
+  let childPath = path @ [name];
+  let md = Omd.of_string(main);
+  let html = Omd.to_html(md);
+
+  let html = Str.global_substitute(Str.regexp_string("<p>@all</p>"), text => {
+    List.map(generateDoc(childPath), List.rev(contents)) |> String.concat("\n\n")
+  }, html);
+
+  let html = Str.global_substitute(Str.regexp("<p>@doc [^<]+</p>"), text => {
+    let text = Str.matched_string(text);
+    let raw = String.sub(text, 8, String.length(text) - 8 - 4);
+    let items = Str.split(Str.regexp_string(","), raw) |> List.map(String.trim);
+    items |> List.map(name => switch (findByName(contents, name)) {
+    | None => failwith("Invalid doc item referenced: " ++ name)
+    | Some(doc) => generateDoc(childPath, doc)
+    }) |> String.concat("\n\n");
+  }, html);
+
+  html
+};
+
+let head = name => Printf.sprintf({|
+<!doctype html>
+<meta charset=utf8>
+<style>
+body {
+  font-family: system-ui;
+  font-weight: 200;
+  max-width: 600px;
+  margin: 48px auto;
+}
+.body {
+  margin-left: 24px;
+}
+.missing {
+  font-style: italic;
+  color: #777;
+}
+h4 {
+  font-family: sf mono, monospace;
+  font-weight: 400;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+}
+h4.module {
+  font-size: 110%%;
+  font-weight: 600;
+}
+.module-body {
+  border-left: 5px solid #ddd;
+  padding-left: 24px;
+}
+
+</style>
+<title>%s</title>
+<body>
+|}, name);
+
 let generate = (name, structure, types) => {
-  let mainMarkdown = switch (findMainDoc(structure)) {
-  | None => defaultMain(name)
-  | Some(doc) => doc
-  };
   let types = switch types {
   | Cmt_format.Implementation(structure) => structure.Typedtree.str_items
   | _ => failwith("Not a valid cmt file")
   };
 
   let typesByLoc = organizeTypes(types);
+  let (toplevel, allDocs) = findAllDocs(structure, typesByLoc);
+  let mainMarkdown = switch (toplevel) {
+  | None => defaultMain(name)
+  | Some(doc) => doc
+  };
 
-  let allDocs = findAllDocs(structure, typesByLoc);
-
-  let mainMarkdown = Str.global_substitute(Str.regexp_string("\n@all\n"), text => {
-    "\nNOPE" /* OK have to get the things now */
-  }, mainMarkdown);
-  let mainMarkdown = Str.global_substitute(Str.regexp_string("\n@doc [\n]+"), text => {
-    let raw = String.sub(text, 6, String.length(text) - 6);
-    let items = Str.split(Str.regexp_string(","), raw) |> List.map(String.trim);
-    items |> List.map(name => switch (findByName(allDocs, name)) {
-    | None => failwith("Invalid doc item referenced: " ++ name)
-    | Some(doc) => generateDoc(doc)
-    }) |> String.concat("\n\n");
-  }, mainMarkdown);
-  mainMarkdown
+  head(name) ++
+  docsForModule([], name, mainMarkdown, allDocs)
 };

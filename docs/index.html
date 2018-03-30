@@ -152,7 +152,7 @@ Top-level docs right here.
 
 you end it with a semicolon, that's how you know it's serious.
 
-A block in the top-level thing will be evaluated @ the end of the file.
+A block in the top-level thing will be evaluated at the end of the file.
 
 ```
 let x = 10;
@@ -166,343 +166,350 @@ You can use the `@doc` pragma to include the docs for individual items.
 
 @doc awesome, Something, party
 
+## Just dumping it all in
+
 An `@all` annotation will dump all (exported) values with their associated documentation.
 
 @all
 
  */</span>;
 
-<span class="type" data-type="150"><span class="string">/** Here's some documentaition
+<span class="type" data-type="23"><span class="string">/** Here's some documentaition
 
-```<span class="type" data-type="78"><span class="type" data-type="42"><span class="unit">pa</span></span>rs<span class="type" data-type="139">e
-<span class="type" data-type="135">let <span class="type" data-type="19"><span class="declaration-var" data-id="value: x/1009">x</span></span> = <span class="type" data-type="209"><span class="int">10</span></span></span>;
-<span class="type" data-type="71"><span class="type" data-type="23">let <span class="type" data-type="88"><span class="declaration-var" data-id="value: y/1010">y</span></span> = <span class="type" data-type="94"><span class="int">20</span></span></span>;
-<span class="type" data-type="82"><span class="type" data-type="81">let <span class="type" data-type="41"><span class="declaration-var" data-id="value: z/1011">z</span></span> = <span class="type" data-type="174"><span class="type" data-type="92"><span class="value-identifier" data-id="value: awesome/1008">awesome</span></span><span class="type" data-type="154"><span class="unit">()</span></span></span></span>;</span></span>
+```<span class="type" data-type="229"><span class="type" data-type="160"><span class="unit">pa</span></span>rs<span class="type" data-type="88">e
+<span class="type" data-type="31">let <span class="type" data-type="75"><span class="declaration-var" data-id="value: x/1009">x</span></span> = <span class="type" data-type="106"><span class="int">10</span></span></span>;
+<span class="type" data-type="225"><span class="type" data-type="78">let <span class="type" data-type="123"><span class="declaration-var" data-id="value: y/1010">y</span></span> = <span class="type" data-type="217"><span class="int">20</span></span></span>;
+<span class="type" data-type="109"><span class="type" data-type="54">let <span class="type" data-type="112"><span class="declaration-var" data-id="value: z/1011">z</span></span> = <span class="type" data-type="162"><span class="type" data-type="70"><span class="value-identifier" data-id="value: awesome/1008">awesome</span></span><span class="type" data-type="49"><span class="unit">()</span></span></span></span>;</span></span>
 </span></span>```
  */</span>
-let <span class="type" data-type="204"><span class="declaration-var" data-id="value: awesome/1008">awesome</span></span> = <span class="type" data-type="210"><span class="type" data-type="160"><span class="unit">()</span></span> => <span class="type" data-type="72"><span class="int">10</span></span></span></span>;
+let <span class="type" data-type="71"><span class="declaration-var" data-id="value: awesome/1008">awesome</span></span> = <span class="type" data-type="168"><span class="type" data-type="72"><span class="unit">()</span></span> => <span class="type" data-type="192"><span class="int">10</span></span></span></span>;
 
-<span class="type" data-type="131"><span class="string">/** Some more docs for you
-```<span class="type" data-type="158"><span class="type" data-type="122"><span class="unit">pa</span></span>rs<span class="type" data-type="49">e
-<span class="type" data-type="159"><span class="type" data-type="145"><span class="value-identifier" data-id="value: z/1012">z</span></span>(<span class="type" data-type="101"><span class="constructor-module-identifier" data-id="constr: option/10 - None">None</span></span>)</span>; /* 10 */
-<span class="type" data-type="202"><span class="type" data-type="17"><span class="value-identifier" data-id="value: z/1012">z</span></span>(<span class="type" data-type="129"><span class="constructor-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="134"><span class="int">10</span></span>)</span>);</span> /* 20 */
+<span class="type" data-type="157"><span class="string">/** Some more docs for you
+```<span class="type" data-type="95"><span class="type" data-type="69"><span class="unit">pa</span></span>rs<span class="type" data-type="145">e
+<span class="type" data-type="176"><span class="type" data-type="140"><span class="value-identifier" data-id="value: z/1012">z</span></span>(<span class="type" data-type="183"><span class="constructor-module-identifier" data-id="constr: option/10 - None">None</span></span>)</span>; /* 10 */
+<span class="type" data-type="94"><span class="type" data-type="26"><span class="value-identifier" data-id="value: z/1012">z</span></span>(<span class="type" data-type="171"><span class="constructor-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="35"><span class="int">10</span></span>)</span>);</span> /* 20 */
 </span></span>```
  */</span>
-let <span class="type" data-type="68"><span class="declaration-var" data-id="value: z/1012">z</span></span> = <span class="type" data-type="236"><span class="type" data-type="74"><span class="declaration-var" data-id="value: m/1013">m</span></span> => <span class="type" data-type="26">switch <span class="type" data-type="65"><span class="value-identifier" data-id="value: m/1013">m</span></span> {
-| <span class="type" data-type="219"><span class="switch-module-identifier" data-id="constr: option/10 - None">None</span></span> => <span class="type" data-type="91"><span class="int">10</span></span>
-| <span class="type" data-type="218"><span class="switch-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="99"><span class="declaration-var" data-id="value: x/1014">x</span></span>)</span> => <span class="type" data-type="119"><span class="int">20;</span></span>
+let <span class="type" data-type="61"><span class="declaration-var" data-id="value: z/1012">z</span></span> = <span class="type" data-type="216"><span class="type" data-type="158"><span class="declaration-var" data-id="value: m/1013">m</span></span> => <span class="type" data-type="138">switch <span class="type" data-type="180"><span class="value-identifier" data-id="value: m/1013">m</span></span> {
+| <span class="type" data-type="185"><span class="switch-module-identifier" data-id="constr: option/10 - None">None</span></span> => <span class="type" data-type="239"><span class="int">10</span></span>
+| <span class="type" data-type="137"><span class="switch-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="235"><span class="declaration-var" data-id="value: x/1014">x</span></span>)</span> => <span class="type" data-type="232"><span class="int">20;</span></span>
 }</span></span></span>;
 
 module <span class="declaration-var" data-id="module: Something/1016">Something</span> = {
-  <span class="type" data-type="11">let <span class="type" data-type="29"><span class="declaration-var" data-id="value: inner/1015">inner</span></span> = <span class="type" data-type="225"><span class="int">20</span></span></span>;
+  <span class="type" data-type="166">let <span class="type" data-type="127"><span class="declaration-var" data-id="value: inner/1015">inner</span></span> = <span class="type" data-type="34"><span class="int">20</span></span></span>;
 };
 open <span class="open-module-identifier" data-id="module: Something/1016">Something</span> <span class="open-exposing">exposing (<span class="open-value" data-id="value: Something/1016.inner">inner</span>)</span>;
 
-<span class="type" data-type="170">let <span class="type" data-type="57"><span class="declaration-var" data-id="value: party/1017">party</span></span> = <span class="type" data-type="189"><span class="type" data-type="133"><span class="unit">()</span></span> => <span class="type" data-type="217">{
-  <span class="type" data-type="235">let <span class="type" data-type="165"><span class="declaration-var" data-id="value: x/1018">x</span></span> = <span class="type" data-type="224"><span class="value-identifier" data-id="value: Something/1016.inner">inner</span></span></span>;
-  <span class="type" data-type="162"><span class="type" data-type="121">let <span class="type" data-type="63"><span class="declaration-var" data-id="value: y/1019">y</span></span> = <span class="type" data-type="52"><span class="module-identifier" data-id="module: Something/1016">Something</span>.<span class="value-identifier" data-id="value: Something/1016.inner">inner</span></span></span>;
-  <span class="type" data-type="114"><span class="type" data-type="62"><span class="value-identifier" data-id="value: x/1018">x</span></span> <span class="type" data-type="184"><span class="operator" data-id="value: Pervasives!.+">+</span></span> <span class="type" data-type="104"><span class="value-identifier" data-id="value: y/1019">y</span></span>;</span></span>
+<span class="type" data-type="200">let <span class="type" data-type="11"><span class="declaration-var" data-id="value: party/1017">party</span></span> = <span class="type" data-type="175"><span class="type" data-type="111"><span class="unit">()</span></span> => <span class="type" data-type="51">{
+  <span class="type" data-type="170">let <span class="type" data-type="83"><span class="declaration-var" data-id="value: x/1018">x</span></span> = <span class="type" data-type="120"><span class="value-identifier" data-id="value: Something/1016.inner">inner</span></span></span>;
+  <span class="type" data-type="195"><span class="type" data-type="20">let <span class="type" data-type="5"><span class="declaration-var" data-id="value: y/1019">y</span></span> = <span class="type" data-type="178"><span class="module-identifier" data-id="module: Something/1016">Something</span>.<span class="value-identifier" data-id="value: Something/1016.inner">inner</span></span></span>;
+  <span class="type" data-type="149"><span class="type" data-type="143"><span class="value-identifier" data-id="value: x/1018">x</span></span> <span class="type" data-type="169"><span class="operator" data-id="value: Pervasives!.+">+</span></span> <span class="type" data-type="154"><span class="value-identifier" data-id="value: y/1019">y</span></span>;</span></span>
 }</span></span></span>;
 
 type <span class="declaration-var" data-id="type: awesome/1020">awesome</span> =
   | <span class="declaration-var" data-id="constr: awesome/1020 - Hello">Hello</span>
-  | <span class="declaration-var" data-id="constr: awesome/1020 - Folks">Folks</span>(<span class="type" data-type="138"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
+  | <span class="declaration-var" data-id="constr: awesome/1020 - Folks">Folks</span>(<span class="type" data-type="48"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
 
 open <span class="open-module-identifier" data-id="module: Geom!">Geom</span> <span class="open-exposing">exposing (<span class="open-value" data-id="value: Geom!.halfPi">halfPi</span>, <span class="open-value" data-id="value: Geom!.thetaDiff">thetaDiff</span>)</span>;
-<span class="type" data-type="38">let <span class="type" data-type="77"><span class="declaration-var" data-id="value: things/1093">things</span></span> = <span class="type" data-type="98"><span class="type" data-type="70"><span class="unit">()</span></span> => <span class="type" data-type="46">{
-  <span class="type" data-type="40">let <span class="type" data-type="16"><span class="declaration-var" data-id="value: x/1094">x</span></span> = <span class="type" data-type="181"><span class="type" data-type="109"><span class="module-identifier" data-id="module: Geom!">Geom</span>.<span class="value-identifier" data-id="value: Geom!.thetaDiff">thetaDiff</span></span>(<span class="type" data-type="193"><span class="float">0.</span></span>, <span class="type" data-type="230"><span class="float">1.</span></span>)</span></span>;
-  <span class="type" data-type="188"><span class="type" data-type="45">let <span class="type" data-type="15"><span class="declaration-var" data-id="value: y/1095">y</span></span> = <span class="type" data-type="208"><span class="type" data-type="113"><span class="value-identifier" data-id="value: Geom!.thetaDiff">thetaDiff</span></span>(<span class="type" data-type="201"><span class="float">2.</span></span>, <span class="type" data-type="238"><span class="value-identifier" data-id="value: Geom!.halfPi">halfPi</span></span>)</span></span>;
-  <span class="type" data-type="187"><span class="type" data-type="169">let <span class="type" data-type="73"><span class="declaration-var" data-id="value: z/1096">z</span></span> = <span class="type" data-type="196"><span class="constructor-module-identifier" data-id="constr: awesome/1020 - Hello">Hello</span></span></span>;
-  <span class="type" data-type="195"><span class="type" data-type="87">let <span class="type" data-type="212"><span class="declaration-var" data-id="value: rrrr/1097">rrrr</span></span> = <span class="type" data-type="76">switch <span class="type" data-type="191"><span class="value-identifier" data-id="value: z/1096">z</span></span> {
-  | <span class="type" data-type="4"><span class="switch-module-identifier" data-id="constr: awesome/1020 - Hello">Hello</span></span> => <span class="type" data-type="48"><span class="boolean">true</span></span>
-  | <span class="type" data-type="37"><span class="switch-module-identifier" data-id="constr: awesome/1020 - Folks">Folks</span>(<span class="type" data-type="51"><span class="declaration-var" data-id="value: z/1098">z</span></span>)</span> => <span class="type" data-type="61"><span class="boolean">false</span></span>
+<span class="type" data-type="220">let <span class="type" data-type="66"><span class="declaration-var" data-id="value: things/1093">things</span></span> = <span class="type" data-type="117"><span class="type" data-type="19"><span class="unit">()</span></span> => <span class="type" data-type="122">{
+  <span class="type" data-type="17">let <span class="type" data-type="56"><span class="declaration-var" data-id="value: x/1094">x</span></span> = <span class="type" data-type="222"><span class="type" data-type="148"><span class="module-identifier" data-id="module: Geom!">Geom</span>.<span class="value-identifier" data-id="value: Geom!.thetaDiff">thetaDiff</span></span>(<span class="type" data-type="136"><span class="float">0.</span></span>, <span class="type" data-type="191"><span class="float">1.</span></span>)</span></span>;
+  <span class="type" data-type="198"><span class="type" data-type="64">let <span class="type" data-type="202"><span class="declaration-var" data-id="value: y/1095">y</span></span> = <span class="type" data-type="99"><span class="type" data-type="25"><span class="value-identifier" data-id="value: Geom!.thetaDiff">thetaDiff</span></span>(<span class="type" data-type="92"><span class="float">2.</span></span>, <span class="type" data-type="215"><span class="value-identifier" data-id="value: Geom!.halfPi">halfPi</span></span>)</span></span>;
+  <span class="type" data-type="224"><span class="type" data-type="130">let <span class="type" data-type="126"><span class="declaration-var" data-id="value: z/1096">z</span></span> = <span class="type" data-type="135"><span class="constructor-module-identifier" data-id="constr: awesome/1020 - Hello">Hello</span></span></span>;
+  <span class="type" data-type="190"><span class="type" data-type="30">let <span class="type" data-type="28"><span class="declaration-var" data-id="value: rrrr/1097">rrrr</span></span> = <span class="type" data-type="65">switch <span class="type" data-type="33"><span class="value-identifier" data-id="value: z/1096">z</span></span> {
+  | <span class="type" data-type="55"><span class="switch-module-identifier" data-id="constr: awesome/1020 - Hello">Hello</span></span> => <span class="type" data-type="165"><span class="boolean">true</span></span>
+  | <span class="type" data-type="42"><span class="switch-module-identifier" data-id="constr: awesome/1020 - Folks">Folks</span>(<span class="type" data-type="60"><span class="declaration-var" data-id="value: z/1098">z</span></span>)</span> => <span class="type" data-type="167"><span class="boolean">false</span></span>
   }</span></span>;
-  <span class="type" data-type="157"><span class="type" data-type="86"><span class="value-identifier" data-id="value: x/1094">x</span></span> <span class="type" data-type="10"><span class="operator" data-id="value: Pervasives!.+.">+.</span></span> <span class="type" data-type="103"><span class="value-identifier" data-id="value: y/1095">y</span></span>;</span></span></span></span>
+  <span class="type" data-type="234"><span class="type" data-type="119"><span class="value-identifier" data-id="value: x/1094">x</span></span> <span class="type" data-type="194"><span class="operator" data-id="value: Pervasives!.+.">+.</span></span> <span class="type" data-type="9"><span class="value-identifier" data-id="value: y/1095">y</span></span>;</span></span></span></span>
 }</span></span></span>;
 
 module <span class="declaration-var" data-id="module: Inner/1112">Inner</span> = {
-  type <span class="declaration-var" data-id="type: other/1099">other</span> = <span class="declaration-var" data-id="constr: other/1099 - A">A</span> |<span class="declaration-var" data-id="constr: other/1099 - B">B</span> | <span class="declaration-var" data-id="constr: other/1099 - C">C</span>(<span class="type" data-type="80"><span class="type-value-identifier" data-id="type: other/1099">other</span></span>);
-  type <span class="declaration-var" data-id="type: party/1103">party</span> = {<span class="declaration-var" data-id="attr: party/1103 - names">names</span>: <span class="type" data-type="112"><span class="type" data-type="111"><span class="type-value-identifier" data-id="type: string/3">string</span></span></span>, <span class="declaration-var" data-id="attr: party/1103 - count">count</span>: <span class="type" data-type="206"><span class="type" data-type="205"><span class="type-value-identifier" data-id="type: int/1">int</span></span></span>, <span class="declaration-var" data-id="attr: party/1103 - awesome">awesome</span>: <span class="type" data-type="36"><span class="type" data-type="35"><span class="type-value-identifier" data-id="type: string/3">string</span></span></span>};
-  type <span class="declaration-var" data-id="type: otherParty/1107">otherParty</span> = {<span class="declaration-var" data-id="attr: otherParty/1107 - names">names</span>: <span class="type" data-type="153"><span class="type" data-type="152"><span class="type-value-identifier" data-id="type: int/1">int</span></span></span>, <span class="declaration-var" data-id="attr: otherParty/1107 - dogs">dogs</span>: <span class="type" data-type="173"><span class="type" data-type="172"><span class="type-value-identifier" data-id="type: bool/5">bool</span></span></span>, <span class="declaration-var" data-id="attr: otherParty/1107 - height">height</span>: <span class="type" data-type="126"><span class="type" data-type="125"><span class="type-value-identifier" data-id="type: float/4">float</span></span></span>};
-  <span class="type" data-type="22">let <span class="type" data-type="97"><span class="declaration-var" data-id="value: other/1111">other</span></span> = <span class="type" data-type="75"><span class="int">10</span></span></span>;
+  type <span class="declaration-var" data-id="type: other/1099">other</span> = <span class="declaration-var" data-id="constr: other/1099 - A">A</span> |<span class="declaration-var" data-id="constr: other/1099 - B">B</span> | <span class="declaration-var" data-id="constr: other/1099 - C">C</span>(<span class="type" data-type="47"><span class="type-value-identifier" data-id="type: other/1099">other</span></span>);
+  type <span class="declaration-var" data-id="type: party/1103">party</span> = {<span class="declaration-var" data-id="attr: party/1103 - names">names</span>: <span class="type" data-type="116"><span class="type" data-type="115"><span class="type-value-identifier" data-id="type: string/3">string</span></span></span>, <span class="declaration-var" data-id="attr: party/1103 - count">count</span>: <span class="type" data-type="182"><span class="type" data-type="181"><span class="type-value-identifier" data-id="type: int/1">int</span></span></span>, <span class="declaration-var" data-id="attr: party/1103 - awesome">awesome</span>: <span class="type" data-type="228"><span class="type" data-type="227"><span class="type-value-identifier" data-id="type: string/3">string</span></span></span>};
+  type <span class="declaration-var" data-id="type: otherParty/1107">otherParty</span> = {<span class="declaration-var" data-id="attr: otherParty/1107 - names">names</span>: <span class="type" data-type="59"><span class="type" data-type="58"><span class="type-value-identifier" data-id="type: int/1">int</span></span></span>, <span class="declaration-var" data-id="attr: otherParty/1107 - dogs">dogs</span>: <span class="type" data-type="82"><span class="type" data-type="81"><span class="type-value-identifier" data-id="type: bool/5">bool</span></span></span>, <span class="declaration-var" data-id="attr: otherParty/1107 - height">height</span>: <span class="type" data-type="238"><span class="type" data-type="237"><span class="type-value-identifier" data-id="type: float/4">float</span></span></span>};
+  <span class="type" data-type="7">let <span class="type" data-type="153"><span class="declaration-var" data-id="value: other/1111">other</span></span> = <span class="type" data-type="129"><span class="int">10</span></span></span>;
 };
-<span class="type" data-type="6">let <span class="type" data-type="33"><span class="declaration-var" data-id="value: z/1113">z</span></span> = <span class="type" data-type="5">{<span class="type" data-type="110"><span class="record-module-identifier" data-id="module: Inner/1112">Inner</span>.<span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - names">names</span>: <span class="type" data-type="8"><span class="int">2</span></span>, <span class="type" data-type="9"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - dogs">dogs</span>: <span class="type" data-type="207"><span class="boolean">true</span></span>, <span class="type" data-type="220"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - height">height</span>: <span class="type" data-type="214"><span class="float">1.</span></span>}</span></span></span></span></span>;
-<span class="type" data-type="3">let <span class="type" data-type="69"><span class="declaration-var" data-id="value: m/1114">m</span></span> = <span class="type" data-type="237"><span class="type" data-type="117"><span class="value-identifier" data-id="value: z/1113">z</span></span>.<span class="type" data-type="198"><span class="field-value-identifier" data-id="attr: Inner/1112.otherParty - dogs">dogs</span></span></span></span>;
-<span class="type" data-type="13">let <span class="type" data-type="28"><span class="declaration-var" data-id="value: z/1115">z</span></span> = <span class="type" data-type="66"><span class="constructor-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="166">Inner <span class="open-exposing">exposing (<span class="open-record" data-id="type: Inner/1112.otherParty">otherParty</span> {<span class="open-record-attribute" data-id="attr: Inner/1112.otherParty - names">names</span>, <span class="open-record-attribute" data-id="attr: Inner/1112.otherParty - height">height</span>, <span class="open-record-attribute" data-id="attr: Inner/1112.otherParty - dogs">dogs</span>})</span>.{<span class="type" data-type="89"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - names">names</span>: <span class="type" data-type="171"><span class="int">2</span></span>, <span class="type" data-type="197"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - dogs">dogs</span>: <span class="type" data-type="199"><span class="boolean">false</span></span>, <span class="type" data-type="32"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - height">height</span>: <span class="type" data-type="216"><span class="float">1.</span></span>}</span></span></span></span>)</span></span>;
+<span class="type" data-type="121">let <span class="type" data-type="207"><span class="declaration-var" data-id="value: z/1113">z</span></span> = <span class="type" data-type="108">{<span class="type" data-type="22"><span class="record-module-identifier" data-id="module: Inner/1112">Inner</span>.<span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - names">names</span>: <span class="type" data-type="214"><span class="int">2</span></span>, <span class="type" data-type="8"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - dogs">dogs</span>: <span class="type" data-type="233"><span class="boolean">true</span></span>, <span class="type" data-type="105"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - height">height</span>: <span class="type" data-type="45"><span class="float">1.</span></span>}</span></span></span></span></span>;
+<span class="type" data-type="87">let <span class="type" data-type="57"><span class="declaration-var" data-id="value: m/1114">m</span></span> = <span class="type" data-type="203"><span class="type" data-type="93"><span class="value-identifier" data-id="value: z/1113">z</span></span>.<span class="type" data-type="189"><span class="field-value-identifier" data-id="attr: Inner/1112.otherParty - dogs">dogs</span></span></span></span>;
+<span class="type" data-type="107">let <span class="type" data-type="201"><span class="declaration-var" data-id="value: z/1115">z</span></span> = <span class="type" data-type="125"><span class="constructor-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="209">Inner <span class="open-exposing">exposing (<span class="open-record" data-id="type: Inner/1112.otherParty">otherParty</span> {<span class="open-record-attribute" data-id="attr: Inner/1112.otherParty - names">names</span>, <span class="open-record-attribute" data-id="attr: Inner/1112.otherParty - height">height</span>, <span class="open-record-attribute" data-id="attr: Inner/1112.otherParty - dogs">dogs</span>})</span>.{<span class="type" data-type="13"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - names">names</span>: <span class="type" data-type="16"><span class="int">2</span></span>, <span class="type" data-type="74"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - dogs">dogs</span>: <span class="type" data-type="73"><span class="boolean">false</span></span>, <span class="type" data-type="133"><span class="record-value-identifier" data-id="attr: Inner/1112.otherParty - height">height</span>: <span class="type" data-type="15"><span class="float">1.</span></span>}</span></span></span></span>)</span></span>;
 
-<span class="type" data-type="59">switch <span class="type" data-type="7"><span class="value-identifier" data-id="value: z/1115">z</span></span> {
-| <span class="type" data-type="56"><span class="switch-module-identifier" data-id="constr: option/10 - None">None</span></span> => <span class="type" data-type="190"><span class="unit">()</span></span>
-| <span class="type" data-type="149"><span class="switch-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="84">{<span class="switch-value-identifier" data-id="attr: Inner/1112.otherParty - names">names</span>: <span class="type" data-type="44"><span class="int">2</span></span>}</span>)</span> => <span class="type" data-type="223"><span class="type" data-type="2"><span class="value-identifier" data-id="value: Pervasives!.print_endline">print_endline</span></span>(<span class="type" data-type="185"><span class="string">"Awesome"</span></span>)</span>
-| <span class="type" data-type="180"><span class="switch-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="58">{<span class="switch-value-identifier" data-id="attr: Inner/1112.otherParty - dogs">dogs</span>: <span class="type" data-type="213"><span class="boolean">false</span></span>, <span class="type" data-type="108"><span class="switch-value-identifier" data-id="value: height/1116"><span class="declaration-var" data-id="value: height/1116">height</span></span></span>}</span>)</span> => <span class="type" data-type="183"><span class="type" data-type="137"><span class="value-identifier" data-id="value: Pervasives!.print_endline">print_endline</span></span>(<span class="type" data-type="95"><span class="type" data-type="21"><span class="string">"Awesome"</span></span> <span class="type" data-type="144">+<span class="operator" data-id="value: Pervasives!.^">+</span></span> <span class="type" data-type="211"><span class="type" data-type="85"><span class="value-identifier" data-id="value: Pervasives!.string_of_float">string_of_float</span></span>(<span class="type" data-type="18"><span class="value-identifier" data-id="value: height/1116">height</span></span>)</span></span>)</span>
-| <span class="type" data-type="164">_</span> => <span class="type" data-type="161"><span class="unit">()</span></span>
+<span class="type" data-type="159">switch <span class="type" data-type="4"><span class="value-identifier" data-id="value: z/1115">z</span></span> {
+| <span class="type" data-type="68"><span class="switch-module-identifier" data-id="constr: option/10 - None">None</span></span> => <span class="type" data-type="114"><span class="unit">()</span></span>
+| <span class="type" data-type="102"><span class="switch-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="174">{<span class="switch-value-identifier" data-id="attr: Inner/1112.otherParty - names">names</span>: <span class="type" data-type="91"><span class="int">2</span></span>}</span>)</span> => <span class="type" data-type="177"><span class="type" data-type="3"><span class="value-identifier" data-id="value: Pervasives!.print_endline">print_endline</span></span>(<span class="type" data-type="27"><span class="string">"Awesome"</span></span>)</span>
+| <span class="type" data-type="188"><span class="switch-module-identifier" data-id="constr: option/10 - Some">Some</span>(<span class="type" data-type="197">{<span class="switch-value-identifier" data-id="attr: Inner/1112.otherParty - dogs">dogs</span>: <span class="type" data-type="89"><span class="boolean">false</span></span>, <span class="type" data-type="100"><span class="switch-value-identifier" data-id="value: height/1116"><span class="declaration-var" data-id="value: height/1116">height</span></span></span>}</span>)</span> => <span class="type" data-type="52"><span class="type" data-type="41"><span class="value-identifier" data-id="value: Pervasives!.print_endline">print_endline</span></span>(<span class="type" data-type="77"><span class="type" data-type="40"><span class="string">"Awesome"</span></span> <span class="type" data-type="53">+<span class="operator" data-id="value: Pervasives!.^">+</span></span> <span class="type" data-type="164"><span class="type" data-type="156"><span class="value-identifier" data-id="value: Pervasives!.string_of_float">string_of_float</span></span>(<span class="type" data-type="179"><span class="value-identifier" data-id="value: height/1116">height</span></span>)</span></span>)</span>
+| <span class="type" data-type="80">_</span> => <span class="type" data-type="236"><span class="unit">()</span></span>
 }</span>;
 
 open <span class="open-module-identifier" data-id="module: Inner/1112">Inner</span> <span class="open-exposing">exposing (<span class="open-value" data-id="value: Inner/1112.other">other</span>, <span class="open-record" data-id="type: Inner/1112.party">party</span> {<span class="open-record-attribute" data-id="attr: Inner/1112.party - names">names</span>, <span class="open-record-attribute" data-id="attr: Inner/1112.party - count">count</span>, <span class="open-record-attribute" data-id="attr: Inner/1112.party - awesome">awesome</span>}, <span class="open-type" data-id="type: Inner/1112.other">other</span> (<span class="open-type-constructor" data-id="constr: Inner/1112.other - C">C</span>|<span class="open-type-constructor" data-id="constr: Inner/1112.other - B">B</span>))</span>;
 
-<span class="type" data-type="148"><span class="type" data-type="47">type <span class="declaration-var" data-id="type: m/1117">m</span> = <span class="type" data-type="120"><span class="type-value-identifier" data-id="type: Inner/1112.other">other</span></span></span>;</span>
-<span class="type" data-type="179">let <span class="type" data-type="107"><span class="declaration-var" data-id="value: otherval/1118">otherval</span></span> = <span class="type" data-type="116"><span class="module-identifier" data-id="module: Inner/1112">Inner</span>.<span class="value-identifier" data-id="value: Inner/1112.other">other</span></span></span>;
-<span class="type" data-type="106">let <span class="type" data-type="90"><span class="declaration-var" data-id="value: other/1119">other</span></span> = <span class="type" data-type="25"><span class="value-identifier" data-id="value: Inner/1112.other">other</span></span></span>;
-<span class="type" data-type="141">let <span class="type" data-type="130"><span class="declaration-var" data-id="value: z/1120">z</span></span> = <span class="type" data-type="79"><span class="constructor-module-identifier" data-id="module: Inner/1112">Inner</span>.<span class="constructor-module-identifier" data-id="constr: Inner/1112.other - A">A</span></span></span>;
-<span class="type" data-type="1">let <span class="type" data-type="140"><span class="declaration-var" data-id="value: b/1121">b</span></span> = <span class="type" data-type="186"><span class="constructor-module-identifier" data-id="constr: Inner/1112.other - B">B</span></span></span>;
-<span class="type" data-type="178">let <span class="type" data-type="83"><span class="declaration-var" data-id="value: c/1122">c</span></span> = <span class="type" data-type="151"><span class="constructor-module-identifier" data-id="constr: Inner/1112.other - C">C</span>(<span class="type" data-type="105"><span class="constructor-module-identifier" data-id="module: Inner/1112">Inner</span>.<span class="constructor-module-identifier" data-id="constr: Inner/1112.other - A">A</span></span>)</span></span>;
+module <span class="declaration-var" data-id="module: HideThings/1147">HideThings</span> = {
 
-<span class="type" data-type="39">let <span class="type" data-type="239"><span class="declaration-var" data-id="value: a/1123">a</span></span> = <span class="type" data-type="102">[|<span class="type" data-type="50"><span class="int">1</span></span>,<span class="type" data-type="228"><span class="int">2</span></span>|]</span></span>;
-<span class="type" data-type="31"><span class="type" data-type="14"><span class="value-identifier" data-id="value: a/1123">a</span></span>[<span class="type" data-type="115"><span class="int">0</span></span>] = <span class="type" data-type="27"><span class="int">10</span></span></span>;
+<span class="type" data-type="208"><span class="type" data-type="85">type <span class="declaration-var" data-id="type: m/1117">m</span> = <span class="type" data-type="67"><span class="type-value-identifier" data-id="type: Inner/1112.other">other</span></span></span>;</span>
+<span class="type" data-type="144">[@nodoc]
+let <span class="type" data-type="219"><span class="declaration-var" data-id="value: otherval/1118">otherval</span></span> = <span class="type" data-type="44"><span class="module-identifier" data-id="module: Inner/1112">Inner</span>.<span class="value-identifier" data-id="value: Inner/1112.other">other</span></span></span>;
+<span class="type" data-type="1">let <span class="type" data-type="118"><span class="declaration-var" data-id="value: other/1119">other</span></span> = <span class="type" data-type="110"><span class="value-identifier" data-id="value: Inner/1112.other">other</span></span></span>;
+<span class="type" data-type="10">let <span class="type" data-type="63"><span class="declaration-var" data-id="value: z/1120">z</span></span> = <span class="type" data-type="76"><span class="constructor-module-identifier" data-id="module: Inner/1112">Inner</span>.<span class="constructor-module-identifier" data-id="constr: Inner/1112.other - A">A</span></span></span>;
+<span class="type" data-type="196">let <span class="type" data-type="104"><span class="declaration-var" data-id="value: b/1121">b</span></span> = <span class="type" data-type="50"><span class="constructor-module-identifier" data-id="constr: Inner/1112.other - B">B</span></span></span>;
+<span class="type" data-type="46">let <span class="type" data-type="221"><span class="declaration-var" data-id="value: c/1122">c</span></span> = <span class="type" data-type="103"><span class="constructor-module-identifier" data-id="constr: Inner/1112.other - C">C</span>(<span class="type" data-type="101"><span class="constructor-module-identifier" data-id="module: Inner/1112">Inner</span>.<span class="constructor-module-identifier" data-id="constr: Inner/1112.other - A">A</span></span>)</span></span>;
 
-type <span class="declaration-var" data-id="type: sadness/1124">sadness</span> = {<span class="declaration-var" data-id="attr: sadness/1124 - duration">duration</span>: <span class="type" data-type="177"><span class="type" data-type="176"><span class="type-value-identifier" data-id="type: int/1">int</span></span></span>, <span class="declaration-var" data-id="attr: sadness/1124 - affective">affective</span>: <span class="type" data-type="168"><span class="type" data-type="167"><span class="type-value-identifier" data-id="type: bool/5">bool</span></span></span>};
+<span class="type" data-type="199">let <span class="type" data-type="155"><span class="declaration-var" data-id="value: a/1123">a</span></span> = <span class="type" data-type="206">[|<span class="type" data-type="231"><span class="int">1</span></span>,<span class="type" data-type="29"><span class="int">2</span></span>|]</span></span>;
+<span class="type" data-type="32"><span class="type" data-type="24"><span class="value-identifier" data-id="value: a/1123">a</span></span>[<span class="type" data-type="39"><span class="int">0</span></span>] = <span class="type" data-type="36"><span class="int">10</span></span></span>;
 
-<span class="type" data-type="192">let <span class="type" data-type="55"><span class="declaration-var" data-id="value: x/1127">x</span></span> = <span class="type" data-type="43">{<span class="type" data-type="147"><span class="record-value-identifier" data-id="attr: sadness/1124 - duration">duration</span>: <span class="type" data-type="227"><span class="int">10</span></span>, <span class="type" data-type="118"><span class="record-value-identifier" data-id="attr: sadness/1124 - affective">affective</span>: <span class="type" data-type="200"><span class="boolean">false</span></span>}</span></span></span></span>;
-<span class="type" data-type="0">let <span class="type" data-type="60"><span class="declaration-var" data-id="value: y/1128">y</span></span> = <span class="type" data-type="233">{...<span class="type" data-type="34"><span class="value-identifier" data-id="value: x/1127">x</span></span>, <span class="type" data-type="54"><span class="record-value-identifier" data-id="attr: sadness/1124 - duration">duration</span>: <span class="type" data-type="100"><span class="int">5</span></span>}</span></span></span>;
-<span class="type" data-type="194">let <span class="type" data-type="132"><span class="declaration-var" data-id="value: z/1129">z</span></span> = <span class="type" data-type="93">{<span class="type" data-type="143"><span class="record-value-identifier" data-id="attr: Inner/1112.party - names">names</span>: <span class="type" data-type="156"><span class="string">"hello"</span></span>, <span class="type" data-type="221"><span class="record-value-identifier" data-id="attr: Inner/1112.party - count">count</span>: <span class="type" data-type="20"><span class="int">2</span></span>, <span class="type" data-type="226"><span class="record-value-identifier" data-id="attr: Inner/1112.party - awesome">awesome</span>: <span class="type" data-type="53"><span class="string">"yes"</span></span>}</span></span></span></span></span>;
-<span class="type" data-type="222">let <span class="type" data-type="136"><span class="declaration-var" data-id="value: r/1130">r</span></span> = <span class="type" data-type="203"><span class="type" data-type="67"><span class="value-identifier" data-id="value: z/1129">z</span></span>.<span class="type" data-type="128"><span class="field-value-identifier" data-id="attr: Inner/1112.party - count">count</span></span></span></span>;
+type <span class="declaration-var" data-id="type: sadness/1124">sadness</span> = {<span class="declaration-var" data-id="attr: sadness/1124 - duration">duration</span>: <span class="type" data-type="187"><span class="type" data-type="186"><span class="type-value-identifier" data-id="type: int/1">int</span></span></span>, <span class="declaration-var" data-id="attr: sadness/1124 - affective">affective</span>: <span class="type" data-type="152"><span class="type" data-type="151"><span class="type-value-identifier" data-id="type: bool/5">bool</span></span></span>};
+
+<span class="type" data-type="128">let <span class="type" data-type="18"><span class="declaration-var" data-id="value: x/1127">x</span></span> = <span class="type" data-type="62">{<span class="type" data-type="98"><span class="record-value-identifier" data-id="attr: sadness/1124 - duration">duration</span>: <span class="type" data-type="132"><span class="int">10</span></span>, <span class="type" data-type="223"><span class="record-value-identifier" data-id="attr: sadness/1124 - affective">affective</span>: <span class="type" data-type="131"><span class="boolean">false</span></span>}</span></span></span></span>;
+<span class="type" data-type="213">let <span class="type" data-type="38"><span class="declaration-var" data-id="value: y/1128">y</span></span> = <span class="type" data-type="147">{...<span class="type" data-type="212"><span class="value-identifier" data-id="value: x/1127">x</span></span>, <span class="type" data-type="12"><span class="record-value-identifier" data-id="attr: sadness/1124 - duration">duration</span>: <span class="type" data-type="86"><span class="int">5</span></span>}</span></span></span>;
+<span class="type" data-type="205">let <span class="type" data-type="184"><span class="declaration-var" data-id="value: z/1129">z</span></span> = <span class="type" data-type="21">{<span class="type" data-type="218"><span class="record-value-identifier" data-id="attr: Inner/1112.party - names">names</span>: <span class="type" data-type="134"><span class="string">"hello"</span></span>, <span class="type" data-type="204"><span class="record-value-identifier" data-id="attr: Inner/1112.party - count">count</span>: <span class="type" data-type="146"><span class="int">2</span></span>, <span class="type" data-type="210"><span class="record-value-identifier" data-id="attr: Inner/1112.party - awesome">awesome</span>: <span class="type" data-type="97"><span class="string">"yes"</span></span>}</span></span></span></span></span>;
+<span class="type" data-type="226">let <span class="type" data-type="0"><span class="declaration-var" data-id="value: r/1130">r</span></span> = <span class="type" data-type="161"><span class="type" data-type="142"><span class="value-identifier" data-id="value: z/1129">z</span></span>.<span class="type" data-type="2"><span class="field-value-identifier" data-id="attr: Inner/1112.party - count">count</span></span></span></span>;
 
 type <span class="declaration-var" data-id="type: a/1131">a</span> = <span class="declaration-var" data-id="constr: a/1131 - A">A</span>|<span class="declaration-var" data-id="constr: a/1131 - C">C</span>|<span class="declaration-var" data-id="constr: a/1131 - B">B</span>;
 type <span class="declaration-var" data-id="type: c/1135">c</span> = <span class="declaration-var" data-id="constr: c/1135 - A">A</span>|<span class="declaration-var" data-id="constr: c/1135 - C">C</span>|<span class="declaration-var" data-id="constr: c/1135 - B">B</span>;
-type <span class="declaration-var" data-id="type: b/1139">b</span> = <span class="declaration-var" data-id="constr: b/1139 - A">A</span>|<span class="declaration-var" data-id="constr: b/1139 - B">B</span>(<span class="type" data-type="232"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
-<span class="type" data-type="229">let <span class="type" data-type="124"><span class="declaration-var" data-id="value: x/1142">x</span></span> = <span class="type" data-type="24"><span class="constructor-module-identifier" data-id="constr: b/1139 - B">B</span>(<span class="type" data-type="12"><span class="int">1</span></span>)</span></span>;
-<span class="type" data-type="142">let <span class="type" data-type="96"><span class="declaration-var" data-id="value: z/1143">z</span></span>:<span class="type" data-type="215"><span class="type-value-identifier" data-id="type: c/1135">c</span></span> = <span class="type" data-type="30"><span class="constructor-module-identifier" data-id="constr: c/1135 - A">A</span></span></span>;
-<span class="type" data-type="127">let <span class="type" data-type="234"><span class="declaration-var" data-id="value: z/1144">z</span></span>:<span class="type" data-type="163"><span class="type-value-identifier" data-id="type: a/1131">a</span></span> = <span class="type" data-type="175"><span class="constructor-module-identifier" data-id="constr: a/1131 - A">A</span></span></span>;
-<span class="type" data-type="123">let <span class="type" data-type="231"><span class="declaration-var" data-id="value: m/1145">m</span></span> = <span class="type" data-type="64"><span class="constructor-module-identifier" data-id="constr: b/1139 - A">A</span></span></span>;
-<span class="type" data-type="182">let <span class="type" data-type="146"><span class="declaration-var" data-id="value: n/1146">n</span></span> = <span class="type" data-type="155"><span class="constructor-module-identifier" data-id="constr: b/1139 - A">A</span></span></span>;</pre><script>window.TYPES_LIST = ["sadness",
-  "Inner.other",
+type <span class="declaration-var" data-id="type: b/1139">b</span> = <span class="declaration-var" data-id="constr: b/1139 - A">A</span>|<span class="declaration-var" data-id="constr: b/1139 - B">B</span>(<span class="type" data-type="6"><span class="type-value-identifier" data-id="type: int/1">int</span></span>);
+<span class="type" data-type="113">let <span class="type" data-type="84"><span class="declaration-var" data-id="value: x/1142">x</span></span> = <span class="type" data-type="230"><span class="constructor-module-identifier" data-id="constr: b/1139 - B">B</span>(<span class="type" data-type="211"><span class="int">1</span></span>)</span></span>;
+<span class="type" data-type="90">let <span class="type" data-type="14"><span class="declaration-var" data-id="value: z/1143">z</span></span>:<span class="type" data-type="141"><span class="type-value-identifier" data-id="type: c/1135">c</span></span> = <span class="type" data-type="150"><span class="constructor-module-identifier" data-id="constr: c/1135 - A">A</span></span></span>;
+<span class="type" data-type="43">let <span class="type" data-type="96"><span class="declaration-var" data-id="value: z/1144">z</span></span>:<span class="type" data-type="37"><span class="type-value-identifier" data-id="type: a/1131">a</span></span> = <span class="type" data-type="163"><span class="constructor-module-identifier" data-id="constr: a/1131 - A">A</span></span></span>;
+<span class="type" data-type="172">let <span class="type" data-type="139"><span class="declaration-var" data-id="value: m/1145">m</span></span> = <span class="type" data-type="79"><span class="constructor-module-identifier" data-id="constr: b/1139 - A">A</span></span></span>;
+<span class="type" data-type="173">let <span class="type" data-type="193"><span class="declaration-var" data-id="value: n/1146">n</span></span> = <span class="type" data-type="124"><span class="constructor-module-identifier" data-id="constr: b/1139 - A">A</span></span></span>;
+
+}</pre><script>window.TYPES_LIST = ["int",
+  "int",
+  "Inner.party",
   "unit",
-  "bool",
-  "awesome",
-  "Inner.otherParty",
-  "Inner.otherParty",
   "Inner.otherParty option",
   "int",
+  "int",
+  "int",
   "Inner.otherParty",
+  "float",
+  "Inner.other",
+  "unit -> int",
+  "sadness",
+  "Inner.otherParty",
+  "c",
+  "float",
+  "int",
+  "float",
+  "sadness",
+  "unit",
+  "int",
+  "Inner.party",
+  "Inner.otherParty",
+  "unit -> int",
+  "unit",
   "float -> float -> float",
   "int",
-  "int",
-  "Inner.otherParty option",
-  "unit",
-  "float",
-  "float",
-  "int",
-  "float",
-  "int",
-  "int",
   "string",
+  "bool",
   "int",
+  "bool",
   "int",
-  "b",
-  "int",
-  "int",
-  "int",
-  "Inner.otherParty option",
-  "int",
-  "c",
   "int array",
-  "Inner.otherParty",
-  "Inner.otherParty",
-  "sadness",
-  "string",
-  "string",
   "awesome",
-  "unit -> float",
-  "int array",
-  "float",
   "int",
-  "unit -> unit",
+  "int",
+  "int",
+  "a",
   "sadness",
-  "int",
-  "float",
-  "float",
-  "Inner.other",
-  "bool",
-  "int",
-  "int",
-  "int",
   "int",
   "string",
-  "sadness",
-  "sadness",
-  "Inner.otherParty option",
-  "unit -> int",
-  "Inner.otherParty",
-  "unit",
-  "sadness",
-  "bool",
-  "int",
-  "int",
-  "b",
-  "'a option",
-  "Inner.otherParty option",
-  "Inner.party",
-  "'a option -> int",
-  "bool",
-  "unit -> float",
-  "unit",
-  "int",
+  "string -> unit",
   "awesome",
-  "'a option",
+  "a",
   "int",
-  "bool",
-  "unit -> float",
-  "unit",
+  "float",
   "Inner.other",
   "other",
   "int",
   "unit",
   "Inner.other",
-  "Inner.otherParty",
-  "string",
-  "float",
-  "bool",
-  "int",
-  "Inner.otherParty",
-  "int",
-  "int",
-  "unit -> int",
-  "Inner.party",
-  "int",
-  "string",
-  "c",
   "int",
   "unit",
-  "'a",
-  "int",
-  "'b option",
-  "int array",
-  "float",
-  "int",
-  "Inner.other",
-  "int",
-  "int",
-  "float",
-  "float -> float -> float",
-  "Inner.otherParty",
-  "string",
-  "string",
-  "float",
-  "int",
-  "int",
-  "int",
-  "bool",
-  "sadness",
-  "int",
-  "Inner.other",
-  "int",
-  "unit -> int",
-  "b",
-  "b",
-  "float",
-  "float",
-  "a",
-  "Inner.party",
-  "int option",
-  "Inner.other",
-  "'a option -> int",
-  "Inner.party",
-  "unit -> int",
-  "int",
-  "int",
-  "int",
-  "string -> unit",
-  "int",
-  "unit",
-  "Inner.other",
-  "Inner.other",
-  "c",
-  "Inner.party",
   "string -> string -> string",
-  "'b option -> int",
-  "b",
+  "int",
+  "awesome",
+  "float",
+  "bool",
+  "int",
+  "int",
+  "int",
+  "'a option -> int",
   "sadness",
   "Inner.other",
+  "float",
+  "bool",
+  "unit -> float",
+  "Inner.other",
   "Inner.otherParty option",
   "unit -> int",
+  "int",
+  "unit -> int",
+  "unit",
+  "bool",
+  "Inner.otherParty",
+  "int",
   "Inner.other",
-  "int",
-  "int",
+  "string",
   "unit",
   "b",
-  "string",
-  "float",
-  "unit",
-  "int",
-  "unit -> int",
-  "unit",
-  "int",
-  "a",
   "Inner.otherParty option",
-  "int",
-  "Inner.otherParty",
-  "bool",
-  "bool",
-  "awesome",
-  "unit -> int",
-  "int",
   "bool",
   "bool",
   "int",
-  "a",
-  "int",
-  "int",
-  "Inner.other",
-  "int",
-  "Inner.otherParty option",
-  "float",
   "b",
-  "unit",
-  "int -> int -> int",
-  "string",
   "Inner.other",
-  "float",
-  "float",
-  "unit",
-  "unit",
-  "awesome",
-  "sadness",
-  "float",
-  "Inner.party",
-  "float",
-  "awesome",
-  "Inner.otherParty",
-  "Inner.otherParty",
+  "int",
   "bool",
+  "unit",
   "bool",
+  "c",
+  "int",
   "float",
+  "Inner.otherParty",
   "int option -> int",
+  "unit",
+  "a",
+  "string",
+  "sadness",
+  "float",
+  "float",
+  "Inner.other",
+  "Inner.otherParty option",
+  "Inner.other",
+  "Inner.other",
+  "Inner.otherParty",
+  "int",
+  "Inner.otherParty option",
+  "Inner.otherParty",
+  "unit",
   "int",
   "unit -> int",
   "int",
-  "int",
-  "bool",
-  "float -> float -> float",
-  "int",
+  "b",
   "unit",
+  "string",
+  "string",
+  "unit -> float",
+  "int",
+  "float",
+  "int",
+  "Inner.otherParty",
+  "float",
+  "int",
+  "b",
+  "Inner.otherParty option",
+  "awesome",
+  "int",
+  "sadness",
+  "int",
+  "float",
+  "bool",
+  "int",
+  "Inner.otherParty",
+  "string",
+  "awesome",
+  "float",
+  "'a option",
+  "int",
+  "b",
+  "int",
+  "c",
+  "int",
+  "int",
+  "int",
+  "int",
+  "int",
+  "sadness",
+  "float",
+  "int",
+  "c",
+  "bool",
+  "bool",
+  "int",
+  "int",
+  "int array",
+  "string",
+  "'a option -> int",
+  "'a option -> int",
+  "unit",
+  "unit",
+  "Inner.party",
+  "unit -> int",
+  "a",
   "float -> string",
   "bool",
+  "int",
   "bool",
-  "float",
-  "c",
-  "float",
+  "unit -> int",
+  "int -> int -> int",
   "int",
-  "'a option",
-  "'a option",
+  "int option",
+  "b",
+  "b",
   "Inner.otherParty",
-  "Inner.party",
-  "int",
+  "unit",
+  "'b option -> int",
   "string -> unit",
   "int",
+  "float",
+  "'a option",
+  "int",
+  "int",
+  "'b option",
+  "Inner.party",
+  "'a option",
+  "int",
+  "int",
+  "Inner.otherParty option",
+  "Inner.otherParty",
+  "float",
+  "float",
+  "int",
+  "b",
+  "float -> float -> float",
+  "int",
+  "Inner.other",
+  "Inner.otherParty",
+  "float",
+  "int array",
+  "unit -> int",
+  "Inner.otherParty option",
+  "float",
+  "bool",
+  "Inner.party",
+  "Inner.party",
+  "int array",
+  "Inner.otherParty",
+  "Inner.other",
+  "Inner.otherParty",
+  "Inner.party",
+  "int",
+  "sadness",
+  "sadness",
+  "int",
+  "float",
+  "'a option",
   "int",
   "Inner.party",
   "int",
-  "int",
-  "b",
-  "float",
-  "b",
-  "int",
+  "unit -> float",
+  "Inner.other",
+  "float -> float -> float",
   "sadness",
-  "a",
+  "awesome",
   "int",
-  "'a option -> int",
-  "Inner.otherParty",
+  "int",
+  "string",
+  "string",
+  "unit -> unit",
+  "b",
+  "int",
+  "int",
+  "bool",
   "float",
-  "int array"]</script>
+  "'a",
+  "unit",
+  "float",
+  "float",
+  "int"]</script>
   <div id="type_hover">Hello</div>
 <script>
 

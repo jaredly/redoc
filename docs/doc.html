@@ -1,0 +1,127 @@
+
+<!doctype html>
+<meta charset=utf8>
+<style>
+body {
+  font-family: system-ui;
+  font-weight: 200;
+  max-width: 600px;
+  margin: 48px auto;
+}
+.body {
+  margin-left: 24px;
+}
+.missing {
+  font-style: italic;
+  color: #777;
+}
+h4 {
+  font-family: sf mono, monospace;
+  font-weight: 400;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+}
+h4.module {
+  font-size: 110%;
+  font-weight: 600;
+}
+.module-body {
+  border-left: 5px solid #ddd;
+  padding-left: 24px;
+}
+
+</style>
+<title>SomeModule</title>
+<body>
+<h1 id="Example">Example</h1>
+
+<p>Top-level docs right here.</p>
+<p>you end it with a semicolon, that&#39;s how you know it&#39;s serious.</p>
+<p>A block in the top-level thing will be evaluated at the end of the file.</p>
+<pre><code>let x = 10;
+let z = awesome();
+let y = party();</code></pre>
+
+<h2 id="Functions">Functions</h2>
+
+<p>You can use the <code>@doc</code> pragma to include the docs for individual items.</p>
+<h4>type <a href="#type-SomeModule.awesome" id="type-SomeModule.awesome">awesome</a> = Hello | Folks of int</h4>
+
+<div class='body'><span class='missing'>No documentation for this value</span></div>
+
+<h4 class='module'> module <a href="#module-SomeModule.Something" id="module-SomeModule.Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+ <h4> let <a href="#value-SomeModule.Something.inner" id="value-SomeModule.Something.inner">inner</a> : int </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+</div>
+
+ <h4> let <a href="#value-SomeModule.party" id="value-SomeModule.party">party</a> : unit -> int </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+<h2 id="Just-dumping-it-all-in">Just dumping it all in</h2>
+
+<p>An <code>@all</code> annotation will dump all (exported) values with their associated documentation.</p>
+ <h4> let <a href="#value-SomeModule.awesome" id="value-SomeModule.awesome">awesome</a> : unit -> int </h4> 
+
+<div class='body '><p> Here&#39;s some documentaition</p>
+<pre class='parse'><code class='parse'>let x = 10;
+let y = 20;
+let z = awesome();</code></pre></div>
+
+ <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : 'a option -> int </h4> 
+
+<div class='body '><p> Some more docs for you</p>
+<pre class='parse'><code class='parse'>z(None); /* 10 */
+z(Some(10)); /* 20 */</code></pre></div>
+
+<h4 class='module'> module <a href="#module-SomeModule.Something" id="module-SomeModule.Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+ <h4> let <a href="#value-SomeModule.Something.inner" id="value-SomeModule.Something.inner">inner</a> : int </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+</div>
+
+ <h4> let <a href="#value-SomeModule.party" id="value-SomeModule.party">party</a> : unit -> int </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+
+<h4>type <a href="#type-SomeModule.awesome" id="type-SomeModule.awesome">awesome</a> = Hello | Folks of int</h4>
+
+<div class='body'><span class='missing'>No documentation for this value</span></div>
+
+ <h4> let <a href="#value-SomeModule.things" id="value-SomeModule.things">things</a> : unit -> float </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+
+<h4 class='module'> module <a href="#module-SomeModule.Inner" id="module-SomeModule.Inner">Inner</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<h4>type <a href="#type-SomeModule.Inner.other" id="type-SomeModule.Inner.other">other</a> = A | B | C of other</h4>
+
+<div class='body'><span class='missing'>No documentation for this value</span></div>
+
+<h4>type <a href="#type-SomeModule.Inner.party" id="type-SomeModule.Inner.party">party</a> = { names : string; count : int; awesome : string; }</h4>
+
+<div class='body'><span class='missing'>No documentation for this value</span></div>
+
+<h4>type <a href="#type-SomeModule.Inner.otherParty" id="type-SomeModule.Inner.otherParty">otherParty</a> = { names : int; dogs : bool; height : float; }</h4>
+
+<div class='body'><span class='missing'>No documentation for this value</span></div>
+
+ <h4> let <a href="#value-SomeModule.Inner.other" id="value-SomeModule.Inner.other">other</a> : int </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+</div>
+
+ <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : Inner.otherParty </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+
+ <h4> let <a href="#value-SomeModule.m" id="value-SomeModule.m">m</a> : bool </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+
+ <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : Inner.otherParty option </h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+
+<h4 class='module'> module <a href="#module-SomeModule.HideThings" id="module-SomeModule.HideThings">HideThings</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+
+</div>

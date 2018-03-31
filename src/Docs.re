@@ -111,6 +111,14 @@ let rec findValueByName = (allDocs, name) => {
   }
 };
 
+/* let module Awesomee =  Reason_toolchain.Reason_pprint_ast; */
+let reasonFormatter = Reason.Reason_pprint_ast.createFormatter();
+
+let printType = expr => {
+  Printtyp.type_expr(Format.str_formatter, expr);
+  Format.flush_str_formatter();
+};
+
 let rec generateDoc = (path, (name, docstring, content)) => {
   let id = String.concat(".", path @ [name]);
   switch content {
@@ -181,7 +189,10 @@ body {
   font-style: italic;
   color: #777;
 }
-h4 {
+h1, h2 {
+  margin-top: 24px;
+}
+h4.item {
   font-family: sf mono, monospace;
   font-weight: 400;
   padding-top: 8px;

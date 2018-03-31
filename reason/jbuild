@@ -1,0 +1,3 @@
+(library
+  ((name reason)
+  (libraries (compiler-libs.common))))

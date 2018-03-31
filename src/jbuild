@@ -2,4 +2,4 @@
 (executable
  ((name main)
   (public_name docre)
-  (libraries (omd compiler-libs.common unix str))))
+  (libraries (omd compiler-libs.common reason unix str))))

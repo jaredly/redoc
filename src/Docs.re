@@ -116,11 +116,22 @@ let rec findValueByName = (allDocs, name) => {
 
 let isUpperCase = t => t >= 'A' && t <= 'Z';
 
-let printer = outerPath => {
+/** TODO THis is wrong
+ * I need to fix it so that outerPath is umm never applied.
+ * If the thing being referenced is global, then let's up and reference a different html file!
+ * If it's local, we need to look up its #id in the good book of ids.
+ */
+let printer = stampsToIds => {
   ...PrintType.default,
   path: (printer, path) => {
-    let full = String.concat(".", outerPath @ [PrintType.default.path(PrintType.default, path)]);
-    let show = name => Printf.sprintf({|<a href="#%s">%s</a>|}, (isUpperCase(name.[0]) ? "module-" : "type-") ++ full, name);
+    let head = Path.head(path);
+    let full = if (head.Ident.stamp == 0) {
+      ""
+    } else {
+      Hashtbl.find(stampsToIds, head.Ident.stamp)
+    };
+    /* let full = String.concat(".", outerPath @ [PrintType.default.path(PrintType.default, path)]); */
+    let show = name => Printf.sprintf({|<a href="%s">%s</a>|}, full, name);
     switch path {
     | Pident({name}) => show(name)
     | Pdot(inner, name, _) => printer.path(printer, inner) ++ "." ++ show(name)

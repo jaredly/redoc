@@ -116,19 +116,21 @@ let rec findValueByName = (allDocs, name) => {
 
 let isUpperCase = t => t >= 'A' && t <= 'Z';
 
+let printer = outerPath => {
+  ...PrintType.default,
+  path: (printer, path) => {
+    let full = String.concat(".", outerPath @ [PrintType.default.path(PrintType.default, path)]);
+    let show = name => Printf.sprintf({|<a href="#%s">%s</a>|}, (isUpperCase(name.[0]) ? "module-" : "type-") ++ full, name);
+    switch path {
+    | Pident({name}) => show(name)
+    | Pdot(inner, name, _) => printer.path(printer, inner) ++ "." ++ show(name)
+    | Papply(_, _) => "<papply>"
+    };
+  }
+};
+
 let printType = (outerPath, expr) => {
-  let printer = {
-    ...PrintType.default,
-    path: (printer, path) => {
-      let full = String.concat(".", outerPath @ [PrintType.default.path(PrintType.default, path)]);
-      let show = name => Printf.sprintf({|<a href="#%s">%s</a>|}, (isUpperCase(name.[0]) ? "module-" : "type-") ++ full, name);
-      switch path {
-      | Pident({name}) => show(name)
-      | Pdot(inner, name, _) => printer.path(printer, inner) ++ "." ++ show(name)
-      | Papply(_, _) => "<papply>"
-      };
-    }
-  };
+  let printer = printer(outerPath);
   printer.expr(printer, expr)
   /* Printtyp.type_expr(Format.str_formatter, expr); */
   /* let ct = Untypeast.untype_core_type(expr);
@@ -141,7 +143,7 @@ let printType = (outerPath, expr) => {
 let rec generateDoc = (path, (name, docstring, content)) => {
   let id = String.concat(".", path @ [name]);
   switch content {
-  | Module(items) => Printf.sprintf({|<h4 class='module'> module <a href="#module-%s" id="module-%s">%s</a></h4><div class='body module-body'>|}, id, id, name) ++
+  | Module(items) => Printf.sprintf({|<h4 class='item module'> module <a href="#module-%s" id="module-%s">%s</a></h4><div class='body module-body'>|}, id, id, name) ++
   docsForModule(path, name, switch docstring {
     | None => defaultMain(name)
     | Some(doc) => doc
@@ -150,18 +152,20 @@ let rec generateDoc = (path, (name, docstring, content)) => {
     /* Printtyp.type_expr(Format.str_formatter, typ); */
     /* let t = Format.flush_str_formatter(); */
     let t = printType(path, typ);
-    Printf.sprintf({| <h4> let <a href="#value-%s" id="value-%s">%s</a> : %s </h4> |}, id, id, name, String.trim(t)) ++ "\n\n<div class='body '>" ++ switch docstring {
+    Printf.sprintf({| <h4 class='item'>let <a href="#value-%s" id="value-%s">%s</a> : %s</h4> |}, id, id, name, String.trim(t)) ++ "\n\n<div class='body '>" ++ switch docstring {
     | None => "<span class='missing'>No documentation for this value</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))
     } ++ "</div>"
   }
   | Type(typ) => {
-    Printtyp.type_declaration({Ident.name, stamp: 0, flags: 0}, Format.str_formatter, typ);
-    let t = Format.flush_str_formatter();
+    /* Printtyp.type_declaration({Ident.name, stamp: 0, flags: 0}, Format.str_formatter, typ); */
+    /* let t = Format.flush_str_formatter(); */
     let link = Printf.sprintf({|<a href="#type-%s" id="type-%s">%s</a>|}, id, id, name);
-    let t = Str.replace_first(Str.regexp_string(name), link, t);
+    let printer = printer(path);
+    let t= printer.decl(printer, link, typ);
+    /* let t = Str.replace_first(Str.regexp_string(name), link, t); */
     /* TODO parse out the (name) so I can highlight it n stuff */
-    "<h4>" ++ String.trim(t) ++ "</h4>\n\n<div class='body'>" ++ switch docstring {
+    "<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body'>" ++ switch docstring {
     | None => "<span class='missing'>No documentation for this value</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))
     } ++ "</div>"
@@ -217,6 +221,7 @@ h4.item {
   font-weight: 400;
   padding-top: 8px;
   border-top: 1px solid #ddd;
+  white-space: pre;
 }
 h4.module {
   font-size: 110%%;

@@ -124,19 +124,29 @@ let print_constructor = (loop, {Types.cd_id: {name}, cd_args, cd_res}) => {
   })
 };
 
+let print_attr = (printer, {Types.ld_id, ld_mutable, ld_type}) => {
+  switch ld_mutable {
+  | Asttypes.Immutable => ""
+  | Mutable => "mut "
+  } ++ printer.ident(printer, ld_id) ++ ": " ++ printer.expr(printer, ld_type)
+};
+
 let print_decl = (stringifier, name, decl) => {
   open Types;
   let args = switch decl.type_params {
   | [] => ""
   | args => "(" ++ String.concat(", ", List.map(stringifier.expr(stringifier), args)) ++ ")"
   };
-  let left = name ++ args;
+  let left = "type " ++ name ++ args;
   switch decl.type_kind {
   | Type_abstract => left
   | Type_open => left ++ " = .."
-  | Type_record(labels, representation) => ""
-  | Type_variant(constructors) => String.concat(" | ", List.map(print_constructor(stringifier.expr(stringifier)), constructors))
-  }
+  | Type_record(labels, representation) => left ++ " = {\n  " ++ String.concat(",\n  ", List.map(print_attr(stringifier), labels)) ++ "\n}"
+  | Type_variant(constructors) => left ++ " =\n  | " ++ String.concat("\n  | ", List.map(print_constructor(stringifier.expr(stringifier)), constructors))
+  } ++ (switch decl.type_manifest {
+  | None => ""
+  | Some(manifest) => " = " ++ stringifier.expr(stringifier, manifest)
+  })
 };
 
 let default = {

@@ -15,7 +15,10 @@ body {
   font-style: italic;
   color: #777;
 }
-h4 {
+h1, h2 {
+  margin-top: 24px;
+}
+h4.item {
   font-family: sf mono, monospace;
   font-weight: 400;
   padding-top: 8px;
@@ -50,37 +53,37 @@ let y = party();</code></pre>
 <div class='body'><span class='missing'>No documentation for this value</span></div>
 
 <h4 class='module'> module <a href="#module-SomeModule.Something" id="module-SomeModule.Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
- <h4> let <a href="#value-SomeModule.Something.inner" id="value-SomeModule.Something.inner">inner</a> : int </h4> 
+ <h4> let <a href="#value-SomeModule.Something.inner" id="value-SomeModule.Something.inner">inner</a> : <a href="#type-SomeModule.Something.int">int</a> </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 </div>
 
- <h4> let <a href="#value-SomeModule.party" id="value-SomeModule.party">party</a> : unit -> int </h4> 
+ <h4> let <a href="#value-SomeModule.party" id="value-SomeModule.party">party</a> : (<a href="#type-SomeModule.unit">unit</a>) => <a href="#type-SomeModule.int">int</a> </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 <h2 id="Just-dumping-it-all-in">Just dumping it all in</h2>
 
 <p>An <code>@all</code> annotation will dump all (exported) values with their associated documentation.</p>
- <h4> let <a href="#value-SomeModule.awesome" id="value-SomeModule.awesome">awesome</a> : unit -> int </h4> 
+ <h4> let <a href="#value-SomeModule.awesome" id="value-SomeModule.awesome">awesome</a> : (<a href="#type-SomeModule.unit">unit</a>) => <a href="#type-SomeModule.int">int</a> </h4> 
 
 <div class='body '><p> Here&#39;s some documentaition</p>
 <pre class='parse'><code class='parse'>let x = 10;
 let y = 20;
 let z = awesome();</code></pre></div>
 
- <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : 'a option -> int </h4> 
+ <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : (<a href="#type-SomeModule.option">option</a>('a)) => <a href="#type-SomeModule.int">int</a> </h4> 
 
 <div class='body '><p> Some more docs for you</p>
 <pre class='parse'><code class='parse'>z(None); /* 10 */
 z(Some(10)); /* 20 */</code></pre></div>
 
 <h4 class='module'> module <a href="#module-SomeModule.Something" id="module-SomeModule.Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
- <h4> let <a href="#value-SomeModule.Something.inner" id="value-SomeModule.Something.inner">inner</a> : int </h4> 
+ <h4> let <a href="#value-SomeModule.Something.inner" id="value-SomeModule.Something.inner">inner</a> : <a href="#type-SomeModule.Something.int">int</a> </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 </div>
 
- <h4> let <a href="#value-SomeModule.party" id="value-SomeModule.party">party</a> : unit -> int </h4> 
+ <h4> let <a href="#value-SomeModule.party" id="value-SomeModule.party">party</a> : (<a href="#type-SomeModule.unit">unit</a>) => <a href="#type-SomeModule.int">int</a> </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 
@@ -88,7 +91,7 @@ z(Some(10)); /* 20 */</code></pre></div>
 
 <div class='body'><span class='missing'>No documentation for this value</span></div>
 
- <h4> let <a href="#value-SomeModule.things" id="value-SomeModule.things">things</a> : unit -> float </h4> 
+ <h4> let <a href="#value-SomeModule.things" id="value-SomeModule.things">things</a> : (<a href="#type-SomeModule.unit">unit</a>) => <a href="#type-SomeModule.float">float</a> </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 
@@ -105,20 +108,20 @@ z(Some(10)); /* 20 */</code></pre></div>
 
 <div class='body'><span class='missing'>No documentation for this value</span></div>
 
- <h4> let <a href="#value-SomeModule.Inner.other" id="value-SomeModule.Inner.other">other</a> : int </h4> 
+ <h4> let <a href="#value-SomeModule.Inner.other" id="value-SomeModule.Inner.other">other</a> : <a href="#type-SomeModule.Inner.int">int</a> </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 </div>
 
- <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : Inner.otherParty </h4> 
+ <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : <a href="#module-SomeModule.Inner">Inner</a>.<a href="#type-SomeModule.Inner.otherParty">otherParty</a> </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 
- <h4> let <a href="#value-SomeModule.m" id="value-SomeModule.m">m</a> : bool </h4> 
+ <h4> let <a href="#value-SomeModule.m" id="value-SomeModule.m">m</a> : <a href="#type-SomeModule.bool">bool</a> </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 
- <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : Inner.otherParty option </h4> 
+ <h4> let <a href="#value-SomeModule.z" id="value-SomeModule.z">z</a> : <a href="#type-SomeModule.option">option</a>(<a href="#module-SomeModule.Inner">Inner</a>.<a href="#type-SomeModule.Inner.otherParty">otherParty</a>) </h4> 
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 

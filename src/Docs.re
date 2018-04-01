@@ -112,11 +112,30 @@ let rec findValueByName = (allDocs, name) => {
 };
 
 /* let module Awesomee =  Reason_toolchain.Reason_pprint_ast; */
-let reasonFormatter = Reason.Reason_pprint_ast.createFormatter();
+/* let reasonFormatter = Reason.Reason_pprint_ast.createFormatter(); */
 
-let printType = expr => {
-  Printtyp.type_expr(Format.str_formatter, expr);
-  Format.flush_str_formatter();
+let isUpperCase = t => t >= 'A' && t <= 'Z';
+
+let printType = (outerPath, expr) => {
+  let printer = {
+    ...PrintType.default,
+    path: (printer, path) => {
+      let full = String.concat(".", outerPath @ [PrintType.default.path(PrintType.default, path)]);
+      let show = name => Printf.sprintf({|<a href="#%s">%s</a>|}, (isUpperCase(name.[0]) ? "module-" : "type-") ++ full, name);
+      switch path {
+      | Pident({name}) => show(name)
+      | Pdot(inner, name, _) => printer.path(printer, inner) ++ "." ++ show(name)
+      | Papply(_, _) => "<papply>"
+      };
+    }
+  };
+  printer.expr(printer, expr)
+  /* Printtyp.type_expr(Format.str_formatter, expr); */
+  /* let ct = Untypeast.untype_core_type(expr);
+  Reason.Migrate_parsetree_402_403.copy_core_type(ct)
+  |> Reason.Migrate_parsetree_403_404.copy_core_type
+  |> reasonFormatter#core_type(Format.str_formatter); */
+  /* Format.flush_str_formatter(); */
 };
 
 let rec generateDoc = (path, (name, docstring, content)) => {
@@ -128,8 +147,9 @@ let rec generateDoc = (path, (name, docstring, content)) => {
     | Some(doc) => doc
     }, items) ++ "</div>"
   | Value(typ) => {
-    Printtyp.type_expr(Format.str_formatter, typ);
-    let t = Format.flush_str_formatter();
+    /* Printtyp.type_expr(Format.str_formatter, typ); */
+    /* let t = Format.flush_str_formatter(); */
+    let t = printType(path, typ);
     Printf.sprintf({| <h4> let <a href="#value-%s" id="value-%s">%s</a> : %s </h4> |}, id, id, name, String.trim(t)) ++ "\n\n<div class='body '>" ++ switch docstring {
     | None => "<span class='missing'>No documentation for this value</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))

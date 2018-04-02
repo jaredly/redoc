@@ -74,87 +74,152 @@ let rec collectArgs = (coll, typ) => switch typ.Types.desc {
 };
 
 type stringifier = {
-  path: (stringifier, Path.t) => string,
-  expr: (stringifier, Types.type_expr) => string,
-  ident: (stringifier, Ident.t) => string,
-  decl: (stringifier, string, Types.type_declaration) => string,
+  path: (stringifier, Format.formatter, Path.t) => unit,
+  expr: (stringifier, Format.formatter, Types.type_expr) => unit,
+  ident: (stringifier, Format.formatter, Ident.t) => unit,
+  decl: (stringifier, Format.formatter, string, string, Types.type_declaration) => unit,
 };
 
-let print_expr = (stringifier, typ) => {
+let commad_list = (fmt, items, loop) => {
+  Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, ",@ "), loop, fmt, items);
+};
+
+let sepd_list = (fmt, sep, items, loop) => {
+  Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, "@ %s", sep), loop, fmt, items);
+};
+
+let tuple_list = (fmt, items, loop) => {
+  Format.fprintf(fmt, "(@[@,");
+  commad_list(fmt, items, loop);
+  Format.fprintf(fmt, "@;<0 -4>@])");
+};
+
+let print_expr = (stringifier, fmt, typ) => {
   let loop = stringifier.expr(stringifier);
+  Format.fprintf(fmt, "@[<hov 4>");
   open Types;
   switch (typ.desc) {
-  | Tvar(None) => "'a"
-  | Tvar(Some(str)) => "'" ++ str
+  | Tvar(None) => Format.pp_print_string(fmt, "'a")
+  | Tvar(Some(str)) => Format.pp_print_string(fmt, "'" ++ str)
   | Tarrow(label, arg, res, _) => {
     let (args, result) = collectArgs([(label, arg)], res);
     let args = List.rev(args);
-    Printf.sprintf({|(%s) => %s|}, String.concat(", ", List.map(((label, typ)) => {
+    Format.fprintf(fmt, "(@[<hv 4>@,");
+    Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, ",@ "), (fmt, (label, typ)) => {
+      if (label == "") {
+        loop(fmt, typ)
+      } else {
+        Format.fprintf(fmt, "~%s: ", label);
+        loop(fmt, typ)
+      }
+    }, fmt, args);
+    Format.fprintf(fmt, "@;<0 -4>@]) => ");
+    loop(fmt, result);
+    /* Format.fprintf(fmt, {|(%s) => %s|}, String.concat(", ", List.map(((label, typ)) => {
       if (label == "") {
         loop(typ)
       } else {
         Printf.sprintf("~%s: %s", label, loop(typ))
       }
-    }, args)), loop(result))
+    }, args)), loop(result)) */
   }
-  | Ttuple(items) => "(" ++ String.concat(", ", List.map(loop, items)) ++ ")"
-  | Tconstr(path, args, _) => stringifier.path(stringifier, path) ++ (switch args {
-    | [] => ""
-    | args => "(" ++ String.concat(", ", List.map(loop, args)) ++ ")"
-    })
-  | Tobject(_, _) => "<object>"
-  | Tfield(_, _, _, _) => "<field>"
-  | Tnil => "nil"
-  | Tlink(inner) => loop(inner)
-  | Tsubst(inner) => loop(inner)
-  | Tvariant(_) => "<variant>"
-  | Tunivar(_) => "<univar>"
-  | Tpoly(_, _) => "<poly>"
-  | Tpackage(_, _, _) => "<package>"
+  | Ttuple(items) => {
+    tuple_list(fmt, items, loop);
+    /* Format.pp_print_string(fmt, "(");
+    Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, ",@ "), loop, fmt, items);
+    Format.pp_print_string(fmt, ")"); */
+    /* "(" ++ String.concat(", ", List.map(loop, items)) ++ ")" */
   }
-};
-
-let print_constructor = (loop, {Types.cd_id: {name}, cd_args, cd_res}) => {
-  name ++ (switch cd_args {
-  | [] => ""
-  | args => "(" ++ String.concat(", ", List.map(loop, args)) ++ ")"
-  }) ++ (switch cd_res {
-  | None => ""
-  | Some(typ) => ": " ++ loop(typ)
-  })
-};
-
-let print_attr = (printer, {Types.ld_id, ld_mutable, ld_type}) => {
-  switch ld_mutable {
-  | Asttypes.Immutable => ""
-  | Mutable => "mut "
-  } ++ printer.ident(printer, ld_id) ++ ": " ++ printer.expr(printer, ld_type)
-};
-
-let print_decl = (stringifier, name, decl) => {
-  open Types;
-  let args = switch decl.type_params {
-  | [] => ""
-  | args => "(" ++ String.concat(", ", List.map(stringifier.expr(stringifier), args)) ++ ")"
+  | Tconstr(path, args, _) => {
+    stringifier.path(stringifier, fmt, path);
+    switch args {
+    | [] => ()
+    | args => tuple_list(fmt, args, loop)
+    /* "(" ++ String.concat(", ", List.map(loop, args)) ++ ")" */
+    }
+  }
+  | Tobject(_, _) => Format.pp_print_string(fmt, "<object>")
+  | Tfield(_, _, _, _) => Format.pp_print_string(fmt, "<field>")
+  | Tnil => Format.pp_print_string(fmt, "nil")
+  | Tlink(inner) => loop(fmt, inner)
+  | Tsubst(inner) => loop(fmt, inner)
+  | Tvariant(_) => Format.pp_print_string(fmt, "<variant>")
+  | Tunivar(_) => Format.pp_print_string(fmt, "<univar>")
+  | Tpoly(_, _) => Format.pp_print_string(fmt, "<poly>")
+  | Tpackage(_, _, _) => Format.pp_print_string(fmt, "<package>")
   };
-  let left = "type " ++ name ++ args;
-  switch decl.type_kind {
-  | Type_abstract => left
-  | Type_open => left ++ " = .."
-  | Type_record(labels, representation) => left ++ " = {\n  " ++ String.concat(",\n  ", List.map(print_attr(stringifier), labels)) ++ "\n}"
-  | Type_variant(constructors) => left ++ " =\n  | " ++ String.concat("\n  | ", List.map(print_constructor(stringifier.expr(stringifier)), constructors))
-  } ++ (switch decl.type_manifest {
-  | None => ""
-  | Some(manifest) => " = " ++ stringifier.expr(stringifier, manifest)
+  Format.fprintf(fmt, "@]");
+};
+
+let print_constructor = (loop, fmt, {Types.cd_id: {name}, cd_args, cd_res}) => {
+  Format.pp_print_string(fmt, name);
+  (switch cd_args {
+  | [] => ()
+  | args => tuple_list(fmt, args, loop)
+  /* "(" ++ String.concat(", ", List.map(loop, args)) ++ ")" */
+  });
+  (switch cd_res {
+  | None => ()
+  | Some(typ) => {
+    Format.pp_print_string(fmt, ": ");
+    loop(fmt, typ)
+  }
   })
+};
+
+let print_attr = (printer, fmt, {Types.ld_id, ld_mutable, ld_type}) => {
+  switch ld_mutable {
+  | Asttypes.Immutable => ()
+  | Mutable => Format.pp_print_string(fmt, "mut ")
+  };
+  printer.ident(printer, fmt, ld_id);
+  Format.pp_print_string(fmt,  ": ");
+  printer.expr(printer, fmt, ld_type);
+};
+
+let print_decl = (stringifier, fmt, realName, name, decl) => {
+  open Types;
+  Format.fprintf(fmt, "@[<hv 4>");
+  Format.pp_print_string(fmt, "type ");
+  Format.pp_print_as(fmt, String.length(realName), name);
+  /* Format.fprintf(fmt, "type %s", name); */
+  switch decl.type_params {
+  | [] => ()
+  | args => tuple_list(fmt, args, stringifier.expr(stringifier))
+  /* "(" ++ String.concat(", ", List.map(stringifier.expr(stringifier), args)) ++ ")" */
+  };
+  switch decl.type_kind {
+  | Type_abstract => ()
+  | Type_open => Format.pp_print_string(fmt, " = ..")
+  | Type_record(labels, representation) => {
+    Format.fprintf(fmt, " = {@[@,");
+    commad_list(fmt, labels, print_attr(stringifier));
+    Format.fprintf(fmt, "@;<0 -4>@]}");
+    /* " = {\n  " ++ String.concat(",\n  ", List.map(print_attr(stringifier, fmt), labels)) ++ "\n}" */
+  }
+  | Type_variant(constructors) => {
+    Format.fprintf(fmt, " =\n @[| ");
+    sepd_list(fmt, "| ", constructors, print_constructor(stringifier.expr(stringifier)));
+     /* String.concat("\n  | ", List.map(print_constructor(stringifier.expr(stringifier)), constructors)) */
+    Format.fprintf(fmt, "@]");
+  }
+  };
+  switch decl.type_manifest {
+  | None => ()
+  | Some(manifest) => {
+    Format.pp_print_string(fmt, " = ");
+    stringifier.expr(stringifier, fmt, manifest)
+  }
+  };
+  Format.fprintf(fmt, "@]");
 };
 
 let default = {
-  ident: (_, {Ident.name}) => name,
-  path: (stringifier, path) => switch path {
-    | Path.Pident(ident) => stringifier.ident(stringifier, ident)
-    | Pdot(path, name, _) => stringifier.path(stringifier, path) ++ "." ++ name
-    | Papply(_, _) => "<apply>"
+  ident: (_, fmt, {Ident.name}) => Format.pp_print_string(fmt, name),
+  path: (stringifier, fmt, path) => switch path {
+    | Path.Pident(ident) => stringifier.ident(stringifier, fmt, ident)
+    | Pdot(path, name, _) => {stringifier.path(stringifier, fmt, path); Format.pp_print_string(fmt, "." ++ name)}
+    | Papply(_, _) => Format.pp_print_string(fmt, "<apply>")
   },
   expr: print_expr,
   decl: print_decl,

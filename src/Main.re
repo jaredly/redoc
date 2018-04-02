@@ -5,16 +5,22 @@ let annotateSourceCode = (source, cmt, mlast, output) => {
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
   let (types, bindings, externals, all_opens, locToPath) = Typing.collectTypes(annots);
   let text = Files.readFile(source) |> unwrap("Unable to read source file");
-  let structure = ReadMlast.read_ast(mlast);
+  let structure = ReadMlast.structure(mlast);
   let (highlighted, typeText) = Highlighting.highlight(text, structure, types, bindings, externals, all_opens, locToPath);
   Files.writeFile(output, Template.make(highlighted, typeText)) |> ignore;
 };
 
 let generateDocs = (cmt, mlast, output) => {
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
-  let structure = ReadMlast.read_ast(mlast);
+  /* let structure = ReadMlast.read_ast(mlast); */
 
-  let text = Docs.generate("SomeModule", structure, annots);
+  let input = switch annots {
+  | Cmt_format.Implementation(structure) => `Structure(structure, ReadMlast.structure(mlast))
+  | Cmt_format.Interface(signature) => `Signature(signature, ReadMlast.signature(mlast))
+  | _ => failwith("Not a valid cmt file")
+  };
+
+  let text = Docs.generate("SomeModule", input);
   Files.writeFile(output, text) |> ignore;
 };
 

@@ -1,0 +1,83 @@
+
+<!doctype html>
+<meta charset=utf8>
+<style>
+body {
+  font-family: system-ui;
+  font-weight: 200;
+  max-width: 600px;
+  margin: 48px auto;
+}
+.body {
+  margin-left: 24px;
+  margin-bottom: 48px;
+}
+.missing {
+  font-style: italic;
+  color: #777;
+}
+h1, h2 {
+  margin-top: 24px;
+}
+h4.item {
+  font-family: sf mono, monospace;
+  font-weight: 400;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  white-space: pre;
+}
+h4.module {
+  font-size: 110%;
+  font-weight: 600;
+}
+.module-body {
+  border-left: 5px solid #ddd;
+  padding-left: 24px;
+}
+
+a {
+  text-decoration: none;
+}
+a:hover, a:focus {
+  text-decoration: underline;
+}
+
+</style>
+<title>SomeModule</title>
+<body>
+<p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+ <h4 class='item'>let <a href="#value-hotreload" id="value-hotreload">hotreload</a> : (<a href="globals.html#type-string">string</a>) => <a href="globals.html#type-bool">bool</a></h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+
+ <h4 class='item'>let <a href="#value-target" id="value-target">target</a> : <a href="globals.html#type-string">string</a></h4> 
+
+<div class='body '><span class='missing'>No documentation for this value</span></div>
+
+ <h4 class='item'>let <a href="#value-run" id="value-run">run</a> : (
+     ~setup: (<a href="globals.html#type-glEnvT">glEnvT</a>) => 'a,
+     ~?draw: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?mouseMove: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?mouseDragged: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?mouseDown: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?mouseUp: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?touchMove: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?touchStart: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?touchEnd: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?keyPressed: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?keyReleased: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?keyTyped: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
+     ~?backPressed: <a href="globals.html#type-option">option</a>(
+                           ('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 
+                               <a href="globals.html#type-option">option</a>('a)
+                       ),
+     ~?title: <a href="globals.html#type-option">option</a>(<a href="globals.html#type-string">string</a>),
+     <a href="globals.html#type-unit">unit</a>
+ ) => <a href="globals.html#type-unit">unit</a></h4> 
+
+<div class='body '><p> Entrypoint to the graphics library. The system
+ is designed for you to return a self-defined &#39;state&#39;
+ object from setup, which will then be passed to every
+ callback you choose to implement. Updating the state
+ is done by returning a different value from the callback.</p>
+</div>

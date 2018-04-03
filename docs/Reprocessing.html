@@ -15,8 +15,13 @@ body {
   font-size: 20px;
   letter-spacing: 1px;
 }
+.body-empty,
+.include-body .body {
+  margin-bottom: 16px;
+}
 .missing {
   font-style: italic;
+  font-size: 16px;
   color: #777;
 }
 h1, h2 {
@@ -53,8 +58,12 @@ a:hover, a:focus {
   text-decoration: underline;
 }
 
+.doc-item {
+  font-size: 16px;
+}
+
 #error-message {
-  display: block;
+  display: none;
   background-color: #fde6e6;
   padding: 8px 16px;
   border-radius: 4px;
@@ -81,18 +90,47 @@ window.onhashchange = checkHash
 <title>Reprocessing</title>
 <body>
 <div id='error-message'>
-  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>. This might be due to an <code>include</code>, or a module alias. We don't handle those right now :/ but hopefully you can find your way around.
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
 </div>
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<h4 class='item'>let <a href="#value-hotreload" id="value-hotreload">hotreload</a> = (<a href="globals.html#type-string">string</a>) => <a href="globals.html#type-bool">bool</a></h4>
+<div class='doc-item'><h4 class='item module'> include Reprocessing_Types.TypesT</h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>type <a href="#type-glEnvT" id="type-glEnvT">glEnvT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a></h4>
 
-<div class='body '><span class='missing'>No documentation for this value</span></div>
+<div class='body body-empty'></div></div>
 
-<h4 class='item'>let <a href="#value-target" id="value-target">target</a> = <a href="globals.html#type-string">string</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-colorT" id="type-colorT">colorT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-colorT">colorT</a></h4>
 
-<div class='body '><span class='missing'>No documentation for this value</span></div>
+<div class='body body-empty'></div></div>
 
-<h4 class='item'>let <a href="#value-run" id="value-run">run</a> = (
+<div class='doc-item'><h4 class='item'>type <a href="#type-imageT" id="type-imageT">imageT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-imageT">imageT</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-fontT" id="type-fontT">fontT</a> = <a href="Reprocessing_Font.html">Reprocessing_Font</a>.<a href="Reprocessing_Font.html#type-fontT">fontT</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-strokeCapT" id="type-strokeCapT">strokeCapT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-strokeCapT">strokeCapT</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-rectModeT" id="type-rectModeT">rectModeT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-rectModeT">rectModeT</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-soundT" id="type-soundT">soundT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-soundT">soundT</a></h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-hotreload" id="value-hotreload">hotreload</a> = (<a href="globals.html#type-string">string</a>) => <a href="globals.html#type-bool">bool</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-target" id="value-target">target</a> = <a href="globals.html#type-string">string</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-run" id="value-run">run</a> = (
     ~setup: (<a href="#type-glEnvT">glEnvT</a>) => 'a,
     ~?draw: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
     ~?mouseMove: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
@@ -115,4 +153,4 @@ window.onhashchange = checkHash
  object from setup, which will then be passed to every
  callback you choose to implement. Updating the state
  is done by returning a different value from the callback.</p>
-</div>
+</div></div>

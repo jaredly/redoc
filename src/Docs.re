@@ -55,9 +55,13 @@ let generate = (name, input) => {
       }
       }
     } else {
+      /* print_endline("Href " ++ modName ++ " " ++ String.concat(".", inner)); */
       modName
     };
-    let hash = "#" ++ GenerateDoc.makeId(inner, ptype);
+    let hash = switch inner {
+    | [] => ""
+    | inner => "#" ++ GenerateDoc.makeId(inner, ptype)
+    };
     if (modName == name) {
       hash
     } else {

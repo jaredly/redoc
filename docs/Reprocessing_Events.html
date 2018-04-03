@@ -15,8 +15,13 @@ body {
   font-size: 20px;
   letter-spacing: 1px;
 }
+.body-empty,
+.include-body .body {
+  margin-bottom: 16px;
+}
 .missing {
   font-style: italic;
+  font-size: 16px;
   color: #777;
 }
 h1, h2 {
@@ -53,8 +58,12 @@ a:hover, a:focus {
   text-decoration: underline;
 }
 
+.doc-item {
+  font-size: 16px;
+}
+
 #error-message {
-  display: block;
+  display: none;
   background-color: #fde6e6;
   padding: 8px 16px;
   border-radius: 4px;
@@ -81,23 +90,23 @@ window.onhashchange = checkHash
 <title>Reprocessing_Events</title>
 <body>
 <div id='error-message'>
-  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>. This might be due to an <code>include</code>, or a module alias. We don't handle those right now :/ but hopefully you can find your way around.
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
 </div>
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<h4 class='item'>type <a href="#type-buttonStateT" id="type-buttonStateT">buttonStateT</a> = 
+<div class='doc-item'><h4 class='item'>type <a href="#type-buttonStateT" id="type-buttonStateT">buttonStateT</a> = 
     | LeftButton
     | MiddleButton
     | RightButton
- = <a href="Reasongl.html#type-">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Events.Gl">Events</a>.<a href="Reasongl.html#module-buttonStateT.Events.Gl">buttonStateT</a></h4>
+ = <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Events">Events</a>.<a href="Reasongl.html#type-Gl.Events.buttonStateT">buttonStateT</a></h4>
 
-<div class='body'><span class='missing'>No documentation for this value</span></div>
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<h4 class='item'>type <a href="#type-stateT" id="type-stateT">stateT</a> = | MouseDown | MouseUp
- = <a href="Reasongl.html#type-">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Events.Gl">Events</a>.<a href="Reasongl.html#module-stateT.Events.Gl">stateT</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-stateT" id="type-stateT">stateT</a> = | MouseDown | MouseUp
+ = <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Events">Events</a>.<a href="Reasongl.html#type-Gl.Events.stateT">stateT</a></h4>
 
-<div class='body'><span class='missing'>No documentation for this value</span></div>
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<h4 class='item'>type <a href="#type-keycodeT" id="type-keycodeT">keycodeT</a> = 
+<div class='doc-item'><h4 class='item'>type <a href="#type-keycodeT" id="type-keycodeT">keycodeT</a> = 
     | Backspace
     | Tab
     | Enter
@@ -164,10 +173,10 @@ window.onhashchange = checkHash
     | CapsLock
     | Backtick
     | Nothing
- = <a href="Reasongl.html#type-">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Events.Gl">Events</a>.<a href="Reasongl.html#module-keycodeT.Events.Gl">keycodeT</a></h4>
+ = <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Events">Events</a>.<a href="Reasongl.html#type-Gl.Events.keycodeT">keycodeT</a></h4>
 
-<div class='body'><span class='missing'>No documentation for this value</span></div>
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<h4 class='item'>let <a href="#value-keycodeMap" id="value-keycodeMap">keycodeMap</a> = (<a href="globals.html#type-int">int</a>) => <a href="#type-keycodeT">keycodeT</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-keycodeMap" id="value-keycodeMap">keycodeMap</a> = (<a href="globals.html#type-int">int</a>) => <a href="#type-keycodeT">keycodeT</a></h4>
 
-<div class='body '><span class='missing'>No documentation for this value</span></div>
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>

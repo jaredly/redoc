@@ -30,7 +30,7 @@ let rec findValueByName = (allDocs, name) => {
 
 let isUpperCase = t => t >= 'A' && t <= 'Z';
 
-let appendToPath = ((name, inner), items) => (name, inner @ items);
+/* let appendToPath = ((name, inner), items) => (name, inner @ items); */
 
 let rec processPath = (stampsToPaths, collector, path, ptype) => {
   switch path {
@@ -39,16 +39,16 @@ let rec processPath = (stampsToPaths, collector, path, ptype) => {
   | exception Not_found => ("<global>", [name], ptype)
   | (modName, inner, pp) => (modName, inner @ collector, ptype)
   }
-  | Path.Pdot(inner, name, _) => processPath(stampsToPaths, collector @ [name], inner, PModule)
+  | Path.Pdot(inner, name, _) => processPath(stampsToPaths, [name, ...collector], inner, ptype)
   | Papply(_, _) => assert(false)
   }
 };
 
-let printer = (formatHref, stampsToPaths) => {
+let printer = (formatHref, stampsToPaths, topType) => {
   ...PrintType.default,
-  path: (printer, path) => {
+  path: (printer, path, pathType) => {
     let (@!) = Pretty.append;
-    let fullPath = processPath(stampsToPaths, [], path, PType);
+    let fullPath = processPath(stampsToPaths, [], path, pathType);
     let full = formatHref(fullPath);
     let show = name => {
       let tag = Printf.sprintf({|<a href="%s">%s</a>|}, full, name);
@@ -57,7 +57,7 @@ let printer = (formatHref, stampsToPaths) => {
     switch path {
     | Pident({name}) => show(name)
     | Pdot(inner, name, _) => {
-      printer.path(printer, inner) @! Pretty.text(".") @! show(name)}
+      printer.path(printer, inner, PModule) @! Pretty.text(".") @! show(name)}
     | Papply(_, _) => Pretty.text("<papply>")
     };
   }
@@ -88,44 +88,57 @@ let prettyString = doc => {
   Buffer.to_bytes(buffer) |> Bytes.to_string
 };
 
-let rec generateDoc = (formatHref, stampsToPaths, path, (name, docstring, content)) => {
+let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, (name, docstring, content)) => {
   open PrepareDocs.T;
   let id = makeId(path @ [name]);
+  "<div class='doc-item'>" ++
   switch content {
   | Module(items) => Printf.sprintf({|<h4 class='item module'> module <a href="#%s" id="%s">%s</a></h4><div class='body module-body'>|}, id(PModule), id(PModule), name) ++
-  docsForModule(formatHref, stampsToPaths, path @ [name], name, switch docstring {
+  docsForModule(~skipDoc, formatHref, stampsToPaths, path @ [name], name, switch docstring {
     | None => defaultMain(name)
     | Some(doc) => doc
     }, items) ++ "</div>"
+  | Include(maybePath, contents) => {
+    /* TODO hyperlink the path */
+    let name = switch maybePath {
+    | None => ""
+    | Some(path) => Path.name(path)
+    };
+    Printf.sprintf({|<h4 class='item module'> include %s</h4><div class='body module-body include-body'>|}, name) ++
+    docsForModule(~skipDoc=true, formatHref, stampsToPaths, path, name, switch docstring {
+    | None => "@all"
+    | Some(doc) => doc
+    }, contents) ++ "</div>"
+  }
   | Value(typ) => {
-    let printer = printer(formatHref, stampsToPaths);
+    let printer = printer(formatHref, stampsToPaths, PValue);
     let link = Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id(PValue), id(PValue), name);
     let t = printer.value(printer, name, link, typ) |> prettyString;
-    Printf.sprintf("<h4 class='item'>%s</h4>\n\n<div class='body '>", t)
+    Printf.sprintf("<h4 class='item'>%s</h4>\n\n<div class='body %s'>", t, docstring == None ? "body-empty" : "")
      ++ switch docstring {
-    | None => "<span class='missing'>No documentation for this value</span>"
+    | None => skipDoc ? "" : "<span class='missing'>No documentation for this value</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))
     } ++ "</div>"
   }
   | Type(typ) => {
     let link = Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id(PType), id(PType), name);
-    let printer = printer(formatHref, stampsToPaths);
+    let printer = printer(formatHref, stampsToPaths, PType);
     let t = printer.decl(printer, name, link, typ) |> prettyString;
-    "<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body'>" ++ switch docstring {
-    | None => "<span class='missing'>No documentation for this value</span>"
+    "<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body " ++ (docstring == None ? "body-empty" : "") ++ "'>" ++ switch docstring {
+    | None => skipDoc ? "" : "<span class='missing'>No documentation for this type</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))
     } ++ "</div>"
   }
   | StandaloneDoc(doc) => Omd.to_html(Omd.of_string(doc))
-  }
+  } ++ "</div>"
 }
 
-and docsForModule = (formatHref, stampsToPaths, path, name, main, contents) => {
+and docsForModule = (~skipDoc=false, formatHref, stampsToPaths, path, name, main, contents) => {
   let md = Omd.of_string(main);
   let html = Omd.to_html(md);
 
   let html = Str.global_substitute(Str.regexp_string("<p>@all</p>"), text => {
-    List.map(generateDoc(formatHref, stampsToPaths, path), List.rev(contents)) |> String.concat("\n\n")
+    List.map(generateDoc(~skipDoc, formatHref, stampsToPaths, path), List.rev(contents)) |> String.concat("\n\n")
   }, html);
 
   let html = Str.global_substitute(Str.regexp("<p>@doc [^<]+</p>"), text => {
@@ -134,7 +147,7 @@ and docsForModule = (formatHref, stampsToPaths, path, name, main, contents) => {
     let items = Str.split(Str.regexp_string(","), raw) |> List.map(String.trim);
     items |> List.map(name => switch (findByName(contents, name)) {
     | None => failwith("Invalid doc item referenced: " ++ name)
-    | Some(doc) => generateDoc(formatHref, stampsToPaths, path, doc)
+    | Some(doc) => generateDoc(~skipDoc, formatHref, stampsToPaths, path, doc)
     }) |> String.concat("\n\n");
   }, html);
 
@@ -159,8 +172,13 @@ body {
   font-size: 20px;
   letter-spacing: 1px;
 }
+.body-empty,
+.include-body .body {
+  margin-bottom: 16px;
+}
 .missing {
   font-style: italic;
+  font-size: 16px;
   color: #777;
 }
 h1, h2 {
@@ -197,8 +215,12 @@ a:hover, a:focus {
   text-decoration: underline;
 }
 
+.doc-item {
+  font-size: 16px;
+}
+
 #error-message {
-  display: block;
+  display: none;
   background-color: #fde6e6;
   padding: 8px 16px;
   border-radius: 4px;
@@ -225,6 +247,6 @@ window.onhashchange = checkHash
 <title>%s</title>
 <body>
 <div id='error-message'>
-  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>. This might be due to an <code>include</code>, or a module alias. We don't handle those right now :/ but hopefully you can find your way around.
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
 </div>
 |}, name);

@@ -6,8 +6,10 @@ let rec collectArgs = (coll, typ) => switch typ.Types.desc {
 | _ => (coll, typ)
 };
 
+type pathType = PModule | PModuleType | PValue | PType;
+
 type stringifier = {
-  path: (stringifier, Path.t) => Pretty.doc,
+  path: (stringifier, Path.t, pathType) => Pretty.doc,
   expr: (stringifier, Types.type_expr) => Pretty.doc,
   ident: (stringifier, Ident.t) => Pretty.doc,
   decl: (stringifier, string, string, Types.type_declaration) => Pretty.doc,
@@ -68,7 +70,7 @@ let print_expr = (stringifier, typ) => {
   }
   | Ttuple(items) => tuple_list(items, loop)
   | Tconstr(path, args, _) => {
-    stringifier.path(stringifier, path) @!
+    stringifier.path(stringifier, path, PType) @!
     switch args {
     | [] => Pretty.empty
     | args => tuple_list(args, loop)
@@ -150,9 +152,9 @@ let print_decl = (stringifier, realName, name, decl) => {
 
 let default = {
   ident: (_, {Ident.name}) => str(name),
-  path: (stringifier, path) => switch path {
+  path: (stringifier, path, pathType) => switch path {
     | Path.Pident(ident) => stringifier.ident(stringifier, ident)
-    | Pdot(path, name, _) => {stringifier.path(stringifier, path) @! str("." ++ name)}
+    | Pdot(path, name, _) => {stringifier.path(stringifier, path, pathType) @! str("." ++ name)}
     | Papply(_, _) => str("<apply>")
   },
   value: print_value,

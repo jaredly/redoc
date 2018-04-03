@@ -48,7 +48,7 @@ let parseCodeBlock = (codeBlock) => {
   let astFile = txt ++ ".ast";
   /* TODO get a real tmpfile */
   Files.writeFile(txt, codeBlock) |> ignore;
-  let (_, success) = Commands_native.execSync(~cmd="refmt --print binary --parse re < " ++ txt ++ " > " ++ astFile, ());
+  let (_, _success) = Commands_native.execSync(~cmd="refmt --print binary --parse re < " ++ txt ++ " > " ++ astFile, ());
   let ic = open_in_bin(astFile);
   let ast: Parsetree.structure = ReadMlast.read_ml_ast(ic);
   close_in(ic);

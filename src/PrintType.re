@@ -7,138 +7,160 @@ let rec collectArgs = (coll, typ) => switch typ.Types.desc {
 };
 
 type stringifier = {
-  path: (stringifier, Format.formatter, Path.t) => unit,
-  expr: (stringifier, Format.formatter, Types.type_expr) => unit,
-  ident: (stringifier, Format.formatter, Ident.t) => unit,
-  decl: (stringifier, Format.formatter, string, string, Types.type_declaration) => unit,
+  path: (stringifier, Path.t) => Pretty.doc,
+  expr: (stringifier, Types.type_expr) => Pretty.doc,
+  ident: (stringifier, Ident.t) => Pretty.doc,
+  decl: (stringifier, string, string, Types.type_declaration) => Pretty.doc,
+  value: (stringifier, string, string, Types.type_expr) => Pretty.doc,
 };
 
-let commad_list = (fmt, items, loop) => {
-  Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, ",@ "), loop, fmt, items);
+let break = Pretty.line("");
+let space = Pretty.line(" ");
+
+let str = Pretty.text;
+let (@!) = Pretty.append;
+
+let sepd_list = (sep, items, loop) => {
+  let rec recur = items => switch items {
+    | [] => Pretty.empty
+    | [one] => loop(one)
+    | [one, ...more] => loop(one) @! sep @! recur(more)
+  };
+  recur(items)
+  /* Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, "@ %s", sep), loop, fmt, items); */
 };
 
-let sepd_list = (fmt, sep, items, loop) => {
-  Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, "@ %s", sep), loop, fmt, items);
+let commad_list = (loop, items) => {
+  sepd_list(str(",") @! space, items, loop)
+  /* Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, ",@ "), loop, fmt, items); */
 };
 
-let tuple_list = (fmt, items, loop) => {
-  Format.fprintf(fmt, "(@[@,");
-  commad_list(fmt, items, loop);
-  Format.fprintf(fmt, "@;<0 -4>@])");
+let indentGroup = doc => Pretty.indent(4, Pretty.group(doc));
+
+let tuple_list = (items, loop) => {
+  str("(") @! indentGroup(break @!
+  /* Format.fprintf(fmt, "(@[@,"); */
+  commad_list(loop, items) @!
+  break) @!
+  str(")")
+  /* Format.fprintf(fmt, "@;<0 -4>@])"); */
 };
 
-let print_expr = (stringifier, fmt, typ) => {
+let print_expr = (stringifier, typ) => {
   let loop = stringifier.expr(stringifier);
-  Format.fprintf(fmt, "@[<hov 4>");
   open Types;
   switch (typ.desc) {
-  | Tvar(None) => Format.pp_print_string(fmt, "'a")
-  | Tvar(Some(str)) => Format.pp_print_string(fmt, "'" ++ str)
+  | Tvar(None) => str("'a")
+  | Tvar(Some(s)) => str("'" ++ s)
   | Tarrow(label, arg, res, _) => {
     let (args, result) = collectArgs([(label, arg)], res);
     let args = List.rev(args);
-    Format.fprintf(fmt, "(@[<hv 4>@,");
-    Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, ",@ "), (fmt, (label, typ)) => {
+    str("(") @!
+    indentGroup(
+      break @!
+    commad_list(((label, typ)) => {
       if (label == "") {
-        loop(fmt, typ)
+        loop(typ)
       } else {
-        Format.fprintf(fmt, "~%s: ", label);
-        loop(fmt, typ)
+        str("~" ++ label ++ ": ") @! indentGroup(loop(typ))
       }
-    }, fmt, args);
-    Format.fprintf(fmt, "@;<0 -4>@]) => ");
-    loop(fmt, result);
+    }, args)
+    @! break
+    ) @! str(") => ") @!
+    /* Format.fprintf(fmt, "@;<0 -4>@]) => "); */
+    loop(result);
   }
-  | Ttuple(items) => tuple_list(fmt, items, loop)
+  | Ttuple(items) => tuple_list(items, loop)
   | Tconstr(path, args, _) => {
-    stringifier.path(stringifier, fmt, path);
+    stringifier.path(stringifier, path) @!
     switch args {
-    | [] => ()
-    | args => tuple_list(fmt, args, loop)
+    | [] => Pretty.empty
+    | args => tuple_list(args, loop)
     }
   }
-  | Tobject(_, _) => Format.pp_print_string(fmt, "<object>")
-  | Tfield(_, _, _, _) => Format.pp_print_string(fmt, "<field>")
-  | Tnil => Format.pp_print_string(fmt, "nil")
-  | Tlink(inner) => loop(fmt, inner)
-  | Tsubst(inner) => loop(fmt, inner)
-  | Tvariant(_) => Format.pp_print_string(fmt, "<variant>")
-  | Tunivar(_) => Format.pp_print_string(fmt, "<univar>")
-  | Tpoly(_, _) => Format.pp_print_string(fmt, "<poly>")
-  | Tpackage(_, _, _) => Format.pp_print_string(fmt, "<package>")
-  };
-  Format.fprintf(fmt, "@]");
+  | Tobject(_, _) => str("<object>")
+  | Tfield(_, _, _, _) => str("<field>")
+  | Tnil => str("nil")
+  | Tlink(inner) => loop(inner)
+  | Tsubst(inner) => loop(inner)
+  | Tvariant(_) => str("<variant>")
+  | Tunivar(_) => str("<univar>")
+  | Tpoly(_, _) => str("<poly>")
+  | Tpackage(_, _, _) => str("<package>")
+  }
 };
 
-let print_constructor = (loop, fmt, {Types.cd_id: {name}, cd_args, cd_res}) => {
-  Format.pp_print_string(fmt, name);
+let print_constructor = (loop, {Types.cd_id: {name}, cd_args, cd_res}) => {
+  str(name) @!
   (switch cd_args {
-  | [] => ()
-  | args => tuple_list(fmt, args, loop)
-  /* "(" ++ String.concat(", ", List.map(loop, args)) ++ ")" */
-  });
+  | [] => Pretty.empty
+  | args => tuple_list(args, loop)
+  }) @!
   (switch cd_res {
-  | None => ()
+  | None => Pretty.empty
   | Some(typ) => {
-    Format.pp_print_string(fmt, ": ");
-    loop(fmt, typ)
+    str(": ") @!
+    loop(typ)
   }
   })
 };
 
-let print_attr = (printer, fmt, {Types.ld_id, ld_mutable, ld_type}) => {
-  Format.fprintf(fmt, "@[<hov>");
+let print_attr = (printer, {Types.ld_id, ld_mutable, ld_type}) => {
   switch ld_mutable {
-  | Asttypes.Immutable => ()
-  | Mutable => Format.pp_print_string(fmt, "mut ")
-  };
-  printer.ident(printer, fmt, ld_id);
-  Format.pp_print_string(fmt,  ": ");
-  printer.expr(printer, fmt, ld_type);
-  Format.fprintf(fmt, "@]");
+  | Asttypes.Immutable => Pretty.empty
+  | Mutable => str("mut ")
+  } @!
+  printer.ident(printer, ld_id) @!
+  str( ": ") @!
+  printer.expr(printer, ld_type);
 };
 
-let print_decl = (stringifier, fmt, realName, name, decl) => {
+let print_value = (stringifier, realName, name, decl) => {
+  str("let ") @!
+  str(~len=String.length(realName), name) @!
+  str(" = ") @! stringifier.expr(stringifier, decl)
+};
+
+let print_decl = (stringifier, realName, name, decl) => {
   open Types;
-  Format.fprintf(fmt, "@[<hv 4>");
-  Format.pp_print_string(fmt, "type ");
-  Format.pp_print_as(fmt, String.length(realName), name);
-  /* Format.fprintf(fmt, "type %s", name); */
+  str("type ") @!
+  str(~len=String.length(realName), name) @!
   switch decl.type_params {
-  | [] => ()
-  | args => tuple_list(fmt, args, stringifier.expr(stringifier))
-  };
+  | [] => Pretty.empty
+  | args => tuple_list(args, stringifier.expr(stringifier))
+  } @!
   switch decl.type_kind {
-  | Type_abstract => ()
-  | Type_open => Format.pp_print_string(fmt, " = ..")
+  | Type_abstract => Pretty.empty
+  | Type_open => str(" = ..")
   | Type_record(labels, representation) => {
-    Format.fprintf(fmt, " = {@[@,");
-    commad_list(fmt, labels, print_attr(stringifier));
-    Format.fprintf(fmt, "@;<0 -4>@]}");
+    str(" = {") @! indentGroup(break @!
+    commad_list(print_attr(stringifier), labels)
+     @! break) @! str("}")
   }
   | Type_variant(constructors) => {
-    Format.fprintf(fmt, " =\n @[| ");
-    sepd_list(fmt, "| ", constructors, print_constructor(stringifier.expr(stringifier)));
-    Format.fprintf(fmt, "@]");
+    str(" = ") @! indentGroup(break @! str("| ") @!
+      sepd_list(space @! str("| "), constructors, print_constructor(stringifier.expr(stringifier)))
+    ) @! break
   }
-  };
+  } @!
   switch decl.type_manifest {
-  | None => ()
+  | None => Pretty.empty
   | Some(manifest) => {
-    Format.pp_print_string(fmt, " = ");
-    stringifier.expr(stringifier, fmt, manifest)
+    str(" = ") @!
+    stringifier.expr(stringifier, manifest)
   }
   };
-  Format.fprintf(fmt, "@]");
+  /* Format.fprintf(fmt, "@]"); */
 };
 
 let default = {
-  ident: (_, fmt, {Ident.name}) => Format.pp_print_string(fmt, name),
-  path: (stringifier, fmt, path) => switch path {
-    | Path.Pident(ident) => stringifier.ident(stringifier, fmt, ident)
-    | Pdot(path, name, _) => {stringifier.path(stringifier, fmt, path); Format.pp_print_string(fmt, "." ++ name)}
-    | Papply(_, _) => Format.pp_print_string(fmt, "<apply>")
+  ident: (_, {Ident.name}) => str(name),
+  path: (stringifier, path) => switch path {
+    | Path.Pident(ident) => stringifier.ident(stringifier, ident)
+    | Pdot(path, name, _) => {stringifier.path(stringifier, path) @! str("." ++ name)}
+    | Papply(_, _) => str("<apply>")
   },
+  value: print_value,
   expr: print_expr,
   decl: print_decl,
 };

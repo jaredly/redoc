@@ -46,18 +46,20 @@ let rec processPath = (stampsToPaths, collector, path, ptype) => {
 
 let printer = (formatHref, stampsToPaths) => {
   ...PrintType.default,
-  path: (printer, fmt, path) => {
+  path: (printer, path) => {
+    let (@!) = Pretty.append;
     let fullPath = processPath(stampsToPaths, [], path, PType);
     let full = formatHref(fullPath);
     let show = name => {
       let tag = Printf.sprintf({|<a href="%s">%s</a>|}, full, name);
-      Format.pp_print_as(fmt, String.length(name), tag)
+      Pretty.text(~len=String.length(name), tag)
+      /* Format.pp_print_as(fmt, String.length(name), tag) */
     };
     switch path {
     | Pident({name}) => show(name)
     | Pdot(inner, name, _) => {
-      printer.path(printer, fmt, inner); Format.pp_print_string(fmt, "."); show(name)}
-    | Papply(_, _) => Format.pp_print_string(fmt, "<papply>")
+      printer.path(printer, inner) @! Pretty.text(".") @! show(name)}
+    | Papply(_, _) => Pretty.text("<papply>")
     };
   }
 };
@@ -71,14 +73,8 @@ let withFmt = (size, fn) => {
   Buffer.to_bytes(buffer) |> Bytes.to_string
 };
 
-let printType = (formatHref, stampsToPaths, expr) => {
-  let printer = printer(formatHref, stampsToPaths);
-  withFmt(50, fmt => {
-    Format.fprintf(fmt, "@[<hov 4>");
-    printer.expr(printer, fmt, expr);
-    Format.fprintf(fmt, "@]");
-  })
-};
+/* let printType = (formatHref, stampsToPaths, expr) => {
+}; */
 
 let makeId = (items, ptype) => {
   open PrepareDocs.T;
@@ -92,6 +88,19 @@ let makeId = (items, ptype) => {
 
 let defaultMain = name => "<span class='missing'>This module does not have a toplevel documentation block.</span>\n\n@all";
 
+let prettyString = doc => {
+  let buffer = Buffer.create(100);
+  Pretty.print(~width=50, ~output=(text => {
+    Buffer.add_string(buffer, text)
+  }), ~indent=(num => {
+    Buffer.add_string(buffer, "\n");
+    for (i in 1 to num) {
+      Buffer.add_string(buffer, " ")
+    }
+  }), doc);
+  Buffer.to_bytes(buffer) |> Bytes.to_string
+};
+
 let rec generateDoc = (formatHref, stampsToPaths, path, (name, docstring, content)) => {
   open PrepareDocs.T;
   let id = makeId(path @ [name]);
@@ -102,8 +111,11 @@ let rec generateDoc = (formatHref, stampsToPaths, path, (name, docstring, conten
     | Some(doc) => doc
     }, items) ++ "</div>"
   | Value(typ) => {
-    let t = printType(formatHref, stampsToPaths, typ);
-    Printf.sprintf({| <h4 class='item'>let <a href="#%s" id="%s">%s</a> : %s</h4> |}, id(PValue), id(PValue), name, String.trim(t)) ++ "\n\n<div class='body '>" ++ switch docstring {
+    let printer = printer(formatHref, stampsToPaths);
+    let link = Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id(PValue), id(PValue), name);
+    let t = printer.value(printer, name, link, typ) |> prettyString;
+    Printf.sprintf("<h4 class='item'>%s</h4>\n\n<div class='body '>", t)
+     ++ switch docstring {
     | None => "<span class='missing'>No documentation for this value</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))
     } ++ "</div>"
@@ -111,7 +123,7 @@ let rec generateDoc = (formatHref, stampsToPaths, path, (name, docstring, conten
   | Type(typ) => {
     let link = Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id(PType), id(PType), name);
     let printer = printer(formatHref, stampsToPaths);
-    let t = withFmt(50, fmt => printer.decl(printer, fmt, name, link, typ));
+    let t = printer.decl(printer, name, link, typ) |> prettyString;
     "<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body'>" ++ switch docstring {
     | None => "<span class='missing'>No documentation for this value</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))

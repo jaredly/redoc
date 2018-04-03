@@ -1,6 +1,18 @@
 
 open Parsetree;
 
+/*
+ * TODO: figure out what things can be linked.
+ * e.g. what modules expose what items.
+ *
+ * For linking to other things, I'm not sure what I can do.
+ *
+ * hmmm so I want "include" to show me things that link as well.
+ * Look at Reprocessing_Types, Reprocessing.rei too
+ *
+ * Also referencing the things from another module.
+ * Like `module Draw = ...`, have the contents there w/ IDs (& types?). (won't have docs, but thats ok)
+ */
 
 let generate = (name, input) => {
   let (stampsToPaths, (toplevel, allDocs)) = switch input {

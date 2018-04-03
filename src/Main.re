@@ -10,8 +10,10 @@ let annotateSourceCode = (source, cmt, mlast, output) => {
   Files.writeFile(output, Template.make(highlighted, typeText)) |> ignore;
 };
 
-let generateDocs = (cmt, output) => {
-  let name = Filename.basename(cmt) |> Filename.chop_extension;
+let getName = x => Filename.basename(x) |> Filename.chop_extension;
+
+let generateDocs = (cmt, output, projectNames) => {
+  let name = getName(cmt);
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
 
   let text = switch annots {
@@ -21,7 +23,7 @@ let generateDocs = (cmt, output) => {
     let out = Format.flush_str_formatter();
     Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
 
-    Docs.implementation(name, structure)
+    Docs.implementation(name, structure, projectNames)
   }
   | Cmt_format.Interface(signature) => {
 
@@ -29,7 +31,7 @@ let generateDocs = (cmt, output) => {
     let out = Format.flush_str_formatter();
     Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
 
-    Docs.interface(name, signature)
+    Docs.interface(name, signature, projectNames)
   }
   | _ => failwith("Not a valid cmt file")
   };
@@ -37,10 +39,30 @@ let generateDocs = (cmt, output) => {
   Files.writeFile(output, text) |> ignore;
 };
 
+let generateProject = (dest, cmts) => {
+  Files.mkdirp(dest);
+
+  /* Remove .cmt's that have .cmti's */
+  let intfs = Hashtbl.create(100);
+  cmts |> List.iter(path => if (Filename.check_suffix(path, ".cmti")) {
+    Hashtbl.add(intfs, getName(path), true)
+  });
+  let cmts = cmts |> List.filter(path => {
+    !(Filename.check_suffix(path, ".cmt") && Hashtbl.mem(intfs, getName(path)))
+  });
+
+  let names = List.map(getName, cmts);
+  cmts |> List.iter(cmt => {
+    let name = Filename.basename(cmt) |> Filename.chop_extension;
+    generateDocs(cmt, Filename.concat(dest, name ++ ".html"), names)
+  })
+};
+
 let main = () => {
-  switch (Sys.argv) {
-  | [|_, source, cmt, mlast, output|] => annotateSourceCode(source, cmt, mlast, output)
-  | [|_, cmt, output|] => generateDocs(cmt, output)
+  switch (Sys.argv |> Array.to_list) {
+  | [_, "project", dest, ...rest] => generateProject(dest, rest)
+  | [_, source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
+  | [_, cmt, output] => generateDocs(cmt, output, [])
   | _ => {
     print_endline("\n\nUsage: docre some.re some.cmt some.mlast output.html");
   }

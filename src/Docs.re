@@ -16,7 +16,7 @@ open Parsetree;
 
 let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char"];
 
-let generate = (name, topdoc, stamps, allDocs) => {
+let generate = (name, topdoc, stamps, allDocs, projectNames) => {
   let mainMarkdown = switch (topdoc) {
   | None => GenerateDoc.defaultMain(~addHeading=true, name)
   | Some(doc) => doc
@@ -56,18 +56,18 @@ let generate = (name, topdoc, stamps, allDocs) => {
     </div>
     <div class='right-blank'></div>
     </div>
-  |}, DocsTemplate.head(name), Sidebar.generate(name, List.rev(tocs), []), html)
+  |}, DocsTemplate.head(name), Sidebar.generate(name, List.rev(tocs), projectNames), html)
 
 };
 
-let interface = (name, intf) => {
+let interface = (name, intf, projectNames) => {
   let stamps = PrepareDocs.organizeTypesIntf((name, []), intf.Typedtree.sig_items);
   let (topdoc, allDocs) = PrepareDocs.findAllDocsIntf(intf.Typedtree.sig_items);
-  generate(name, topdoc, stamps, allDocs)
+  generate(name, topdoc, stamps, allDocs, projectNames)
 };
 
-let implementation = (name, impl) => {
+let implementation = (name, impl, projectNames) => {
   let stamps = PrepareDocs.organizeTypes((name, []), impl.Typedtree.str_items);
   let (topdoc, allDocs) = PrepareDocs.findAllDocs(impl.Typedtree.str_items);
-  generate(name, topdoc, stamps, allDocs)
+  generate(name, topdoc, stamps, allDocs, projectNames)
 };

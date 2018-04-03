@@ -1,3 +1,4 @@
+#!//bin/bash
 
 # This should be the base of a bucklescript project
 base=~/clone/games/lost-ranger
@@ -28,32 +29,34 @@ name=src/Example
 
 base=${base}/node_modules/@jaredly/reprocessing/lib/bs/js/src
 
-List=(
-Reprocessing
-Reprocessing_Constants
-Reprocessing_Draw
-Reprocessing_Env
-Reprocessing_Utils
-)
+# List=(
+# Reprocessing
+# Reprocessing_Constants
+# Reprocessing_Draw
+# Reprocessing_Env
+# Reprocessing_Utils
+# )
 
-Normals=(
-Reprocessing_ClientWrapper
-Reprocessing_Common
-Reprocessing_Events
-Reprocessing_Font
-Reprocessing_Hotreload
-Reprocessing_Internal
-Reprocessing_Matrix
-Reprocessing_Shaders
-Reprocessing_Types
-)
+# Normals=(
+# Reprocessing_ClientWrapper
+# Reprocessing_Common
+# Reprocessing_Events
+# Reprocessing_Font
+# Reprocessing_Hotreload
+# Reprocessing_Internal
+# Reprocessing_Matrix
+# Reprocessing_Shaders
+# Reprocessing_Types
+# )
 
-for name in ${List[@]}
-do
-  ./_build/install/default/bin/docre ${base}/${name}.cmti docs/${name}.html
-done
+# for name in ${List[@]}
+# do
+#   ./_build/install/default/bin/docre ${base}/${name}.cmti docs/${name}.html
+# done
 
-for name in ${Normals[@]}
-do
-  ./_build/install/default/bin/docre ${base}/${name}.cmt docs/${name}.html
-done
+# for name in ${Normals[@]}
+# do
+#   ./_build/install/default/bin/docre ${base}/${name}.cmt docs/${name}.html
+# done
+
+./_build/install/default/bin/docre project docs/ ${base}/*.cmt*

@@ -88,6 +88,12 @@ a:hover, a:focus {
 
 .main {
   width: 600px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.main a, .main a:visited {
+  color: #003984;
 }
 
 .right-blank {
@@ -96,9 +102,6 @@ a:hover, a:focus {
 
 .sidebar {
   width: 200px;
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
   position: sticky;
   top: 0;
   overflow: auto;
@@ -106,10 +109,30 @@ a:hover, a:focus {
   word-break: break-word;
 }
 
-/* .sidebar-title {
+.table-of-contents {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+.project-listing {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  font-size: 14px;
+  padding-bottom: 32px;
+}
+
+.project-listing .project-title {
   font-weight: bold;
-  margin: 16px 4px;
-} */
+  margin: 16px 0 8px;
+}
+
+.project-listing a {
+  color: #003984;
+}
+.project-listing a:visited {
+  color: unset;
+}
 
 @media(max-width: 1000px) {
   .sidebar {
@@ -139,6 +162,7 @@ a:hover, a:focus {
   }
   .main {
     width: auto;
+    padding: 0;
     margin: 0;
   }
   .container {
@@ -151,23 +175,23 @@ a:hover, a:focus {
   }
 }
 
-.sidebar a:visited {
+.table-of-contents a:visited {
   color: unset;
 }
 
-.sidebar a {
+.table-of-contents a {
   color: unset;
   padding: 2px 4px
 }
-.sidebar a:hover {
+.table-of-contents a:hover {
   background-color: #fafafa;
 }
 
-.sidebar > a.header {
+.table-of-contents a.header {
   font-weight: bold;
 }
-.sidebar > a.module {
-  color: #486ad2;
+.table-of-contents a.module {
+  color: #003984;
 }
 
 a.level-1 {
@@ -222,6 +246,7 @@ window.onhashchange = checkHash
     
     <div class='sidebar-wrapper'>
     <div class='sidebar'>
+    <div class='table-of-contents'>
     <a href="#Example" class='level-1 header'>Example</a>
 <a href="#Functions" class='level-2 header'>Functions</a>
 <a href="#type-awesome" class='level-3 type'>awesome</a>
@@ -265,6 +290,8 @@ window.onhashchange = checkHash
 <a href="#value-HideThings.z" class='level-4 value'>z</a>
 <a href="#value-HideThings.m" class='level-4 value'>m</a>
 <a href="#value-HideThings.n" class='level-4 value'>n</a>
+    </div>
+    
     </div>
     </div>
   

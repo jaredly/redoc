@@ -11,6 +11,7 @@ let annotateSourceCode = (source, cmt, mlast, output) => {
 };
 
 let generateDocs = (cmt, mlast, output) => {
+  let name = Filename.basename(mlast) |> Filename.chop_extension;
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
   /* let structure = ReadMlast.read_ast(mlast); */
 
@@ -20,7 +21,7 @@ let generateDocs = (cmt, mlast, output) => {
   | _ => failwith("Not a valid cmt file")
   };
 
-  let text = Docs.generate("SomeModule", input);
+  let text = Docs.generate(name, input);
   Files.writeFile(output, text) |> ignore;
 };
 

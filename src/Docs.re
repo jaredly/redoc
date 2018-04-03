@@ -20,13 +20,19 @@ let generate = (name, input) => {
     let (sp, tl) = PrepareDocs.organizeTypes((name, []), structure.Typedtree.str_items);
     Printast.implementation(Format.str_formatter, ast);
     let out = Format.flush_str_formatter();
-    Files.writeFile("./ast.impl", out) |> ignore;
+    Files.writeFile("./_build/" ++ name ++ ".ast.impl", out) |> ignore;
     (sp, PrepareDocs.findAllDocs(ast, tl))
   }
   | `Signature(signature, ast) => {
     Printast.interface(Format.str_formatter, ast);
     let out = Format.flush_str_formatter();
-    Files.writeFile("./ast.inft", out) |> ignore;
+    Files.writeFile("./_build/" ++ name ++ ".ast.inft", out) |> ignore;
+
+    Printtyped.interface(Format.str_formatter, signature);
+    /* Printast.interface(Format.str_formatter, ast); */
+    let out = Format.flush_str_formatter();
+    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
+
     let (sp, tl) = PrepareDocs.organizeTypesIntf((name, []), signature.Typedtree.sig_items);
     (sp, PrepareDocs.findAllDocsIntf(ast, tl))
   }

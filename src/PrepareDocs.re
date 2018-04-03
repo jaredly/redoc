@@ -9,7 +9,17 @@ let rec doubleFold = (fn, items) => {
 let addToPath = ((name, inner), more) => (name, inner @ [more]);
 module T = {
   type pathType = PModule | PModuleType | PValue | PType;
-  type docItem = Value(Types.type_expr) | Type(Types.type_declaration) | Module(list(doc)) | StandaloneDoc(string)
+  type docItem =
+    | Value(Types.type_expr)
+    | Type(Types.type_declaration)
+    | Module(list(doc))
+    | CompactModule(list(cdoc))
+    | StandaloneDoc(string)
+  and compactItem =
+    | CValue(Types.type_expr)
+    | CModule(list(cdoc))
+    | CType(Types.type_expr)
+  and cdoc = (string, compactItem)
   and doc = (string, option(string), docItem);
 
 };

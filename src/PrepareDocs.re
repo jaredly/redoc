@@ -13,13 +13,13 @@ module T = {
     | Value(Types.type_expr)
     | Type(Types.type_declaration)
     | Module(list(doc))
-    | CompactModule(list(cdoc))
+    /* | CompactModule(list(cdoc)) */
     | StandaloneDoc(string)
-  and compactItem =
+  /* and compactItem =
     | CValue(Types.type_expr)
     | CModule(list(cdoc))
     | CType(Types.type_expr)
-  and cdoc = (string, compactItem)
+  and cdoc = (string, compactItem) */
   and doc = (string, option(string), docItem);
 
 };

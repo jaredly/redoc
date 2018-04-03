@@ -14,6 +14,8 @@ open Parsetree;
  * Like `module Draw = ...`, have the contents there w/ IDs (& types?). (won't have docs, but thats ok)
  */
 
+let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char"];
+
 let generate = (name, input) => {
   let (stampsToPaths, (toplevel, allDocs)) = switch input {
   | `Structure(structure, ast) => {
@@ -45,7 +47,13 @@ let generate = (name, input) => {
 
   let formatHref = ((modName, inner, ptype)) => {
     let modName = if (modName == "<global>") {
-      "globals"
+      switch inner {
+      | [name] when List.mem(name, allGlobals) => "globals"
+      | _ => {
+        print_endline("Cant find " ++ GenerateDoc.makeId(inner, ptype) ++ " in " ++ modName);
+        name
+      }
+      }
     } else {
       modName
     };

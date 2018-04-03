@@ -53,9 +53,36 @@ a:hover, a:focus {
   text-decoration: underline;
 }
 
+#error-message {
+  display: block;
+  background-color: #fde6e6;
+  padding: 8px 16px;
+  border-radius: 4px;
+  box-shadow: 0px 1px 3px #d8a2a2;
+  margin-bottom: 32px;
+}
+
 </style>
+<script>
+var checkHash = () => {
+  var id = window.location.hash.slice(1)
+  if (id && !document.getElementById(id)) {
+    document.getElementById("error-message").style.display = 'block'
+    var parts = id.split('-')
+    document.querySelector('#error-message span').textContent = parts[0]
+    document.querySelector('#error-message code').textContent = parts[1]
+  }
+}
+window.onload = () => {
+  checkHash()
+}
+window.onhashchange = checkHash
+</script>
 <title>Reprocessing_Events</title>
 <body>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>. This might be due to an <code>include</code>, or a module alias. We don't handle those right now :/ but hopefully you can find your way around.
+</div>
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <h4 class='item'>type <a href="#type-buttonStateT" id="type-buttonStateT">buttonStateT</a> = 
     | LeftButton

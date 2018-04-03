@@ -14,16 +14,28 @@ let generateDocs = (cmt, output) => {
   let name = Filename.basename(cmt) |> Filename.chop_extension;
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
 
-  let input = switch annots {
-  | Cmt_format.Implementation(structure) => `Structure(structure)
-  | Cmt_format.Interface(signature) => `Signature(signature)
+  let text = switch annots {
+  | Cmt_format.Implementation(structure) => {
+
+    Printtyped.implementation(Format.str_formatter, structure);
+    let out = Format.flush_str_formatter();
+    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
+
+    Docs.implementation(name, structure)
+  }
+  | Cmt_format.Interface(signature) => {
+
+    Printtyped.interface(Format.str_formatter, signature);
+    let out = Format.flush_str_formatter();
+    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
+
+    Docs.interface(name, signature)
+  }
   | _ => failwith("Not a valid cmt file")
   };
 
-  let text = Docs.generate(name, input);
   Files.writeFile(output, text) |> ignore;
 };
-
 
 let main = () => {
   switch (Sys.argv) {

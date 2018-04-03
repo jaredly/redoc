@@ -16,31 +16,8 @@ open Parsetree;
 
 let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char"];
 
-let generate = (name, input) => {
-  let (stampsToPaths, (toplevel, allDocs)) = switch input {
-  | `Structure(structure) => {
-    let sp = PrepareDocs.organizeTypes((name, []), structure.Typedtree.str_items);
-    /* Printast.implementation(Format.str_formatter, ast);
-    let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".ast.impl", out) |> ignore; */
-    (sp, PrepareDocs.findAllDocs(structure.Typedtree.str_items))
-  }
-  | `Signature(signature) => {
-    /* Printast.interface(Format.str_formatter, ast);
-    let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".ast.inft", out) |> ignore; */
-
-    Printtyped.interface(Format.str_formatter, signature);
-    /* Printast.interface(Format.str_formatter, ast); */
-    let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
-
-    let sp = PrepareDocs.organizeTypesIntf((name, []), signature.Typedtree.sig_items);
-    (sp, PrepareDocs.findAllDocsIntf(signature.Typedtree.sig_items))
-  }
-  };
-
-  let mainMarkdown = switch (toplevel) {
+let generate = (name, topdoc, stamps, allDocs) => {
+  let mainMarkdown = switch (topdoc) {
   | None => GenerateDoc.defaultMain(name)
   | Some(doc) => doc
   };
@@ -55,7 +32,6 @@ let generate = (name, input) => {
       }
       }
     } else {
-      /* print_endline("Href " ++ modName ++ " " ++ String.concat(".", inner)); */
       modName
     };
     let hash = switch inner {
@@ -69,6 +45,17 @@ let generate = (name, input) => {
     }
   };
 
-  GenerateDoc.head(name) ++
-  GenerateDoc.docsForModule(formatHref, stampsToPaths, [], name, mainMarkdown, allDocs)
+  DocsTemplate.head(name) ++ GenerateDoc.docsForModule(formatHref, stamps, [], name, mainMarkdown, allDocs)
+};
+
+let interface = (name, intf) => {
+  let stamps = PrepareDocs.organizeTypesIntf((name, []), intf.Typedtree.sig_items);
+  let (topdoc, allDocs) = PrepareDocs.findAllDocsIntf(intf.Typedtree.sig_items);
+  generate(name, topdoc, stamps, allDocs)
+};
+
+let implementation = (name, impl) => {
+  let stamps = PrepareDocs.organizeTypes((name, []), impl.Typedtree.str_items);
+  let (topdoc, allDocs) = PrepareDocs.findAllDocs(impl.Typedtree.str_items);
+  generate(name, topdoc, stamps, allDocs)
 };

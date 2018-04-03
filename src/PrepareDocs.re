@@ -1,13 +1,6 @@
 
 open PrepareUtils;
 
-let rec doubleFold = (fn, items) => {
-  List.fold_left(((left, right), item) => {
-    let (l, r) = fn(item);
-    (l @ left, r @ right)
-  }, ([], []), items)
-};
-
 module T = {
   type pathType = PrintType.pathType = PModule | PModuleType | PValue | PType;
   type docItem =
@@ -32,13 +25,17 @@ module T = {
 };
 open T;
 
+let rec doubleFold = (fn, items) => {
+  List.fold_left(((left, right), item) => {
+    let (l, r) = fn(item);
+    (l @ left, r @ right)
+  }, ([], []), items)
+};
+
 let rec organizeTypesType = (currentPath, types) => {
   open Types;
   foldOpt(item => switch item {
-  | Sig_value({stamp, name}, {val_type, val_kind, val_attributes}) => {
-    /* TODO list out the attributes, see if the docs are there */
-    Some((stamp, addToPath(currentPath, name) |> toFullPath(PValue)))
-  }
+  | Sig_value({stamp, name}, {val_type, val_kind}) => Some((stamp, addToPath(currentPath, name) |> toFullPath(PValue)))
   | _ => None
   }, types, [])
 };
@@ -47,25 +44,14 @@ let rec organizeTypesIntf = (currentPath, types) => {
   open Typedtree;
   List.fold_left((items, item) => {
       let more = switch (item.sig_desc) {
-      | Tsig_value({val_id: {stamp, name}, val_loc, val_val: {val_type}}) => (
-        (
-        [(stamp, addToPath(currentPath, name) |> toFullPath(PValue))],
-        )
-      )
-      | Tsig_type(decls) => (
-        List.map(({typ_id: {stamp, name}}) => (stamp, addToPath(currentPath, name) |> toFullPath(PType)), decls),
-      )
-      | Tsig_include({incl_loc, incl_mod, incl_type}) => {
-        let (stamps) = organizeTypesType(currentPath, incl_type);
-        stamps
-      }
-      | Tsig_module({md_id: {stamp, name}, md_type: {mty_desc: Tmty_signature(signature), mty_type}}) => {
+      | Tsig_value({val_id: {stamp, name}}) => [(stamp, addToPath(currentPath, name) |> toFullPath(PValue))]
+      | Tsig_type(decls) => List.map(({typ_id: {stamp, name}}) => (stamp, addToPath(currentPath, name) |> toFullPath(PType)), decls)
+      | Tsig_include({incl_mod, incl_type}) => organizeTypesType(currentPath, incl_type)
+      | Tsig_module({md_id: {stamp, name}, md_type: {mty_desc: Tmty_signature(signature)}}) => {
         let (stamps) = organizeTypesIntf(addToPath(currentPath, name), signature.sig_items);
         [(stamp, addToPath(currentPath, name) |> toFullPath(PModule)), ...stamps]
       }
-      | Tsig_module({md_id: {stamp, name}, md_loc, md_type: {mty_loc, mty_desc: Tmty_alias(path, _) | Tmty_ident(path, _), mty_type}}) => {
-        [(stamp, addToPath(currentPath, name) |> toFullPath(PModule))]
-      }
+      | Tsig_module({md_id: {stamp, name}}) => [(stamp, addToPath(currentPath, name) |> toFullPath(PModule))]
       | _ => []
       };
       more @ items
@@ -82,11 +68,8 @@ let rec organizeTypes = (currentPath, types) => {
         | _ => None
         }),
       )
-      | Tstr_type(decls) => (
-          List.map(({typ_id: {stamp, name}}) => (stamp, addToPath(currentPath, name) |> toFullPath(PType)), decls),
-      )
-      | Tstr_module({mb_id: {stamp, name}, mb_expr: {mod_type, mod_desc: Tmod_structure(structure)}})
-      | Tstr_module({mb_id: {stamp, name}, mb_expr: {mod_type, mod_desc: Tmod_constraint({mod_desc: Tmod_structure(structure)}, _, _, _)}})
+      | Tstr_type(decls) => List.map(({typ_id: {stamp, name}}) => (stamp, addToPath(currentPath, name) |> toFullPath(PType)), decls)
+      | Tstr_module({mb_id: {stamp, name}, mb_expr: {mod_type, mod_desc: Tmod_structure(structure) | Tmod_constraint({mod_desc: Tmod_structure(structure)}, _, _, _)}})
        => {
         let (stamps) = organizeTypes(addToPath(currentPath, name), structure.str_items);
         [(stamp, addToPath(currentPath, name) |> toFullPath(PModule)), ...stamps]
@@ -104,16 +87,9 @@ let rec organizeTypes = (currentPath, types) => {
 let rec findAllDocsType = (signature) => {
   open Types;
   List.fold_left((items, item) => switch item {
-  | Sig_value({stamp, name}, {val_type, val_kind, val_attributes}) => {
-    [(name, findDocAttribute(val_attributes), Value(val_type)), ...items]
-  }
-  | Sig_type({stamp, name}, decl, _) => {
-    [(name, findDocAttribute(decl.type_attributes), Type(decl)), ...items]
-  }
-  | Sig_module({stamp, name}, {md_type, md_attributes, md_loc}, _) => {
-    let contents = moduleContents(md_type);
-    [(name, findDocAttribute(md_attributes), Module(contents))]
-  }
+  | Sig_value({stamp, name}, {val_type, val_kind, val_attributes}) => [(name, findDocAttribute(val_attributes), Value(val_type)), ...items]
+  | Sig_type({stamp, name}, decl, _) => [(name, findDocAttribute(decl.type_attributes), Type(decl)), ...items]
+  | Sig_module({stamp, name}, {md_type, md_attributes, md_loc}, _) => [(name, findDocAttribute(md_attributes), Module(moduleContents(md_type)))]
   | _ => items
   }, [], signature);
 } and moduleContents = md_type => {

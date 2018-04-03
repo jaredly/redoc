@@ -46,8 +46,13 @@ let printer = (formatHref, stampsToPaths) => {
     let fullPath = processPath(stampsToPaths, [], path, pathType);
     let full = formatHref(fullPath);
     let show = name => {
-      let tag = Printf.sprintf({|<a href="%s">%s</a>|}, full, name);
-      Pretty.text(~len=String.length(name), tag)
+      switch full {
+      | None => Pretty.text(name)
+      | Some(full) => {
+        let tag = Printf.sprintf({|<a href="%s">%s</a>|}, full, name);
+        Pretty.text(~len=String.length(name), tag)
+      }
+      }
     };
     switch path {
     | Pident({name}) => show(name)

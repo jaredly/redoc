@@ -304,7 +304,7 @@ window.onhashchange = checkHash
     <a href="#Reprocessing_Common" id="Reprocessing_Common"><h1>Reprocessing_Common</h1></a>
 
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item module'>module <a href="#module-Constants" id="module-Constants">Constants</a> : <a href="RGLConstants.html">RGLConstants</a></h4></div>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Constants" id="module-Constants">Constants</a> : RGLConstants</h4></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-strokeCapT" id="type-strokeCapT">strokeCapT</a> = | Round | Square | Project</h4>
 
@@ -314,40 +314,40 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-glState" id="type-glState">glState</a> = <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Window">Window</a>.<a href="Reasongl.html#type-Gl.Window.t">t</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-glState" id="type-glState">glState</a> = Reasongl.Gl.Window.t</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-glCamera" id="type-glCamera">glCamera</a> = {projectionMatrix: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Mat4">Mat4</a>.<a href="Reasongl.html#type-Gl.Mat4.t">t</a>}</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-glCamera" id="type-glCamera">glCamera</a> = {projectionMatrix: Reasongl.Gl.Mat4.t}</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-colorT" id="type-colorT">colorT</a> = {r: <a href="globals.html#type-float">float</a>, g: <a href="globals.html#type-float">float</a>, b: <a href="globals.html#type-float">float</a>, a: <a href="globals.html#type-float">float</a>}</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-colorT" id="type-colorT">colorT</a> = {r: float, g: float, b: float, a: float}</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-styleT" id="type-styleT">styleT</a> = {
-    strokeColor: <a href="globals.html#type-option">option</a>(<a href="#type-colorT">colorT</a>),
-    strokeWeight: <a href="globals.html#type-int">int</a>,
+    strokeColor: option(<a href="#type-colorT">colorT</a>),
+    strokeWeight: int,
     strokeCap: <a href="#type-strokeCapT">strokeCapT</a>,
-    fillColor: <a href="globals.html#type-option">option</a>(<a href="#type-colorT">colorT</a>),
-    tintColor: <a href="globals.html#type-option">option</a>(<a href="#type-colorT">colorT</a>),
+    fillColor: option(<a href="#type-colorT">colorT</a>),
+    tintColor: option(<a href="#type-colorT">colorT</a>),
     rectMode: <a href="#type-rectModeT">rectModeT</a>
 }</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-mouseT" id="type-mouseT">mouseT</a> = {
-    mut pos: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
-    mut prevPos: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
-    mut pressed: <a href="globals.html#type-bool">bool</a>,
-    mut changedTouches: <a href="globals.html#type-list">list</a>((<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>)),
-    mut touches: <a href="Hashtbl.html">Hashtbl</a>.<a href="Hashtbl.html#type-t">t</a>(<a href="globals.html#type-float">float</a>, (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>))
+    mut pos: (int, int),
+    mut prevPos: (int, int),
+    mut pressed: bool,
+    mut changedTouches: list((float, float, float)),
+    mut touches: Hashtbl.t(float, (float, float))
 }</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item module'>module <a href="#module-KeySet" id="module-KeySet">KeySet</a> : <a href="Set.html">Set</a>.<a href="Set.html#module-Make">Make</a></h4></div>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-KeySet" id="module-KeySet">KeySet</a> : Set.Make</h4></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-keyboardT" id="type-keyboardT">keyboardT</a> = {
     mut keyCode: <a href="Reprocessing_Events.html">Reprocessing_Events</a>.<a href="Reprocessing_Events.html#type-keycodeT">keycodeT</a>,
@@ -358,101 +358,101 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-frameT" id="type-frameT">frameT</a> = {count: <a href="globals.html#type-int">int</a>, rate: <a href="globals.html#type-int">int</a>, deltaTime: <a href="globals.html#type-float">float</a>}</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-frameT" id="type-frameT">frameT</a> = {count: int, rate: int, deltaTime: float}</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-sizeT" id="type-sizeT">sizeT</a> = {
-    mut height: <a href="globals.html#type-int">int</a>,
-    mut width: <a href="globals.html#type-int">int</a>,
-    mut resizeable: <a href="globals.html#type-bool">bool</a>
+    mut height: int,
+    mut width: int,
+    mut resizeable: bool
 }</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-circularBufferSize" id="value-circularBufferSize">circularBufferSize</a> = <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-circularBufferSize" id="value-circularBufferSize">circularBufferSize</a> = int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-vertexSize" id="value-vertexSize">vertexSize</a> = <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-vertexSize" id="value-vertexSize">vertexSize</a> = int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-_imageT" id="type-_imageT">_imageT</a> = {
-    textureBuffer: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.textureT">textureT</a>,
-    img: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.imageT">imageT</a>,
-    height: <a href="globals.html#type-int">int</a>,
-    width: <a href="globals.html#type-int">int</a>
+    textureBuffer: Reasongl.Gl.textureT,
+    img: Reasongl.Gl.imageT,
+    height: int,
+    width: int
 }</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-imageT" id="type-imageT">imageT</a> = <a href="Pervasives.html">Pervasives</a>.<a href="Pervasives.html#type-ref">ref</a>(<a href="globals.html#type-option">option</a>(<a href="#type-_imageT">_imageT</a>))</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-imageT" id="type-imageT">imageT</a> = Pervasives.ref(option(<a href="#type-_imageT">_imageT</a>))</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-soundLoadStatusT" id="type-soundLoadStatusT">soundLoadStatusT</a> = 
     | Loading
-    | ShouldPlay(<a href="globals.html#type-float">float</a>, <a href="globals.html#type-bool">bool</a>)
-    | Loaded(<a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Audio">Audio</a>.<a href="Reasongl.html#type-Gl.Audio.t">t</a>)</h4>
+    | ShouldPlay(float, bool)
+    | Loaded(Reasongl.Gl.Audio.t)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-soundT" id="type-soundT">soundT</a> = <a href="Pervasives.html">Pervasives</a>.<a href="Pervasives.html#type-ref">ref</a>(<a href="#type-soundLoadStatusT">soundLoadStatusT</a>)</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-soundT" id="type-soundT">soundT</a> = Pervasives.ref(<a href="#type-soundLoadStatusT">soundLoadStatusT</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-batchT" id="type-batchT">batchT</a> = {
-    vertexArray: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Bigarray">Bigarray</a>.<a href="Reasongl.html#type-Gl.Bigarray.t">t</a>(
-        <a href="globals.html#type-float">float</a>,
-        <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Bigarray">Bigarray</a>.<a href="Reasongl.html#type-Gl.Bigarray.float32_elt">float32_elt</a>
+    vertexArray: Reasongl.Gl.Bigarray.t(
+        float,
+        Reasongl.Gl.Bigarray.float32_elt
     ),
-    elementArray: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Bigarray">Bigarray</a>.<a href="Reasongl.html#type-Gl.Bigarray.t">t</a>(
-        <a href="globals.html#type-int">int</a>,
-        <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Bigarray">Bigarray</a>.<a href="Reasongl.html#type-Gl.Bigarray.int16_unsigned_elt">int16_unsigned_elt</a>
+    elementArray: Reasongl.Gl.Bigarray.t(
+        int,
+        Reasongl.Gl.Bigarray.int16_unsigned_elt
     ),
-    mut vertexPtr: <a href="globals.html#type-int">int</a>,
-    mut elementPtr: <a href="globals.html#type-int">int</a>,
-    mut currTex: <a href="globals.html#type-option">option</a>(<a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.textureT">textureT</a>),
-    nullTex: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.textureT">textureT</a>
+    mut vertexPtr: int,
+    mut elementPtr: int,
+    mut currTex: option(Reasongl.Gl.textureT),
+    nullTex: Reasongl.Gl.textureT
 }</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-glEnv" id="type-glEnv">glEnv</a> = {
     camera: <a href="#type-glCamera">glCamera</a>,
-    window: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Window">Window</a>.<a href="Reasongl.html#type-Gl.Window.t">t</a>,
-    gl: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.contextT">contextT</a>,
-    vertexBuffer: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.bufferT">bufferT</a>,
-    elementBuffer: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.bufferT">bufferT</a>,
-    aVertexColor: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.attributeT">attributeT</a>,
-    aTextureCoord: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.attributeT">attributeT</a>,
-    aVertexPosition: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.attributeT">attributeT</a>,
-    pMatrixUniform: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.uniformT">uniformT</a>,
-    uSampler: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.uniformT">uniformT</a>,
+    window: Reasongl.Gl.Window.t,
+    gl: Reasongl.Gl.contextT,
+    vertexBuffer: Reasongl.Gl.bufferT,
+    elementBuffer: Reasongl.Gl.bufferT,
+    aVertexColor: Reasongl.Gl.attributeT,
+    aTextureCoord: Reasongl.Gl.attributeT,
+    aVertexPosition: Reasongl.Gl.attributeT,
+    pMatrixUniform: Reasongl.Gl.uniformT,
+    uSampler: Reasongl.Gl.uniformT,
     batch: <a href="#type-batchT">batchT</a>,
     keyboard: <a href="#type-keyboardT">keyboardT</a>,
     mouse: <a href="#type-mouseT">mouseT</a>,
     mut style: <a href="#type-styleT">styleT</a>,
-    mut styleStack: <a href="globals.html#type-list">list</a>(<a href="#type-styleT">styleT</a>),
+    mut styleStack: list(<a href="#type-styleT">styleT</a>),
     mut frame: <a href="#type-frameT">frameT</a>,
-    mut matrix: <a href="globals.html#type-array">array</a>(<a href="globals.html#type-float">float</a>),
-    mut matrixStack: <a href="globals.html#type-list">list</a>(<a href="globals.html#type-array">array</a>(<a href="globals.html#type-float">float</a>)),
+    mut matrix: array(float),
+    mut matrixStack: list(array(float)),
     size: <a href="#type-sizeT">sizeT</a>
 }</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item module'>module <a href="#module-Stream" id="module-Stream">Stream</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item'>type <a href="#type-Stream.t" id="type-Stream.t">t</a> = (<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-Stream.t" id="type-Stream.t">t</a> = (string, int)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.empty" id="value-Stream.empty">empty</a> = <a href="globals.html#type-list">list</a>('a)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.empty" id="value-Stream.empty">empty</a> = list('a)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.peekch" id="value-Stream.peekch">peekch</a> = (<a href="#type-Stream.t">t</a>) => <a href="globals.html#type-option">option</a>(<a href="globals.html#type-char">char</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.peekch" id="value-Stream.peekch">peekch</a> = (<a href="#type-Stream.t">t</a>) => option(char)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -460,7 +460,7 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.peekn" id="value-Stream.peekn">peekn</a> = ((<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>), <a href="globals.html#type-int">int</a>) => <a href="globals.html#type-option">option</a>(<a href="globals.html#type-string">string</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.peekn" id="value-Stream.peekn">peekn</a> = ((string, int), int) => option(string)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -468,32 +468,32 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.popn" id="value-Stream.popn">popn</a> = (('a, <a href="globals.html#type-int">int</a>), <a href="globals.html#type-int">int</a>) => ('a, <a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.popn" id="value-Stream.popn">popn</a> = (('a, int), int) => ('a, int)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.match_" id="value-Stream.match_">match_</a> = ((<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>), <a href="globals.html#type-string">string</a>) => (<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.match_" id="value-Stream.match_">match_</a> = ((string, int), string) => (string, int)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.charsRemaining" id="value-Stream.charsRemaining">charsRemaining</a> = ((<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>)) => <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.charsRemaining" id="value-Stream.charsRemaining">charsRemaining</a> = ((string, int)) => int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.create" id="value-Stream.create">create</a> = (<a href="globals.html#type-string">string</a>) => <a href="#type-Stream.t">t</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.create" id="value-Stream.create">create</a> = (string) => <a href="#type-Stream.t">t</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-read" id="value-read">read</a> = (<a href="globals.html#type-string">string</a>) => <a href="globals.html#type-string">string</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-read" id="value-read">read</a> = (string) => string</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-append_char" id="value-append_char">append_char</a> = (<a href="globals.html#type-string">string</a>, <a href="globals.html#type-char">char</a>) => <a href="globals.html#type-string">string</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-append_char" id="value-append_char">append_char</a> = (string, char) => string</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-split" id="value-split">split</a> = (<a href="globals.html#type-string">string</a>, ~sep: <a href="globals.html#type-char">char</a>) => <a href="globals.html#type-list">list</a>(<a href="globals.html#type-string">string</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-split" id="value-split">split</a> = (string, ~sep: char) => list(string)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 

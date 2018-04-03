@@ -309,22 +309,22 @@ let y = party();</code></pre>
 
 <p>You can use the <code>@doc</code> pragma to include the docs for individual items.</p>
 <p>So this <code>@doc awesome, Something, party</code>, becomes:</p>
-<div class='doc-item'><h4 class='item'>type <a href="#type-awesome" id="type-awesome">awesome</a> = | Hello | Folks(<a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-awesome" id="type-awesome">awesome</a> = | Hello | Folks(int)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item module'>module <a href="#module-Something" id="module-Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item'>let <a href="#value-Something.inner" id="value-Something.inner">inner</a> = <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Something.inner" id="value-Something.inner">inner</a> = int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-party" id="value-party">party</a> = (<a href="globals.html#type-unit">unit</a>) => <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-party" id="value-party">party</a> = (unit) => int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div><a href="#Just-dumping-it-all-in" id="Just-dumping-it-all-in"><h2>Just dumping it all in</h2></a>
 
 <p>An <code>@all</code> annotation will dump all (exported) values with their associated documentation.</p>
-<div class='doc-item'><h4 class='item'>let <a href="#value-awesome" id="value-awesome">awesome</a> = (<a href="globals.html#type-unit">unit</a>) => <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-awesome" id="value-awesome">awesome</a> = (unit) => int</h4>
 
 <div class='body '><p> Here&#39;s some documentaition</p>
 <pre class='parse'><code class='parse'>let x = 10;
@@ -332,20 +332,20 @@ let y = 20;
 let z = awesome();</code></pre></div></div>
 
 <div class='doc-item'><h4 class='item module'>module <a href="#module-Something" id="module-Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item'>let <a href="#value-Something.inner" id="value-Something.inner">inner</a> = <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Something.inner" id="value-Something.inner">inner</a> = int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-party" id="value-party">party</a> = (<a href="globals.html#type-unit">unit</a>) => <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-party" id="value-party">party</a> = (unit) => int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-awesome" id="type-awesome">awesome</a> = | Hello | Folks(<a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-awesome" id="type-awesome">awesome</a> = | Hello | Folks(int)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-things" id="value-things">things</a> = (<a href="globals.html#type-unit">unit</a>) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-things" id="value-things">things</a> = (unit) => float</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -354,20 +354,20 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-Inner.party" id="type-Inner.party">party</a> = {names: <a href="globals.html#type-string">string</a>, count: <a href="globals.html#type-int">int</a>, awesome: <a href="globals.html#type-string">string</a>}</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-Inner.party" id="type-Inner.party">party</a> = {names: string, count: int, awesome: string}</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-Inner.otherParty" id="type-Inner.otherParty">otherParty</a> = {names: <a href="globals.html#type-int">int</a>, dogs: <a href="globals.html#type-bool">bool</a>, height: <a href="globals.html#type-float">float</a>}</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-Inner.otherParty" id="type-Inner.otherParty">otherParty</a> = {names: int, dogs: bool, height: float}</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Inner.other" id="value-Inner.other">other</a> = <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Inner.other" id="value-Inner.other">other</a> = int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-m" id="value-m">m</a> = <a href="globals.html#type-bool">bool</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-m" id="value-m">m</a> = bool</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -375,7 +375,7 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-z" id="value-z">z</a> = <a href="globals.html#type-option">option</a>(<a href="#module-Inner">Inner</a>.<a href="#type-Inner.otherParty">otherParty</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-z" id="value-z">z</a> = option(<a href="#module-Inner">Inner</a>.<a href="#type-Inner.otherParty">otherParty</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -384,7 +384,7 @@ let z = awesome();</code></pre></div></div>
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
 <div class='doc-item'><h4 class='item module'>module <a href="#module-What" id="module-What">What</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item'>let <a href="#value-What.x" id="value-What.x">x</a> = <a href="globals.html#type-string">string</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-What.x" id="value-What.x">x</a> = string</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -398,7 +398,7 @@ let z = awesome();</code></pre></div></div>
 </div></div>
 
 <div class='doc-item'><h4 class='item module'>module <a href="#module-HideThings" id="module-HideThings">HideThings</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.r" id="type-HideThings.r">r</a> = <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.r" id="type-HideThings.r">r</a> = int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
@@ -406,7 +406,7 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.other" id="value-HideThings.other">other</a> = <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.other" id="value-HideThings.other">other</a> = int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -418,11 +418,11 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.a" id="value-HideThings.a">a</a> = <a href="globals.html#type-array">array</a>(<a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.a" id="value-HideThings.a">a</a> = array(int)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.sadness" id="type-HideThings.sadness">sadness</a> = {duration: <a href="globals.html#type-int">int</a>, affective: <a href="globals.html#type-bool">bool</a>}</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.sadness" id="type-HideThings.sadness">sadness</a> = {duration: int, affective: bool}</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
@@ -430,7 +430,7 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.r" id="value-HideThings.r">r</a> = <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.r" id="value-HideThings.r">r</a> = int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -442,7 +442,7 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.b" id="type-HideThings.b">b</a> = | A | B(<a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.b" id="type-HideThings.b">b</a> = | A | B(int)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 

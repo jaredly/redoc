@@ -290,181 +290,181 @@ window.onhashchange = checkHash
 <div class='doc-item'><h4 class='item module'>module <a href="#module-Matrix" id="module-Matrix">Matrix</a> : <a href="Reprocessing_Matrix.html">Reprocessing_Matrix</a></h4></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-getProgram" id="value-getProgram">getProgram</a> = (
-    ~context: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.contextT">contextT</a>,
-    ~vertexShader: <a href="globals.html#type-string">string</a>,
-    ~fragmentShader: <a href="globals.html#type-string">string</a>
-) => <a href="globals.html#type-option">option</a>(<a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.programT">programT</a>)</h4>
+    ~context: Reasongl.Gl.contextT,
+    ~vertexShader: string,
+    ~fragmentShader: string
+) => option(Reasongl.Gl.programT)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-createCanvas" id="value-createCanvas">createCanvas</a> = (
-    <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Window">Window</a>.<a href="Reasongl.html#type-Gl.Window.t">t</a>
+    Reasongl.Gl.Window.t
 ) => <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawGeometry" id="value-drawGeometry">drawGeometry</a> = (
-    ~vertexArray: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Bigarray">Bigarray</a>.<a href="Reasongl.html#type-Gl.Bigarray.t">t</a>(
-        <a href="globals.html#type-float">float</a>,
-        <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Bigarray">Bigarray</a>.<a href="Reasongl.html#type-Gl.Bigarray.float32_elt">float32_elt</a>
+    ~vertexArray: Reasongl.Gl.Bigarray.t(
+        float,
+        Reasongl.Gl.Bigarray.float32_elt
     ),
-    ~elementArray: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Bigarray">Bigarray</a>.<a href="Reasongl.html#type-Gl.Bigarray.t">t</a>(
-        <a href="globals.html#type-int">int</a>,
-        <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#module-Gl.Bigarray">Bigarray</a>.<a href="Reasongl.html#type-Gl.Bigarray.int16_unsigned_elt">int16_unsigned_elt</a>
+    ~elementArray: Reasongl.Gl.Bigarray.t(
+        int,
+        Reasongl.Gl.Bigarray.int16_unsigned_elt
     ),
-    ~mode: <a href="globals.html#type-int">int</a>,
-    ~count: <a href="globals.html#type-int">int</a>,
-    ~textureBuffer: <a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.textureT">textureT</a>,
+    ~mode: int,
+    ~count: int,
+    ~textureBuffer: Reasongl.Gl.textureT,
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-flushGlobalBatch" id="value-flushGlobalBatch">flushGlobalBatch</a> = (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>) => <a href="globals.html#type-unit">unit</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-flushGlobalBatch" id="value-flushGlobalBatch">flushGlobalBatch</a> = (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-maybeFlushBatch" id="value-maybeFlushBatch">maybeFlushBatch</a> = (
-    ~texture: <a href="globals.html#type-option">option</a>(<a href="Reasongl.html">Reasongl</a>.<a href="Reasongl.html#module-Gl">Gl</a>.<a href="Reasongl.html#type-Gl.textureT">textureT</a>),
-    ~el: <a href="globals.html#type-int">int</a>,
-    ~vert: <a href="globals.html#type-int">int</a>,
+    ~texture: option(Reasongl.Gl.textureT),
+    ~el: int,
+    ~vert: int,
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-addRectToGlobalBatch" id="value-addRectToGlobalBatch">addRectToGlobalBatch</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
-    ~bottomRight: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~bottomLeft: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~topRight: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~topLeft: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
+    ~bottomRight: (float, float),
+    ~bottomLeft: (float, float),
+    ~topRight: (float, float),
+    ~topLeft: (float, float),
     ~color: <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-colorT">colorT</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawTriangle" id="value-drawTriangle">drawTriangle</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
-    (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
+    (float, float),
+    (float, float),
+    (float, float),
     ~color: <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-colorT">colorT</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawLineWithMatrix" id="value-drawLineWithMatrix">drawLineWithMatrix</a> = (
-    ~p1: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~p2: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~matrix: <a href="globals.html#type-array">array</a>(<a href="globals.html#type-float">float</a>),
+    ~p1: (float, float),
+    ~p2: (float, float),
+    ~matrix: array(float),
     ~color: <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-colorT">colorT</a>,
-    ~width: <a href="globals.html#type-float">float</a>,
-    ~project: <a href="globals.html#type-bool">bool</a>,
+    ~width: float,
+    ~project: bool,
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawArc" id="value-drawArc">drawArc</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
-    (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-bool">bool</a>,
-    <a href="globals.html#type-array">array</a>(<a href="globals.html#type-float">float</a>),
+    (float, float),
+    float,
+    float,
+    float,
+    float,
+    bool,
+    array(float),
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-colorT">colorT</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawEllipse" id="value-drawEllipse">drawEllipse</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
-    (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-array">array</a>(<a href="globals.html#type-float">float</a>),
+    (float, float),
+    float,
+    float,
+    array(float),
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-colorT">colorT</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawArcStroke" id="value-drawArcStroke">drawArcStroke</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
-    (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-float">float</a>,
-    <a href="globals.html#type-bool">bool</a>,
-    <a href="globals.html#type-bool">bool</a>,
-    <a href="globals.html#type-array">array</a>(<a href="globals.html#type-float">float</a>),
+    (float, float),
+    float,
+    float,
+    float,
+    float,
+    bool,
+    bool,
+    array(float),
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-colorT">colorT</a>,
-    <a href="globals.html#type-int">int</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+    int
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-loadImage" id="value-loadImage">loadImage</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
-    <a href="globals.html#type-string">string</a>,
-    <a href="globals.html#type-bool">bool</a>
+    string,
+    bool
 ) => <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-imageT">imageT</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawImage" id="value-drawImage">drawImage</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-_imageT">_imageT</a>,
-    ~p1: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~p2: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~p3: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~p4: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~subx: <a href="globals.html#type-int">int</a>,
-    ~suby: <a href="globals.html#type-int">int</a>,
-    ~subw: <a href="globals.html#type-int">int</a>,
-    ~subh: <a href="globals.html#type-int">int</a>,
+    ~p1: (float, float),
+    ~p2: (float, float),
+    ~p3: (float, float),
+    ~p4: (float, float),
+    ~subx: int,
+    ~suby: int,
+    ~subw: int,
+    ~subh: int,
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawImageWithMatrix" id="value-drawImageWithMatrix">drawImageWithMatrix</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-_imageT">_imageT</a>,
-    ~x: <a href="globals.html#type-int">int</a>,
-    ~y: <a href="globals.html#type-int">int</a>,
-    ~width: <a href="globals.html#type-int">int</a>,
-    ~height: <a href="globals.html#type-int">int</a>,
-    ~subx: <a href="globals.html#type-int">int</a>,
-    ~suby: <a href="globals.html#type-int">int</a>,
-    ~subw: <a href="globals.html#type-int">int</a>,
-    ~subh: <a href="globals.html#type-int">int</a>,
+    ~x: int,
+    ~y: int,
+    ~width: int,
+    ~height: int,
+    ~subx: int,
+    ~suby: int,
+    ~subw: int,
+    ~subh: int,
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-drawImageWithMatrixf" id="value-drawImageWithMatrixf">drawImageWithMatrixf</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-_imageT">_imageT</a>,
-    ~x: <a href="globals.html#type-float">float</a>,
-    ~y: <a href="globals.html#type-float">float</a>,
-    ~width: <a href="globals.html#type-float">float</a>,
-    ~height: <a href="globals.html#type-float">float</a>,
-    ~subx: <a href="globals.html#type-int">int</a>,
-    ~suby: <a href="globals.html#type-int">int</a>,
-    ~subw: <a href="globals.html#type-int">int</a>,
-    ~subh: <a href="globals.html#type-int">int</a>,
+    ~x: float,
+    ~y: float,
+    ~width: float,
+    ~height: float,
+    ~subx: int,
+    ~suby: int,
+    ~subw: int,
+    ~subh: int,
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+) => unit</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-resetSize" id="value-resetSize">resetSize</a> = (
     <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
-    <a href="globals.html#type-int">int</a>,
-    <a href="globals.html#type-int">int</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+    int,
+    int
+) => unit</h4>
 
 <div class='body '><p> Recomputes matrices while resetting size of window</p>
 </div></div>

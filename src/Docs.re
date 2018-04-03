@@ -39,9 +39,13 @@ let generate = (name, topdoc, stamps, allDocs, projectNames) => {
     | inner => "#" ++ GenerateDoc.makeId(inner, ptype)
     };
     if (modName == name) {
-      hash
+      Some(hash)
     } else {
-      modName ++ ".html" ++ hash
+      if (List.mem(modName, projectNames)) {
+        Some(modName ++ ".html" ++ hash)
+      } else {
+        None
+      }
     }
   };
 

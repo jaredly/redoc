@@ -298,10 +298,10 @@ window.onhashchange = checkHash
 
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>let <a href="#value-color" id="value-color">color</a> = (
-    ~r: <a href="globals.html#type-int">int</a>,
-    ~g: <a href="globals.html#type-int">int</a>,
-    ~b: <a href="globals.html#type-int">int</a>,
-    ~a: <a href="globals.html#type-int">int</a>
+    ~r: int,
+    ~g: int,
+    ~b: int,
+    ~a: int
 ) => <a href="Reprocessing_Types.html">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#type-Types.colorT">colorT</a></h4>
 
 <div class='body '><p> Creates colors for storing in variables of the color datatype.
@@ -310,10 +310,10 @@ window.onhashchange = checkHash
 </div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-colorf" id="value-colorf">colorf</a> = (
-    ~r: <a href="globals.html#type-float">float</a>,
-    ~g: <a href="globals.html#type-float">float</a>,
-    ~b: <a href="globals.html#type-float">float</a>,
-    ~a: <a href="globals.html#type-float">float</a>
+    ~r: float,
+    ~g: float,
+    ~b: float,
+    ~a: float
 ) => <a href="Reprocessing_Types.html">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#type-Types.colorT">colorT</a></h4>
 
 <div class='body '><p> Creates colors for storing in variables of the color datatype.
@@ -321,20 +321,20 @@ window.onhashchange = checkHash
  Components should be in the range 0.0 to 1.0.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-round" id="value-round">round</a> = (<a href="globals.html#type-float">float</a>) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-round" id="value-round">round</a> = (float) => float</h4>
 
 <div class='body '><p> Calculates the integer closest to the input. For example,
  <code>round 133.8</code> returns the value 134.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-sq" id="value-sq">sq</a> = (<a href="globals.html#type-int">int</a>) => <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-sq" id="value-sq">sq</a> = (int) => int</h4>
 
 <div class='body '><p> Squares a number (multiplies a number by itself). The result is always a
  positive number, as multiplying two negative numbers always yields a
  positive result.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-pow" id="value-pow">pow</a> = (~base: <a href="globals.html#type-int">int</a>, ~exp: <a href="globals.html#type-int">int</a>) => <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-pow" id="value-pow">pow</a> = (~base: int, ~exp: int) => int</h4>
 
 <div class='body '><p> Facilitates exponential expressions. The pow() function is an efficient
  way of multiplying numbers by themselves (or their reciprocals) in large
@@ -347,12 +347,12 @@ window.onhashchange = checkHash
 </div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-remapf" id="value-remapf">remapf</a> = (
-    ~value: <a href="globals.html#type-float">float</a>,
-    ~low1: <a href="globals.html#type-float">float</a>,
-    ~high1: <a href="globals.html#type-float">float</a>,
-    ~low2: <a href="globals.html#type-float">float</a>,
-    ~high2: <a href="globals.html#type-float">float</a>
-) => <a href="globals.html#type-float">float</a></h4>
+    ~value: float,
+    ~low1: float,
+    ~high1: float,
+    ~low2: float,
+    ~high2: float
+) => float</h4>
 
 <div class='body '><p> Re-maps a number from one range to another.
  i.e. <code>remapf value::5. start1::0. stop1::10. start2::10. stop2::20.</code>
@@ -361,12 +361,12 @@ window.onhashchange = checkHash
 </div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-remap" id="value-remap">remap</a> = (
-    ~value: <a href="globals.html#type-int">int</a>,
-    ~low1: <a href="globals.html#type-int">int</a>,
-    ~high1: <a href="globals.html#type-int">int</a>,
-    ~low2: <a href="globals.html#type-int">int</a>,
-    ~high2: <a href="globals.html#type-int">int</a>
-) => <a href="globals.html#type-int">int</a></h4>
+    ~value: int,
+    ~low1: int,
+    ~high1: int,
+    ~low2: int,
+    ~high2: int
+) => int</h4>
 
 <div class='body '><p> Re-maps a number from one range to another.
  i.e. <code>remapf value::5. start1::0. stop1::10. start2::10. stop2::20.</code>
@@ -378,23 +378,23 @@ window.onhashchange = checkHash
 </div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-norm" id="value-norm">norm</a> = (
-    ~value: <a href="globals.html#type-float">float</a>,
-    ~low: <a href="globals.html#type-float">float</a>,
-    ~high: <a href="globals.html#type-float">float</a>
-) => <a href="globals.html#type-float">float</a></h4>
+    ~value: float,
+    ~low: float,
+    ~high: float
+) => float</h4>
 
 <div class='body '><p> Normalizes a number from another range into a value between 0 and 1.
  Identical to <code>remap ::value ::low ::high 0. 1.</code></p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-randomf" id="value-randomf">randomf</a> = (~min: <a href="globals.html#type-float">float</a>, ~max: <a href="globals.html#type-float">float</a>) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-randomf" id="value-randomf">randomf</a> = (~min: float, ~max: float) => float</h4>
 
 <div class='body '><p> Generates random numbers. Each time the <code>randomf</code> function is called, it
  returns an unexpected value within the specified range. The top number is
  not included.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-random" id="value-random">random</a> = (~min: <a href="globals.html#type-int">int</a>, ~max: <a href="globals.html#type-int">int</a>) => <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-random" id="value-random">random</a> = (~min: int, ~max: int) => int</h4>
 
 <div class='body '><p> Generates random numbers. Each time the <code>random</code> function is called, it
  returns an unexpected value within the specified range. The top number is
@@ -404,7 +404,7 @@ window.onhashchange = checkHash
  as a convenience.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-randomSeed" id="value-randomSeed">randomSeed</a> = (<a href="globals.html#type-int">int</a>) => <a href="globals.html#type-unit">unit</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-randomSeed" id="value-randomSeed">randomSeed</a> = (int) => unit</h4>
 
 <div class='body '><p> Sets the seed value for <code>random</code> and <code>randomf</code>. By default, <code>random</code>
  produces different results each time the program is run. Set the
@@ -413,7 +413,7 @@ window.onhashchange = checkHash
  This is equivalent to setting Random.init in ocaml/reason.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-randomGaussian" id="value-randomGaussian">randomGaussian</a> = (<a href="globals.html#type-unit">unit</a>) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-randomGaussian" id="value-randomGaussian">randomGaussian</a> = (unit) => float</h4>
 
 <div class='body '><p> Returns a float from a random series of numbers having a mean of 0 and
  standard deviation of 1. Each time the <code>randomGaussian</code> function is called,
@@ -425,10 +425,10 @@ window.onhashchange = checkHash
 </div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-lerpf" id="value-lerpf">lerpf</a> = (
-    ~low: <a href="globals.html#type-float">float</a>,
-    ~high: <a href="globals.html#type-float">float</a>,
-    ~value: <a href="globals.html#type-float">float</a>
-) => <a href="globals.html#type-float">float</a></h4>
+    ~low: float,
+    ~high: float,
+    ~value: float
+) => float</h4>
 
 <div class='body '><p> Calculates a number between two numbers at a specific increment. The
  amt parameter is the amount to interpolate between the two values where 0.0
@@ -437,7 +437,7 @@ window.onhashchange = checkHash
  straight path and for drawing dotted lines.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-lerp" id="value-lerp">lerp</a> = (~low: <a href="globals.html#type-int">int</a>, ~high: <a href="globals.html#type-int">int</a>, ~value: <a href="globals.html#type-float">float</a>) => <a href="globals.html#type-int">int</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-lerp" id="value-lerp">lerp</a> = (~low: int, ~high: int, ~value: float) => int</h4>
 
 <div class='body '><p> Calculates a number between two numbers at a specific increment. The
  amt parameter is the amount to interpolate between the two values where 0.0
@@ -452,20 +452,20 @@ window.onhashchange = checkHash
 <div class='doc-item'><h4 class='item'>let <a href="#value-lerpColor" id="value-lerpColor">lerpColor</a> = (
     ~low: <a href="Reprocessing_Types.html">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#type-Types.colorT">colorT</a>,
     ~high: <a href="Reprocessing_Types.html">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#type-Types.colorT">colorT</a>,
-    ~value: <a href="globals.html#type-float">float</a>
+    ~value: float
 ) => <a href="Reprocessing_Types.html">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#type-Types.colorT">colorT</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-distf" id="value-distf">distf</a> = (
-    ~p1: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~p2: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>)
-) => <a href="globals.html#type-float">float</a></h4>
+    ~p1: (float, float),
+    ~p2: (float, float)
+) => float</h4>
 
 <div class='body '><p> Calculates the distance between two points.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-dist" id="value-dist">dist</a> = (~p1: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>), ~p2: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>)) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-dist" id="value-dist">dist</a> = (~p1: (int, int), ~p2: (int, int)) => float</h4>
 
 <div class='body '><p> Calculates the distance between two points.
  *
@@ -473,7 +473,7 @@ window.onhashchange = checkHash
  as a convenience.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-magf" id="value-magf">magf</a> = ((<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>)) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-magf" id="value-magf">magf</a> = ((float, float)) => float</h4>
 
 <div class='body '><p> Calculates the magnitude (or length) of a vector. A vector is a direction
  in space commonly used in computer graphics and linear algebra. Because it
@@ -482,7 +482,7 @@ window.onhashchange = checkHash
  shortcut for writing <code>dist (0, 0) (x, y)</code>.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-mag" id="value-mag">mag</a> = ((<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>)) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-mag" id="value-mag">mag</a> = ((int, int)) => float</h4>
 
 <div class='body '><p> Calculates the magnitude (or length) of a vector. A vector is a direction
  in space commonly used in computer graphics and linear algebra. Because it
@@ -494,7 +494,7 @@ window.onhashchange = checkHash
  as a convenience.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-degrees" id="value-degrees">degrees</a> = (<a href="globals.html#type-float">float</a>) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-degrees" id="value-degrees">degrees</a> = (float) => float</h4>
 
 <div class='body '><p> Converts a radian measurement to its corresponding value in degrees.
  Radians and degrees are two ways of measuring the same thing. There are 360
@@ -503,7 +503,7 @@ window.onhashchange = checkHash
  specified in radians.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-radians" id="value-radians">radians</a> = (<a href="globals.html#type-float">float</a>) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-radians" id="value-radians">radians</a> = (float) => float</h4>
 
 <div class='body '><p> Converts a degree measurement to its corresponding value in radians.
  Radians and degrees are two ways of measuring the same thing. There are 360
@@ -512,7 +512,7 @@ window.onhashchange = checkHash
  specified in radians.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-noise" id="value-noise">noise</a> = (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>) => <a href="globals.html#type-float">float</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-noise" id="value-noise">noise</a> = (float, float, float) => float</h4>
 
 <div class='body '><p> Returns the Perlin noise value at specified coordinates. Perlin noise is a
  random sequence generator producing a more natural, harmonic succession of
@@ -538,13 +538,13 @@ window.onhashchange = checkHash
  As a general rule, the smaller the difference between coordinates, the smoother the resulting noise sequence. Steps of 0.005-0.03 work best for most applications, but this will differ depending on use.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-noiseSeed" id="value-noiseSeed">noiseSeed</a> = (<a href="globals.html#type-int">int</a>) => <a href="globals.html#type-unit">unit</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-noiseSeed" id="value-noiseSeed">noiseSeed</a> = (int) => unit</h4>
 
 <div class='body '><p> Sets the seed value for <code>noise</code>.  This will also affect the
  seed value for <code>random</code> and <code>randomf</code>.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-split" id="value-split">split</a> = (<a href="globals.html#type-string">string</a>, ~sep: <a href="globals.html#type-char">char</a>) => <a href="globals.html#type-list">list</a>(<a href="globals.html#type-string">string</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-split" id="value-split">split</a> = (string, ~sep: char) => list(string)</h4>
 
 <div class='body '><p> The <code>split</code> function breaks a string into pieces using a character
  as the delimiter. The sep parameter specifies the character
@@ -553,12 +553,12 @@ window.onhashchange = checkHash
 </div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-intersectRectCircle" id="value-intersectRectCircle">intersectRectCircle</a> = (
-    ~rectPos: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~rectW: <a href="globals.html#type-float">float</a>,
-    ~rectH: <a href="globals.html#type-float">float</a>,
-    ~circlePos: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~circleRad: <a href="globals.html#type-float">float</a>
-) => <a href="globals.html#type-bool">bool</a></h4>
+    ~rectPos: (float, float),
+    ~rectW: float,
+    ~rectH: float,
+    ~circlePos: (float, float),
+    ~circleRad: float
+) => bool</h4>
 
 <div class='body '><p> Determines if there is an intersection between a rectangle and a circle.
  rectPos refers to the top left of the rect and circlePos to the center of
@@ -568,13 +568,13 @@ window.onhashchange = checkHash
 </div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-intersectRectRect" id="value-intersectRectRect">intersectRectRect</a> = (
-    ~rect1Pos: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~rect1W: <a href="globals.html#type-float">float</a>,
-    ~rect1H: <a href="globals.html#type-float">float</a>,
-    ~rect2Pos: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
-    ~rect2W: <a href="globals.html#type-float">float</a>,
-    ~rect2H: <a href="globals.html#type-float">float</a>
-) => <a href="globals.html#type-bool">bool</a></h4>
+    ~rect1Pos: (float, float),
+    ~rect1W: float,
+    ~rect1H: float,
+    ~rect2Pos: (float, float),
+    ~rect2W: float,
+    ~rect2H: float
+) => bool</h4>
 
 <div class='body '><p> Determines if there is an intersection between two axis-aligned rectangles.
  rect1Pos and rect2Pos refer to the top left of the rectangles.

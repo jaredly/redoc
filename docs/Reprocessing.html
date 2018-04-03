@@ -330,31 +330,31 @@ window.onhashchange = checkHash
 <div class='body body-empty'></div></div>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-hotreload" id="value-hotreload">hotreload</a> = (<a href="globals.html#type-string">string</a>) => <a href="globals.html#type-bool">bool</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-hotreload" id="value-hotreload">hotreload</a> = (string) => bool</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-target" id="value-target">target</a> = <a href="globals.html#type-string">string</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-target" id="value-target">target</a> = string</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-run" id="value-run">run</a> = (
     ~setup: (<a href="#type-glEnvT">glEnvT</a>) => 'a,
-    ~?draw: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?mouseMove: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?mouseDragged: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?mouseDown: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?mouseUp: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?touchMove: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?touchStart: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?touchEnd: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?keyPressed: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?keyReleased: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?keyTyped: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
-    ~?backPressed: <a href="globals.html#type-option">option</a>(('a, <a href="#type-glEnvT">glEnvT</a>) => <a href="globals.html#type-option">option</a>('a)),
-    ~?title: <a href="globals.html#type-option">option</a>(<a href="globals.html#type-string">string</a>),
-    <a href="globals.html#type-unit">unit</a>
-) => <a href="globals.html#type-unit">unit</a></h4>
+    ~?draw: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?mouseMove: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?mouseDragged: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?mouseDown: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?mouseUp: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?touchMove: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?touchStart: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?touchEnd: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?keyPressed: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?keyReleased: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?keyTyped: option(('a, <a href="#type-glEnvT">glEnvT</a>) => 'a),
+    ~?backPressed: option(('a, <a href="#type-glEnvT">glEnvT</a>) => option('a)),
+    ~?title: option(string),
+    unit
+) => unit</h4>
 
 <div class='body '><p> Entrypoint to the graphics library. The system
  is designed for you to return a self-defined &#39;state&#39;

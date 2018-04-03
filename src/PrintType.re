@@ -3,6 +3,8 @@ open Outcometree;
 
 let rec collectArgs = (coll, typ) => switch typ.Types.desc {
 | Types.Tarrow(label, arg, result, _) => collectArgs([(label, arg), ...coll], result)
+| Tlink(inner) => collectArgs(coll, inner)
+| Tsubst(inner) => collectArgs(coll, inner)
 | _ => (coll, typ)
 };
 
@@ -51,8 +53,8 @@ let print_expr = (stringifier, typ) => {
   switch (typ.desc) {
   | Tvar(None) => str("'a")
   | Tvar(Some(s)) => str("'" ++ s)
-  | Tarrow(label, arg, res, _) => {
-    let (args, result) = collectArgs([(label, arg)], res);
+  | Tarrow(label, arg, result, _) => {
+    let (args, result) = collectArgs([(label, arg)], result);
     let args = List.rev(args);
     str("(") @!
     indentGroup(

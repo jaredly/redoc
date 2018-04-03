@@ -46,3 +46,4 @@ For all other files:
   - you can do an absolute link, and it will work out the relative link, so that if the files are hosted not at the root it will be ok
 - should the api docs be placed in `./docs/api`? Maybe. Probably.
 - maybe allow you to `@doc` include bits of docs from the api? That could be fun.
+- probably want to allow "splat"ing in code from different places. Like example code, etc.

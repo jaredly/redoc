@@ -12,7 +12,7 @@ let annotateSourceCode = (source, cmt, mlast, output) => {
 
 let getName = x => Filename.basename(x) |> Filename.chop_extension;
 
-let generateDocs = (cmt, output, projectNames) => {
+let generateDocs = (~cssLoc, ~jsLoc, cmt, output, projectNames) => {
   let name = getName(cmt);
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
 
@@ -23,7 +23,7 @@ let generateDocs = (cmt, output, projectNames) => {
     let out = Format.flush_str_formatter();
     Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
 
-    Docs.implementation(name, structure, projectNames)
+    Docs.implementation(~cssLoc, ~jsLoc, name, structure, projectNames)
   }
   | Cmt_format.Interface(signature) => {
 
@@ -31,7 +31,7 @@ let generateDocs = (cmt, output, projectNames) => {
     let out = Format.flush_str_formatter();
     Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
 
-    Docs.interface(name, signature, projectNames)
+    Docs.interface(~cssLoc, ~jsLoc, name, signature, projectNames)
   }
   | _ => failwith("Not a valid cmt file")
   };
@@ -51,10 +51,16 @@ let generateProject = (dest, cmts) => {
     !(Filename.check_suffix(path, ".cmt") && Hashtbl.mem(intfs, getName(path)))
   });
 
+  let cssLoc = Filename.concat(dest, "styles.css");
+  let jsLoc = Filename.concat(dest, "script.js");
+
+  Files.writeFile(cssLoc, DocsTemplate.styles) |> ignore;
+  Files.writeFile(jsLoc, DocsTemplate.script) |> ignore;
+
   let names = List.map(getName, cmts);
   cmts |> List.iter(cmt => {
     let name = Filename.basename(cmt) |> Filename.chop_extension;
-    generateDocs(cmt, Filename.concat(dest, name ++ ".html"), names)
+    generateDocs(~cssLoc=Some("./styles.css"), ~jsLoc=Some("./script.js"), cmt, Filename.concat(dest, name ++ ".html"), names)
   })
 };
 
@@ -62,7 +68,7 @@ let main = () => {
   switch (Sys.argv |> Array.to_list) {
   | [_, "project", dest, ...rest] => generateProject(dest, rest)
   | [_, source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
-  | [_, cmt, output] => generateDocs(cmt, output, [])
+  | [_, cmt, output] => generateDocs(~cssLoc=None, ~jsLoc=None, cmt, output, [])
   | _ => {
     print_endline("\n\nUsage: docre some.re some.cmt some.mlast output.html");
   }

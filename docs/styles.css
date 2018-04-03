@@ -1,5 +1,4 @@
 
-let styles = {|
 body {
   font-family: system-ui;
   font-weight: 200;
@@ -264,50 +263,3 @@ a.level-5 {
   box-shadow: 0px 1px 3px #d8a2a2;
   margin-bottom: 32px;
 }
-|};
-
-let script = {|
-var checkHash = () => {
-  var id = window.location.hash.slice(1)
-  if (id && !document.getElementById(id)) {
-    document.getElementById("error-message").style.display = 'block'
-    var parts = id.split('-')
-    document.querySelector('#error-message span').textContent = parts[0]
-    document.querySelector('#error-message code').textContent = parts[1]
-  }
-}
-window.onload = () => {
-  checkHash()
-  var expander = document.querySelector('.sidebar-expander')
-  expander.onclick = () => {
-    var sidebar = document.querySelector('.sidebar');
-    if (sidebar.classList.contains('expanded')) {
-      sidebar.classList.remove('expanded')
-      expander.textContent = 'Show navigation'
-    } else {
-      sidebar.classList.add('expanded')
-      expander.textContent = 'Hide navigation'
-    }
-  }
-}
-window.onhashchange = checkHash
-|};
-
-let head = (~cssLoc=?, ~jsLoc=?, name) => Printf.sprintf({|
-<!doctype html>
-<meta charset=utf8>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-%s
-%s
-<title>%s</title>
-<body>
-<div id='error-message'>
-  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
-</div>
-|}, switch cssLoc {
-| None => "<style>" ++ styles ++ "</style>"
-| Some(loc) => "<link rel=stylesheet href='" ++ loc ++ "'>"
-}, switch jsLoc {
-| None => "<script>" ++ script ++ "</script>"
-| Some(loc) => "<script defer src='" ++ loc ++ "'></script>"
-}, name);

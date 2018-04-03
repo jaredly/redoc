@@ -14,10 +14,9 @@ name=src/Example
 # ${base}/lib/bs/js/${name}.mlast \
 # docs/index.html
 
-# ./_build/install/default/bin/docre \
-# ${base}/lib/bs/js/${name}.cmt \
-# ${base}/lib/bs/js/${name}.mlast \
-# docs/doc.html
+./_build/install/default/bin/docre \
+${base}/lib/bs/js/${name}.cmt \
+docs/doc.html
 
 # name=/node_modules/@jaredly/reprocessing/lib/bs/js/src/Reprocessing_Draw
 # ./_build/install/default/bin/docre \

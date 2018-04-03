@@ -142,31 +142,28 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, (name, d
 }
 
 and docsForModule = (~skipDoc=false, formatHref, stampsToPaths, path, name, main, contents) => {
+  open Omd;
   let html = Omd.of_string(main) |> Omd.to_html(~override=element => switch element {
-  | Omd.Paragraph([Text(t)]) => {
+  /* Special replacements for @all and @doc */
+  | Paragraph([Text(t)]) => {
     if (String.trim(t) == "@all") {
-      print_endline("Got @all");
       Some((List.map(generateDoc(~skipDoc, formatHref, stampsToPaths, path), List.rev(contents)) |> String.concat("\n\n")) ++ "\n")
+    } else if (Str.string_match(Str.regexp("^@doc [^\n]+"), t, 0)) {
+      Some({
+        let text = Str.matched_string(t);
+        let raw = String.sub(text, 5, String.length(text) - 5);
+        let items = Str.split(Str.regexp_string(","), raw) |> List.map(String.trim);
+        items |> List.map(name => switch (findByName(contents, name)) {
+        | None => "Invalid doc item referenced: " ++ name
+        | Some(doc) => generateDoc(~skipDoc, formatHref, stampsToPaths, path, doc)
+        }) |> String.concat("\n\n");
+      })
     } else {
       None
     }
   }
   | _ => None
   });
-
-  /* let html = Str.global_substitute(Str.regexp_string("<p>@all</p>"), text => {
-    /** TODO: dedup, for example if there are multiple values of the same name, I need to only do the last defined one. */
-  }, html); */
-
-  let html = Str.global_substitute(Str.regexp("<p>@doc [^<]+</p>"), text => {
-    let text = Str.matched_string(text);
-    let raw = String.sub(text, 8, String.length(text) - 8 - 4);
-    let items = Str.split(Str.regexp_string(","), raw) |> List.map(String.trim);
-    items |> List.map(name => switch (findByName(contents, name)) {
-    | None => failwith("Invalid doc item referenced: " ++ name)
-    | Some(doc) => generateDoc(~skipDoc, formatHref, stampsToPaths, path, doc)
-    }) |> String.concat("\n\n");
-  }, html);
 
   html
 };

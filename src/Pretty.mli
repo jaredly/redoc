@@ -43,6 +43,9 @@ val line : string -> doc
     For best results, the string should not contain newlines *)
 val text : ?len: int -> string -> doc
 
+(** Constructs a linebreak that dedents *)
+val back : int -> string -> doc
+
 (** Pretty-prints the document.  You can override the device width,
     the "output" function that defines how to output text, and the
     "indent" function that defines how to print a newline and indent

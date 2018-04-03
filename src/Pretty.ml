@@ -20,6 +20,7 @@ and node =
   | Empty
   | Group of doc
   | Indent of int * doc
+  | BackLine of int * string
   | Line of int * string (* int = String.length string *)
   | Text of int * string (* int = String.length string *)
 
@@ -41,6 +42,14 @@ let append left right =
 let empty =
   {
     node = Empty;
+    flat_size = 0;
+    min_width = 0;
+    single_line = true;
+  }
+
+let back num text =
+  {
+    node = BackLine(num, text);
     flat_size = 0;
     min_width = 0;
     single_line = true;
@@ -82,6 +91,7 @@ let rec flatten doc =
     | Empty | Text _ -> doc
     | Group x | Indent (_, x) -> flatten x
     | Line (_, x) -> text x
+    | BackLine (_, x) -> text x
 
 type stack_node =
     {
@@ -129,6 +139,9 @@ let print
             loop currentIndent (push offset flatDoc rest)
           | Indent (ident, doc) ->
             loop currentIndent (push (offset + ident) doc rest)
+          | BackLine (num, _) ->
+            indent (offset - num);
+            loop (offset - num) rest
           | Line _ ->
             indent offset;
             loop offset rest

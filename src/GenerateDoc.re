@@ -53,7 +53,6 @@ let printer = (formatHref, stampsToPaths) => {
     let show = name => {
       let tag = Printf.sprintf({|<a href="%s">%s</a>|}, full, name);
       Pretty.text(~len=String.length(name), tag)
-      /* Format.pp_print_as(fmt, String.length(name), tag) */
     };
     switch path {
     | Pident({name}) => show(name)
@@ -63,18 +62,6 @@ let printer = (formatHref, stampsToPaths) => {
     };
   }
 };
-
-let withFmt = (size, fn) => {
-  let buffer = Buffer.create(100);
-  let fmt = Format.formatter_of_buffer(buffer);
-  Format.pp_set_margin(fmt, size);
-  fn(fmt);
-  Format.pp_print_flush(fmt, ());
-  Buffer.to_bytes(buffer) |> Bytes.to_string
-};
-
-/* let printType = (formatHref, stampsToPaths, expr) => {
-}; */
 
 let makeId = (items, ptype) => {
   open PrepareDocs.T;
@@ -90,7 +77,7 @@ let defaultMain = name => "<span class='missing'>This module does not have a top
 
 let prettyString = doc => {
   let buffer = Buffer.create(100);
-  Pretty.print(~width=50, ~output=(text => {
+  Pretty.print(~width=60, ~output=(text => {
     Buffer.add_string(buffer, text)
   }), ~indent=(num => {
     Buffer.add_string(buffer, "\n");
@@ -168,6 +155,9 @@ body {
 .body {
   margin-left: 24px;
   margin-bottom: 48px;
+  line-height: 1.5em;
+  font-size: 20px;
+  letter-spacing: 1px;
 }
 .missing {
   font-style: italic;
@@ -190,6 +180,14 @@ h4.module {
 .module-body {
   border-left: 5px solid #ddd;
   padding-left: 24px;
+}
+
+p code {
+  padding: 1px 4px;
+  background: #eee;
+  border-radius: 3px;
+  font-family: 'sf mono', monospace;
+  font-size: 0.9em;
 }
 
 a {

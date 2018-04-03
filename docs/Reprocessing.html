@@ -11,6 +11,9 @@ body {
 .body {
   margin-left: 24px;
   margin-bottom: 48px;
+  line-height: 1.5em;
+  font-size: 20px;
+  letter-spacing: 1px;
 }
 .missing {
   font-style: italic;
@@ -33,6 +36,14 @@ h4.module {
 .module-body {
   border-left: 5px solid #ddd;
   padding-left: 24px;
+}
+
+p code {
+  padding: 1px 4px;
+  background: #eee;
+  border-radius: 3px;
+  font-family: 'sf mono', monospace;
+  font-size: 0.9em;
 }
 
 a {
@@ -67,12 +78,10 @@ a:hover, a:focus {
     ~?keyPressed: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
     ~?keyReleased: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
     ~?keyTyped: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => 'a),
-    ~?backPressed: <a href="globals.html#type-option">option</a>(
-            ('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => <a href="globals.html#type-option">option</a>('a)
-            ),
+    ~?backPressed: <a href="globals.html#type-option">option</a>(('a, <a href="globals.html#type-glEnvT">glEnvT</a>) => <a href="globals.html#type-option">option</a>('a)),
     ~?title: <a href="globals.html#type-option">option</a>(<a href="globals.html#type-string">string</a>),
     <a href="globals.html#type-unit">unit</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Entrypoint to the graphics library. The system
  is designed for you to return a self-defined &#39;state&#39;

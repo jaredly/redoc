@@ -11,6 +11,9 @@ body {
 .body {
   margin-left: 24px;
   margin-bottom: 48px;
+  line-height: 1.5em;
+  font-size: 20px;
+  letter-spacing: 1px;
 }
 .missing {
   font-style: italic;
@@ -35,6 +38,14 @@ h4.module {
   padding-left: 24px;
 }
 
+p code {
+  padding: 1px 4px;
+  background: #eee;
+  border-radius: 3px;
+  font-family: 'sf mono', monospace;
+  font-size: 0.9em;
+}
+
 a {
   text-decoration: none;
 }
@@ -51,7 +62,7 @@ a:hover, a:focus {
     ~g: <a href="globals.html#type-int">int</a>,
     ~b: <a href="globals.html#type-int">int</a>,
     ~a: <a href="globals.html#type-int">int</a>
-    ) => <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a></h4>
+) => <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a></h4>
 
 <div class='body '><p> Creates colors for storing in variables of the color datatype.
  *
@@ -63,7 +74,7 @@ a:hover, a:focus {
     ~g: <a href="globals.html#type-float">float</a>,
     ~b: <a href="globals.html#type-float">float</a>,
     ~a: <a href="globals.html#type-float">float</a>
-    ) => <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a></h4>
+) => <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a></h4>
 
 <div class='body '><p> Creates colors for storing in variables of the color datatype.
  *
@@ -90,11 +101,7 @@ a:hover, a:focus {
  quantities.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-constrain" id="value-constrain">constrain</a> = (
-    ~amt: 'a,
-    ~low: 'a,
-    ~high: 'a
-    ) => 'a</h4>
+<h4 class='item'>let <a href="#value-constrain" id="value-constrain">constrain</a> = (~amt: 'a, ~low: 'a, ~high: 'a) => 'a</h4>
 
 <div class='body '><p> Constrains a value to not exceed a maximum and minimum value.</p>
 </div>
@@ -105,7 +112,7 @@ a:hover, a:focus {
     ~high1: <a href="globals.html#type-float">float</a>,
     ~low2: <a href="globals.html#type-float">float</a>,
     ~high2: <a href="globals.html#type-float">float</a>
-    ) => <a href="globals.html#type-float">float</a></h4>
+) => <a href="globals.html#type-float">float</a></h4>
 
 <div class='body '><p> Re-maps a number from one range to another.
  i.e. <code>remapf value::5. start1::0. stop1::10. start2::10. stop2::20.</code>
@@ -119,7 +126,7 @@ a:hover, a:focus {
     ~high1: <a href="globals.html#type-int">int</a>,
     ~low2: <a href="globals.html#type-int">int</a>,
     ~high2: <a href="globals.html#type-int">int</a>
-    ) => <a href="globals.html#type-int">int</a></h4>
+) => <a href="globals.html#type-int">int</a></h4>
 
 <div class='body '><p> Re-maps a number from one range to another.
  i.e. <code>remapf value::5. start1::0. stop1::10. start2::10. stop2::20.</code>
@@ -134,7 +141,7 @@ a:hover, a:focus {
     ~value: <a href="globals.html#type-float">float</a>,
     ~low: <a href="globals.html#type-float">float</a>,
     ~high: <a href="globals.html#type-float">float</a>
-    ) => <a href="globals.html#type-float">float</a></h4>
+) => <a href="globals.html#type-float">float</a></h4>
 
 <div class='body '><p> Normalizes a number from another range into a value between 0 and 1.
  Identical to <code>remap ::value ::low ::high 0. 1.</code></p>
@@ -181,7 +188,7 @@ a:hover, a:focus {
     ~low: <a href="globals.html#type-float">float</a>,
     ~high: <a href="globals.html#type-float">float</a>,
     ~value: <a href="globals.html#type-float">float</a>
-    ) => <a href="globals.html#type-float">float</a></h4>
+) => <a href="globals.html#type-float">float</a></h4>
 
 <div class='body '><p> Calculates a number between two numbers at a specific increment. The
  amt parameter is the amount to interpolate between the two values where 0.0
@@ -190,11 +197,7 @@ a:hover, a:focus {
  straight path and for drawing dotted lines.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-lerp" id="value-lerp">lerp</a> = (
-    ~low: <a href="globals.html#type-int">int</a>,
-    ~high: <a href="globals.html#type-int">int</a>,
-    ~value: <a href="globals.html#type-float">float</a>
-    ) => <a href="globals.html#type-int">int</a></h4>
+<h4 class='item'>let <a href="#value-lerp" id="value-lerp">lerp</a> = (~low: <a href="globals.html#type-int">int</a>, ~high: <a href="globals.html#type-int">int</a>, ~value: <a href="globals.html#type-float">float</a>) => <a href="globals.html#type-int">int</a></h4>
 
 <div class='body '><p> Calculates a number between two numbers at a specific increment. The
  amt parameter is the amount to interpolate between the two values where 0.0
@@ -210,22 +213,19 @@ a:hover, a:focus {
     ~low: <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a>,
     ~high: <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a>,
     ~value: <a href="globals.html#type-float">float</a>
-    ) => <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a></h4>
+) => <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a></h4>
 
 <div class='body '><span class='missing'>No documentation for this value</span></div>
 
 <h4 class='item'>let <a href="#value-distf" id="value-distf">distf</a> = (
     ~p1: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     ~p2: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>)
-    ) => <a href="globals.html#type-float">float</a></h4>
+) => <a href="globals.html#type-float">float</a></h4>
 
 <div class='body '><p> Calculates the distance between two points.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-dist" id="value-dist">dist</a> = (
-    ~p1: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
-    ~p2: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>)
-    ) => <a href="globals.html#type-float">float</a></h4>
+<h4 class='item'>let <a href="#value-dist" id="value-dist">dist</a> = (~p1: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>), ~p2: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>)) => <a href="globals.html#type-float">float</a></h4>
 
 <div class='body '><p> Calculates the distance between two points.
  *
@@ -318,7 +318,7 @@ a:hover, a:focus {
     ~rectH: <a href="globals.html#type-float">float</a>,
     ~circlePos: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     ~circleRad: <a href="globals.html#type-float">float</a>
-    ) => <a href="globals.html#type-bool">bool</a></h4>
+) => <a href="globals.html#type-bool">bool</a></h4>
 
 <div class='body '><p> Determines if there is an intersection between a rectangle and a circle.
  rectPos refers to the top left of the rect and circlePos to the center of
@@ -334,7 +334,7 @@ a:hover, a:focus {
     ~rect2Pos: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     ~rect2W: <a href="globals.html#type-float">float</a>,
     ~rect2H: <a href="globals.html#type-float">float</a>
-    ) => <a href="globals.html#type-bool">bool</a></h4>
+) => <a href="globals.html#type-bool">bool</a></h4>
 
 <div class='body '><p> Determines if there is an intersection between two axis-aligned rectangles.
  rect1Pos and rect2Pos refer to the top left of the rectangles.

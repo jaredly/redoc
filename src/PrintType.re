@@ -16,6 +16,7 @@ type stringifier = {
 
 let break = Pretty.line("");
 let space = Pretty.line(" ");
+let dedent = Pretty.back(4, "");
 
 let str = Pretty.text;
 let (@!) = Pretty.append;
@@ -27,23 +28,19 @@ let sepd_list = (sep, items, loop) => {
     | [one, ...more] => loop(one) @! sep @! recur(more)
   };
   recur(items)
-  /* Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, "@ %s", sep), loop, fmt, items); */
 };
 
 let commad_list = (loop, items) => {
   sepd_list(str(",") @! space, items, loop)
-  /* Format.pp_print_list(~pp_sep=(fmt, ()) => Format.fprintf(fmt, ",@ "), loop, fmt, items); */
 };
 
 let indentGroup = doc => Pretty.indent(4, Pretty.group(doc));
 
 let tuple_list = (items, loop) => {
   str("(") @! indentGroup(break @!
-  /* Format.fprintf(fmt, "(@[@,"); */
   commad_list(loop, items) @!
-  break) @!
+  dedent) @!
   str(")")
-  /* Format.fprintf(fmt, "@;<0 -4>@])"); */
 };
 
 let print_expr = (stringifier, typ) => {
@@ -62,12 +59,11 @@ let print_expr = (stringifier, typ) => {
       if (label == "") {
         loop(typ)
       } else {
-        str("~" ++ label ++ ": ") @! indentGroup(loop(typ))
+        str("~" ++ label ++ ": ") @! loop(typ)
       }
     }, args)
-    @! break
+    @! dedent
     ) @! str(") => ") @!
-    /* Format.fprintf(fmt, "@;<0 -4>@]) => "); */
     loop(result);
   }
   | Ttuple(items) => tuple_list(items, loop)
@@ -135,7 +131,7 @@ let print_decl = (stringifier, realName, name, decl) => {
   | Type_record(labels, representation) => {
     str(" = {") @! indentGroup(break @!
     commad_list(print_attr(stringifier), labels)
-     @! break) @! str("}")
+     @! dedent) @! str("}")
   }
   | Type_variant(constructors) => {
     str(" = ") @! indentGroup(break @! str("| ") @!
@@ -150,7 +146,6 @@ let print_decl = (stringifier, realName, name, decl) => {
     stringifier.expr(stringifier, manifest)
   }
   };
-  /* Format.fprintf(fmt, "@]"); */
 };
 
 let default = {

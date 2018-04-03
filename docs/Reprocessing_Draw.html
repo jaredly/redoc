@@ -11,6 +11,9 @@ body {
 .body {
   margin-left: 24px;
   margin-bottom: 48px;
+  line-height: 1.5em;
+  font-size: 20px;
+  letter-spacing: 1px;
 }
 .missing {
   font-style: italic;
@@ -35,6 +38,14 @@ h4.module {
   padding-left: 24px;
 }
 
+p code {
+  padding: 1px 4px;
+  background: #eee;
+  border-radius: 3px;
+  font-family: 'sf mono', monospace;
+  font-size: 0.9em;
+}
+
 a {
   text-decoration: none;
 }
@@ -50,7 +61,7 @@ a:hover, a:focus {
     ~x: <a href="globals.html#type-float">float</a>,
     ~y: <a href="globals.html#type-float">float</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Specifies an amount to displace objects within the display window.
  The dx parameter specifies left/right translation, the dy parameter
@@ -68,7 +79,7 @@ a:hover, a:focus {
 <h4 class='item'>let <a href="#value-rotate" id="value-rotate">rotate</a> = (
     <a href="globals.html#type-float">float</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Rotates the amount specified by the angle parameter. Angles must be
  specified in radians (values from 0 to two_pi), or they can be converted
@@ -90,7 +101,7 @@ a:hover, a:focus {
     ~x: <a href="globals.html#type-float">float</a>,
     ~y: <a href="globals.html#type-float">float</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> The scale() function increases or decreases the size of a shape by expanding
  and contracting vertices.</p>
@@ -100,7 +111,7 @@ a:hover, a:focus {
     ~x: <a href="globals.html#type-float">float</a>,
     ~y: <a href="globals.html#type-float">float</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> The shear() function shears the matrix along the axes the amount
  specified by the angle parameters. Angles should be specified in radians
@@ -111,14 +122,12 @@ a:hover, a:focus {
 <h4 class='item'>let <a href="#value-fill" id="value-fill">fill</a> = (
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Sets the color used to fill shapes.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-noFill" id="value-noFill">noFill</a> = (
-    <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+<h4 class='item'>let <a href="#value-noFill" id="value-noFill">noFill</a> = (<a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Disables filling geometry. If both <code>noStroke</code> and <code>noFill</code> are called,
  nothing will be drawn to the screen.</p>
@@ -127,15 +136,13 @@ a:hover, a:focus {
 <h4 class='item'>let <a href="#value-tint" id="value-tint">tint</a> = (
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Sets the fill value for displaying images. Images can be tinted to specified colors
  or made transparent by including an alpha value.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-noTint" id="value-noTint">noTint</a> = (
-    <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+<h4 class='item'>let <a href="#value-noTint" id="value-noTint">noTint</a> = (<a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Removes the current fill value for displaying images and reverts to displaying
  images with their original hues.</p>
@@ -144,14 +151,12 @@ a:hover, a:focus {
 <h4 class='item'>let <a href="#value-stroke" id="value-stroke">stroke</a> = (
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Sets the color used to draw lines and borders around shapes.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-noStroke" id="value-noStroke">noStroke</a> = (
-    <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+<h4 class='item'>let <a href="#value-noStroke" id="value-noStroke">noStroke</a> = (<a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Disables drawing the stroke (outline). If both noStroke() and noFill()
  are called, nothing will be drawn to the screen.</p>
@@ -160,7 +165,7 @@ a:hover, a:focus {
 <h4 class='item'>let <a href="#value-strokeWeight" id="value-strokeWeight">strokeWeight</a> = (
     <a href="globals.html#type-int">int</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Sets the width of the stroke used for lines, points, and the border around
  shapes. All widths are set in units of pixels.</p>
@@ -169,7 +174,7 @@ a:hover, a:focus {
 <h4 class='item'>let <a href="#value-strokeCap" id="value-strokeCap">strokeCap</a> = (
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-strokeCapT.Types">strokeCapT</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Sets the style for rendering line endings. These ends are either squared,
  extended, or rounded.</p>
@@ -178,7 +183,7 @@ a:hover, a:focus {
 <h4 class='item'>let <a href="#value-rectMode" id="value-rectMode">rectMode</a> = (
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-rectModeT.Types">rectModeT</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Sets the style to modify the location from which rectangles are drawn by
  changing the way in which parameters given to rect() and rectf() are intepreted.
@@ -195,9 +200,7 @@ a:hover, a:focus {
  and height.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-pushStyle" id="value-pushStyle">pushStyle</a> = (
-    <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+<h4 class='item'>let <a href="#value-pushStyle" id="value-pushStyle">pushStyle</a> = (<a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> The <code>pushStyle</code> function saves the current style settings and <code>popStyle</code>
  restores the prior settings. Note that these functions are always used
@@ -210,9 +213,7 @@ a:hover, a:focus {
  the style: fill, stroke, strokeWeight</p>
 </div>
 
-<h4 class='item'>let <a href="#value-popStyle" id="value-popStyle">popStyle</a> = (
-    <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+<h4 class='item'>let <a href="#value-popStyle" id="value-popStyle">popStyle</a> = (<a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> The <code>pushStyle</code> function saves the current style settings and
  <code>popStyle</code> restores the prior settings; these functions are always used
@@ -225,9 +226,7 @@ a:hover, a:focus {
  the style: fill, stroke, strokeWeight</p>
 </div>
 
-<h4 class='item'>let <a href="#value-pushMatrix" id="value-pushMatrix">pushMatrix</a> = (
-    <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+<h4 class='item'>let <a href="#value-pushMatrix" id="value-pushMatrix">pushMatrix</a> = (<a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Pushes the current transformation matrix onto the matrix stack. Understanding pushMatrix() and popMatrix()
  requires understanding the concept of a matrix stack. The pushMatrix() function saves the current coordinate
@@ -236,9 +235,7 @@ a:hover, a:focus {
  the transformations.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-popMatrix" id="value-popMatrix">popMatrix</a> = (
-    <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+<h4 class='item'>let <a href="#value-popMatrix" id="value-popMatrix">popMatrix</a> = (<a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Pops the current transformation matrix off the matrix stack. Understanding pushing and popping requires
  understanding the concept of a matrix stack. The pushMatrix() function saves the current coordinate system to
@@ -250,7 +247,7 @@ a:hover, a:focus {
     ~filename: <a href="globals.html#type-string">string</a>,
     ~?isPixel: <a href="globals.html#type-option">option</a>(<a href="globals.html#type-bool">bool</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-imageT.Types">imageT</a></h4>
+) => <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-imageT.Types">imageT</a></h4>
 
 <div class='body '><p> Loads an image and returns a handle to it. This will lazily load and
  attempting to draw an image that has not finished loading will result
@@ -268,7 +265,7 @@ a:hover, a:focus {
     ~?width: <a href="globals.html#type-option">option</a>(<a href="globals.html#type-int">int</a>),
     ~?height: <a href="globals.html#type-option">option</a>(<a href="globals.html#type-int">int</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> The <code>image</code> function draws an image to the display window.
  The image should be loaded using the <code>loadImage</code> function.
@@ -285,7 +282,7 @@ a:hover, a:focus {
     ~texWidth: <a href="globals.html#type-int">int</a>,
     ~texHeight: <a href="globals.html#type-int">int</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> The <code>subImage</code> function draws a section of an image to the
  display window. The image should be loaded using the
@@ -307,7 +304,7 @@ a:hover, a:focus {
     ~texWidth: <a href="globals.html#type-int">int</a>,
     ~texHeight: <a href="globals.html#type-int">int</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> The <code>subImagef</code> function draws a section of an image to the
  display window. The image should be loaded using the
@@ -325,7 +322,7 @@ a:hover, a:focus {
     ~width: <a href="globals.html#type-float">float</a>,
     ~height: <a href="globals.html#type-float">float</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws a rectangle to the screen. A rectangle is a four-sided shape with
  every angle at ninety degrees.</p>
@@ -336,7 +333,7 @@ a:hover, a:focus {
     ~width: <a href="globals.html#type-int">int</a>,
     ~height: <a href="globals.html#type-int">int</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws a rectangle to the screen. A rectangle is a four-sided shape with
  every angle at ninety degrees.
@@ -351,7 +348,7 @@ a:hover, a:focus {
     (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     <a href="Reprocessing_Common.html#type-">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-glEnv">glEnv</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws a curved line on the screen. The first parameter specifies
  the beginning control point and the last parameter specifies the ending
@@ -362,7 +359,7 @@ a:hover, a:focus {
     ~p1: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     ~p2: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws a line (a direct path between two points) to the screen.
  To color a line, use the <code>stroke</code> function. A line cannot be filled,
@@ -375,7 +372,7 @@ a:hover, a:focus {
     ~p1: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
     ~p2: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws a line (a direct path between two points) to the screen.
  To color a line, use the <code>stroke</code> function. A line cannot be filled,
@@ -392,7 +389,7 @@ a:hover, a:focus {
     ~radx: <a href="globals.html#type-float">float</a>,
     ~rady: <a href="globals.html#type-float">float</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws an ellipse (oval) to the screen. An ellipse with equal width and
  height is a circle.</p>
@@ -403,7 +400,7 @@ a:hover, a:focus {
     ~radx: <a href="globals.html#type-int">int</a>,
     ~rady: <a href="globals.html#type-int">int</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws an ellipse (oval) to the screen. An ellipse with equal width and
  height is a circle.
@@ -418,7 +415,7 @@ a:hover, a:focus {
     ~p3: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     ~p4: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> A quad is a quadrilateral, a four sided polygon. It is similar to a
  rectangle, but the angles between its edges are not constrained to ninety
@@ -432,7 +429,7 @@ a:hover, a:focus {
     ~p3: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
     ~p4: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> A quad is a quadrilateral, a four sided polygon. It is similar to a
  rectangle, but the angles between its edges are not constrained to ninety
@@ -447,7 +444,7 @@ a:hover, a:focus {
     ~pos: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     ~color: <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Adds a single point with a radius defined by strokeWeight</p>
 </div>
@@ -456,7 +453,7 @@ a:hover, a:focus {
     ~pos: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
     ~color: <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Adds a single point with a radius defined by strokeWeight
  *
@@ -469,7 +466,7 @@ a:hover, a:focus {
     ~p2: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     ~p3: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> A triangle is a plane created by connecting three points.</p>
 </div>
@@ -479,7 +476,7 @@ a:hover, a:focus {
     ~p2: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
     ~p3: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> A triangle is a plane created by connecting three points.
  *
@@ -493,7 +490,7 @@ a:hover, a:focus {
     ~p3: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     ~p4: (<a href="globals.html#type-float">float</a>, <a href="globals.html#type-float">float</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws a Bezier curve on the screen. These curves are defined by a
  series of anchor and control points. The parameter p1 specifies the
@@ -512,7 +509,7 @@ a:hover, a:focus {
     ~isOpen: <a href="globals.html#type-bool">bool</a>,
     ~isPie: <a href="globals.html#type-bool">bool</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws an arc to the screen. Arcs are drawn along the outer edge of an
  ellipse defined by the center, radx, and rady parameters. Use the
@@ -532,7 +529,7 @@ a:hover, a:focus {
     ~isOpen: <a href="globals.html#type-bool">bool</a>,
     ~isPie: <a href="globals.html#type-bool">bool</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws an arc to the screen. Arcs are drawn along the outer edge of an
  ellipse defined by the center, radx, and rady parameters. Use the
@@ -550,7 +547,7 @@ a:hover, a:focus {
     ~filename: <a href="globals.html#type-string">string</a>,
     ~?isPixel: <a href="globals.html#type-option">option</a>(<a href="globals.html#type-bool">bool</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="Reprocessing_Font.html#type-">Reprocessing_Font</a>.<a href="Reprocessing_Font.html#module-fontT">fontT</a></h4>
+) => <a href="Reprocessing_Font.html#type-">Reprocessing_Font</a>.<a href="Reprocessing_Font.html#module-fontT">fontT</a></h4>
 
 <div class='body '><p> Loads a font and returns a handle to it. This will lazily load and
  attempting to draw an font that has not finished loading will result
@@ -567,15 +564,13 @@ a:hover, a:focus {
     ~body: <a href="globals.html#type-string">string</a>,
     ~pos: (<a href="globals.html#type-int">int</a>, <a href="globals.html#type-int">int</a>),
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Draws text to the screen.
  The font should be loaded using the <code>loadFont</code> function.</p>
 </div>
 
-<h4 class='item'>let <a href="#value-clear" id="value-clear">clear</a> = (
-    <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+<h4 class='item'>let <a href="#value-clear" id="value-clear">clear</a> = (<a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> Clears the entire screen. Normally, background is used for this purpose,
  clear will have different results in web and native.</p>
@@ -584,7 +579,7 @@ a:hover, a:focus {
 <h4 class='item'>let <a href="#value-background" id="value-background">background</a> = (
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-colorT.Types">colorT</a>,
     <a href="Reprocessing_Types.html#type-">Reprocessing_Types</a>.<a href="Reprocessing_Types.html#module-Types">Types</a>.<a href="Reprocessing_Types.html#module-glEnvT.Types">glEnvT</a>
-    ) => <a href="globals.html#type-unit">unit</a></h4>
+) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body '><p> The <code>background</code> function sets the color used for the background of the
  Processing window. The default background is black. This function is

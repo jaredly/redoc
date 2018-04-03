@@ -17,8 +17,15 @@ body {
 }
 .body-empty,
 .include-body .body {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
+
+.include-body .item {
+  padding: 0;
+  border-top: 0;
+  margin: 0;
+}
+
 .missing {
   font-style: italic;
   font-size: 16px;
@@ -33,14 +40,23 @@ h4.item {
   padding-top: 8px;
   border-top: 1px solid #ddd;
   white-space: pre;
+  margin-bottom: 16px;
 }
 h4.module {
   font-size: 110%;
   font-weight: 600;
 }
 .module-body {
-  border-left: 5px solid #ddd;
+  border-left: 1px solid #ddd;
   padding-left: 24px;
+}
+
+.body > p:first-child {
+  margin-top: 8px;
+}
+
+.body > p:last-child {
+  margin-bottom: 8px;
 }
 
 p code {
@@ -248,7 +264,7 @@ window.onhashchange = checkHash
     <a href="#Reprocessing_Common" id="Reprocessing_Common"><h1>Reprocessing_Common</h1></a>
 
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Constants" id="module-Constants">Constants</a> : <a href="RGLConstants.html">RGLConstants</a></h4></div>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Constants" id="module-Constants">Constants</a> : <a href="RGLConstants.html">RGLConstants</a></h4></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-strokeCapT" id="type-strokeCapT">strokeCapT</a> = | Round | Square | Project</h4>
 
@@ -291,7 +307,7 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-KeySet" id="module-KeySet">KeySet</a> : <a href="Set.html">Set</a>.<a href="Set.html#module-Make">Make</a></h4></div>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-KeySet" id="module-KeySet">KeySet</a> : <a href="Set.html">Set</a>.<a href="Set.html#module-Make">Make</a></h4></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-keyboardT" id="type-keyboardT">keyboardT</a> = {
     mut keyCode: <a href="Reprocessing_Events.html">Reprocessing_Events</a>.<a href="Reprocessing_Events.html#type-keycodeT">keycodeT</a>,
@@ -387,7 +403,7 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Stream" id="module-Stream">Stream</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Stream" id="module-Stream">Stream</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>type <a href="#type-Stream.t" id="type-Stream.t">t</a> = (<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>

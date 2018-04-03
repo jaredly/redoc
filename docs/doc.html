@@ -17,8 +17,15 @@ body {
 }
 .body-empty,
 .include-body .body {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
+
+.include-body .item {
+  padding: 0;
+  border-top: 0;
+  margin: 0;
+}
+
 .missing {
   font-style: italic;
   font-size: 16px;
@@ -33,14 +40,23 @@ h4.item {
   padding-top: 8px;
   border-top: 1px solid #ddd;
   white-space: pre;
+  margin-bottom: 16px;
 }
 h4.module {
   font-size: 110%;
   font-weight: 600;
 }
 .module-body {
-  border-left: 5px solid #ddd;
+  border-left: 1px solid #ddd;
   padding-left: 24px;
+}
+
+.body > p:first-child {
+  margin-top: 8px;
+}
+
+.body > p:last-child {
+  margin-bottom: 8px;
 }
 
 p code {
@@ -270,7 +286,7 @@ let y = party();</code></pre>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Something" id="module-Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Something" id="module-Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>let <a href="#value-Something.inner" id="value-Something.inner">inner</a> = <a href="globals.html#type-int">int</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
@@ -288,7 +304,7 @@ let y = party();</code></pre>
 let y = 20;
 let z = awesome();</code></pre></div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Something" id="module-Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Something" id="module-Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>let <a href="#value-Something.inner" id="value-Something.inner">inner</a> = <a href="globals.html#type-int">int</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
@@ -306,7 +322,7 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Inner" id="module-Inner">Inner</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Inner" id="module-Inner">Inner</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>type <a href="#type-Inner.other" id="type-Inner.other">other</a> = | A | B | C(<a href="#type-Inner.other">other</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
@@ -340,7 +356,7 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-What" id="module-What">What</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-What" id="module-What">What</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>let <a href="#value-What.x" id="value-What.x">x</a> = <a href="globals.html#type-string">string</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
@@ -354,7 +370,7 @@ let z = awesome();</code></pre></div></div>
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 </div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-HideThings" id="module-HideThings">HideThings</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-HideThings" id="module-HideThings">HideThings</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.r" id="type-HideThings.r">r</a> = <a href="globals.html#type-int">int</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>

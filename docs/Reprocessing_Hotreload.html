@@ -17,8 +17,15 @@ body {
 }
 .body-empty,
 .include-body .body {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
+
+.include-body .item {
+  padding: 0;
+  border-top: 0;
+  margin: 0;
+}
+
 .missing {
   font-style: italic;
   font-size: 16px;
@@ -33,14 +40,23 @@ h4.item {
   padding-top: 8px;
   border-top: 1px solid #ddd;
   white-space: pre;
+  margin-bottom: 16px;
 }
 h4.module {
   font-size: 110%;
   font-weight: 600;
 }
 .module-body {
-  border-left: 5px solid #ddd;
+  border-left: 1px solid #ddd;
   padding-left: 24px;
+}
+
+.body > p:first-child {
+  margin-top: 8px;
+}
+
+.body > p:last-child {
+  margin-bottom: 8px;
 }
 
 p code {
@@ -218,13 +234,13 @@ window.onhashchange = checkHash
     <a href="#Reprocessing_Hotreload" id="Reprocessing_Hotreload"><h1>Reprocessing_Hotreload</h1></a>
 
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item module'> module <a href="#module-NoHotreloading" id="module-NoHotreloading">NoHotreloading</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-NoHotreloading" id="module-NoHotreloading">NoHotreloading</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>let <a href="#value-NoHotreloading.checkRebuild" id="value-NoHotreloading.checkRebuild">checkRebuild</a> = ('a) => 'a</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 </div></div>
 
-<div class='doc-item'><h4 class='item module'> include Reprocessing_Hotreload_Web</h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>let <a href="#value-first" id="value-first">first</a> = <a href="Pervasives.html">Pervasives</a>.<a href="Pervasives.html#type-ref">ref</a>(<a href="globals.html#type-bool">bool</a>)</h4>
+<div class='doc-item'><h4 class='item module'>include Reprocessing_Hotreload_Web</h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>let <a href="#value-first" id="value-first">first</a> = <a href="Pervasives.html">Pervasives</a>.<a href="Pervasives.html#type-ref">ref</a>(<a href="globals.html#type-bool">bool</a>)</h4>
 
 <div class='body body-empty'></div></div>
 

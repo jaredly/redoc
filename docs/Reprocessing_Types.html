@@ -17,8 +17,15 @@ body {
 }
 .body-empty,
 .include-body .body {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
+
+.include-body .item {
+  padding: 0;
+  border-top: 0;
+  margin: 0;
+}
+
 .missing {
   font-style: italic;
   font-size: 16px;
@@ -33,14 +40,23 @@ h4.item {
   padding-top: 8px;
   border-top: 1px solid #ddd;
   white-space: pre;
+  margin-bottom: 16px;
 }
 h4.module {
   font-size: 110%;
   font-weight: 600;
 }
 .module-body {
-  border-left: 5px solid #ddd;
+  border-left: 1px solid #ddd;
   padding-left: 24px;
+}
+
+.body > p:first-child {
+  margin-top: 8px;
+}
+
+.body > p:last-child {
+  margin-bottom: 8px;
 }
 
 p code {
@@ -222,7 +238,7 @@ window.onhashchange = checkHash
     <a href="#Reprocessing_Types" id="Reprocessing_Types"><h1>Reprocessing_Types</h1></a>
 
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Types" id="module-Types">Types</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Types" id="module-Types">Types</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>type <a href="#type-Types.glEnvT" id="type-Types.glEnvT">glEnvT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>

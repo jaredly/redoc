@@ -17,8 +17,15 @@ body {
 }
 .body-empty,
 .include-body .body {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
+
+.include-body .item {
+  padding: 0;
+  border-top: 0;
+  margin: 0;
+}
+
 .missing {
   font-style: italic;
   font-size: 16px;
@@ -33,14 +40,23 @@ h4.item {
   padding-top: 8px;
   border-top: 1px solid #ddd;
   white-space: pre;
+  margin-bottom: 16px;
 }
 h4.module {
   font-size: 110%;
   font-weight: 600;
 }
 .module-body {
-  border-left: 5px solid #ddd;
+  border-left: 1px solid #ddd;
   padding-left: 24px;
+}
+
+.body > p:first-child {
+  margin-top: 8px;
+}
+
+.body > p:last-child {
+  margin-bottom: 8px;
 }
 
 p code {
@@ -229,23 +245,23 @@ window.onhashchange = checkHash
     <a href="#Reprocessing" id="Reprocessing"><h1>Reprocessing</h1></a>
 
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Draw" id="module-Draw">Draw</a> : <a href="Reprocessing_Draw.html">Reprocessing_Draw</a></h4><div class='body module-body'><p> Contains functions having to do with drawing to the screen</p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Draw" id="module-Draw">Draw</a> : <a href="Reprocessing_Draw.html">Reprocessing_Draw</a></h4><div class='body module-body'><p> Contains functions having to do with drawing to the screen</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Env" id="module-Env">Env</a> : <a href="Reprocessing_Env.html">Reprocessing_Env</a></h4><div class='body module-body'><p> Contains functions having to do with the environment:
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Env" id="module-Env">Env</a> : <a href="Reprocessing_Env.html">Reprocessing_Env</a></h4><div class='body module-body'><p> Contains functions having to do with the environment:
  ie window properties, user input</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Events" id="module-Events">Events</a> : <a href="Reprocessing_Events.html">Reprocessing_Events</a></h4><div class='body module-body'><p> Contains types for events.</p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Events" id="module-Events">Events</a> : <a href="Reprocessing_Events.html">Reprocessing_Events</a></h4><div class='body module-body'><p> Contains types for events.</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Utils" id="module-Utils">Utils</a> : <a href="Reprocessing_Utils.html">Reprocessing_Utils</a></h4><div class='body module-body'><p> Contains utility functions</p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Utils" id="module-Utils">Utils</a> : <a href="Reprocessing_Utils.html">Reprocessing_Utils</a></h4><div class='body module-body'><p> Contains utility functions</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Constants" id="module-Constants">Constants</a> : <a href="Reprocessing_Constants.html">Reprocessing_Constants</a></h4><div class='body module-body'><p> Contains useful constants</p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Constants" id="module-Constants">Constants</a> : <a href="Reprocessing_Constants.html">Reprocessing_Constants</a></h4><div class='body module-body'><p> Contains useful constants</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item module'> include Reprocessing_Types.TypesT</h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>type <a href="#type-glEnvT" id="type-glEnvT">glEnvT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a></h4>
+<div class='doc-item'><h4 class='item module'>include Reprocessing_Types.TypesT</h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>type <a href="#type-glEnvT" id="type-glEnvT">glEnvT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a></h4>
 
 <div class='body body-empty'></div></div>
 

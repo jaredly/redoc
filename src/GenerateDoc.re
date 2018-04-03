@@ -133,7 +133,7 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel
       }, [])
     }
     };
-    (Printf.sprintf({|<h4 class='item module'> module <a href="#%s" id="%s">%s</a>%s</h4>%s|}, id(PModule), id(PModule), name, post, body),
+    (Printf.sprintf({|<h4 class='item module'>module <a href="#%s" id="%s">%s</a>%s</h4>%s|}, id(PModule), id(PModule), name, post, body),
     tocs @ [(tocLevel, name, id(PModule), "module")]
     )
   }
@@ -147,7 +147,7 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel
     | None => "@all"
     | Some(doc) => doc
     }, contents);
-    (Printf.sprintf({|<h4 class='item module'> include %s</h4><div class='body module-body include-body'>|}, name) ++
+    (Printf.sprintf({|<h4 class='item module'>include %s</h4><div class='body module-body include-body'>|}, name) ++
     html ++ "</div>",
     tocs)
   }

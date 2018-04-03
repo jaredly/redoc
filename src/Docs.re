@@ -45,7 +45,9 @@ let generate = (name, topdoc, stamps, allDocs) => {
     }
   };
 
-  DocsTemplate.head(name) ++ GenerateDoc.docsForModule(formatHref, stamps, [], name, mainMarkdown, allDocs)
+  let (html, tocs) = GenerateDoc.docsForModule(formatHref, stamps, [], 0, name, mainMarkdown, allDocs);
+
+  DocsTemplate.head(name) ++ html
 };
 
 let interface = (name, intf) => {

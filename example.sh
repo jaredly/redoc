@@ -29,7 +29,17 @@ base=${base}/node_modules/@jaredly/reprocessing/lib/bs/js/src
 
 
 List=(Reprocessing Reprocessing_Constants Reprocessing_Draw Reprocessing_Env Reprocessing_Utils)
-Normals=(Reprocessing_Types Reprocessing_Events Reprocessing_Common)
+Normals=(
+Reprocessing_ClientWrapper
+Reprocessing_Common
+Reprocessing_Events
+Reprocessing_Font
+Reprocessing_Hotreload
+Reprocessing_Internal
+Reprocessing_Matrix
+Reprocessing_Shaders
+Reprocessing_Types
+)
 
 for name in ${List[@]}
 do

@@ -44,7 +44,7 @@ let rec processPath = (stampsToPaths, collector, path, ptype) => {
   }
 };
 
-let printer = (formatHref, stampsToPaths, topType) => {
+let printer = (formatHref, stampsToPaths) => {
   ...PrintType.default,
   path: (printer, path, pathType) => {
     let (@!) = Pretty.append;
@@ -91,13 +91,28 @@ let prettyString = doc => {
 let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, (name, docstring, content)) => {
   open PrepareDocs.T;
   let id = makeId(path @ [name]);
+  let printer = printer(formatHref, stampsToPaths);
   "<div class='doc-item'>" ++
   switch content {
-  | Module(items) => Printf.sprintf({|<h4 class='item module'> module <a href="#%s" id="%s">%s</a></h4><div class='body module-body'>|}, id(PModule), id(PModule), name) ++
-  docsForModule(~skipDoc, formatHref, stampsToPaths, path @ [name], name, switch docstring {
-    | None => defaultMain(name)
-    | Some(doc) => doc
-    }, items) ++ "</div>"
+  | Module(items) => {
+    open PrepareDocs.T;
+    let (post, body) = switch items {
+    | Items(items) =>
+      ("", "<div class='body module-body'>" ++
+      docsForModule(~skipDoc, formatHref, stampsToPaths, path @ [name], name, switch docstring {
+        | None => defaultMain(name)
+        | Some(doc) => doc
+        }, items) ++ "</div>")
+    | Alias(path) => {
+      let t = printer.path(printer, path, PModule) |> prettyString;
+      (" : " ++ t, switch docstring {
+      | None => ""
+      | Some(doc) => "<div class='body module-body'>" ++ Omd.to_html(Omd.of_string(doc)) ++ "</div>"
+      })
+    }
+    };
+    Printf.sprintf({|<h4 class='item module'> module <a href="#%s" id="%s">%s</a>%s</h4>%s|}, id(PModule), id(PModule), name, post, body)
+  }
   | Include(maybePath, contents) => {
     /* TODO hyperlink the path */
     let name = switch maybePath {
@@ -111,7 +126,6 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, (name, d
     }, contents) ++ "</div>"
   }
   | Value(typ) => {
-    let printer = printer(formatHref, stampsToPaths, PValue);
     let link = Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id(PValue), id(PValue), name);
     let t = printer.value(printer, name, link, typ) |> prettyString;
     Printf.sprintf("<h4 class='item'>%s</h4>\n\n<div class='body %s'>", t, docstring == None ? "body-empty" : "")
@@ -122,7 +136,6 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, (name, d
   }
   | Type(typ) => {
     let link = Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id(PType), id(PType), name);
-    let printer = printer(formatHref, stampsToPaths, PType);
     let t = printer.decl(printer, name, link, typ) |> prettyString;
     "<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body " ++ (docstring == None ? "body-empty" : "") ++ "'>" ++ switch docstring {
     | None => skipDoc ? "" : "<span class='missing'>No documentation for this type</span>"
@@ -134,8 +147,7 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, (name, d
 }
 
 and docsForModule = (~skipDoc=false, formatHref, stampsToPaths, path, name, main, contents) => {
-  let md = Omd.of_string(main);
-  let html = Omd.to_html(md);
+  let html = Omd.of_string(main) |> Omd.to_html;
 
   let html = Str.global_substitute(Str.regexp_string("<p>@all</p>"), text => {
     List.map(generateDoc(~skipDoc, formatHref, stampsToPaths, path), List.rev(contents)) |> String.concat("\n\n")

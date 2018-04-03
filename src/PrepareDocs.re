@@ -147,22 +147,18 @@ let eitherFirst = (opt, (opt2, second)) => {
 
 /* TODO maybe use the typedtree for this instead */
 
-let rec findAllDocs = (structure, typesByLoc) => {
-  open Parsetree;
-  List.fold_left(((global, items), item) => switch (item.pstr_desc) {
-  | Pstr_value(_, bindings) => foldOpt(({pvb_loc, pvb_expr, pvb_pat, pvb_attributes}) =>
-    if (!hasNoDoc(pvb_attributes)) {
-      switch (pvb_pat.ppat_desc) {
-      | Ppat_var({Asttypes.txt}) => switch (List.assoc(pvb_loc, typesByLoc)) {
-        | exception Not_found => {print_endline("Unable to find binding type for value by loc " ++ txt); None}
-        | `Value(typ) => Some((txt, findDocAttribute(pvb_attributes), Value(typ)))
-        | _ => {print_endline("Expected a value, not a type declaration"); None}
-        }
+let rec findAllDocs = (structure) => {
+  open Typedtree;
+  List.fold_left(((global, items), item) => switch (item.str_desc) {
+  | Tstr_value(_, bindings) => foldOpt(({vb_loc, vb_expr, vb_pat, vb_attributes}) =>
+    if (!hasNoDoc(vb_attributes)) {
+      switch (vb_pat.pat_desc) {
+      | Tpat_var(_, {Asttypes.txt}) => Some((txt, findDocAttribute(vb_attributes), Value(vb_pat.pat_type)))
       | _ => None
       }
     } else {None}
     , bindings, items) |> a => (global, a)
-  | Pstr_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
+  | Tstr_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
     let doc = cleanOffStars(doc);
     if (items == [] && global == None) {
       (Some(doc), [])
@@ -170,92 +166,73 @@ let rec findAllDocs = (structure, typesByLoc) => {
       (global, [("", None, StandaloneDoc(doc)), ...items])
     }
   }
-  | Pstr_include({pincl_loc, pincl_mod, pincl_attributes}) => {
-    if (!hasNoDoc(pincl_attributes)) {
-      switch (List.assoc(pincl_loc, typesByLoc)) {
-      | exception Not_found => {print_endline("unable to find binding for include"); None}
-      | `Include(path, incl) => Some((switch pincl_mod.pmod_desc {
-      | Pmod_ident({txt, loc}) => String.concat(".", Longident.flatten(txt))
-      | _ => ""
-      }, findDocAttribute(pincl_attributes), Include(path, findAllDocsType(incl))))
-      | _ => {print_endline("expected include"); None}
-      } |> a => switch a {
-      | None => (global, items)
-      | Some(item) => (global, [item, ...items])
-      }
+  | Tstr_include({incl_loc, incl_mod, incl_attributes, incl_type}) => {
+    if (!hasNoDoc(incl_attributes)) {
+      switch incl_mod.mod_desc {
+      | Tmod_ident(path, _) => ((Path.name(path), findDocAttribute(incl_attributes), Include(Some(path), findAllDocsType(incl_type))))
+      | _ => (("", findDocAttribute(incl_attributes), Include(None, findAllDocsType(incl_type))))
+      } |> a => (global, [a, ...items])
     } else {(global, items)}
   }
-  | Pstr_type(decls) => foldOpt(({ptype_name: {txt}, ptype_loc, ptype_attributes}) =>
-    if (!hasNoDoc(ptype_attributes)) {
-      switch (List.assoc(ptype_loc, typesByLoc)) {
-      | exception Not_found => {print_endline("unable to find bindings type by loc " ++ txt); None}
-      | `Type(typ) => Some((txt, findDocAttribute(ptype_attributes), Type(typ)))
-      | _ => {print_endline("expected tyep, nto value"); None}
-      }
+  | Tstr_type(decls) => foldOpt(({typ_name: {txt}, typ_loc, typ_attributes, typ_type}) =>
+    if (!hasNoDoc(typ_attributes)) {
+      Some((txt, findDocAttribute(typ_attributes), Type(typ_type)))
     } else {None}, decls, items) |> a => (global, a)
   /* | Pstr_module({pmb_attributes, pmb_loc, pmb_name: {txt}, pmb_expr: {pmod_desc: Pmod_constraint({pmod_desc: Pmod_structure(structure)}, _)}}) */
-  | Pstr_module({pmb_attributes, pmb_loc, pmb_name: {txt}, pmb_expr}) => {
-    if (hasNoDoc(pmb_attributes)) {
+  | Tstr_module({mb_attributes, mb_loc, mb_name: {txt}, mb_expr}) => {
+    if (hasNoDoc(mb_attributes)) {
       (global, items)
     } else {
-      let (docc, contents) = moduleContentsStr(pmb_expr, typesByLoc);
+      let (docc, contents) = moduleContentsStr(mb_expr);
       (global, [(txt, docc, Module(contents)), ...items])
     }
   }
   | _ => (global, items)
   }, (None, []), structure);
 }
-and moduleContentsStr = ({Parsetree.pmod_desc, pmod_attributes, pmod_loc}, typesByLoc) => {
-  open Parsetree;
-  switch pmod_desc {
-  | Pmod_structure(structure) => {
-    let (docc, contents) = findAllDocs(structure, typesByLoc);
+and moduleContentsStr = ({Typedtree.mod_desc, mod_attributes, mod_loc}) => {
+  open Typedtree;
+  switch mod_desc {
+  | Tmod_structure(structure) => {
+    let (docc, contents) = findAllDocs(structure.str_items);
     (docc, Items(contents))
   }
-  | Pmod_constraint(mmod, mtyp) => {
+  | Tmod_constraint(mmod, mtyp, _, _) => {
     /* TODO this should probably be the mtyp. why? */
-    moduleContentsStr(mmod, typesByLoc)
+    moduleContentsStr(mmod)
     /* moduleContentsSig(mtyp, typesByLoc) */
   }
-  | Pmod_ident(_) => switch (List.assoc(pmod_loc, typesByLoc)) {
-  | exception Not_found => (None, Items([]))
-  | `ModuleAlias(path) => (findDocAttribute(pmod_attributes), Alias(path))
-  | _ => (None, Items([]))
-  }
-  | Pmod_functor(_, _, result) => moduleContentsStr(result, typesByLoc)
-  | Pmod_apply(inner, _) => moduleContentsStr(inner, typesByLoc)
-  | Pmod_unpack(_) => (None, Items([]))
-  | Pmod_extension(_) => assert(false)
+  | Tmod_ident(path, _) => (findDocAttribute(mod_attributes), Alias(path))
+  | Tmod_functor(_, _, _, result) => moduleContentsStr(result) |> mapFst(either(findDocAttribute(mod_attributes)))
+  | Tmod_apply(inner, _, _) => moduleContentsStr(inner) |> mapFst(either(findDocAttribute(mod_attributes)))
+  | Tmod_unpack(_, typ) => (findDocAttribute(mod_attributes), moduleContentsType(typ))
   }
 }
+and moduleContentsType = (modtype) => Types.(switch modtype {
+  | Mty_ident(path) | Mty_alias(path) => Alias(path)
+  | Mty_functor(_, _, tt) => moduleContentsType(tt)
+  | Mty_signature(sign) => Items(findAllDocsType(sign))
+})
 
-and findAllDocsIntf = (signature, typesByLoc) => {
-  open Parsetree;
-  List.fold_left(((global, items), item) => switch (item.psig_desc) {
-  | Psig_value({pval_name: {txt, loc}, pval_type, pval_attributes, pval_loc}) =>
-    if (!hasNoDoc(pval_attributes)) {
-      switch (List.assoc(pval_loc, typesByLoc)) {
-      | exception Not_found => {print_endline("Unable to find binding type for value by loc " ++ txt); (global, items)}
-      | `Value(typ) => (global, [(txt, findDocAttribute(pval_attributes), Value(typ)), ...items])
-      | _ => {print_endline("Expected a value, not a type declaration"); (global, items)}
-      }
+and findAllDocsIntf = (signature) => {
+  open Typedtree;
+  List.fold_left(((global, items), item) => switch (item.sig_desc) {
+  | Tsig_value({val_name: {txt, loc}, val_val, val_attributes, val_loc}) =>
+    if (!hasNoDoc(val_attributes)) {
+      (global, [(txt, findDocAttribute(val_attributes), Value(val_val.val_type)), ...items])
     } else {(global, items)}
-  | Psig_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
+  | Tsig_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
     if (items == [] && global == None) {
       (Some(doc), [])
     } else {
       (global, [("", None, StandaloneDoc(doc)), ...items])
     }
   }
-  | Psig_include({pincl_loc, pincl_mod, pincl_attributes}) => {
-    if (!hasNoDoc(pincl_attributes)) {
-      switch (List.assoc(pincl_loc, typesByLoc)) {
-      | exception Not_found => {print_endline("unable to find binding for include"); None}
-      | `Include(path, incl) => Some((switch pincl_mod.pmty_desc {
-        | Pmty_ident({txt, loc}) => String.concat(".", Longident.flatten(txt))
-        | _ => ""
-      }, findDocAttribute(pincl_attributes), Include(path, findAllDocsType(incl))))
-      | _ => {print_endline("expected include"); None}
+  | Tsig_include({incl_loc, incl_mod, incl_attributes, incl_type}) => {
+    if (!hasNoDoc(incl_attributes)) {
+      switch incl_mod.mty_desc {
+      | Tmty_ident(path, _) | Tmty_alias(path, _) => Some((Path.name(path), findDocAttribute(incl_attributes), Include(Some(path), findAllDocsType(incl_type))))
+      | _ => Some(("", findDocAttribute(incl_attributes), Include(None, findAllDocsType(incl_type))))
       } |> a => switch a {
       | None => (global, items)
       | Some(item) => {
@@ -264,40 +241,33 @@ and findAllDocsIntf = (signature, typesByLoc) => {
       }
     } else {(global, items)}
   }
-  | Psig_type(decls) => foldOpt(({ptype_name: {txt}, ptype_loc, ptype_attributes}) =>
-    if (!hasNoDoc(ptype_attributes)) {
-      switch (List.assoc(ptype_loc, typesByLoc)) {
-      | exception Not_found => {print_endline("unable to find bindings type by loc " ++ txt); None}
-      | `Type(typ) => Some((txt, findDocAttribute(ptype_attributes), Type(typ)))
-      | _ => {print_endline("expected tyep, nto value"); None}
-      }
+  | Tsig_type(decls) => foldOpt(({typ_name: {txt}, typ_loc, typ_attributes, typ_type}) =>
+    if (!hasNoDoc(typ_attributes)) {
+      Some((txt, findDocAttribute(typ_attributes), Type(typ_type)))
     } else {None}, decls, items) |> a => (global, a)
-  | Psig_module({pmd_attributes, pmd_loc, pmd_name: {txt}, pmd_type: module_type}) => {
-    if (hasNoDoc(pmd_attributes)) {
+  | Tsig_module({md_attributes, md_loc, md_name: {txt}, md_type: module_type}) => {
+    if (hasNoDoc(md_attributes)) {
       (global, items)
     } else {
-      let (docc, contents) = moduleContentsSig(module_type, typesByLoc);
-      (global, [(txt, either(docc, findDocAttribute(pmd_attributes)), Module(contents)), ...items])
+      let (docc, contents) = moduleContentsSig(module_type);
+      (global, [(txt, either(docc, findDocAttribute(md_attributes)), Module(contents)), ...items])
     }
   }
   | _ => (global, items)
   }, (None, []), signature);
 }
-and moduleContentsSig = ({Parsetree.pmty_desc, pmty_attributes, pmty_loc}, typesByLoc) => {
-  open Parsetree;
-  switch pmty_desc {
-  | Pmty_signature(signature) => {
-    let (docc, contents) = findAllDocsIntf(signature, typesByLoc);
+and moduleContentsSig = ({Typedtree.mty_desc, mty_attributes, mty_loc}) => {
+  open Typedtree;
+  switch mty_desc {
+  | Tmty_signature(signature) => {
+    let (docc, contents) = findAllDocsIntf(signature.sig_items);
     (docc, Items(contents))
   }
-  | Pmty_alias(_) | Pmty_ident(_) => switch (List.assoc(pmty_loc, typesByLoc)) {
-  | exception Not_found => (findDocAttribute(pmty_attributes), Items([]))
-  | `ModuleAlias(path) => (findDocAttribute(pmty_attributes), Alias(path))
-  | _ => (None, Items([]))
-  }
-  | Pmty_functor(_, _, result) => moduleContentsSig(result, typesByLoc) |> mapFst(either(findDocAttribute(pmty_attributes)))
-  | Pmty_with(inner, _) => moduleContentsSig(inner, typesByLoc) |> mapFst(either(findDocAttribute(pmty_attributes)))
-  | Pmty_typeof(modd) => moduleContentsStr(modd, typesByLoc) |> mapFst(either(findDocAttribute(pmty_attributes)))
-  | Pmty_extension(_) => assert(false)
+  | Tmty_alias(path, _) | Tmty_ident(path, _) => (findDocAttribute(mty_attributes), Alias(path))
+  | Tmty_functor(_, _, _, result) => moduleContentsSig(result) |> mapFst(either(findDocAttribute(mty_attributes)))
+  | Tmty_with(inner, _) => moduleContentsSig(inner) |> mapFst(either(findDocAttribute(mty_attributes)))
+  | Tmty_typeof(modd)
+  /* => moduleContentsStr(modd) |> mapFst(either(findDocAttribute(mty_attributes))) */
+    => assert(false)
   }
 };

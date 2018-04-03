@@ -93,18 +93,12 @@ window.onhashchange = checkHash
   ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
 </div>
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Internal" id="module-Internal">Internal</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-
-</div></div>
+<div class='doc-item'><h4 class='item module'> module <a href="#module-Internal" id="module-Internal">Internal</a> : <a href="Reprocessing_Internal.html">Reprocessing_Internal</a></h4></div>
 
 <div class='doc-item'><h4 class='item module'> module <a href="#module-Font" id="module-Font">Font</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Font.IntMap" id="module-Font.IntMap">IntMap</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'> module <a href="#module-Font.IntMap" id="module-Font.IntMap">IntMap</a> : <a href="Map.html">Map</a>.<a href="Map.html#module-Make">Make</a></h4></div>
 
-</div></div>
-
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Font.IntPairMap" id="module-Font.IntPairMap">IntPairMap</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-
-</div></div>
+<div class='doc-item'><h4 class='item module'> module <a href="#module-Font.IntPairMap" id="module-Font.IntPairMap">IntPairMap</a> : <a href="Map.html">Map</a>.<a href="Map.html#module-Make">Make</a></h4></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-Font.charT" id="type-Font.charT">charT</a> = {
     x: <a href="globals.html#type-int">int</a>,
@@ -180,23 +174,21 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.replaceFilename" id="value-Font.replaceFilename">replaceFilename</a> = (<a href="globals.html#type-string">string</a>, <a href="globals.html#type-string">string</a>) => <a href="globals.html#type-string">string</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.replaceFilename" id="value-Font.replaceFilename">replaceFilename</a> = (<a href="globals.html#type-string">string</a>) => (<a href="globals.html#type-string">string</a>) => <a href="globals.html#type-string">string</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parseFontFormat" id="value-Font.parseFontFormat">parseFontFormat</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parseFontFormat" id="value-Font.parseFontFormat">parseFontFormat</a> = (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>) => (
     <a href="globals.html#type-string">string</a>
 ) => (<a href="globals.html#type-bool">bool</a>) => <a href="Pervasives.html">Pervasives</a>.<a href="Pervasives.html#type-ref">ref</a>(<a href="globals.html#type-option">option</a>(<a href="#type-Font.internalType">internalType</a>))</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.getChar" id="value-Font.getChar">getChar</a> = (<a href="#type-Font.internalType">internalType</a>, <a href="globals.html#type-char">char</a>) => <a href="#type-Font.charT">charT</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.getChar" id="value-Font.getChar">getChar</a> = (<a href="#type-Font.internalType">internalType</a>) => (<a href="globals.html#type-char">char</a>) => <a href="#type-Font.charT">charT</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.drawChar" id="value-Font.drawChar">drawChar</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.drawChar" id="value-Font.drawChar">drawChar</a> = (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>) => (
     <a href="#type-Font.internalType">internalType</a>
 ) => (<a href="globals.html#type-option">option</a>(<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-_imageT">_imageT</a>)) => (<a href="globals.html#type-char">char</a>) => (
     <a href="globals.html#type-option">option</a>(<a href="globals.html#type-char">char</a>)
@@ -204,15 +196,13 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.drawString" id="value-Font.drawString">drawString</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.drawString" id="value-Font.drawString">drawString</a> = (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>) => (
     <a href="Pervasives.html">Pervasives</a>.<a href="Pervasives.html#type-ref">ref</a>(<a href="globals.html#type-option">option</a>(<a href="#type-Font.internalType">internalType</a>))
 ) => (<a href="globals.html#type-string">string</a>) => (<a href="globals.html#type-int">int</a>) => (<a href="globals.html#type-int">int</a>) => <a href="globals.html#type-unit">unit</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.calcStringWidth" id="value-Font.calcStringWidth">calcStringWidth</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.calcStringWidth" id="value-Font.calcStringWidth">calcStringWidth</a> = (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>) => (
     <a href="#type-Font.internalType">internalType</a>
 ) => (<a href="globals.html#type-string">string</a>) => <a href="globals.html#type-int">int</a></h4>
 

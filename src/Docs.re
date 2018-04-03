@@ -23,7 +23,7 @@ let generate = (name, input) => {
     Printast.implementation(Format.str_formatter, ast);
     let out = Format.flush_str_formatter();
     Files.writeFile("./_build/" ++ name ++ ".ast.impl", out) |> ignore;
-    (sp, PrepareDocs.findAllDocs(ast, tl))
+    (sp, PrepareDocs.findAllDocs(structure.Typedtree.str_items))
   }
   | `Signature(signature, ast) => {
     Printast.interface(Format.str_formatter, ast);
@@ -36,7 +36,7 @@ let generate = (name, input) => {
     Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
 
     let (sp, tl) = PrepareDocs.organizeTypesIntf((name, []), signature.Typedtree.sig_items);
-    (sp, PrepareDocs.findAllDocsIntf(ast, tl))
+    (sp, PrepareDocs.findAllDocsIntf(signature.Typedtree.sig_items))
   }
   };
 

@@ -93,9 +93,7 @@ window.onhashchange = checkHash
   ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
 </div>
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-<div class='doc-item'><h4 class='item module'> module <a href="#module-Constants" id="module-Constants">Constants</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-
-</div></div>
+<div class='doc-item'><h4 class='item module'> module <a href="#module-Constants" id="module-Constants">Constants</a> : <a href="RGLConstants.html">RGLConstants</a></h4></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-strokeCapT" id="type-strokeCapT">strokeCapT</a> = | Round | Square | Project</h4>
 
@@ -138,9 +136,7 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item module'> module <a href="#module-KeySet" id="module-KeySet">KeySet</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
-
-</div></div>
+<div class='doc-item'><h4 class='item module'> module <a href="#module-KeySet" id="module-KeySet">KeySet</a> : <a href="Set.html">Set</a>.<a href="Set.html#module-Make">Make</a></h4></div>
 
 <div class='doc-item'><h4 class='item'>type <a href="#type-keyboardT" id="type-keyboardT">keyboardT</a> = {
     mut keyCode: <a href="Reprocessing_Events.html">Reprocessing_Events</a>.<a href="Reprocessing_Events.html#type-keycodeT">keycodeT</a>,
@@ -253,7 +249,7 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.peekn" id="value-Stream.peekn">peekn</a> = ((<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>), <a href="globals.html#type-int">int</a>) => <a href="globals.html#type-option">option</a>(<a href="globals.html#type-string">string</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.peekn" id="value-Stream.peekn">peekn</a> = ((<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>)) => (<a href="globals.html#type-int">int</a>) => <a href="globals.html#type-option">option</a>(<a href="globals.html#type-string">string</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -261,11 +257,11 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.popn" id="value-Stream.popn">popn</a> = (('a, <a href="globals.html#type-int">int</a>), <a href="globals.html#type-int">int</a>) => ('a, <a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.popn" id="value-Stream.popn">popn</a> = (('a, <a href="globals.html#type-int">int</a>)) => (<a href="globals.html#type-int">int</a>) => ('a, <a href="globals.html#type-int">int</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.match_" id="value-Stream.match_">match_</a> = ((<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>), <a href="globals.html#type-string">string</a>) => (<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Stream.match_" id="value-Stream.match_">match_</a> = ((<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>)) => (<a href="globals.html#type-string">string</a>) => (<a href="globals.html#type-string">string</a>, <a href="globals.html#type-int">int</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -282,7 +278,7 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-append_char" id="value-append_char">append_char</a> = (<a href="globals.html#type-string">string</a>, <a href="globals.html#type-char">char</a>) => <a href="globals.html#type-string">string</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-append_char" id="value-append_char">append_char</a> = (<a href="globals.html#type-string">string</a>) => (<a href="globals.html#type-char">char</a>) => <a href="globals.html#type-string">string</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -292,6 +288,6 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-split" id="value-split">split</a> = (<a href="globals.html#type-string">string</a>, ~sep: <a href="globals.html#type-char">char</a>) => <a href="globals.html#type-list">list</a>(<a href="globals.html#type-string">string</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-split" id="value-split">split</a> = (<a href="globals.html#type-string">string</a>) => (~sep: <a href="globals.html#type-char">char</a>) => <a href="globals.html#type-list">list</a>(<a href="globals.html#type-string">string</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>

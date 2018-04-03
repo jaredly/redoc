@@ -1,11 +1,11 @@
 
+    
 <!doctype html>
 <meta charset=utf8>
 <style>
 body {
   font-family: system-ui;
   font-weight: 200;
-  max-width: 600px;
   margin: 48px auto;
 }
 .body {
@@ -62,6 +62,115 @@ a:hover, a:focus {
   font-size: 16px;
 }
 
+
+
+.container {
+  display: flex;
+  justify-content: center;
+  margin: 48px auto;
+}
+
+.main {
+  width: 600px;
+}
+
+.right-blank {
+  width: 200px;
+}
+
+.sidebar {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  position: sticky;
+  top: 0;
+  overflow: auto;
+  max-height: 100vh;
+  word-break: break-word;
+}
+
+/* .sidebar-title {
+  font-weight: bold;
+  margin: 16px 4px;
+} */
+
+@media(max-width: 1000px) {
+  .sidebar {
+    position: static;
+    width: 600px;
+    margin: auto;
+    height: auto;
+  }
+
+  .container {
+    display: block;
+  }
+
+  .right-blank {
+    display: none;
+  }
+
+  .main {
+    margin: auto;
+  }
+}
+
+@media(max-width: 620px) {
+  .sidebar {
+    width: auto;
+    margin: 0;
+  }
+  .main {
+    width: auto;
+    margin: 0;
+  }
+  .container {
+    padding: 0 10px;
+  }
+  .item {
+    font-size: 12px;
+    overflow: auto;
+    max-width: 100%;
+  }
+}
+
+.sidebar a:visited {
+  color: unset;
+}
+
+.sidebar a {
+  color: unset;
+  padding: 2px 4px
+}
+.sidebar a:hover {
+  background-color: #fafafa;
+}
+
+.sidebar > a.header {
+  font-weight: bold;
+}
+.sidebar > a.module {
+  color: #486ad2;
+}
+
+a.level-1 {
+  margin-left: 0px;
+}
+
+a.level-2 {
+  margin-left: 6px;
+}
+a.level-3 {
+  margin-left: 12px;
+}
+a.level-4 {
+  margin-left: 18px;
+}
+a.level-5 {
+  margin-left: 24px;
+}
+
 #error-message {
   display: none;
   background-color: #fde6e6;
@@ -92,6 +201,21 @@ window.onhashchange = checkHash
 <div id='error-message'>
   ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
 </div>
+
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar'>
+    <a href="#Reprocessing_Shaders" class='level-1 header'>Reprocessing_Shaders</a>
+<a href="#value-precisionPrefix" class='level-2 value'>precisionPrefix</a>
+<a href="#value-vertexShaderSource" class='level-2 value'>vertexShaderSource</a>
+<a href="#value-fragmentShaderSource" class='level-2 value'>fragmentShaderSource</a>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="#Reprocessing_Shaders" id="Reprocessing_Shaders"><h1>Reprocessing_Shaders</h1></a>
+
 <p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
 <div class='doc-item'><h4 class='item'>let <a href="#value-precisionPrefix" id="value-precisionPrefix">precisionPrefix</a> = <a href="globals.html#type-string">string</a></h4>
 
@@ -104,3 +228,8 @@ window.onhashchange = checkHash
 <div class='doc-item'><h4 class='item'>let <a href="#value-fragmentShaderSource" id="value-fragmentShaderSource">fragmentShaderSource</a> = <a href="globals.html#type-string">string</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

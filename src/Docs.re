@@ -18,7 +18,7 @@ let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "a
 
 let generate = (name, topdoc, stamps, allDocs) => {
   let mainMarkdown = switch (topdoc) {
-  | None => GenerateDoc.defaultMain(name)
+  | None => GenerateDoc.defaultMain(~addHeading=true, name)
   | Some(doc) => doc
   };
 
@@ -46,11 +46,18 @@ let generate = (name, topdoc, stamps, allDocs) => {
   };
 
   let (html, tocs) = GenerateDoc.docsForModule(formatHref, stamps, [], 0, name, mainMarkdown, allDocs);
-  tocs |> List.rev |> List.iter(((level, name, id)) => {
-    Printf.printf("%d) %s    - #%s\n", level, name, id)
-  });
 
-  DocsTemplate.head(name) ++ html
+  Printf.sprintf({|
+    %s
+    <div class='container'>
+    %s
+    <div class='main'>
+    %s
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  |}, DocsTemplate.head(name), Sidebar.generate(name, List.rev(tocs), []), html)
+
 };
 
 let interface = (name, intf) => {

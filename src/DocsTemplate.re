@@ -6,7 +6,6 @@ let head = name => Printf.sprintf({|
 body {
   font-family: system-ui;
   font-weight: 200;
-  max-width: 600px;
   margin: 48px auto;
 }
 .body {
@@ -61,6 +60,115 @@ a:hover, a:focus {
 
 .doc-item {
   font-size: 16px;
+}
+
+
+
+.container {
+  display: flex;
+  justify-content: center;
+  margin: 48px auto;
+}
+
+.main {
+  width: 600px;
+}
+
+.right-blank {
+  width: 200px;
+}
+
+.sidebar {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  position: sticky;
+  top: 0;
+  overflow: auto;
+  max-height: 100vh;
+  word-break: break-word;
+}
+
+/* .sidebar-title {
+  font-weight: bold;
+  margin: 16px 4px;
+} */
+
+@media(max-width: 1000px) {
+  .sidebar {
+    position: static;
+    width: 600px;
+    margin: auto;
+    height: auto;
+  }
+
+  .container {
+    display: block;
+  }
+
+  .right-blank {
+    display: none;
+  }
+
+  .main {
+    margin: auto;
+  }
+}
+
+@media(max-width: 620px) {
+  .sidebar {
+    width: auto;
+    margin: 0;
+  }
+  .main {
+    width: auto;
+    margin: 0;
+  }
+  .container {
+    padding: 0 10px;
+  }
+  .item {
+    font-size: 12px;
+    overflow: auto;
+    max-width: 100%%;
+  }
+}
+
+.sidebar a:visited {
+  color: unset;
+}
+
+.sidebar a {
+  color: unset;
+  padding: 2px 4px
+}
+.sidebar a:hover {
+  background-color: #fafafa;
+}
+
+.sidebar > a.header {
+  font-weight: bold;
+}
+.sidebar > a.module {
+  color: #486ad2;
+}
+
+a.level-1 {
+  margin-left: 0px;
+}
+
+a.level-2 {
+  margin-left: 6px;
+}
+a.level-3 {
+  margin-left: 12px;
+}
+a.level-4 {
+  margin-left: 18px;
+}
+a.level-5 {
+  margin-left: 24px;
 }
 
 #error-message {

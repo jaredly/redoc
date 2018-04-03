@@ -72,7 +72,10 @@ let makeId = (items, ptype) => {
   ptypePrefix(ptype) ++ String.concat(".", items)
 };
 
-let defaultMain = name => "<span class='missing'>This module does not have a toplevel documentation block.</span>\n\n@all";
+let defaultMain = (~addHeading=false, name) => {
+  (addHeading ? "# " ++ name ++ "\n\n" : "") ++
+  "<span class='missing'>This module does not have a toplevel documentation block.</span>\n\n@all";
+};
 
 let prettyString = doc => {
   let buffer = Buffer.create(100);
@@ -131,7 +134,7 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel
     }
     };
     (Printf.sprintf({|<h4 class='item module'> module <a href="#%s" id="%s">%s</a>%s</h4>%s|}, id(PModule), id(PModule), name, post, body),
-    tocs @ [(tocLevel, name, id(PModule))]
+    tocs @ [(tocLevel, name, id(PModule), "module")]
     )
   }
   | Include(maybePath, contents) => {
@@ -155,7 +158,7 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel
      ++ switch docstring {
     | None => skipDoc ? "" : "<span class='missing'>No documentation for this value</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))
-    } ++ "</div>", [(tocLevel, name, id(PValue))])
+    } ++ "</div>", [(tocLevel, name, id(PValue), "value")])
   }
   | Type(typ) => {
     let link = Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id(PType), id(PType), name);
@@ -163,7 +166,7 @@ let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel
     ("<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body " ++ (docstring == None ? "body-empty" : "") ++ "'>" ++ switch docstring {
     | None => skipDoc ? "" : "<span class='missing'>No documentation for this type</span>"
     | Some(doc) => Omd.to_html(Omd.of_string(doc))
-    } ++ "</div>", [(tocLevel, name, id(PType))])
+    } ++ "</div>", [(tocLevel, name, id(PType), "type")])
   }
   | StandaloneDoc(doc) => (Omd.to_html(Omd.of_string(doc)), [])
   };
@@ -181,7 +184,7 @@ and docsForModule = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel, 
     lastLevel := num + 1;
     let id = cleanForLink(Omd.to_text(inner));
     let html = Omd.to_html(inner);
-    addToc((tocLevel + num, html, id));
+    addToc((tocLevel + num, html, id, "header"));
     Printf.sprintf({|<a href="#%s" id="%s"><h%d>%s</h%d></a>|}, id, id, num, html, num)
   };
 

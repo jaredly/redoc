@@ -18,7 +18,7 @@ name=src/Example
 
 ./_build/install/default/bin/docre ${base}/lib/bs/js/src/Example.cmt docs/doc.html
 
-exit 0
+# exit 0
 
 # name=/node_modules/@jaredly/reprocessing/lib/bs/js/src/Reprocessing_Draw
 # ./_build/install/default/bin/docre \

@@ -58,14 +58,18 @@ let printer = (formatHref, stampsToPaths) => {
   }
 };
 
-let makeId = (items, ptype) => {
-  open PrepareDocs.T;
+let ptypePrefix = ptype => {
   switch ptype {
   | PModule => "module-"
   | PType => "type-"
   | PValue => "value-"
   | PModuleType => "module-type-"
-  } ++ String.concat(".", items)
+  }
+};
+
+let makeId = (items, ptype) => {
+  open PrepareDocs.T;
+  ptypePrefix(ptype) ++ String.concat(".", items)
 };
 
 let defaultMain = name => "<span class='missing'>This module does not have a toplevel documentation block.</span>\n\n@all";
@@ -84,6 +88,23 @@ let prettyString = doc => {
 };
 
 let cleanForLink = text => Str.global_replace(Str.regexp("[^a-zA-Z0-9_.-]"), "-", text);
+
+let uniqueItems = items => {
+  let m = Hashtbl.create(100);
+  items |> List.filter(((name, _, t)) => {
+    switch t {
+    | Value(_) => {
+      if (Hashtbl.mem(m, name)) {
+        false
+      } else {
+        Hashtbl.add(m, name, true);
+        true
+      }
+    }
+    | _ => true
+    }
+  })
+};
 
 let rec generateDoc = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel, (name, docstring, content)) => {
   open PrepareDocs.T;
@@ -157,7 +178,7 @@ and docsForModule = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel, 
   let lastLevel = ref(0);
 
   let addHeader = (num, inner) => {
-    lastLevel := num;
+    lastLevel := num + 1;
     let id = cleanForLink(Omd.to_text(inner));
     let html = Omd.to_html(inner);
     addToc((tocLevel + num, html, id));
@@ -174,10 +195,10 @@ and docsForModule = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel, 
   | Paragraph([Text(t)]) => {
     if (String.trim(t) == "@all") {
       Some((List.map(doc => {
-        let (html, tocs) = generateDoc(~skipDoc, formatHref, stampsToPaths, path, tocLevel, doc);
+        let (html, tocs) = generateDoc(~skipDoc, formatHref, stampsToPaths, path, tocLevel + lastLevel^, doc);
         addTocs(tocs);
         html
-      }, List.rev(contents)) |> String.concat("\n\n")) ++ "\n")
+      }, List.rev(uniqueItems(contents))) |> String.concat("\n\n")) ++ "\n")
     } else if (Str.string_match(Str.regexp("^@doc [^\n]+"), t, 0)) {
       Some({
         let text = Str.matched_string(t);
@@ -186,7 +207,7 @@ and docsForModule = (~skipDoc=false, formatHref, stampsToPaths, path, tocLevel, 
         items |> List.map(name => switch (findByName(contents, name)) {
         | None => "Invalid doc item referenced: " ++ name
         | Some(doc) => {
-          let (html, tocs) = generateDoc(~skipDoc, formatHref, stampsToPaths, path, tocLevel, doc);
+          let (html, tocs) = generateDoc(~skipDoc, formatHref, stampsToPaths, path, tocLevel + lastLevel^, doc);
           addTocs(tocs);
           html
         }

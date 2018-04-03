@@ -46,6 +46,9 @@ let generate = (name, topdoc, stamps, allDocs) => {
   };
 
   let (html, tocs) = GenerateDoc.docsForModule(formatHref, stamps, [], 0, name, mainMarkdown, allDocs);
+  tocs |> List.rev |> List.iter(((level, name, id)) => {
+    Printf.printf("%d) %s    - #%s\n", level, name, id)
+  });
 
   DocsTemplate.head(name) ++ html
 };

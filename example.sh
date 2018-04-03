@@ -14,9 +14,11 @@ name=src/Example
 # ${base}/lib/bs/js/${name}.mlast \
 # docs/index.html
 
-./_build/install/default/bin/docre \
-${base}/lib/bs/js/${name}.cmt \
-docs/doc.html
+# ./_build/install/default/bin/docre ${base}/lib/bs/js/${name}.cmt docs/doc.html
+
+./_build/install/default/bin/docre ${base}/lib/bs/js/src/Example.cmt docs/doc.html
+
+exit 0
 
 # name=/node_modules/@jaredly/reprocessing/lib/bs/js/src/Reprocessing_Draw
 # ./_build/install/default/bin/docre \
@@ -26,8 +28,14 @@ docs/doc.html
 
 base=${base}/node_modules/@jaredly/reprocessing/lib/bs/js/src
 
+List=(
+Reprocessing
+Reprocessing_Constants
+Reprocessing_Draw
+Reprocessing_Env
+Reprocessing_Utils
+)
 
-List=(Reprocessing Reprocessing_Constants Reprocessing_Draw Reprocessing_Env Reprocessing_Utils)
 Normals=(
 Reprocessing_ClientWrapper
 Reprocessing_Common
@@ -42,17 +50,10 @@ Reprocessing_Types
 
 for name in ${List[@]}
 do
-  ./_build/install/default/bin/docre \
-  ${base}/${name}.cmti \
-  docs/${name}.html
-
+  ./_build/install/default/bin/docre ${base}/${name}.cmti docs/${name}.html
 done
-
 
 for name in ${Normals[@]}
 do
-  ./_build/install/default/bin/docre \
-  ${base}/${name}.cmt \
-  docs/${name}.html
-
+  ./_build/install/default/bin/docre ${base}/${name}.cmt docs/${name}.html
 done

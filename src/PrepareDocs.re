@@ -1,4 +1,6 @@
 
+open PrepareUtils;
+
 let rec doubleFold = (fn, items) => {
   List.fold_left(((left, right), item) => {
     let (l, r) = fn(item);
@@ -6,7 +8,6 @@ let rec doubleFold = (fn, items) => {
   }, ([], []), items)
 };
 
-let addToPath = ((name, inner), more) => (name, inner @ [more]);
 module T = {
   type pathType = PrintType.pathType = PModule | PModuleType | PValue | PType;
   type docItem =
@@ -30,16 +31,6 @@ module T = {
 
 };
 open T;
-let toFullPath = (pathType, (name, inner)) => (name, inner, pathType);
-
-let filterNil = (fn, items) => List.fold_left(
-  (items, item) => switch (fn(item)) {
-  | None => items
-  | Some(item) => [item, ...items]
-  },
-  [],
-  items
-);
 
 let rec organizeTypesType = (currentPath, types) => {
   open Types;
@@ -118,71 +109,6 @@ let rec organizeTypes = (currentPath, types) => {
   }, types)
 };
 
-let findStars = line => {
-  let l = String.length(line);
-  let rec loop = i => {
-    if (i >= l - 1) {
-      None
-    } else if (line.[i] == '*' && line.[i + 1] == ' ') {
-      Some(i + 1)
-    } else {
-      loop(i + 1)
-    }
-  };
-  loop(0)
-};
-
-let combine = (one, two) => switch (one, two) {
-| (None, None) => None
-| (Some(a), None) => Some(a)
-| (None, Some(b)) => Some(b)
-| (Some(a), Some(b)) => a == b ? Some(a) : Some(0)
-};
-
-let trimFirst = (num, string) => {
-  let length = String.length(string);
-  length > num ? String.sub(string, num, length - num) : string
-};
-
-let cleanOffStars = doc => {
-  let lines = Str.split(Str.regexp_string("\n"), doc);
-  let rec loop = (first, lines) => {
-    switch lines {
-    | [] => None
-    | [one] => (first || String.trim(one) == "") ? None : findStars(one)
-    | [one, ...rest] => (first || String.trim(one) == "") ? loop(false, rest) : combine(findStars(one), loop(false, rest))
-    }
-  };
-  let num = loop(true, lines);
-  switch num {
-  | None | Some(0) => doc
-  | Some(num) => switch lines {
-    | [] | [_] => doc
-    | [one, ...rest] => one ++ "\n" ++ String.concat("\n", rest |> List.map(trimFirst(num)))
-    }
-  }
-};
-
-/* TODO should I hang on to location? */
-let rec findDocAttribute = attributes => {
-  open Parsetree;
-  switch attributes {
-  | [] => None
-  | [({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}])), ...rest] => Some(cleanOffStars(doc))
-  | [_, ...rest] => findDocAttribute(rest)
-  }
-};
-
-let rec hasNoDoc = attributes => {
-  switch attributes {
-  | [] => false
-  | [({Asttypes.txt: "nodoc"}, _), ...rest] => true
-  | [_, ...rest] => hasNoDoc(rest)
-  }
-};
-
-let foldOpt = (fn, items, base) => List.fold_left((items, item) => switch (fn(item)) { | None => items | Some(x) => [x, ...items]}, base, items);
-
 let rec findAllDocsType = (signature) => {
   open Types;
   List.fold_left((items, item) => switch item {
@@ -218,6 +144,8 @@ let mapFst = (fn, (a, b)) => (fn(a), b);
 let eitherFirst = (opt, (opt2, second)) => {
   (either(opt, opt2), second)
 };
+
+/* TODO maybe use the typedtree for this instead */
 
 let rec findAllDocs = (structure, typesByLoc) => {
   open Parsetree;

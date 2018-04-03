@@ -19,7 +19,7 @@ let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "a
 let generate = (name, input) => {
   let (stampsToPaths, (toplevel, allDocs)) = switch input {
   | `Structure(structure, ast) => {
-    let (sp, tl) = PrepareDocs.organizeTypes((name, []), structure.Typedtree.str_items);
+    let sp = PrepareDocs.organizeTypes((name, []), structure.Typedtree.str_items);
     Printast.implementation(Format.str_formatter, ast);
     let out = Format.flush_str_formatter();
     Files.writeFile("./_build/" ++ name ++ ".ast.impl", out) |> ignore;
@@ -35,7 +35,7 @@ let generate = (name, input) => {
     let out = Format.flush_str_formatter();
     Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
 
-    let (sp, tl) = PrepareDocs.organizeTypesIntf((name, []), signature.Typedtree.sig_items);
+    let sp = PrepareDocs.organizeTypesIntf((name, []), signature.Typedtree.sig_items);
     (sp, PrepareDocs.findAllDocsIntf(signature.Typedtree.sig_items))
   }
   };

@@ -17,6 +17,7 @@ open Parsetree;
 let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char"];
 
 let generate = (name, topdoc, stamps, allDocs, projectNames) => {
+  /* print_endline("Generating " ++ name); */
   let mainMarkdown = switch (topdoc) {
   | None => GenerateDoc.defaultMain(~addHeading=true, name)
   | Some(doc) => doc

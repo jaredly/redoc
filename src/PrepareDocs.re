@@ -36,6 +36,8 @@ let rec organizeTypesType = (currentPath, types) => {
   open Types;
   foldOpt(item => switch item {
   | Sig_value({stamp, name}, {val_type, val_kind}) => Some((stamp, addToPath(currentPath, name) |> toFullPath(PValue)))
+  | Sig_type({stamp, name}, decl, _) => Some((stamp, addToPath(currentPath, name) |> toFullPath(PType)))
+  | Sig_modtype({stamp, name}, _) => Some((stamp, addToPath(currentPath, name) |> toFullPath(PModule)))
   | _ => None
   }, types, [])
 };
@@ -77,6 +79,10 @@ let rec organizeTypes = (currentPath, types) => {
       | Tstr_modtype({mtd_id: {stamp, name}, mtd_type: Some({mty_desc: Tmty_signature(signature), mty_type})}) => {
         let (stamps) = organizeTypesIntf(addToPath(currentPath, name), signature.sig_items);
         [(stamp, addToPath(currentPath, name) |> toFullPath(PModule)), ...stamps]
+      }
+      | Tstr_module({mb_id: {stamp, name}}) => [(stamp, addToPath(currentPath, name) |> toFullPath(PModule))]
+      | Tstr_include({incl_loc, incl_mod, incl_attributes, incl_type}) => {
+        organizeTypesType(currentPath, incl_type)
       }
       | _ => []
       };

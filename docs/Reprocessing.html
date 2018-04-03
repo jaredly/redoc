@@ -2,12 +2,47 @@
     
 <!doctype html>
 <meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body {
   font-family: system-ui;
   font-weight: 200;
   margin: 48px auto;
 }
+
+body {
+  font-size: 17px;
+  line-height: 26px;
+  font-weight: 400;
+  letter-spacing: -0.021em;
+  font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+
+  font-weight: 200;
+  letter-spacing: 0.04em;
+}
+
+h4.item {
+  font-family: sf mono, monospace;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  white-space: pre;
+  margin-bottom: 16px;
+  font-weight: 400;
+
+  font-weight: 200;
+  letter-spacing: 0.4em;
+}
+
+h4.item,
+p code {
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 0;
+  font-size: 17px;
+  line-height: 1.5em;
+
+  font-weight: 200;
+}
+
 .body {
   margin-left: 24px;
   margin-bottom: 48px;
@@ -34,14 +69,7 @@ body {
 h1, h2 {
   margin-top: 24px;
 }
-h4.item {
-  font-family: sf mono, monospace;
-  font-weight: 400;
-  padding-top: 8px;
-  border-top: 1px solid #ddd;
-  white-space: pre;
-  margin-bottom: 16px;
-}
+
 h4.module {
   font-size: 110%;
   font-weight: 600;
@@ -92,8 +120,10 @@ a:hover, a:focus {
   box-sizing: border-box;
 }
 
+.table-of-contents a.module,
+.project-listing a,
 .main a, .main a:visited {
-  color: #003984;
+  color: #0070c9;
 }
 
 .right-blank {
@@ -127,9 +157,6 @@ a:hover, a:focus {
   margin: 16px 0 8px;
 }
 
-.project-listing a {
-  color: #003984;
-}
 .project-listing a:visited {
   color: unset;
 }
@@ -139,7 +166,7 @@ a:hover, a:focus {
     position: static;
     width: 600px;
     margin: auto;
-    height: auto;
+    max-height: unset;
   }
 
   .container {
@@ -168,8 +195,8 @@ a:hover, a:focus {
   .container {
     padding: 0 10px;
   }
-  .item {
-    font-size: 12px;
+  h4.item {
+    font-size: 14px;
     overflow: auto;
     max-width: 100%;
   }
@@ -189,9 +216,6 @@ a:hover, a:focus {
 
 .table-of-contents a.header {
   font-weight: bold;
-}
-.table-of-contents a.module {
-  color: #003984;
 }
 
 a.level-1 {
@@ -301,31 +325,31 @@ window.onhashchange = checkHash
 <div class='doc-item'><h4 class='item module'>module <a href="#module-Constants" id="module-Constants">Constants</a> : <a href="Reprocessing_Constants.html">Reprocessing_Constants</a></h4><div class='body module-body'><p> Contains useful constants</p>
 </div></div>
 
-<div class='doc-item'><h4 class='item module'>include Reprocessing_Types.TypesT</h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>type <a href="#type-glEnvT" id="type-glEnvT">glEnvT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a></h4>
+<div class='doc-item'><h4 class='item module'>include Reprocessing_Types.TypesT</h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>type <a href="#type-glEnvT" id="type-glEnvT">glEnvT</a> = <a href="Reprocessing_Common.html#type-glEnv" title="Reprocessing_Common.glEnv">glEnv</a></h4>
 
 <div class='body body-empty'></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-colorT" id="type-colorT">colorT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-colorT">colorT</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-colorT" id="type-colorT">colorT</a> = <a href="Reprocessing_Common.html#type-colorT" title="Reprocessing_Common.colorT">colorT</a></h4>
 
 <div class='body body-empty'></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-imageT" id="type-imageT">imageT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-imageT">imageT</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-imageT" id="type-imageT">imageT</a> = <a href="Reprocessing_Common.html#type-imageT" title="Reprocessing_Common.imageT">imageT</a></h4>
 
 <div class='body body-empty'></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-fontT" id="type-fontT">fontT</a> = <a href="Reprocessing_Font.html">Reprocessing_Font</a>.<a href="Reprocessing_Font.html#type-fontT">fontT</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-fontT" id="type-fontT">fontT</a> = <a href="Reprocessing_Font.html#type-fontT" title="Reprocessing_Font.fontT">fontT</a></h4>
 
 <div class='body body-empty'></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-strokeCapT" id="type-strokeCapT">strokeCapT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-strokeCapT">strokeCapT</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-strokeCapT" id="type-strokeCapT">strokeCapT</a> = <a href="Reprocessing_Common.html#type-strokeCapT" title="Reprocessing_Common.strokeCapT">strokeCapT</a></h4>
 
 <div class='body body-empty'></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-rectModeT" id="type-rectModeT">rectModeT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-rectModeT">rectModeT</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-rectModeT" id="type-rectModeT">rectModeT</a> = <a href="Reprocessing_Common.html#type-rectModeT" title="Reprocessing_Common.rectModeT">rectModeT</a></h4>
 
 <div class='body body-empty'></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-soundT" id="type-soundT">soundT</a> = <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-soundT">soundT</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-soundT" id="type-soundT">soundT</a> = <a href="Reprocessing_Common.html#type-soundT" title="Reprocessing_Common.soundT">soundT</a></h4>
 
 <div class='body body-empty'></div></div>
 </div></div>

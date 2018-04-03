@@ -57,7 +57,14 @@ let printer = (formatHref, stampsToPaths) => {
     switch path {
     | Pident({name}) => show(name)
     | Pdot(inner, name, _) => {
-      printer.path(printer, inner, PModule) @! Pretty.text(".") @! show(name)}
+      switch (full) {
+      | Some(full) when name != "t" => {
+        Printf.sprintf({|<a href="%s" title="%s">%s</a>|}, full, Path.name(path), name) |> Pretty.text(~len=String.length(name))
+      }
+      | _ => {
+        printer.path(printer, inner, PModule) @! Pretty.text(".") @! show(name)}
+      }
+      }
     | Papply(_, _) => Pretty.text("<papply>")
     };
   }

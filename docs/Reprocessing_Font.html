@@ -2,12 +2,47 @@
     
 <!doctype html>
 <meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body {
   font-family: system-ui;
   font-weight: 200;
   margin: 48px auto;
 }
+
+body {
+  font-size: 17px;
+  line-height: 26px;
+  font-weight: 400;
+  letter-spacing: -0.021em;
+  font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+
+  font-weight: 200;
+  letter-spacing: 0.04em;
+}
+
+h4.item {
+  font-family: sf mono, monospace;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  white-space: pre;
+  margin-bottom: 16px;
+  font-weight: 400;
+
+  font-weight: 200;
+  letter-spacing: 0.4em;
+}
+
+h4.item,
+p code {
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 0;
+  font-size: 17px;
+  line-height: 1.5em;
+
+  font-weight: 200;
+}
+
 .body {
   margin-left: 24px;
   margin-bottom: 48px;
@@ -34,14 +69,7 @@ body {
 h1, h2 {
   margin-top: 24px;
 }
-h4.item {
-  font-family: sf mono, monospace;
-  font-weight: 400;
-  padding-top: 8px;
-  border-top: 1px solid #ddd;
-  white-space: pre;
-  margin-bottom: 16px;
-}
+
 h4.module {
   font-size: 110%;
   font-weight: 600;
@@ -92,8 +120,10 @@ a:hover, a:focus {
   box-sizing: border-box;
 }
 
+.table-of-contents a.module,
+.project-listing a,
 .main a, .main a:visited {
-  color: #003984;
+  color: #0070c9;
 }
 
 .right-blank {
@@ -127,9 +157,6 @@ a:hover, a:focus {
   margin: 16px 0 8px;
 }
 
-.project-listing a {
-  color: #003984;
-}
 .project-listing a:visited {
   color: unset;
 }
@@ -139,7 +166,7 @@ a:hover, a:focus {
     position: static;
     width: 600px;
     margin: auto;
-    height: auto;
+    max-height: unset;
   }
 
   .container {
@@ -168,8 +195,8 @@ a:hover, a:focus {
   .container {
     padding: 0 10px;
   }
-  .item {
-    font-size: 12px;
+  h4.item {
+    font-size: 14px;
     overflow: auto;
     max-width: 100%;
   }
@@ -189,9 +216,6 @@ a:hover, a:focus {
 
 .table-of-contents a.header {
   font-weight: bold;
-}
-.table-of-contents a.module {
-  color: #003984;
 }
 
 a.level-1 {
@@ -311,7 +335,7 @@ window.onhashchange = checkHash
 <div class='doc-item'><h4 class='item'>type <a href="#type-Font.internalType" id="type-Font.internalType">internalType</a> = {
     chars: <a href="#module-Font.IntMap">IntMap</a>.<a href="#type-Font.IntMap.t">t</a>(<a href="#type-Font.charT">charT</a>),
     kerning: <a href="#module-Font.IntPairMap">IntPairMap</a>.<a href="#type-Font.IntPairMap.t">t</a>(int),
-    image: <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-imageT">imageT</a>
+    image: <a href="Reprocessing_Common.html#type-imageT" title="Reprocessing_Common.imageT">imageT</a>
 }</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
@@ -320,39 +344,29 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parse_num" id="value-Font.parse_num">parse_num</a> = (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>) => (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>,
-    int
-)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parse_num" id="value-Font.parse_num">parse_num</a> = (<a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>) => (<a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>, int)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parse_string" id="value-Font.parse_string">parse_string</a> = (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>) => (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>,
-    string
-)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parse_string" id="value-Font.parse_string">parse_string</a> = (<a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>) => (<a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>, string)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.pop_line" id="value-Font.pop_line">pop_line</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>
-) => <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.pop_line" id="value-Font.pop_line">pop_line</a> = (<a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>) => <a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parse_char_fmt" id="value-Font.parse_char_fmt">parse_char_fmt</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>,
-    int,
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parse_char_fmt" id="value-Font.parse_char_fmt">parse_char_fmt</a> = (<a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>, int, <a href="#module-Font.IntMap">IntMap</a>.<a href="#type-Font.IntMap.t">t</a>(<a href="#type-Font.charT">charT</a>)) => (
+    <a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>,
     <a href="#module-Font.IntMap">IntMap</a>.<a href="#type-Font.IntMap.t">t</a>(<a href="#type-Font.charT">charT</a>)
-) => (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>, <a href="#module-Font.IntMap">IntMap</a>.<a href="#type-Font.IntMap.t">t</a>(<a href="#type-Font.charT">charT</a>))</h4>
+)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parse_kern_fmt" id="value-Font.parse_kern_fmt">parse_kern_fmt</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>,
-    int,
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.parse_kern_fmt" id="value-Font.parse_kern_fmt">parse_kern_fmt</a> = (<a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>, int, <a href="#module-Font.IntPairMap">IntPairMap</a>.<a href="#type-Font.IntPairMap.t">t</a>(int)) => (
+    <a href="Reprocessing_Common.html#module-Stream" title="Reprocessing_Common.Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>,
     <a href="#module-Font.IntPairMap">IntPairMap</a>.<a href="#type-Font.IntPairMap.t">t</a>(int)
-) => (<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#module-Stream">Stream</a>.<a href="Reprocessing_Common.html#type-Stream.t">t</a>, <a href="#module-Font.IntPairMap">IntPairMap</a>.<a href="#type-Font.IntPairMap.t">t</a>(int))</h4>
+)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
@@ -361,7 +375,7 @@ window.onhashchange = checkHash
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-Font.parseFontFormat" id="value-Font.parseFontFormat">parseFontFormat</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
+    <a href="Reprocessing_Common.html#type-glEnv" title="Reprocessing_Common.glEnv">glEnv</a>,
     string,
     bool
 ) => Pervasives.ref(option(<a href="#type-Font.internalType">internalType</a>))</h4>
@@ -373,9 +387,9 @@ window.onhashchange = checkHash
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-Font.drawChar" id="value-Font.drawChar">drawChar</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
+    <a href="Reprocessing_Common.html#type-glEnv" title="Reprocessing_Common.glEnv">glEnv</a>,
     <a href="#type-Font.internalType">internalType</a>,
-    option(<a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-_imageT">_imageT</a>),
+    option(<a href="Reprocessing_Common.html#type-_imageT" title="Reprocessing_Common._imageT">_imageT</a>),
     char,
     option(char),
     int,
@@ -385,7 +399,7 @@ window.onhashchange = checkHash
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-Font.drawString" id="value-Font.drawString">drawString</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
+    <a href="Reprocessing_Common.html#type-glEnv" title="Reprocessing_Common.glEnv">glEnv</a>,
     Pervasives.ref(option(<a href="#type-Font.internalType">internalType</a>)),
     string,
     int,
@@ -394,16 +408,12 @@ window.onhashchange = checkHash
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-Font.calcStringWidth" id="value-Font.calcStringWidth">calcStringWidth</a> = (
-    <a href="Reprocessing_Common.html">Reprocessing_Common</a>.<a href="Reprocessing_Common.html#type-glEnv">glEnv</a>,
-    <a href="#type-Font.internalType">internalType</a>,
-    string
-) => int</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Font.calcStringWidth" id="value-Font.calcStringWidth">calcStringWidth</a> = (<a href="Reprocessing_Common.html#type-glEnv" title="Reprocessing_Common.glEnv">glEnv</a>, <a href="#type-Font.internalType">internalType</a>, string) => int</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 </div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-fontT" id="type-fontT">fontT</a> = Pervasives.ref(option(<a href="#module-Font">Font</a>.<a href="#type-Font.internalType">internalType</a>))</h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-fontT" id="type-fontT">fontT</a> = Pervasives.ref(option(<a href="#type-Font.internalType" title="Font.internalType">internalType</a>))</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 

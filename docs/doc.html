@@ -2,12 +2,47 @@
     
 <!doctype html>
 <meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body {
   font-family: system-ui;
   font-weight: 200;
   margin: 48px auto;
 }
+
+body {
+  font-size: 17px;
+  line-height: 26px;
+  font-weight: 400;
+  letter-spacing: -0.021em;
+  font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+
+  font-weight: 200;
+  letter-spacing: 0.04em;
+}
+
+h4.item {
+  font-family: sf mono, monospace;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  white-space: pre;
+  margin-bottom: 16px;
+  font-weight: 400;
+
+  font-weight: 200;
+  letter-spacing: 0.4em;
+}
+
+h4.item,
+p code {
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 0;
+  font-size: 17px;
+  line-height: 1.5em;
+
+  font-weight: 200;
+}
+
 .body {
   margin-left: 24px;
   margin-bottom: 48px;
@@ -34,14 +69,7 @@ body {
 h1, h2 {
   margin-top: 24px;
 }
-h4.item {
-  font-family: sf mono, monospace;
-  font-weight: 400;
-  padding-top: 8px;
-  border-top: 1px solid #ddd;
-  white-space: pre;
-  margin-bottom: 16px;
-}
+
 h4.module {
   font-size: 110%;
   font-weight: 600;
@@ -92,8 +120,10 @@ a:hover, a:focus {
   box-sizing: border-box;
 }
 
+.table-of-contents a.module,
+.project-listing a,
 .main a, .main a:visited {
-  color: #003984;
+  color: #0070c9;
 }
 
 .right-blank {
@@ -127,9 +157,6 @@ a:hover, a:focus {
   margin: 16px 0 8px;
 }
 
-.project-listing a {
-  color: #003984;
-}
 .project-listing a:visited {
   color: unset;
 }
@@ -139,7 +166,7 @@ a:hover, a:focus {
     position: static;
     width: 600px;
     margin: auto;
-    height: auto;
+    max-height: unset;
   }
 
   .container {
@@ -168,8 +195,8 @@ a:hover, a:focus {
   .container {
     padding: 0 10px;
   }
-  .item {
-    font-size: 12px;
+  h4.item {
+    font-size: 14px;
     overflow: auto;
     max-width: 100%;
   }
@@ -189,9 +216,6 @@ a:hover, a:focus {
 
 .table-of-contents a.header {
   font-weight: bold;
-}
-.table-of-contents a.module {
-  color: #003984;
 }
 
 a.level-1 {
@@ -371,15 +395,15 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-mm" id="type-mm">mm</a> = <a href="#module-Inner">Inner</a>.<a href="#type-Inner.party">party</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-mm" id="type-mm">mm</a> = <a href="#type-Inner.party" title="Inner.party">party</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-z" id="value-z">z</a> = option(<a href="#module-Inner">Inner</a>.<a href="#type-Inner.otherParty">otherParty</a>)</h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-z" id="value-z">z</a> = option(<a href="#type-Inner.otherParty" title="Inner.otherParty">otherParty</a>)</h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-nn" id="type-nn">nn</a> = <a href="#module-Inner">Inner</a>.<a href="#type-Inner.otherParty">otherParty</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-nn" id="type-nn">nn</a> = <a href="#type-Inner.otherParty" title="Inner.otherParty">otherParty</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
@@ -388,11 +412,11 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-What.y" id="value-What.y">y</a> = <a href="#module-Inner">Inner</a>.<a href="#type-Inner.other">other</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-What.y" id="value-What.y">y</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-What.m" id="type-What.m">m</a> = <a href="#module-Inner">Inner</a>.<a href="#type-Inner.other">other</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-What.m" id="type-What.m">m</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 </div></div>
@@ -402,7 +426,7 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.m" id="type-HideThings.m">m</a> = <a href="#module-Inner">Inner</a>.<a href="#type-Inner.other">other</a></h4>
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.m" id="type-HideThings.m">m</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
 
@@ -410,11 +434,11 @@ let z = awesome();</code></pre></div></div>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.b" id="value-HideThings.b">b</a> = <a href="#module-Inner">Inner</a>.<a href="#type-Inner.other">other</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.b" id="value-HideThings.b">b</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 
-<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.c" id="value-HideThings.c">c</a> = <a href="#module-Inner">Inner</a>.<a href="#type-Inner.other">other</a></h4>
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.c" id="value-HideThings.c">c</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
 
 <div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
 

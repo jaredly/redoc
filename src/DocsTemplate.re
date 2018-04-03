@@ -83,7 +83,7 @@ h4.module {
 }
 
 .body > p:first-child {
-  margin-top: 8px;
+  margin-top: 0px;
 }
 
 .body > p:last-child {
@@ -164,12 +164,27 @@ a:hover, a:focus {
   color: unset;
 }
 
+.sidebar-expander {
+  display: none;
+}
+
 @media(max-width: 1000px) {
   .sidebar {
     position: static;
     width: 600px;
     margin: auto;
     max-height: unset;
+    display: none;
+  }
+  .sidebar-expander {
+    text-align: center;
+    width: 600px;
+    margin: auto;
+    display: block;
+  }
+
+  .sidebar.expanded {
+    display: block;
   }
 
   .container {
@@ -186,6 +201,7 @@ a:hover, a:focus {
 }
 
 @media(max-width: 620px) {
+  .sidebar-expander,
   .sidebar {
     width: auto;
     margin: 0;
@@ -207,6 +223,7 @@ a:hover, a:focus {
   .body {
     font-size: 17px;
     margin-left: 0;
+    margin-bottom: 32px;
   }
 }
 
@@ -265,6 +282,17 @@ var checkHash = () => {
 }
 window.onload = () => {
   checkHash()
+  var expander = document.querySelector('.sidebar-expander')
+  expander.onclick = () => {
+    var sidebar = document.querySelector('.sidebar');
+    if (sidebar.classList.contains('expanded')) {
+      sidebar.classList.remove('expanded')
+      expander.textContent = 'Show navigation'
+    } else {
+      sidebar.classList.add('expanded')
+      expander.textContent = 'Hide navigation'
+    }
+  }
 }
 window.onhashchange = checkHash
 </script>

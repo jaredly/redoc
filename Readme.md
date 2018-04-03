@@ -6,19 +6,21 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
 
 ## Work to do
 
-- [ ] aliases - only show the last item of a type path (full on hover)
+- [x] aliases - only show the last item of a type path (full on hover)
   - if the last item is "t", then also show the parent
 - [x] A sidebar!
   - [x] a table of contents
-  - [ ] listing of other modules in this package
+  - [x] listing of other modules in this package
   - [ ] highlight the currently selected thing in the sidebar. scroll-tracking
 - [x] make sure mobile looks nice
-- [ ] build for a whole project
+- [ ] make it easy to build for a whole project
+- [x] collapse top thing when on mobile
 - [ ] Integrated search! see [this example](https://rustbyexample.com/primitives/tuples.html?search=thin) (powered by [this rust code](https://github.com/rust-lang-nursery/mdBook/blob/5fb36751514a83ce245099df3057efd53b5819df/src/renderer/html_handlebars/search.rs#L19) and [this js code](https://github.com/rust-lang-nursery/mdBook/blob/master/src/theme/searcher/searcher.js))
   - will pre-create an elasticlunr index, and load it up when the user selects the search field
   - maybe allow you to indicate that there are other indexes (e.g. for other libraries) that you'd like to load? So reason's docs could load reasonreact for better cross-searching
 - [ ] inline interactive code samples!
   - make them editable! This may require some gymnastics, but I'm confident pack.re can pull it off.
+  - on mobile, dont have them be editable. Have a run link that will take you to the playground with the code pre-filled.
   - I'll want a way to specify a "wrapper" for the code, e.g. if it's "in a reprocessing draw function"
   - also specify that the code should have a canvas created adjacent to it?
   - the default should probably be "run in a web worker", but you can override to write to a canvas or similar

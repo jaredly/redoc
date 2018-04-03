@@ -5,6 +5,9 @@ let generate = (name, tocItems, projectListing) => {
   }) |> String.concat("\n");
   Printf.sprintf({|
     <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>
+    Show navigation
+    </div>
     <div class='sidebar'>
     <div class='table-of-contents'>
     %s

@@ -10,14 +10,13 @@ let annotateSourceCode = (source, cmt, mlast, output) => {
   Files.writeFile(output, Template.make(highlighted, typeText)) |> ignore;
 };
 
-let generateDocs = (cmt, mlast, output) => {
-  let name = Filename.basename(mlast) |> Filename.chop_extension;
+let generateDocs = (cmt, output) => {
+  let name = Filename.basename(cmt) |> Filename.chop_extension;
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
-  /* let structure = ReadMlast.read_ast(mlast); */
 
   let input = switch annots {
-  | Cmt_format.Implementation(structure) => `Structure(structure, ReadMlast.structure(mlast))
-  | Cmt_format.Interface(signature) => `Signature(signature, ReadMlast.signature(mlast))
+  | Cmt_format.Implementation(structure) => `Structure(structure)
+  | Cmt_format.Interface(signature) => `Signature(signature)
   | _ => failwith("Not a valid cmt file")
   };
 
@@ -29,7 +28,7 @@ let generateDocs = (cmt, mlast, output) => {
 let main = () => {
   switch (Sys.argv) {
   | [|_, source, cmt, mlast, output|] => annotateSourceCode(source, cmt, mlast, output)
-  | [|_, cmt, mlast, output|] => generateDocs(cmt, mlast, output)
+  | [|_, cmt, output|] => generateDocs(cmt, output)
   | _ => {
     print_endline("\n\nUsage: docre some.re some.cmt some.mlast output.html");
   }

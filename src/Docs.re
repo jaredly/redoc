@@ -18,17 +18,17 @@ let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "a
 
 let generate = (name, input) => {
   let (stampsToPaths, (toplevel, allDocs)) = switch input {
-  | `Structure(structure, ast) => {
+  | `Structure(structure) => {
     let sp = PrepareDocs.organizeTypes((name, []), structure.Typedtree.str_items);
-    Printast.implementation(Format.str_formatter, ast);
+    /* Printast.implementation(Format.str_formatter, ast);
     let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".ast.impl", out) |> ignore;
+    Files.writeFile("./_build/" ++ name ++ ".ast.impl", out) |> ignore; */
     (sp, PrepareDocs.findAllDocs(structure.Typedtree.str_items))
   }
-  | `Signature(signature, ast) => {
-    Printast.interface(Format.str_formatter, ast);
+  | `Signature(signature) => {
+    /* Printast.interface(Format.str_formatter, ast);
     let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".ast.inft", out) |> ignore;
+    Files.writeFile("./_build/" ++ name ++ ".ast.inft", out) |> ignore; */
 
     Printtyped.interface(Format.str_formatter, signature);
     /* Printast.interface(Format.str_formatter, ast); */

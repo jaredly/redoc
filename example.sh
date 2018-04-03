@@ -45,7 +45,6 @@ for name in ${List[@]}
 do
   ./_build/install/default/bin/docre \
   ${base}/${name}.cmti \
-  ${base}/${name}.mliast \
   docs/${name}.html
 
 done
@@ -55,7 +54,6 @@ for name in ${Normals[@]}
 do
   ./_build/install/default/bin/docre \
   ${base}/${name}.cmt \
-  ${base}/${name}.mlast \
   docs/${name}.html
 
 done

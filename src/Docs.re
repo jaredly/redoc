@@ -46,14 +46,14 @@ let page = (~cssLoc, ~jsLoc, ~checkHashes=false, name, tocs, projectNames, markd
   Sidebar.generate(name, tocs, projectNames, markdowns), contents)
 };
 
-let generate = (~cssLoc, ~jsLoc, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
+let generate = (~cssLoc, ~jsLoc, ~processMarkdown, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
   let mainMarkdown = switch (topdoc) {
   | None => GenerateDoc.defaultMain(~addHeading=true, name)
   | Some(doc) => doc
   };
 
   let printer = GenerateDoc.printer(formatHref(name, projectNames), stamps);
-  let (html, tocs) = GenerateDoc.docsForModule(printer, el => None, [], 0, name, mainMarkdown, allDocs);
+  let (html, tocs) = GenerateDoc.docsForModule(printer, processMarkdown, [], 0, name, mainMarkdown, allDocs);
 
   let projectListing = projectNames |> List.map(name => (name ++ ".html", name));
   page(~cssLoc, ~jsLoc, ~checkHashes=true, name, List.rev(tocs), projectListing, markdowns, html)

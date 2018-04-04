@@ -51,7 +51,7 @@ let filterDuplicates = cmts => {
   });
 };
 
-let rec processMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) => {
+let rec linkifyMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) => {
   let rel = Files.relpath(Filename.dirname(curPath));
   switch element {
   | Omd.Url(href, contents, title) when String.length(href) > 0 => {
@@ -90,20 +90,22 @@ let generateMultiple = (dest, cmts, markdowns) => {
     searchable := [(href, title, contents, breadcrumb), ...searchable^];
   };
 
-  /* let visitMarkdown = (name, path, currentItem, element) => {
+  let visitMarkdown = (name, path, currentItem, element) => {
     switch element {
     | Omd.Paragraph(t) => {
       let text = Omd.to_text(t);
       let (title, prefix) = switch currentItem {
       | `Api((name, docs, item)) => {
-
+        ("", "")
       }
       | `Header(name) => (name, "")
       }
     }
     | _ => ()
     }
-  }; */
+  };
+
+  let processMarkdown = (path, name, typ, element) => None;
 
   let api = dest /+ "api";
   Files.mkdirp(api);
@@ -116,14 +118,14 @@ let generateMultiple = (dest, cmts, markdowns) => {
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
 
     let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-    let text = Docs.generate(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, topdoc, stamps, allDocs, names, markdowns);
+    let text = Docs.generate(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processMarkdown, name, topdoc, stamps, allDocs, names, markdowns);
 
     Files.writeFile(output, text) |> ignore;
   });
 
   markdowns |> List.iter(((path, contents, name)) => {
     let rel = Files.relpath(Filename.dirname(path));
-    let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, processMarkdown(path, dest));
+    let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, linkifyMarkdown(path, dest));
     let main = Omd.to_html(~override, Omd.of_string(contents));
 
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
@@ -207,7 +209,7 @@ let generateProject = (projectName, base) => {
 let generateDocs = (cmt) => {
   let name = getName(cmt);
   let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-  Docs.generate(~cssLoc=None, ~jsLoc=None, name, topdoc, stamps, allDocs, [], []);
+  Docs.generate(~cssLoc=None, ~jsLoc=None, ~processMarkdown=(_, _, _, _) => None, name, topdoc, stamps, allDocs, [], []);
 };
 
 let main = () => {

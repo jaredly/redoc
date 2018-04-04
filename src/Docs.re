@@ -30,7 +30,7 @@ let formatHref = (name, projectNames, (modName, inner, ptype)) => {
   }
 };
 
-let page = (~cssLoc, ~jsLoc, ~checkHashes=false, name, tocs, projectNames, markdowns, contents) => {
+let page = (~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=false, name, tocs, projectNames, markdowns, contents) => {
   Printf.sprintf({|
     %s
     %s
@@ -41,12 +41,12 @@ let page = (~cssLoc, ~jsLoc, ~checkHashes=false, name, tocs, projectNames, markd
     </div>
     <div class='right-blank'></div>
     </div>
-  |}, DocsTemplate.head(~cssLoc?, ~jsLoc?, name),
+  |}, DocsTemplate.head(~relativeToRoot, ~cssLoc?, ~jsLoc?, name),
   checkHashes ? "<script>window.shouldCheckHashes=true</script>" : "",
   Sidebar.generate(name, tocs, projectNames, markdowns), contents)
 };
 
-let generate = (~cssLoc, ~jsLoc, ~processDocString, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
+let generate = (~relativeToRoot, ~cssLoc, ~jsLoc, ~processDocString, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
   let mainMarkdown = switch (topdoc) {
   | None => GenerateDoc.defaultMain(~addHeading=true, name)
   | Some(doc) => doc
@@ -56,5 +56,5 @@ let generate = (~cssLoc, ~jsLoc, ~processDocString, name, topdoc, stamps, allDoc
   let (html, tocs) = GenerateDoc.docsForModule(printer, processDocString, [], 0, name, mainMarkdown, allDocs);
 
   let projectListing = projectNames |> List.map(name => (name ++ ".html", name));
-  page(~cssLoc, ~jsLoc, ~checkHashes=true, name, List.rev(tocs), projectListing, markdowns, html)
+  page(~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=true, name, List.rev(tocs), projectListing, markdowns, html)
 };

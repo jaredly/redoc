@@ -103,6 +103,7 @@ let makeSearcher = (dest) => {
     | Some(t) => switch t {
       | Module(_) =>  makeId(PModule)
       | Value(typ) => {
+        /** TODO get elasticlunr to allow me to provide my own tokenization for a block of text. e.g. here just include the identifiers */
         let text = GenerateDoc.prettyString(PrintType.default.value(PrintType.default, name, name, typ));
         addSearchable(fileName, Some(GenerateDoc.makeId(path, PValue)), title, text, fileTitle);
         makeId(PValue)
@@ -114,7 +115,6 @@ let makeSearcher = (dest) => {
       }
       | StandaloneDoc(_) | Include(_) => None
       }
-    /* Some(GenerateDoc.makeId(path, t)) */
     };
 
     /** Docstring paragraphs */
@@ -129,6 +129,10 @@ let makeSearcher = (dest) => {
         } else {
           addSearchable(fileName, hash, title, text, fileTitle)
         }
+      }
+      | Code_block(lang, contents) => {
+        /** TODO get elasticlunr to allow me to provide my own tokenization for a block of text. e.g. here just include the identifiers */
+        addSearchable(fileName, None, "code block", contents, fileTitle)
       }
       | H1(t) | H2(t) | H3(t) | H4(t) | H5(t) => {
         let title = Omd.to_text(t);
@@ -168,7 +172,7 @@ let generateMultiple = (dest, cmts, markdowns) => {
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
 
     let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-    let text = Docs.generate(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(output, name), name, topdoc, stamps, allDocs, names, markdowns);
+    let text = Docs.generate(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(output, name), name, topdoc, stamps, allDocs, names, markdowns);
 
     Files.writeFile(output, text) |> ignore;
   });
@@ -180,7 +184,7 @@ let generateMultiple = (dest, cmts, markdowns) => {
 
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
-    let html = Docs.page(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
+    let html = Docs.page(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
 
     Files.writeFile(path, html) |> ignore;
   });

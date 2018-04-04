@@ -327,7 +327,7 @@ window.onload = () => {
 window.onhashchange = checkHash
 |};
 
-let head = (~cssLoc=?, ~jsLoc=?, name) => Printf.sprintf({|
+let head = (~relativeToRoot, ~cssLoc=?, ~jsLoc=?, name) => Printf.sprintf({|
 <!doctype html>
 <meta charset=utf8>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -335,6 +335,8 @@ let head = (~cssLoc=?, ~jsLoc=?, name) => Printf.sprintf({|
 %s
 <title>%s</title>
 <body>
+<script>window.relativeToRoot=%S</script>
+<script defer src=%S></script>
 <div id='error-message'>
   ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
 </div>
@@ -344,4 +346,4 @@ let head = (~cssLoc=?, ~jsLoc=?, name) => Printf.sprintf({|
 }, switch jsLoc {
 | None => "<script>" ++ script ++ "</script>"
 | Some(loc) => "<script defer src='" ++ loc ++ "'></script>"
-}, name);
+}, name, relativeToRoot, Filename.concat(relativeToRoot, "search.js"));

@@ -43,7 +43,7 @@ let page = (~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=false, name, tocs, pr
     </div>
   |}, DocsTemplate.head(~relativeToRoot, ~cssLoc?, ~jsLoc?, name),
   checkHashes ? "<script>window.shouldCheckHashes=true</script>" : "",
-  Sidebar.generate(name, tocs, projectNames, markdowns), contents)
+  Sidebar.generate(name, tocs, projectNames, markdowns, Filename.concat(relativeToRoot, "search.html")), contents)
 };
 
 let generate = (~relativeToRoot, ~cssLoc, ~jsLoc, ~processDocString, name, topdoc, stamps, allDocs, projectNames, markdowns) => {

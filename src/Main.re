@@ -189,6 +189,26 @@ let generateMultiple = (dest, cmts, markdowns) => {
     Files.writeFile(path, html) |> ignore;
   });
 
+  {
+    let path = dest /+ "search.html";
+    let rel = Files.relpath(Filename.dirname(path));
+    let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
+    let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
+    let main = Printf.sprintf({|
+      <input placeholder="Search the docs" id="search-input"/>
+      <style>%s</style>
+      <div id="search-results"></div>
+      <link rel=stylesheet href="search.css">
+      <script defer src="searchables.json.index.js"></script>
+      <script defer src="elasticlunr.js"></script>
+      <script defer src="search.js"></script>
+    |}, DocsTemplate.searchStyle);
+    let html = Docs.page(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), "Search", [], projectListing, markdowns, main);
+    Files.writeFile(path, html) |> ignore;
+    Files.writeFile(dest /+ "search.js", DocsTemplate.searchScript) |> ignore;
+    Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
+  };
+
   Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
 };
 

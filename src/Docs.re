@@ -54,5 +54,6 @@ let generate = (~cssLoc, ~jsLoc, name, topdoc, stamps, allDocs, projectNames, ma
 
   let (html, tocs) = GenerateDoc.docsForModule(formatHref(name, projectNames), el => None, stamps, [], 0, name, mainMarkdown, allDocs);
 
-  page(~cssLoc, ~jsLoc, ~checkHashes=true, name, List.rev(tocs), projectNames, markdowns, html)
+  let projectListing = projectNames |> List.map(name => (name ++ ".html", name));
+  page(~cssLoc, ~jsLoc, ~checkHashes=true, name, List.rev(tocs), projectListing, markdowns, html)
 };

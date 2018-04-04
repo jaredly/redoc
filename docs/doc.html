@@ -157,7 +157,9 @@ a, a:visited,
   padding-bottom: 32px;
 }
 
+.table-of-contents .toc-header,
 .project-listing .project-title {
+  font-size: 14px;
   font-weight: bold;
   margin: 16px 0 8px;
 }
@@ -240,7 +242,7 @@ a, a:visited,
 }
 
 .table-of-contents a.header {
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 a.level-1 {
@@ -293,6 +295,8 @@ var checkHash = () => {
     var parts = id.split('-')
     document.querySelector('#error-message span').textContent = parts[0]
     document.querySelector('#error-message code').textContent = parts[1]
+  } else {
+    document.getElementById("error-message").style.display = 'none'
   }
 }
 window.onload = () => {
@@ -324,7 +328,9 @@ window.onhashchange = checkHash
     <div class='sidebar-expander'>Show navigation</div>
     <div class='sidebar'>
       
-      <div class='table-of-contents'><a href="#Example" class='level-1 header'>Example</a>
+      <div class='table-of-contents'>
+      <div class='toc-header'>Page Contents</div>
+      <a href="#Example" class='level-1 header'>Example</a>
 <a href="#Functions" class='level-2 header'>Functions</a>
 <a href="#type-awesome" class='level-3 type'>awesome</a>
 <a href="#module-Something" class='level-3 module'>Something</a>
@@ -366,7 +372,8 @@ window.onhashchange = checkHash
 <a href="#value-HideThings.x" class='level-4 value'>x</a>
 <a href="#value-HideThings.z" class='level-4 value'>z</a>
 <a href="#value-HideThings.m" class='level-4 value'>m</a>
-<a href="#value-HideThings.n" class='level-4 value'>n</a></div>
+<a href="#value-HideThings.n" class='level-4 value'>n</a>
+      </div>
       
     </div>
     </div>

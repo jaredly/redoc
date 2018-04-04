@@ -127,28 +127,28 @@ let trackToc = (~lower=false, tocLevel, override) => {
   let addTocs = items => tocItems := items @ tocItems^;
   let lastLevel = ref(0);
 
-  let addHeader = (num, inner) => {
-    lastLevel := num + 1;
-    let id = cleanForLink(Omd.to_text(inner));
-    let id = lower ? String.lowercase(id) : id;
-    let html = Omd.to_html(~override=override(addTocs, lastLevel), inner);
-    addToc((tocLevel + num, html, id, "header"));
-    Printf.sprintf({|<a href="#%s" id="%s"><h%d>%s</h%d></a>|}, id, id, num, html, num)
-  };
-
-  (tocItems, (element) => switch element {
+  let rec fullOverride =  (element) => switch element {
     | Omd.H1(inner) => Some(addHeader(1, inner))
     | H2(inner) => Some(addHeader(2, inner))
     | H3(inner) => Some(addHeader(3, inner))
     | H4(inner) => Some(addHeader(4, inner))
     | H5(inner) => Some(addHeader(5, inner))
-    | _ => override(addTocs, lastLevel, element)
-  })
+    | _ => override(addTocs, lastLevel, fullOverride, element)
+  }
+  and addHeader = (num, inner) => {
+    lastLevel := num + 1;
+    let id = cleanForLink(Omd.to_text(inner));
+    let id = lower ? String.lowercase(id) : id;
+    let html = Omd.to_html(~override=override(addTocs, lastLevel, fullOverride), inner);
+    addToc((tocLevel + num, html, id, "header"));
+    Printf.sprintf({|<a href="#%s" id="%s"><h%d>%s</h%d></a>|}, id, id, num, html, num)
+  };
+
+  (tocItems, fullOverride)
 };
 
 let rec generateDoc = (~skipDoc=false, formatHref, processMarkdown, stampsToPaths, path, tocLevel, (name, docstring, content)) => {
   open PrepareDocs.T;
-  /* let tocLevel = List.length(path); */
   let id = makeId(path @ [name]);
   let printer = printer(formatHref, stampsToPaths);
   let (middle, tocs) = switch content {
@@ -212,20 +212,7 @@ let rec generateDoc = (~skipDoc=false, formatHref, processMarkdown, stampsToPath
 
 and docsForModule = (~skipDoc=false, formatHref, processMarkdown, stampsToPaths, path, tocLevel, name, main, contents) => {
   open Omd;
-  /* let tocItems = ref([]);
-  let addToc = item => tocItems := [item, ...tocItems^];
-  let addTocs = items => tocItems := items @ tocItems^;
-  let lastLevel = ref(0); */
-
-  /* let addHeader = (num, inner) => {
-    lastLevel := num + 1;
-    let id = cleanForLink(Omd.to_text(inner));
-    let html = Omd.to_html(~override=processMarkdown, inner);
-    addToc((tocLevel + num, html, id, "header"));
-    Printf.sprintf({|<a href="#%s" id="%s"><h%d>%s</h%d></a>|}, id, id, num, html, num)
-  }; */
-
-  let (tocItems, override) = trackToc(tocLevel, (addTocs, lastLevel, element) => switch element {
+  let (tocItems, override) = trackToc(tocLevel, (addTocs, lastLevel, recur, element) => switch element {
   | Paragraph([Text(t)]) => {
     if (String.trim(t) == "@all") {
       Some((List.map(doc => {
@@ -255,41 +242,6 @@ and docsForModule = (~skipDoc=false, formatHref, processMarkdown, stampsToPaths,
   });
 
   let html = Omd.of_string(main) |> Omd.to_html(~override);
-
-  /* let html = Omd.of_string(main) |> Omd.to_html(~override=element => switch element {
-  | H1(inner) => Some(addHeader(1, inner))
-  | H2(inner) => Some(addHeader(2, inner))
-  | H3(inner) => Some(addHeader(3, inner))
-  | H4(inner) => Some(addHeader(4, inner))
-  | H5(inner) => Some(addHeader(5, inner))
-  /* Special replacements for @all and @doc */
-  | Paragraph([Text(t)]) => {
-    if (String.trim(t) == "@all") {
-      Some((List.map(doc => {
-        let (html, tocs) = generateDoc(~skipDoc, formatHref, processMarkdown, stampsToPaths, path, tocLevel + lastLevel^, doc);
-        addTocs(tocs);
-        html
-      }, List.rev(uniqueItems(contents))) |> String.concat("\n\n")) ++ "\n")
-    } else if (Str.string_match(Str.regexp("^@doc [^\n]+"), t, 0)) {
-      Some({
-        let text = Str.matched_string(t);
-        let raw = String.sub(text, 5, String.length(text) - 5);
-        let items = Str.split(Str.regexp_string(","), raw) |> List.map(String.trim);
-        items |> List.map(name => switch (findByName(contents, name)) {
-        | None => "Invalid doc item referenced: " ++ name
-        | Some(doc) => {
-          let (html, tocs) = generateDoc(~skipDoc, formatHref, processMarkdown, stampsToPaths, path, tocLevel + lastLevel^, doc);
-          addTocs(tocs);
-          html
-        }
-        }) |> String.concat("\n\n");
-      })
-    } else {
-      processMarkdown(element)
-    }
-  }
-  | _ => processMarkdown(element)
-  }); */
 
   (html, tocItems^)
 };

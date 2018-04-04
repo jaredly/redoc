@@ -51,16 +51,11 @@ let filterDuplicates = cmts => {
   });
 };
 
-let rec processMarkdown = (curPath, basePath, element) => {
+let rec processMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) => {
   let rel = Files.relpath(Filename.dirname(curPath));
-  let makeHeader = (num, contents) => {
-    let id = GenerateDoc.cleanForLink(Omd.to_text(contents)) |> String.lowercase;
-    let html = Omd.to_html(~override=processMarkdown(curPath, basePath), contents);
-    Printf.sprintf({|<a href="#%s" id="%s"><h%d>%s</h%d></a>|}, id, id, num, html, num)
-  };
   switch element {
   | Omd.Url(href, contents, title) when String.length(href) > 0 => {
-    let contents = Omd.to_html(~override=processMarkdown(curPath, basePath), contents);
+    let contents = Omd.to_html(~override, contents);
     if (href.[0] == '.' || href.[0] == '/' || href.[0] == '#' || href.[0] == '?') {
       let href = if (href.[0] == '/') {
         rel(Filename.concat(basePath, href))
@@ -74,11 +69,6 @@ let rec processMarkdown = (curPath, basePath, element) => {
       Some(Printf.sprintf({|<a href="%s" target="_blank" rel="noopener nofollow" title="%s" class="external-link">%s</a>|}, href, title, contents))
     }
   }
-  | H1(inner) => Some(makeHeader(1, inner))
-  | H2(inner) => Some(makeHeader(2, inner))
-  | H3(inner) => Some(makeHeader(3, inner))
-  | H4(inner) => Some(makeHeader(4, inner))
-  | H5(inner) => Some(makeHeader(5, inner))
   | _ => None
   }
 };
@@ -112,11 +102,12 @@ let generateMultiple = (dest, cmts, markdowns) => {
 
   markdowns |> List.iter(((path, contents, name)) => {
     let rel = Files.relpath(Filename.dirname(path));
-    /* let (tocItems, override) */
-    let main = Omd.to_html(~override=processMarkdown(path, dest), Omd.of_string(contents));
+    let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, processMarkdown(path, dest));
+    let main = Omd.to_html(~override, Omd.of_string(contents));
 
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
-    let html = Docs.page(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, [], names, markdowns, main);
+    let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
+    let html = Docs.page(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
 
     Files.writeFile(path, html) |> ignore;
   });

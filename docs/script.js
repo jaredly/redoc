@@ -9,6 +9,8 @@ var checkHash = () => {
     var parts = id.split('-')
     document.querySelector('#error-message span').textContent = parts[0]
     document.querySelector('#error-message code').textContent = parts[1]
+  } else {
+    document.getElementById("error-message").style.display = 'none'
   }
 }
 window.onload = () => {

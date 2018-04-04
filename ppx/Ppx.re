@@ -19,8 +19,8 @@ let getCodeBlocks = (docString, loc) => {
   let mst = Omd.of_string(markdown);
   let codeBlocks = ref([]);
   let pos = ref(0);
-  let _mst = Omd_representation.visit(el => {
-    open Omd_representation;
+  let _mst = Omd.Representation.visit(el => {
+    open Omd.Representation;
     switch el {
     | Code_block(lang, body) => {
       if (lang == "parse") {

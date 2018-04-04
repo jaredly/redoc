@@ -212,6 +212,7 @@ let rec generateDoc = (~skipDoc=false, formatHref, processMarkdown, stampsToPath
 
 and docsForModule = (~skipDoc=false, formatHref, processMarkdown, stampsToPaths, path, tocLevel, name, main, contents) => {
   open Omd;
+
   let (tocItems, override) = trackToc(tocLevel, (addTocs, lastLevel, recur, element) => switch element {
   | Paragraph([Text(t)]) => {
     if (String.trim(t) == "@all") {
@@ -233,6 +234,18 @@ and docsForModule = (~skipDoc=false, formatHref, processMarkdown, stampsToPaths,
           html
         }
         }) |> String.concat("\n\n");
+      })
+    } else if (String.trim(t) == "@includes") {
+      Some({
+        let items = contents |> List.filter(((_, _, docItem)) => switch docItem {
+        | Include(_) => true
+        | _ => false
+        });
+        items |> List.map(doc => {
+          let (html, tocs) = generateDoc(~skipDoc, formatHref, processMarkdown, stampsToPaths, path, tocLevel + lastLevel^, doc);
+          addTocs(tocs);
+          html
+        }) |> String.concat("\n\n")
       })
     } else {
       processMarkdown(element)

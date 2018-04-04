@@ -51,6 +51,38 @@ let filterDuplicates = cmts => {
   });
 };
 
+let rec processMarkdown = (curPath, basePath, element) => {
+  let rel = Files.relpath(Filename.dirname(curPath));
+  let makeHeader = (num, contents) => {
+    let id = GenerateDoc.cleanForLink(Omd.to_text(contents)) |> String.lowercase;
+    let html = Omd.to_html(~override=processMarkdown(curPath, basePath), contents);
+    Printf.sprintf({|<a href="#%s" id="%s"><h%d>%s</h%d></a>|}, id, id, num, html, num)
+  };
+  switch element {
+  | Omd.Url(href, contents, title) when String.length(href) > 0 => {
+    let contents = Omd.to_html(~override=processMarkdown(curPath, basePath), contents);
+    if (href.[0] == '.' || href.[0] == '/' || href.[0] == '#' || href.[0] == '?') {
+      let href = if (href.[0] == '/') {
+        rel(Filename.concat(basePath, href))
+      } else if (href.[0] == '?' || href.[0] == '#') {
+        href
+      } else {
+        Filename.concat(Filename.dirname(curPath), href)
+      };
+      Some(Printf.sprintf({|<a href="%s" title="%s">%s</a>|}, href, title, contents))
+    } else {
+      Some(Printf.sprintf({|<a href="%s" target="_blank" rel="noopener nofollow" title="%s" class="external-link">%s</a>|}, href, title, contents))
+    }
+  }
+  | H1(inner) => Some(makeHeader(1, inner))
+  | H2(inner) => Some(makeHeader(2, inner))
+  | H3(inner) => Some(makeHeader(3, inner))
+  | H4(inner) => Some(makeHeader(4, inner))
+  | H5(inner) => Some(makeHeader(5, inner))
+  | _ => None
+  }
+};
+
 let generateMultiple = (dest, cmts, markdowns) => {
   Files.mkdirp(dest);
 
@@ -76,7 +108,18 @@ let generateMultiple = (dest, cmts, markdowns) => {
     let text = Docs.generate(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, topdoc, stamps, allDocs, names, markdowns);
 
     Files.writeFile(output, text) |> ignore;
-  })
+  });
+
+  markdowns |> List.iter(((path, contents, name)) => {
+    let rel = Files.relpath(Filename.dirname(path));
+    /* let (tocItems, override) */
+    let main = Omd.to_html(~override=processMarkdown(path, dest), Omd.of_string(contents));
+
+    let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
+    let html = Docs.page(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, [], names, markdowns, main);
+
+    Files.writeFile(path, html) |> ignore;
+  });
 };
 
 let unwrap = (m, n) => switch n { | None => failwith(m) | Some(n) => n };
@@ -89,6 +132,9 @@ let stripNumber = name => {
     name
   }
 };
+
+/** TODO use this somewhere */
+let escapePath = path => Str.global_replace(Str.regexp("[^a-zA-Z0-9_.-]"), "-", path);
 
 let asHtml = path => Filename.chop_extension(path) ++ ".html";
 

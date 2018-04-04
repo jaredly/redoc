@@ -1,5 +1,8 @@
 
 var checkHash = () => {
+  if (!window.shouldCheckHashes) {
+    return
+  }
   var id = window.location.hash.slice(1)
   if (id && !document.getElementById(id)) {
     document.getElementById("error-message").style.display = 'block'

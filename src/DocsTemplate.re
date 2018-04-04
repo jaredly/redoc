@@ -31,6 +31,20 @@ h4.item {
   letter-spacing: 0.4em;
 }
 
+blockquote {
+  border-left: 2px solid #006fc9;
+  margin-left: 0;
+  padding-left: 16px;
+}
+
+pre {
+  padding: 8px 16px;
+  margin: 32px 0;
+  background-color: #f1f8ff;
+  overflow: auto;
+}
+
+pre > code,
 h4.item,
 p code {
   font-family: 'SF Mono', Menlo, monospace;
@@ -238,7 +252,7 @@ a, a:visited,
 }
 
 .table-of-contents a.header {
-  /* font-weight: bold; */
+  font-weight: 400;
 }
 
 a.level-1 {

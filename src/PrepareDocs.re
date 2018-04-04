@@ -196,6 +196,7 @@ and findAllDocsIntf = (signature) => {
       (global, [(txt, findDocAttribute(val_attributes), Value(val_val.val_type)), ...items])
     } else {(global, items)}
   | Tsig_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
+    let doc = cleanOffStars(doc);
     if (items == [] && global == None) {
       (Some(doc), [])
     } else {

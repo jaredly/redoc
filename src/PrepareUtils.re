@@ -18,7 +18,7 @@ let findStars = line => {
     if (i >= l - 1) {
       None
     } else if (line.[i] == '*' && line.[i + 1] == ' ') {
-      Some(i + 1)
+      Some(i + 2)
     } else {
       loop(i + 1)
     }
@@ -35,7 +35,7 @@ let combine = (one, two) => switch (one, two) {
 
 let trimFirst = (num, string) => {
   let length = String.length(string);
-  length > num ? String.sub(string, num, length - num) : string
+  length > num ? String.sub(string, num, length - num) : ""
 };
 
 let cleanOffStars = doc => {

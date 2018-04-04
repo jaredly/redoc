@@ -1305,8 +1305,14 @@ struct
           let code = L.string_of_tokens tl in
           Some(Code_block(default_lang, code) :: r, [Backquote], l)
         | _ ->
-          let code = L.string_of_tokens cb in
-          Some(Code_block(default_lang, code) :: r, [Backquote], l)
+          let rec loop collector cb = match cb with
+            | [] -> None
+            | Newline :: tl ->
+                let code = L.string_of_tokens tl in
+                Some(Code_block(L.string_of_tokens (List.rev collector), code) :: r, [Backquote], l)
+            | something :: tl -> loop (something :: collector) tl
+          in
+          loop []  cb
       else
         let clean_bcode s =
           let rec loop1 i =
@@ -2560,7 +2566,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
             | [] ->
               if debug then
                 eprintf "(OMD) spaces[] l=(%S)\n%!" (L.string_of_tokens l);
-              assert(items = []); (* aïe... listes mal formées ?! *)
+              assert(items = []); (* aï¿½e... listes mal formï¿½es ?! *)
               list_items ~p [n+2] ((U,[n+2],rev_to_t new_item)::items) rest
             | i::_ ->
               if debug then eprintf "(OMD) spaces(%d::_) n=%d l=(%S)\n%!"
@@ -2629,7 +2635,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
             | [] ->
               if debug then eprintf "(OMD) spaces[] l=(%S)\n%!"
                   (L.string_of_tokens l);
-              assert(items = []); (* aïe... listes mal formées ?! *)
+              assert(items = []); (* aï¿½e... listes mal formï¿½es ?! *)
               list_items ~p [n+2] ((O,[n+2],rev_to_t new_item)::items) rest
             | i::_ ->
               if debug then eprintf "(OMD) spaces(%d::_) n=%d l=(%S)\n%!"
@@ -3263,7 +3269,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       in
       begin match read_url [] tl with
         | Some(url, new_tl) ->
-          let r = 
+          let r =
             match t with
             | Lessthans 0 -> Text "<" :: r
             | Lessthans n -> Text(String.make (n+1) '<') :: r
@@ -3589,7 +3595,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                           attrs tagstatus tokens
                       | Some(b, tokens) ->
                         if debug then begin
-                          eprintf "(OMD) 3433 BHTML tagstatus=%S tokens=%S\n%!" 
+                          eprintf "(OMD) 3433 BHTML tagstatus=%S tokens=%S\n%!"
                             (T.string_of_tagstatus tagstatus)
                             (L.string_of_tokens tokens)
                         end;
@@ -4051,7 +4057,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                         eprintf
                           "(OMD) 4192 Found a closing tag %s ts=%s \
                            tokens=%s\n%!"
-                          t 
+                          t
                           (T.string_of_tagstatus ts)
                           (L.string_of_tokens tokens);
                       match tagstatus with

@@ -32,6 +32,11 @@ let searchScript = {|
   var div = named('div')
   var span = named('span')
   var a = named('a')
+  var raw = text => {
+    var node = document.createElement('div')
+    node.innerHTML = text
+    return node
+  };
 
   var render = (target, node) => {
     target.innerHTML = ''
@@ -46,11 +51,11 @@ let searchScript = {|
     var results = index.search(text, config).slice(0, 30);
     render(document.getElementById('search-results'), div(
       {},
-      results.map(({ref, score, doc: {href, title, contents}}) => div(
+      results.map(({ref, score, doc: {href, title, contents, rendered}}) => div(
         {class: 'result'},
         [
           a({href, class: 'title'}, [title]),
-          div({}, [contents])
+          div({}, [raw(rendered)])
         ]
       ))
     ))

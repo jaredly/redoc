@@ -78,71 +78,116 @@ let (|?>) = (o, fn) => switch o { | None => None | Some(v) => fn(v) };
 let (|?>>) = (o, fn) => switch o { | None => None | Some(v) => Some(fn(v)) };
 let fold = (o, d, f) => switch o { | None => d | Some(v) => f(v) };
 
-let serializeSearchable = ((href, title, contents, breadcrumb)) => {
-  Printf.sprintf({|{"href": %S, "title": %S, "contents": %S, "breadcrumb": %S}|}, href, title, contents, breadcrumb)
+let serializeSearchable = ((href, title, contents, rendered, breadcrumb)) => {
+  Printf.sprintf({|{"href": %S, "title": %S, "contents": %S, "rendered": %S, "breadcrumb": %S}|}, href, title, contents, rendered, breadcrumb)
 };
 
 let serializeSearchables = searchables => "[" ++ String.concat(",\n", List.map(serializeSearchable, searchables)) ++ "]";
 
+let makeTokenCollector = base => {
+  let tokens = ref([]);
+  let addToken = n => tokens := [n, ...tokens^];
+  open PrintType.T;
+  /* TODO collect arg labels from expressions */
+  (tokens, {
+    ...base,
+    expr: (printer, expr) => {
+      switch (expr.Types.desc) {
+      | Tarrow(label, arg, result, _) => {
+        let (args, _) = PrintType.collectArgs([(label, arg)], result);
+        args |> List.iter(((label, _)) => {
+          let label = label != "" && label.[0] == '?' ? String.sub(label, 1, String.length(label) - 1) : label;
+          addToken(label)
+        });
+      }
+      | _ => ()
+      };
+      base.expr(printer, expr)
+    },
+    path: (printer, path, pathType) => {
+      switch path {
+      | Path.Pident({name})
+      | Pdot(_, name, _) => addToken(name)
+      | Papply(_, _) => ()
+      };
+      base.path(printer, path, pathType)
+    },
+    ident: (printer, {Ident.name} as i) => {
+      addToken(name);
+      base.ident(printer, i)
+    }
+  })
+};
+
 let makeSearcher = (dest) => {
   let searchables = ref([]);
-  let addSearchable = (file, hash, title, contents, breadcrumb) => {
+  let addSearchable = (file, hash, title, contents, rendered, breadcrumb) => {
     let href = Files.relpath(dest, file) ++ fold(hash, "", h => "#" ++ h);
-    searchables := [(href, title, contents, breadcrumb), ...searchables^];
+    searchables := [(href, title, contents, rendered, breadcrumb), ...searchables^];
   };
 
   /** All to make things searchable */
-  let processDocString = (fileName, fileTitle, ~override=?, path, name, typ, element) => {
+  let processDocString = (fileName, fileTitle, ~override=?, path, name, typ, rawText) => {
     /* let id = GenerateDoc.makeId(path @ [name], typ); */
     let title = path == [] ? fileTitle : String.concat(".", path);
     open PrepareDocs.T;
     /** The representation of the value itself */
     let makeId = t => path == [] ? None : Some(GenerateDoc.makeId(path, t));
+    /* print_endline(name); */
     let hash = switch typ {
     | None => None
     | Some(t) => switch t {
       | Module(_) =>  makeId(PModule)
       | Value(typ) => {
-        /** TODO get elasticlunr to allow me to provide my own tokenization for a block of text. e.g. here just include the identifiers */
-        let text = GenerateDoc.prettyString(PrintType.default.value(PrintType.default, name, name, typ));
-        addSearchable(fileName, Some(GenerateDoc.makeId(path, PValue)), title, text, fileTitle);
+        /** TODO use the other printer for nice linking of things. also want to highlight fn argument labels. */
+        let (tokens, printer) = makeTokenCollector(PrintType.default);
+        let text = "<h4 class='item'>" ++ GenerateDoc.prettyString(printer.PrintType.T.value(printer, name, name, typ)) ++ "</h4>";
+        let tokens = name ++ " " ++ String.concat(" ", tokens^);
+        addSearchable(fileName, Some(GenerateDoc.makeId(path, PValue)), title, tokens, text, fileTitle);
         makeId(PValue)
       }
       | Type(typ) => {
-        let text = GenerateDoc.prettyString(PrintType.default.decl(PrintType.default, name, name, typ));
-        addSearchable(fileName, Some(GenerateDoc.makeId(path, PValue)), title, text, fileTitle);
+        /* print_endline("making a search for type"); */
+        let (tokens, printer) = makeTokenCollector(PrintType.default);
+        let text = "<h4 class='item'>" ++ GenerateDoc.prettyString(printer.PrintType.T.decl(printer, name, name, typ)) ++ "</h4>";
+        let tokens = name ++ " " ++ String.concat(" ", tokens^);
+        addSearchable(fileName, Some(GenerateDoc.makeId(path, PType)), title, tokens, text, fileTitle);
         makeId(PType)
       }
       | StandaloneDoc(_) | Include(_) => None
       }
     };
 
-    /** Docstring paragraphs */
-    let md = Omd.of_string(element);
-    /** TODO track headings within this for better breadcrumb */
-    let _ = Omd.Representation.visit(el => {
-      switch el {
-      | Omd.Paragraph(t) => {
-        let text = Omd.to_text(t);
-        if (String.trim(text) == "@all" || String.length(text) > 4 && String.sub(text, 0, 4) == "@doc") {
-          ()
-        } else {
-          addSearchable(fileName, hash, title, text, fileTitle)
+    if (rawText == "") {
+      ""
+    } else {
+      /** Docstring paragraphs */
+      let md = Omd.of_string(rawText);
+      /** TODO track headings within this for better breadcrumb */
+      let _ = Omd.Representation.visit(el => {
+        switch el {
+        | Omd.Paragraph(t) => {
+          let text = Omd.to_text(t);
+          if (String.trim(text) == "@all" || String.length(text) > 4 && String.sub(text, 0, 4) == "@doc") {
+            ()
+          } else {
+            addSearchable(fileName, hash, title, text, Omd.to_html(~override?, t), fileTitle)
+          }
         }
-      }
-      | Code_block(lang, contents) => {
-        /** TODO get elasticlunr to allow me to provide my own tokenization for a block of text. e.g. here just include the identifiers */
-        addSearchable(fileName, None, "code block", contents, fileTitle)
-      }
-      | H1(t) | H2(t) | H3(t) | H4(t) | H5(t) => {
-        let title = Omd.to_text(t);
-        addSearchable(fileName, Some(GenerateDoc.cleanForLink(title)), title, "", fileTitle)
-      }
-      | _ => ()
-      };
-      None
-    }, md);
-    Omd.to_html(~override?, md)
+        | Code_block(lang, contents) => {
+          /** TODO get elasticlunr to allow me to provide my own tokenization for a block of text. e.g. here just include the identifiers */
+          addSearchable(fileName, None, "code block", contents, "<pre><code>" ++ contents ++ "</code></pre>", fileTitle)
+        }
+        | H1(t) | H2(t) | H3(t) | H4(t) | H5(t) => {
+          let title = Omd.to_text(t);
+          addSearchable(fileName, Some(GenerateDoc.cleanForLink(title)), title, "", "", fileTitle)
+        }
+        | _ => ()
+        };
+        None
+      }, md);
+      Omd.to_html(~override?, md)
+    }
   };
 
   (searchables, processDocString)
@@ -180,7 +225,8 @@ let generateMultiple = (dest, cmts, markdowns) => {
   markdowns |> List.iter(((path, contents, name)) => {
     let rel = Files.relpath(Filename.dirname(path));
     let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, linkifyMarkdown(path, dest));
-    let main = Omd.to_html(~override, Omd.of_string(contents));
+    let main = processDocString(path, name, ~override, [], name, None, contents);
+    /* Omd.to_html(~override, Omd.of_string(contents)); */
 
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));

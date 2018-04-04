@@ -188,14 +188,27 @@ let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docs
   | Value(typ) => {
     let link = link(id(PValue), name);
     let t = printer.value(printer, name, link, typ) |> prettyString;
+    let rendered = switch docstring {
+    | None => {
+      processDocString(path @ [name], name, Some(Value(typ)), "") |> ignore; /* hack */
+      "<span class='missing'>No documentation for this value</span>"
+    }
+    | Some(text) => processDocString(path @ [name], name, Some(Value(typ)), text)
+    };
     (Printf.sprintf("<h4 class='item'>%s</h4>\n\n<div class='body %s'>", t, docstring == None ? "body-empty" : "")
-     ++ fold(docstring, "<span class='missing'>No documentation for this value</span>", processDocString(path @ [name], name, Some(Value(typ)))) ++ "</div>", [(tocLevel, name, id(PValue), "value")])
+     ++ rendered ++ "</div>", [(tocLevel, name, id(PValue), "value")])
   }
   | Type(typ) => {
     let link = link(id(PType), name);
     let t = printer.decl(printer, name, link, typ) |> prettyString;
-    let docs = fold(docstring, "<span class='missing'>No documentation for this type</span>", processDocString(path @ [name], name, Some(Type(typ))));
-    ("<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body " ++ (docstring == None ? "body-empty" : "") ++ "'>" ++ docs ++ "</div>", [(tocLevel, name, id(PType), "type")])
+    let rendered = switch docstring {
+    | None => {
+      processDocString(path @ [name], name, Some(Type(typ)), "") |> ignore; /* hack */
+      "<span class='missing'>No documentation for this type</span>"
+    }
+    | Some(text) => processDocString(path @ [name], name, Some(Type(typ)), text)
+    };
+    ("<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body " ++ (docstring == None ? "body-empty" : "") ++ "'>" ++ rendered ++ "</div>", [(tocLevel, name, id(PType), "type")])
   }
   | StandaloneDoc(doc) => (processDocString(path, "", None, doc), [])
   };

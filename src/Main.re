@@ -84,6 +84,27 @@ let generateMultiple = (dest, cmts, markdowns) => {
   Files.writeFile(cssLoc, DocsTemplate.styles) |> ignore;
   Files.writeFile(jsLoc, DocsTemplate.script) |> ignore;
 
+  let searchable = ref([]);
+  let addSearchable = (file, hash, title, contents, breadcrumb) => {
+    let href = Files.relpath(dest, file) ++ "#" ++ hash;
+    searchable := [(href, title, contents, breadcrumb), ...searchable^];
+  };
+
+  /* let visitMarkdown = (name, path, currentItem, element) => {
+    switch element {
+    | Omd.Paragraph(t) => {
+      let text = Omd.to_text(t);
+      let (title, prefix) = switch currentItem {
+      | `Api((name, docs, item)) => {
+
+      }
+      | `Header(name) => (name, "")
+      }
+    }
+    | _ => ()
+    }
+  }; */
+
   let api = dest /+ "api";
   Files.mkdirp(api);
   let names = List.map(getName, cmts);

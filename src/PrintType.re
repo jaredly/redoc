@@ -10,6 +10,7 @@ let rec collectArgs = (coll, typ) => switch typ.Types.desc {
 
 type pathType = PModule | PModuleType | PValue | PType;
 
+module T = {
 type stringifier = {
   path: (stringifier, Path.t, pathType) => Pretty.doc,
   expr: (stringifier, Types.type_expr) => Pretty.doc,
@@ -17,6 +18,8 @@ type stringifier = {
   decl: (stringifier, string, string, Types.type_declaration) => Pretty.doc,
   value: (stringifier, string, string, Types.type_expr) => Pretty.doc,
 };
+};
+open T;
 
 let break = Pretty.line("");
 let space = Pretty.line(" ");

@@ -13,8 +13,9 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
   - [x] listing of other modules in this package
   - [ ] highlight the currently selected thing in the sidebar. scroll-tracking
 - [x] make sure mobile looks nice
-- [ ] make it easy to build for a whole project
+- [x] make it easy to build for a whole project
 - [x] collapse top thing when on mobile
+- [ ] also process normal markdown files, and add them to the sidebar.
 - [ ] Integrated search! see [this example](https://rustbyexample.com/primitives/tuples.html?search=thin) (powered by [this rust code](https://github.com/rust-lang-nursery/mdBook/blob/5fb36751514a83ce245099df3057efd53b5819df/src/renderer/html_handlebars/search.rs#L19) and [this js code](https://github.com/rust-lang-nursery/mdBook/blob/master/src/theme/searcher/searcher.js))
   - will pre-create an elasticlunr index, and load it up when the user selects the search field
   - maybe allow you to indicate that there are other indexes (e.g. for other libraries) that you'd like to load? So reason's docs could load reasonreact for better cross-searching
@@ -47,3 +48,51 @@ For all other files:
 - should the api docs be placed in `./docs/api`? Maybe. Probably.
 - maybe allow you to `@doc` include bits of docs from the api? That could be fun.
 - probably want to allow "splat"ing in code from different places. Like example code, etc.
+
+## Example of inline scratchboxes
+
+```reason
+print_endline("Hello");
+```
+
+When you execute, will trap the console & display below (should also send to real console).
+Default is to run in a worker. If you don't want that, you can do
+
+```reason;window
+type document;
+[@bs.val] external document: document = "";
+Js.log2("We can access document", document);
+```
+
+You might also want it to execute in an iframe!
+
+```reason;iframe
+Js.log("Iframe")
+```
+
+```reason;each-iframe
+Js.log("This script gets its own iframe.");
+```
+
+If you want a setup to happen
+
+```each-setup
+Js.log("Gets run before every script. variables are accessible by scripts");
+```
+
+```setup
+Js.log("Gets run at the very start. variables are not accessible");
+```
+
+```each-setup;canvas
+Js.log("A canvas is created for each. you can access it as canvasId");
+```
+
+```setup;canvas
+Js.log("A shared canvas is created, and maybe floats somewhere? idk");
+```
+
+
+## Related work
+
+http://davidchristiansen.dk/drafts/final-pretty-printer-draft.pdf

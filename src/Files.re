@@ -1,4 +1,27 @@
 
+let split = (str, string) => Str.split(Str.regexp_string(str), string);
+
+[@test [
+  (("/a/b/c", "/a/b/d"), "../d"),
+  (("/a/b/c", "/a/b/d/e"), "../d/e"),
+  (("/a/b/c", "/d/e/f"), "../../../d/e/f"),
+  (("/a/b/c", "/a/b/c/d/e"), "./d/e"),
+]]
+let relpath = (base, path) => {
+  let rec loop = (bp, pp) => {
+    switch (bp, pp) {
+    | ([a, ...ra], [b, ...rb]) when a == b => loop(ra, rb)
+    | _ => (bp, pp)
+    }
+  };
+  let (base, path) = loop(split("/", base), split("/", path));
+  String.concat("/", (base == [] ? ["."] : List.map((_) => "..", base)) @ path)
+};
+
+let symlink = (source, dest) => {
+  Unix.symlink(relpath(Filename.dirname(dest), source), dest)
+};
+
 let maybeStat = (path) =>
   try (Some(Unix.stat(path))) {
   | Unix.Unix_error(Unix.ENOENT, _, _) => None
@@ -120,5 +143,21 @@ let rec removeDeep = path => {
     |> List.iter((name) => removeDeep(Filename.concat(path, name)));
     Unix.rmdir(path);
   | _ => Unix.unlink(path)
+  }
+};
+
+let rec walk = (path, fn) => {
+  switch (maybeStat(path)) {
+  | None => ()
+  | Some({Unix.st_kind: Unix.S_DIR}) => readDirectory(path) |> List.iter((name) => walk(Filename.concat(path, name), fn));
+  | _ => fn(path)
+  }
+};
+
+let rec collect = (path, test) => {
+  switch (maybeStat(path)) {
+  | None => []
+  | Some({Unix.st_kind: Unix.S_DIR}) => readDirectory(path) |> List.map((name) => collect(Filename.concat(path, name), test)) |> List.concat;
+  | _ => test(path) ? [path] : []
   }
 };

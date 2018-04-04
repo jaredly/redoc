@@ -1,56 +1,42 @@
 
 open Parsetree;
 
-/*
- * TODO: figure out what things can be linked.
- * e.g. what modules expose what items.
- *
- * For linking to other things, I'm not sure what I can do.
- *
- * hmmm so I want "include" to show me things that link as well.
- * Look at Reprocessing_Types, Reprocessing.rei too
- *
- * Also referencing the things from another module.
- * Like `module Draw = ...`, have the contents there w/ IDs (& types?). (won't have docs, but thats ok)
- */
-
 let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char"];
 
-let generate = (~cssLoc=?, ~jsLoc=?, name, topdoc, stamps, allDocs, projectNames) => {
-  /* print_endline("Generating " ++ name); */
+let formatHref = (name, projectNames, (modName, inner, ptype)) => {
+  let modName = if (modName == "<global>") {
+    switch inner {
+    | [name] when List.mem(name, allGlobals) => "globals"
+    | _ => {
+      print_endline("Cant find " ++ GenerateDoc.makeId(inner, ptype) ++ " in " ++ modName);
+      "globals"
+    }
+    }
+  } else {
+    modName
+  };
+  let hash = switch inner {
+  | [] => ""
+  | inner => "#" ++ GenerateDoc.makeId(inner, ptype)
+  };
+  if (modName == name) {
+    Some(hash)
+  } else {
+    if (List.mem(modName, projectNames)) {
+      Some(modName ++ ".html" ++ hash)
+    } else {
+      None
+    }
+  }
+};
+
+let generate = (~cssLoc, ~jsLoc, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
   let mainMarkdown = switch (topdoc) {
   | None => GenerateDoc.defaultMain(~addHeading=true, name)
   | Some(doc) => doc
   };
 
-  let formatHref = ((modName, inner, ptype)) => {
-    let modName = if (modName == "<global>") {
-      switch inner {
-      | [name] when List.mem(name, allGlobals) => "globals"
-      | _ => {
-        print_endline("Cant find " ++ GenerateDoc.makeId(inner, ptype) ++ " in " ++ modName);
-        name
-      }
-      }
-    } else {
-      modName
-    };
-    let hash = switch inner {
-    | [] => ""
-    | inner => "#" ++ GenerateDoc.makeId(inner, ptype)
-    };
-    if (modName == name) {
-      Some(hash)
-    } else {
-      if (List.mem(modName, projectNames)) {
-        Some(modName ++ ".html" ++ hash)
-      } else {
-        None
-      }
-    }
-  };
-
-  let (html, tocs) = GenerateDoc.docsForModule(formatHref, stamps, [], 0, name, mainMarkdown, allDocs);
+  let (html, tocs) = GenerateDoc.docsForModule(formatHref(name, projectNames), stamps, [], 0, name, mainMarkdown, allDocs);
 
   Printf.sprintf({|
     %s
@@ -61,18 +47,5 @@ let generate = (~cssLoc=?, ~jsLoc=?, name, topdoc, stamps, allDocs, projectNames
     </div>
     <div class='right-blank'></div>
     </div>
-  |}, DocsTemplate.head(~cssLoc?, ~jsLoc?, name), Sidebar.generate(name, List.rev(tocs), projectNames), html)
-
-};
-
-let interface = (~cssLoc, ~jsLoc, name, intf, projectNames) => {
-  let stamps = PrepareDocs.organizeTypesIntf((name, []), intf.Typedtree.sig_items);
-  let (topdoc, allDocs) = PrepareDocs.findAllDocsIntf(intf.Typedtree.sig_items);
-  generate(~cssLoc=?cssLoc, ~jsLoc=?jsLoc, name, topdoc, stamps, allDocs, projectNames)
-};
-
-let implementation = (~cssLoc, ~jsLoc, name, impl, projectNames) => {
-  let stamps = PrepareDocs.organizeTypes((name, []), impl.Typedtree.str_items);
-  let (topdoc, allDocs) = PrepareDocs.findAllDocs(impl.Typedtree.str_items);
-  generate(~cssLoc=?cssLoc, ~jsLoc=?jsLoc, name, topdoc, stamps, allDocs, projectNames)
+  |}, DocsTemplate.head(~cssLoc?, ~jsLoc?, name), Sidebar.generate(name, List.rev(tocs), projectNames, markdowns), html)
 };

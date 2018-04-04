@@ -59,4 +59,6 @@ base=${base}/node_modules/@jaredly/reprocessing/lib/bs/js/src
 #   ./_build/install/default/bin/docre ${base}/${name}.cmt docs/${name}.html
 # done
 
-./_build/install/default/bin/docre project docs/ ${base}/*.cmt*
+./_build/install/default/bin/docre multiple docs/ ${base}/*.cmt*
+
+./_build/install/default/bin/docre project Reprocessing ../../games/reprocessing

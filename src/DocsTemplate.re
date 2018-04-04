@@ -119,6 +119,7 @@ a:hover, a:focus {
   box-sizing: border-box;
 }
 
+a, a:visited,
 .table-of-contents a.module,
 .project-listing a,
 .main a, .main a:visited {
@@ -132,6 +133,7 @@ a:hover, a:focus {
 .sidebar {
   width: 200px;
   position: sticky;
+  position: -webkit-sticky;
   top: 0;
   overflow: auto;
   max-height: 100vh;
@@ -156,12 +158,14 @@ a:hover, a:focus {
   margin: 16px 0 8px;
 }
 
-.project-listing a:visited {
-  color: unset;
-}
-
 .sidebar-expander {
   display: none;
+}
+
+.docs-listing {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
 }
 
 @media(max-width: 1000px) {
@@ -223,13 +227,9 @@ a:hover, a:focus {
   }
 }
 
-.table-of-contents a:visited {
-  color: unset;
-}
-
 .table-of-contents a {
   color: unset;
-  padding: 2px 4px
+  padding: 2px 0;
 }
 .table-of-contents a:hover {
   background-color: #fafafa;

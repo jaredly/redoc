@@ -1,0 +1,114 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Reprocessing_Matrix</title>
+<body>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      
+      <div class='table-of-contents'><a href="#Reprocessing_Matrix" class='level-1 header'>Reprocessing_Matrix</a>
+<a href="#value-identity" class='level-2 value'>identity</a>
+<a href="#value-createIdentity" class='level-2 value'>createIdentity</a>
+<a href="#value-createTranslation" class='level-2 value'>createTranslation</a>
+<a href="#value-createRotation" class='level-2 value'>createRotation</a>
+<a href="#value-createScaling" class='level-2 value'>createScaling</a>
+<a href="#value-createShearing" class='level-2 value'>createShearing</a>
+<a href="#value-copyInto" class='level-2 value'>copyInto</a>
+<a href="#value-matmatmul" class='level-2 value'>matmatmul</a>
+<a href="#value-matvecmul" class='level-2 value'>matvecmul</a>
+<a href="#value-matptmul" class='level-2 value'>matptmul</a>
+<a href="#value-matinv" class='level-2 value'>matinv</a></div>
+      <div class='project-listing'><div class='project-title'>Package modules</div><a href="Reprocessing.html">Reprocessing</a>
+<a href="Reprocessing_ClientWrapper.html">Reprocessing_ClientWrapper</a>
+<a href="Reprocessing_Common.html">Reprocessing_Common</a>
+<a href="Reprocessing_Constants.html">Reprocessing_Constants</a>
+<a href="Reprocessing_Draw.html">Reprocessing_Draw</a>
+<a href="Reprocessing_Env.html">Reprocessing_Env</a>
+<a href="Reprocessing_Events.html">Reprocessing_Events</a>
+<a href="Reprocessing_Font.html">Reprocessing_Font</a>
+<a href="Reprocessing_Hotreload.html">Reprocessing_Hotreload</a>
+<a href="Reprocessing_Internal.html">Reprocessing_Internal</a>
+<a href="Reprocessing_Matrix.html">Reprocessing_Matrix</a>
+<a href="Reprocessing_Shaders.html">Reprocessing_Shaders</a>
+<a href="Reprocessing_Types.html">Reprocessing_Types</a>
+<a href="Reprocessing_Utils.html">Reprocessing_Utils</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="#Reprocessing_Matrix" id="Reprocessing_Matrix"><h1>Reprocessing_Matrix</h1></a>
+
+<p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-identity" id="value-identity">identity</a> = array(float)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-createIdentity" id="value-createIdentity">createIdentity</a> = (unit) => array(float)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-createTranslation" id="value-createTranslation">createTranslation</a> = (float, float) => array(float)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-createRotation" id="value-createRotation">createRotation</a> = (float) => array(float)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-createScaling" id="value-createScaling">createScaling</a> = (float, float) => array(float)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-createShearing" id="value-createShearing">createShearing</a> = (float, float) => array(float)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-copyInto" id="value-copyInto">copyInto</a> = (~src: array('a), ~dst: array('a)) => unit</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-matmatmul" id="value-matmatmul">matmatmul</a> = (array(float), array(float)) => unit</h4>
+
+<div class='body '><p> [0 1 2]   [a b c]   [a0 + d1 + g2, b0 + e1 + h2, c0 + f1 + i2]
+ [d e f] = [a3 + d4 + g5, b3 + e4 + h5, c3 + f4 + i5]
+ [g h i]   [a6 + d7 + g8, b6 + e7 + h8, c6 + f7 + i8]</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-matvecmul" id="value-matvecmul">matvecmul</a> = (array(float), array(float)) => unit</h4>
+
+<div class='body '><p> [0 1 2]   [a]   [a0 + b1 + c2]
+ [b] = [a3 + b4 + c5]
+ [c]   [a6 + b7 + c8]</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-matptmul" id="value-matptmul">matptmul</a> = (array(float), (float, float)) => (
+    float,
+    float
+)</h4>
+
+<div class='body '><p> [0 1 2]   [x]   [x0 + y1 + 2]
+ [y] = [x3 + y4 + 5]
+ [1]   [ who cares ]</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-matinv" id="value-matinv">matinv</a> = (array(float)) => array(float)</h4>
+
+<div class='body '><p> Invert a matrix
+ https://www.geometrictools.com/Documentation/LaplaceExpansionTheorem.pdf</p>
+</div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

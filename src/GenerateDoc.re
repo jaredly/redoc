@@ -160,7 +160,9 @@ let marked = (override, text) => Omd.to_html(~override, Omd.of_string(text));
 
 let link = (id, text) => Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id, id, text);
 
-let rec generateDoc = (printer, processMarkdown, path, tocLevel, (name, docstring, content)) => {
+type t = (~override: (Omd.element) => option(string)=?, list(string), string, option(PrepareDocs.T.docItem), string) => string;
+
+let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docstring, content)) => {
   open PrepareDocs.T;
   let id = makeId(path @ [name]);
   let (middle, tocs) = switch content {
@@ -168,10 +170,10 @@ let rec generateDoc = (printer, processMarkdown, path, tocLevel, (name, docstrin
     open PrepareDocs.T;
     let (post, body, tocs) = switch items {
     | Items(items) => {
-      let (html, tocs) = docsForModule(printer, processMarkdown, path @ [name], tocLevel + 1, name, docstring |? defaultMain(name), items);
+      let (html, tocs) = docsForModule(printer, processDocString, path @ [name], tocLevel + 1, name, docstring |? defaultMain(name), items);
       ("", div("body module-body", html), tocs)
     }
-    | Alias(modulePath) => (" : " ++ prettyString(printer.path(printer, modulePath, PModule)), fold(docstring, "", (doc) => div("body module-body", marked(processMarkdown(path, name, `Module), doc))), [])
+    | Alias(modulePath) => (" : " ++ prettyString(printer.path(printer, modulePath, PModule)), fold(docstring, "", (doc) => div("body module-body", processDocString(path @ [name], name, Some(Module(Alias(modulePath))), doc))), [])
     };
     (Printf.sprintf({|<h4 class='item module'>module %s%s</h4>%s|}, link(id(PModule), name), post, body),
     tocs @ [(tocLevel, name, id(PModule), "module")]
@@ -180,34 +182,34 @@ let rec generateDoc = (printer, processMarkdown, path, tocLevel, (name, docstrin
   | Include(maybePath, contents) => {
     /* TODO hyperlink the path */
     let name = fold(maybePath, "", Path.name);
-    let (html, tocs) = docsForModule(printer, processMarkdown, path, tocLevel, name, docstring |? "@all", contents);
+    let (html, tocs) = docsForModule(printer, processDocString, path, tocLevel, name, docstring |? "@all", contents);
     (Printf.sprintf({|<h4 class='item module'>include %s</h4><div class='body module-body include-body'>%s</div>|}, name, html), tocs)
   }
   | Value(typ) => {
     let link = link(id(PValue), name);
     let t = printer.value(printer, name, link, typ) |> prettyString;
     (Printf.sprintf("<h4 class='item'>%s</h4>\n\n<div class='body %s'>", t, docstring == None ? "body-empty" : "")
-     ++ fold(docstring, "<span class='missing'>No documentation for this value</span>", marked(processMarkdown(path, name, `Value))) ++ "</div>", [(tocLevel, name, id(PValue), "value")])
+     ++ fold(docstring, "<span class='missing'>No documentation for this value</span>", processDocString(path @ [name], name, Some(Value(typ)))) ++ "</div>", [(tocLevel, name, id(PValue), "value")])
   }
   | Type(typ) => {
     let link = link(id(PType), name);
     let t = printer.decl(printer, name, link, typ) |> prettyString;
-    let docs = fold(docstring, "<span class='missing'>No documentation for this type</span>", marked(processMarkdown(path, name, `Type)));
+    let docs = fold(docstring, "<span class='missing'>No documentation for this type</span>", processDocString(path @ [name], name, Some(Type(typ))));
     ("<h4 class='item'>" ++ String.trim(t) ++ "</h4>\n\n<div class='body " ++ (docstring == None ? "body-empty" : "") ++ "'>" ++ docs ++ "</div>", [(tocLevel, name, id(PType), "type")])
   }
-  | StandaloneDoc(doc) => (marked(processMarkdown(path, "", `Doc), doc), [])
+  | StandaloneDoc(doc) => (processDocString(path, "", None, doc), [])
   };
   (div("doc-item", middle), tocs)
 }
 
-and docsForModule = (printer, processMarkdown, path, tocLevel, name, docString, contents) => {
+and docsForModule = (printer, processDocString, path, tocLevel, name, docString, contents) => {
   open Omd;
 
   let processMagics = (addTocs, lastLevel, recur, element) => switch element {
   | Paragraph([Text(t)]) => {
     if (String.trim(t) == "@all") {
       Some((List.map(doc => {
-        let (html, tocs) = generateDoc(printer, processMarkdown, path, tocLevel + lastLevel^, doc);
+        let (html, tocs) = generateDoc(printer, processDocString, path, tocLevel + lastLevel^, doc);
         addTocs(tocs);
         html
       }, List.rev(uniqueItems(contents))) |> String.concat("\n\n")) ++ "\n")
@@ -217,7 +219,7 @@ and docsForModule = (printer, processMarkdown, path, tocLevel, name, docString, 
         let raw = String.sub(text, 5, String.length(text) - 5);
         let items = Str.split(Str.regexp_string(","), raw) |> List.map(String.trim);
         items |> List.map(name => fold(findByName(contents, name), "Invalid doc item referenced: " ++ name, (doc) => {
-          let (html, tocs) = generateDoc(printer, processMarkdown, path, tocLevel + lastLevel^, doc);
+          let (html, tocs) = generateDoc(printer, processDocString, path, tocLevel + lastLevel^, doc);
           addTocs(tocs);
           html
         })) |> String.concat("\n\n");
@@ -229,19 +231,19 @@ and docsForModule = (printer, processMarkdown, path, tocLevel, name, docString, 
         | _ => false
         });
         items |> List.map(doc => {
-          let (html, tocs) = generateDoc(printer, processMarkdown, path, tocLevel + lastLevel^, doc);
+          let (html, tocs) = generateDoc(printer, processDocString, path, tocLevel + lastLevel^, doc);
           addTocs(tocs);
           html
         }) |> String.concat("\n\n")
       })
     } else {
-      processMarkdown(path, name, `Markdown, element)
+      None
     }
   }
-  | _ => processMarkdown(path, name, `Markdown, element)
+  | _ => None
   };
 
   let (tocItems, override) = trackToc(tocLevel, processMagics);
 
-  (marked(override, docString), tocItems^)
+  (processDocString(~override, path, name, Some(Module(Items([]))), docString), tocItems^)
 };

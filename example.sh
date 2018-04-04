@@ -17,7 +17,7 @@ name=src/Example
 
 # ./_build/install/default/bin/docre ${base}/lib/bs/js/${name}.cmt docs/doc.html
 
-./_build/install/default/bin/docre ${base}/lib/bs/js/src/Example.cmt docs/doc.html
+# ./_build/install/default/bin/docre ${base}/lib/bs/js/src/Example.cmt docs/doc.html
 
 # exit 0
 

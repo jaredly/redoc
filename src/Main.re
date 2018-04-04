@@ -73,6 +73,77 @@ let rec linkifyMarkdown = (curPath, basePath, addTocs, tocLevel, override, eleme
   }
 };
 
+let (|?) = (o, d) => switch o { | None => d | Some(v) => v };
+let (|?>) = (o, fn) => switch o { | None => None | Some(v) => fn(v) };
+let (|?>>) = (o, fn) => switch o { | None => None | Some(v) => Some(fn(v)) };
+let fold = (o, d, f) => switch o { | None => d | Some(v) => f(v) };
+
+let serializeSearchable = ((href, title, contents, breadcrumb)) => {
+  Printf.sprintf({|{"href": %S, "title": %S, "contents": %S, "breadcrumb": %S}|}, href, title, contents, breadcrumb)
+};
+
+let serializeSearchables = searchables => "[" ++ String.concat(",\n", List.map(serializeSearchable, searchables)) ++ "]";
+
+let makeSearcher = (dest) => {
+  let searchables = ref([]);
+  let addSearchable = (file, hash, title, contents, breadcrumb) => {
+    let href = Files.relpath(dest, file) ++ fold(hash, "", h => "#" ++ h);
+    searchables := [(href, title, contents, breadcrumb), ...searchables^];
+  };
+
+  /** All to make things searchable */
+  let processDocString = (fileName, fileTitle, ~override=?, path, name, typ, element) => {
+    /* let id = GenerateDoc.makeId(path @ [name], typ); */
+    let title = path == [] ? fileTitle : String.concat(".", path);
+    open PrepareDocs.T;
+    /** The representation of the value itself */
+    let makeId = t => path == [] ? None : Some(GenerateDoc.makeId(path, t));
+    let hash = switch typ {
+    | None => None
+    | Some(t) => switch t {
+      | Module(_) =>  makeId(PModule)
+      | Value(typ) => {
+        let text = GenerateDoc.prettyString(PrintType.default.value(PrintType.default, name, name, typ));
+        addSearchable(fileName, Some(GenerateDoc.makeId(path, PValue)), title, text, fileTitle);
+        makeId(PValue)
+      }
+      | Type(typ) => {
+        let text = GenerateDoc.prettyString(PrintType.default.decl(PrintType.default, name, name, typ));
+        addSearchable(fileName, Some(GenerateDoc.makeId(path, PValue)), title, text, fileTitle);
+        makeId(PType)
+      }
+      | StandaloneDoc(_) | Include(_) => None
+      }
+    /* Some(GenerateDoc.makeId(path, t)) */
+    };
+
+    /** Docstring paragraphs */
+    let md = Omd.of_string(element);
+    /** TODO track headings within this for better breadcrumb */
+    let _ = Omd.Representation.visit(el => {
+      switch el {
+      | Omd.Paragraph(t) => {
+        let text = Omd.to_text(t);
+        if (String.trim(text) == "@all" || String.length(text) > 4 && String.sub(text, 0, 4) == "@doc") {
+          ()
+        } else {
+          addSearchable(fileName, hash, title, text, fileTitle)
+        }
+      }
+      | H1(t) | H2(t) | H3(t) | H4(t) | H5(t) => {
+        let title = Omd.to_text(t);
+        addSearchable(fileName, Some(GenerateDoc.cleanForLink(title)), title, "", fileTitle)
+      }
+      | _ => ()
+      };
+      None
+    }, md);
+    Omd.to_html(~override?, md)
+  };
+
+  (searchables, processDocString)
+};
+
 let generateMultiple = (dest, cmts, markdowns) => {
   Files.mkdirp(dest);
 
@@ -84,28 +155,7 @@ let generateMultiple = (dest, cmts, markdowns) => {
   Files.writeFile(cssLoc, DocsTemplate.styles) |> ignore;
   Files.writeFile(jsLoc, DocsTemplate.script) |> ignore;
 
-  let searchable = ref([]);
-  let addSearchable = (file, hash, title, contents, breadcrumb) => {
-    let href = Files.relpath(dest, file) ++ "#" ++ hash;
-    searchable := [(href, title, contents, breadcrumb), ...searchable^];
-  };
-
-  let visitMarkdown = (name, path, currentItem, element) => {
-    switch element {
-    | Omd.Paragraph(t) => {
-      let text = Omd.to_text(t);
-      let (title, prefix) = switch currentItem {
-      | `Api((name, docs, item)) => {
-        ("", "")
-      }
-      | `Header(name) => (name, "")
-      }
-    }
-    | _ => ()
-    }
-  };
-
-  let processMarkdown = (path, name, typ, element) => None;
+  let (searchables, processDocString) = makeSearcher(dest);
 
   let api = dest /+ "api";
   Files.mkdirp(api);
@@ -118,7 +168,7 @@ let generateMultiple = (dest, cmts, markdowns) => {
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
 
     let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-    let text = Docs.generate(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processMarkdown, name, topdoc, stamps, allDocs, names, markdowns);
+    let text = Docs.generate(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(output, name), name, topdoc, stamps, allDocs, names, markdowns);
 
     Files.writeFile(output, text) |> ignore;
   });
@@ -134,6 +184,8 @@ let generateMultiple = (dest, cmts, markdowns) => {
 
     Files.writeFile(path, html) |> ignore;
   });
+
+  Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
 };
 
 let unwrap = (m, n) => switch n { | None => failwith(m) | Some(n) => n };
@@ -206,18 +258,18 @@ let generateProject = (projectName, base) => {
   generateMultiple(base /+ "docs", found, markdowns);
 };
 
-let generateDocs = (cmt) => {
+/* let generateDocs = (cmt) => {
   let name = getName(cmt);
   let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-  Docs.generate(~cssLoc=None, ~jsLoc=None, ~processMarkdown=(_, _, _, _) => None, name, topdoc, stamps, allDocs, [], []);
-};
+  Docs.generate(~cssLoc=None, ~jsLoc=None, ~processMarkdown=(~override, _, _, _, _) => None, name, topdoc, stamps, allDocs, [], []);
+}; */
 
 let main = () => {
   switch (Sys.argv |> Array.to_list) {
   | [_, "project", name, base] => generateProject(name, base)
   | [_, "multiple", dest, ...rest] => generateMultiple(dest, rest, [])
   | [_, source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
-  | [_, cmt, output] => Files.writeFile(output, generateDocs(cmt)) |> ignore
+  /* | [_, cmt, output] => Files.writeFile(output, generateDocs(cmt)) |> ignore */
   | _ => {
     print_endline("\n\nUsage: docre some.re some.cmt some.mlast output.html");
   }

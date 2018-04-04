@@ -1,0 +1,545 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: system-ui;
+  font-weight: 200;
+  margin: 48px auto;
+}
+
+body {
+  font-size: 17px;
+  line-height: 26px;
+  font-weight: 400;
+  letter-spacing: -0.021em;
+  font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+
+  font-weight: 200;
+  letter-spacing: 0.04em;
+}
+
+h4.item {
+  font-family: sf mono, monospace;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  white-space: pre;
+  padding-bottom: 16px;
+  margin-bottom: 0;
+  margin-top: 16px;
+  font-weight: 400;
+
+  font-weight: 200;
+  letter-spacing: 0.4em;
+}
+
+h4.item,
+p code {
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 0;
+  font-size: 15px;
+  line-height: 1.5em;
+
+  font-weight: 200;
+  color: #666;
+}
+
+.body {
+  margin-left: 24px;
+  margin-bottom: 48px;
+  line-height: 1.5em;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+.body-empty,
+.include-body .body {
+  margin-bottom: 0;
+}
+
+.include-body .item {
+  padding: 0;
+  border-top: 0;
+  margin: 0;
+}
+
+.missing {
+  font-style: italic;
+  font-size: 16px;
+  color: #777;
+}
+h1, h2 {
+  margin-top: 24px;
+}
+
+h4.module {
+  font-size: 110%%;
+  font-weight: 600;
+}
+.module-body {
+  border-left: 1px solid #ddd;
+  padding-left: 24px;
+}
+
+.body > p:first-child {
+  margin-top: 0px;
+}
+
+.body > p:last-child {
+  margin-bottom: 8px;
+}
+
+p code {
+  padding: 1px 4px;
+  background: #eee;
+  border-radius: 3px;
+  font-family: 'sf mono', monospace;
+  font-size: 0.9em;
+}
+
+a {
+  text-decoration: none;
+}
+a:hover, a:focus {
+  text-decoration: underline;
+}
+
+.doc-item {
+  font-size: 16px;
+}
+
+
+
+.container {
+  display: flex;
+  justify-content: center;
+  margin: 48px auto;
+}
+
+.main {
+  width: 600px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+a, a:visited,
+.table-of-contents a.module,
+.project-listing a,
+.main a, .main a:visited {
+  color: #0070c9;
+}
+
+.right-blank {
+  width: 200px;
+}
+
+.sidebar {
+  width: 200px;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  overflow: auto;
+  max-height: 100vh;
+  word-break: break-word;
+}
+
+.table-of-contents {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+.project-listing {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  font-size: 14px;
+  padding-bottom: 32px;
+}
+
+.project-listing .project-title {
+  font-weight: bold;
+  margin: 16px 0 8px;
+}
+
+.sidebar-expander {
+  display: none;
+}
+
+.docs-listing {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+@media(max-width: 1000px) {
+  .sidebar {
+    position: static;
+    width: 600px;
+    margin: auto;
+    max-height: unset;
+    display: none;
+  }
+  .sidebar-expander {
+    text-align: center;
+    width: 600px;
+    margin: auto;
+    display: block;
+  }
+
+  .sidebar.expanded {
+    display: block;
+  }
+
+  .container {
+    display: block;
+  }
+
+  .right-blank {
+    display: none;
+  }
+
+  .main {
+    margin: auto;
+  }
+}
+
+@media(max-width: 620px) {
+  .sidebar-expander,
+  .sidebar {
+    width: auto;
+    margin: 0;
+  }
+  .main {
+    width: auto;
+    padding: 0;
+    margin: 0;
+  }
+  .container {
+    padding: 0 20px;
+  }
+  h4.item {
+    font-size: 14px;
+    overflow: auto;
+    max-width: 100%%;
+    padding-right: 16px;
+  }
+  .body {
+    font-size: 17px;
+    margin-left: 0;
+    margin-bottom: 32px;
+  }
+}
+
+.table-of-contents a {
+  color: unset;
+  padding: 2px 0;
+}
+.table-of-contents a:hover {
+  background-color: #fafafa;
+}
+
+.table-of-contents a.header {
+  font-weight: bold;
+}
+
+a.level-1 {
+  margin-left: 0px;
+}
+
+a.level-2 {
+  margin-left: 6px;
+}
+a.level-3 {
+  margin-left: 12px;
+}
+a.level-4 {
+  margin-left: 18px;
+}
+a.level-5 {
+  margin-left: 24px;
+}
+
+#error-message {
+  display: none;
+  background-color: #fde6e6;
+  padding: 8px 16px;
+  border-radius: 4px;
+  box-shadow: 0px 1px 3px #d8a2a2;
+  margin-bottom: 32px;
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.external-link:after {
+  /* from font-awesome */
+  background: url('data:image/svg+xml;utf8,<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="511.626px" height="511.627px" viewBox="0 0 511.626 511.627" style="enable-background:new 0 0 511.626 511.627;" xml:space="preserve"><g><path d="M392.857,292.354h-18.274c-2.669,0-4.859,0.855-6.563,2.573c-1.718,1.708-2.573,3.897-2.573,6.563v91.361 c0,12.563-4.47,23.315-13.415,32.262c-8.945,8.945-19.701,13.414-32.264,13.414H82.224c-12.562,0-23.317-4.469-32.264-13.414 c-8.945-8.946-13.417-19.698-13.417-32.262V155.31c0-12.562,4.471-23.313,13.417-32.259c8.947-8.947,19.702-13.418,32.264-13.418 h200.994c2.669,0,4.859-0.859,6.57-2.57c1.711-1.713,2.566-3.9,2.566-6.567V82.221c0-2.662-0.855-4.853-2.566-6.563 c-1.711-1.713-3.901-2.568-6.57-2.568H82.224c-22.648,0-42.016,8.042-58.102,24.125C8.042,113.297,0,132.665,0,155.313v237.542 c0,22.647,8.042,42.018,24.123,58.095c16.086,16.084,35.454,24.13,58.102,24.13h237.543c22.647,0,42.017-8.046,58.101-24.13 c16.085-16.077,24.127-35.447,24.127-58.095v-91.358c0-2.669-0.856-4.859-2.574-6.57 C397.709,293.209,395.519,292.354,392.857,292.354z"/><path d="M506.199,41.971c-3.617-3.617-7.905-5.424-12.85-5.424H347.171c-4.948,0-9.233,1.807-12.847,5.424 c-3.617,3.615-5.428,7.898-5.428,12.847s1.811,9.233,5.428,12.85l50.247,50.248L198.424,304.067 c-1.906,1.903-2.856,4.093-2.856,6.563c0,2.479,0.953,4.668,2.856,6.571l32.548,32.544c1.903,1.903,4.093,2.852,6.567,2.852 s4.665-0.948,6.567-2.852l186.148-186.148l50.251,50.248c3.614,3.617,7.898,5.426,12.847,5.426s9.233-1.809,12.851-5.426 c3.617-3.616,5.424-7.898,5.424-12.847V54.818C511.626,49.866,509.813,45.586,506.199,41.971z"/></g></svg>');
+  margin-left: 4px;
+  content: ' ';
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  background-size: contain;
+}
+</style>
+<script>
+var checkHash = () => {
+  if (!window.shouldCheckHashes) {
+    return
+  }
+  var id = window.location.hash.slice(1)
+  if (id && !document.getElementById(id)) {
+    document.getElementById("error-message").style.display = 'block'
+    var parts = id.split('-')
+    document.querySelector('#error-message span').textContent = parts[0]
+    document.querySelector('#error-message code').textContent = parts[1]
+  }
+}
+window.onload = () => {
+  checkHash()
+  var expander = document.querySelector('.sidebar-expander')
+  expander.onclick = () => {
+    var sidebar = document.querySelector('.sidebar');
+    if (sidebar.classList.contains('expanded')) {
+      sidebar.classList.remove('expanded')
+      expander.textContent = 'Show navigation'
+    } else {
+      sidebar.classList.add('expanded')
+      expander.textContent = 'Hide navigation'
+    }
+  }
+}
+window.onhashchange = checkHash
+</script>
+<title>Example</title>
+<body>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      
+      <div class='table-of-contents'><a href="#Example" class='level-1 header'>Example</a>
+<a href="#Functions" class='level-2 header'>Functions</a>
+<a href="#type-awesome" class='level-3 type'>awesome</a>
+<a href="#module-Something" class='level-3 module'>Something</a>
+<a href="#value-Something.inner" class='level-4 value'>inner</a>
+<a href="#value-party" class='level-3 value'>party</a>
+<a href="#Just-dumping-it-all-in" class='level-2 header'>Just dumping it all in</a>
+<a href="#value-awesome" class='level-3 value'>awesome</a>
+<a href="#module-Something" class='level-3 module'>Something</a>
+<a href="#value-Something.inner" class='level-4 value'>inner</a>
+<a href="#value-party" class='level-3 value'>party</a>
+<a href="#type-awesome" class='level-3 type'>awesome</a>
+<a href="#value-things" class='level-3 value'>things</a>
+<a href="#module-Inner" class='level-3 module'>Inner</a>
+<a href="#type-Inner.other" class='level-4 type'>other</a>
+<a href="#type-Inner.party" class='level-4 type'>party</a>
+<a href="#type-Inner.otherParty" class='level-4 type'>otherParty</a>
+<a href="#value-Inner.other" class='level-4 value'>other</a>
+<a href="#value-m" class='level-3 value'>m</a>
+<a href="#type-mm" class='level-3 type'>mm</a>
+<a href="#value-z" class='level-3 value'>z</a>
+<a href="#type-nn" class='level-3 type'>nn</a>
+<a href="#module-What" class='level-3 module'>What</a>
+<a href="#value-What.x" class='level-4 value'>x</a>
+<a href="#value-What.y" class='level-4 value'>y</a>
+<a href="#type-What.m" class='level-4 type'>m</a>
+<a href="#module-HideThings" class='level-3 module'>HideThings</a>
+<a href="#type-HideThings.r" class='level-4 type'>r</a>
+<a href="#type-HideThings.m" class='level-4 type'>m</a>
+<a href="#value-HideThings.other" class='level-4 value'>other</a>
+<a href="#value-HideThings.b" class='level-4 value'>b</a>
+<a href="#value-HideThings.c" class='level-4 value'>c</a>
+<a href="#value-HideThings.a" class='level-4 value'>a</a>
+<a href="#type-HideThings.sadness" class='level-4 type'>sadness</a>
+<a href="#value-HideThings.y" class='level-4 value'>y</a>
+<a href="#value-HideThings.r" class='level-4 value'>r</a>
+<a href="#type-HideThings.a" class='level-4 type'>a</a>
+<a href="#type-HideThings.c" class='level-4 type'>c</a>
+<a href="#type-HideThings.b" class='level-4 type'>b</a>
+<a href="#value-HideThings.x" class='level-4 value'>x</a>
+<a href="#value-HideThings.z" class='level-4 value'>z</a>
+<a href="#value-HideThings.m" class='level-4 value'>m</a>
+<a href="#value-HideThings.n" class='level-4 value'>n</a></div>
+      
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="#Example" id="Example"><h1>Example</h1></a>
+
+<p>Top-level docs right here.</p>
+<p>you end it with a semicolon, that&#39;s how you know it&#39;s serious.</p>
+<p>A block in the top-level thing will be evaluated at the end of the file.</p>
+<pre><code>let x = 10;
+let z = awesome();
+let y = party();</code></pre>
+
+<a href="#Functions" id="Functions"><h2>Functions</h2></a>
+
+<p>You can use the <code>@doc</code> pragma to include the docs for individual items.</p>
+<p>So this <code>@doc awesome, Something, party</code>, becomes:</p>
+<div class='doc-item'><h4 class='item'>type <a href="#type-awesome" id="type-awesome">awesome</a> = | Hello | Folks(int)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Something" id="module-Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Something.inner" id="value-Something.inner">inner</a> = int</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-party" id="value-party">party</a> = (unit) => int</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div><a href="#Just-dumping-it-all-in" id="Just-dumping-it-all-in"><h2>Just dumping it all in</h2></a>
+
+<p>An <code>@all</code> annotation will dump all (exported) values with their associated documentation.</p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-awesome" id="value-awesome">awesome</a> = (unit) => int</h4>
+
+<div class='body '><p> Here&#39;s some documentaition</p>
+<pre class='parse'><code class='parse'>let x = 10;
+let y = 20;
+let z = awesome();</code></pre></div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Something" id="module-Something">Something</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Something.inner" id="value-Something.inner">inner</a> = int</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-party" id="value-party">party</a> = (unit) => int</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-awesome" id="type-awesome">awesome</a> = | Hello | Folks(int)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-things" id="value-things">things</a> = (unit) => float</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Inner" id="module-Inner">Inner</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>type <a href="#type-Inner.other" id="type-Inner.other">other</a> = | A | B | C(<a href="#type-Inner.other">other</a>)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Inner.party" id="type-Inner.party">party</a> = {names: string, count: int, awesome: string}</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Inner.otherParty" id="type-Inner.otherParty">otherParty</a> = {names: int, dogs: bool, height: float}</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Inner.other" id="value-Inner.other">other</a> = int</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-m" id="value-m">m</a> = bool</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-mm" id="type-mm">mm</a> = <a href="#type-Inner.party" title="Inner.party">party</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-z" id="value-z">z</a> = option(<a href="#type-Inner.otherParty" title="Inner.otherParty">otherParty</a>)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-nn" id="type-nn">nn</a> = <a href="#type-Inner.otherParty" title="Inner.otherParty">otherParty</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-What" id="module-What">What</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-What.x" id="value-What.x">x</a> = string</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-What.y" id="value-What.y">y</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-What.m" id="type-What.m">m</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-HideThings" id="module-HideThings">HideThings</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.r" id="type-HideThings.r">r</a> = int</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.m" id="type-HideThings.m">m</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.other" id="value-HideThings.other">other</a> = int</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.b" id="value-HideThings.b">b</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.c" id="value-HideThings.c">c</a> = <a href="#type-Inner.other" title="Inner.other">other</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.a" id="value-HideThings.a">a</a> = array(int)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.sadness" id="type-HideThings.sadness">sadness</a> = {duration: int, affective: bool}</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.y" id="value-HideThings.y">y</a> = <a href="#type-HideThings.sadness">sadness</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.r" id="value-HideThings.r">r</a> = int</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.a" id="type-HideThings.a">a</a> = | A | C | B</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.c" id="type-HideThings.c">c</a> = | A | C | B</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-HideThings.b" id="type-HideThings.b">b</a> = | A | B(int)</h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this type</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.x" id="value-HideThings.x">x</a> = <a href="#type-HideThings.b">b</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.z" id="value-HideThings.z">z</a> = <a href="#type-HideThings.a">a</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.m" id="value-HideThings.m">m</a> = <a href="#type-HideThings.b">b</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-HideThings.n" id="value-HideThings.n">n</a> = <a href="#type-HideThings.b">b</a></h4>
+
+<div class='body body-empty'><span class='missing'>No documentation for this value</span></div></div>
+</div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

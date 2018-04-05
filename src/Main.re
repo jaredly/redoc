@@ -335,6 +335,10 @@ let getMarkdowns = (projectName, base) => {
 
 let generateProject = (projectName, base) => {
   let compiledRoot = base /+ "lib/bs/js/";
+  if (!Files.exists(compiledRoot)) {
+    print_endline("You must run bucklescript first to generate the artifacts. " ++ compiledRoot ++ " not found.");
+    exit(1);
+  };
   let found = Files.collect(compiledRoot, name => Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
   let markdowns = getMarkdowns(projectName, base);
   generateMultiple(base /+ "docs", found, markdowns);
@@ -346,15 +350,26 @@ let generateProject = (projectName, base) => {
   Docs.generate(~cssLoc=None, ~jsLoc=None, ~processMarkdown=(~override, _, _, _, _) => None, name, topdoc, stamps, allDocs, [], []);
 }; */
 
+let docs = {|
+Usage:
+      docre [project title = directory name] [base directory = .] [output directory = ./docs]
+        When run with no arguments, the current directory is used.
+        You must run bucklescript first to generate the necessary artifacts.
+
+      docre -h
+        show this help
+|};
+
 let main = () => {
   switch (Sys.argv |> Array.to_list) {
-  | [_, "project", name, base] => generateProject(name, base)
-  | [_, "multiple", dest, ...rest] => generateMultiple(dest, rest, [])
-  | [_, source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
-  /* | [_, cmt, output] => Files.writeFile(output, generateDocs(cmt)) |> ignore */
-  | _ => {
-    print_endline("\n\nUsage: docre project ./some/base/");
-  }
+  | [_] => generateProject(String.capitalize(Filename.dirname(Unix.getcwd())), ".")
+  | [_, "-h"] => print_endline(docs)
+  | [_, thing, ..._] when thing != "" && thing.[0] == '-' => print_endline(docs)
+  | [_, name] => generateProject(name, ".")
+  | [_, name, base] => generateProject(name, base)
+  | [_, "cmts", dest, ...rest] => generateMultiple(dest, rest, [])
+  | [_, "annotate", source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
+  | _ => print_endline(docs)
   }
 };
 

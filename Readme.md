@@ -3,6 +3,13 @@
 
 A clean & easy documentation generator for reason/bucklescript/ocaml.
 
+## How to use:
+
+get the binary (either by downloading it, or building it yourself).
+
+```
+docre
+```
 
 ## Work to do
 
@@ -15,10 +22,10 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
 - [x] make sure mobile looks nice
 - [x] make it easy to build for a whole project
 - [x] collapse top thing when on mobile
-- [ ] also process normal markdown files, and add them to the sidebar.
+- [x] also process normal markdown files, and add them to the sidebar.
 - [x] Integrated search! see [this example](https://rustbyexample.com/primitives/tuples.html?search=thin) (powered by [this rust code](https://github.com/rust-lang-nursery/mdBook/blob/5fb36751514a83ce245099df3057efd53b5819df/src/renderer/html_handlebars/search.rs#L19) and [this js code](https://github.com/rust-lang-nursery/mdBook/blob/master/src/theme/searcher/searcher.js))
   - [x] will pre-create an elasticlunr index, and load it up when the user selects the search field
-  - [ ] include the markdown files in the index
+  - [x] include the markdown files in the index
   - [ ] maybe allow you to indicate that there are other indexes (e.g. for other libraries) that you'd like to load? So reason's docs could load reasonreact for better cross-searching
 - [ ] inline interactive code samples!
   - make them editable! This may require some gymnastics, but I'm confident pack.re can pull it off.
@@ -28,10 +35,8 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
   - the default should probably be "run in a web worker", but you can override to write to a canvas or similar
   - probably want to lazy-load codemirror, the bucklescript compiler, etc. to be easy on the perf.
   - don't auto-eval, probably. When you click on a codeblock, you can click "run", and then run it. At that point, we'll load the bucklescript compiler? Although maybe we'll include a precompiled version of each inline script because why not.
-- [ ] Handle markdown files just fine. Include them in the sidebar, process them in a similar way (including allowing interactive inline code samples!). The only difference is there will be no declared items.
-- [ ] have a zero-config "run this @ the project root and do everyting" mode.
-  - have a flag for "just me" vs "me & all my dependencies"
-  - it's a little funny to generate the docs for all your dependencies, maybe, but also it's probably fine
+- [x] Handle markdown files just fine. Include them in the sidebar, process them in a similar way (including allowing interactive inline code samples!). The only difference is there will be no declared items.
+- [x] have a zero-config "run this @ the project root and do everyting" mode.
 - [ ] integrate into redex, such that it creates documentation for literally everything.
 
 

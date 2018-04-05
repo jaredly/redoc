@@ -19,7 +19,7 @@ let processCmt = (name, cmt) => {
   | Cmt_format.Implementation({str_items} as s) => {
     /* Printtyped.implementation(Format.str_formatter, s);
     let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore; */
+    Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
 
     let stamps = PrepareDocs.organizeTypes((name, []), str_items);
     let (topdoc, allDocs) = PrepareDocs.findAllDocs(str_items);
@@ -28,7 +28,7 @@ let processCmt = (name, cmt) => {
   | Cmt_format.Interface({sig_items} as s) => {
     /* Printtyped.interface(Format.str_formatter, s);
     let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore; */
+    Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
 
     let stamps = PrepareDocs.organizeTypesIntf((name, []), sig_items);
     let (topdoc, allDocs) = PrepareDocs.findAllDocsIntf(sig_items);

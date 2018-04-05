@@ -1,7 +1,7 @@
 {
   "name": "docre",
   "version": "0.0.1",
-  "bin": "./lib/bs/native/main.native",
+  "bin": { "docre": "./lib/bs/native/main.native" },
   "scripts": {
     "postinstall": "bsb -make-world -backend native",
     "start": "bsb -make-world -backend native -w"

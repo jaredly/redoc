@@ -2,34 +2,21 @@
   "name": "docre",
   "version": "0.0.1",
   "scripts": {
-    "start": "rsb native:hot",
-    "build": "bsb -make-world -backend native"
+    "start": "bsb -make-world -backend native -w"
   },
   "keywords": [
-    "BuckleScript"
+    "BuckleScript",
+    "documentation",
+    "generator"
   ],
-  "esy": {
-    "build": [["jbuilder", "build", "@install"]],
-    "buildsInSource": true
-  },
   "repository": {
-    "url": "what",
+    "url": "git@github.com:jaredly/docre.git",
     "type": "git"
   },
-  "description": "wat",
-  "author": "",
-  "license": "",
+  "description": "A clean & easy documentation generator for reason/bucklescript/ocaml",
+  "author": "Jared Forsyth",
+  "license": "ISC",
   "dependencies": {
-    "ocaml": "4.2.3004",
-    "@opam/reason": "^3.0.0",
-    "@opam/merlin": "^3.0.5",
-    "@opam/jbuilder": "*"
-  },
-  "// bs-platform": "bsansouci/bsb-native#esy-support",
-  "resolutions": {
-    "**/@opam/result": "1.2.0",
-    "**/ocaml": "4.2.3004"
-  },
-  "devDependencies": {
+    "bs-platform": "bsansouci/bsb-native#fast"
   }
 }

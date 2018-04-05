@@ -17,18 +17,18 @@ let processCmt = (name, cmt) => {
 
   switch annots {
   | Cmt_format.Implementation({str_items} as s) => {
-    Printtyped.implementation(Format.str_formatter, s);
+    /* Printtyped.implementation(Format.str_formatter, s);
     let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
+    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore; */
 
     let stamps = PrepareDocs.organizeTypes((name, []), str_items);
     let (topdoc, allDocs) = PrepareDocs.findAllDocs(str_items);
     (stamps, topdoc, allDocs)
   }
   | Cmt_format.Interface({sig_items} as s) => {
-    Printtyped.interface(Format.str_formatter, s);
+    /* Printtyped.interface(Format.str_formatter, s);
     let out = Format.flush_str_formatter();
-    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore;
+    Files.writeFile("./_build/" ++ name ++ ".typ.inft", out) |> ignore; */
 
     let stamps = PrepareDocs.organizeTypesIntf((name, []), sig_items);
     let (topdoc, allDocs) = PrepareDocs.findAllDocsIntf(sig_items);
@@ -78,8 +78,11 @@ let (|?>) = (o, fn) => switch o { | None => None | Some(v) => fn(v) };
 let (|?>>) = (o, fn) => switch o { | None => None | Some(v) => Some(fn(v)) };
 let fold = (o, d, f) => switch o { | None => d | Some(v) => f(v) };
 
+let replace = (one, two, text) => Str.global_replace(Str.regexp_string(one), two, text);
+let escape = text => replace("\\", "\\\\", text) |> replace("\n", "\\n") |> replace("\"", "\\\"");
+
 let serializeSearchable = ((href, title, contents, rendered, breadcrumb)) => {
-  Printf.sprintf({|{"href": %S, "title": %S, "contents": %S, "rendered": %S, "breadcrumb": %S}|}, href, title, contents, rendered, breadcrumb)
+  Printf.sprintf({|{"href": "%s", "title": "%s", "contents": "%s", "rendered": "%s", "breadcrumb": "%s"}|}, escape(href), escape(title), escape(contents), escape(rendered), escape(breadcrumb))
 };
 
 let serializeSearchables = searchables => "[" ++ String.concat(",\n", List.map(serializeSearchable, searchables)) ++ "]";
@@ -361,6 +364,8 @@ Usage:
 |};
 
 let main = () => {
+  Printf.sprintf("%s", "°") |> print_endline;
+  String.escaped("°") |> print_endline;
   switch (Sys.argv |> Array.to_list) {
   | [_] => generateProject(String.capitalize(Filename.dirname(Unix.getcwd())), ".")
   | [_, "-h"] => print_endline(docs)

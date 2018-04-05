@@ -268,7 +268,6 @@ let generateMultiple = (dest, cmts, markdowns) => {
     Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
     MakeIndex.run(dest /+ "elasticlunr.js", dest /+ "searchables.json")
   };
-
 };
 
 let unwrap = (m, n) => switch n { | None => failwith(m) | Some(n) => n };
@@ -354,7 +353,7 @@ let main = () => {
   | [_, source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
   /* | [_, cmt, output] => Files.writeFile(output, generateDocs(cmt)) |> ignore */
   | _ => {
-    print_endline("\n\nUsage: docre some.re some.cmt some.mlast output.html");
+    print_endline("\n\nUsage: docre project ./some/base/");
   }
   }
 };

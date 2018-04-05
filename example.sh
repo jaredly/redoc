@@ -1,3 +1,3 @@
-#!//bin/bash
+# ./_build/install/default/bin/docre Reprocessing ../../games/reprocessing
 
-./_build/install/default/bin/docre Reprocessing ../../games/reprocessing
+./lib/bs/native/main.native Reprocessing ../../games/reprocessing

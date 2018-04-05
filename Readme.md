@@ -8,10 +8,33 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
 get the binary (either by downloading it, or building it yourself).
 
 ```
-docre
+Usage:
+      docre [project title = directory name] [base directory = .] [output directory = ./docs]
+        When run with no arguments, the current directory is used.
+        You must run bucklescript first to generate the necessary artifacts.
+
+      docre -h
+        show this help
 ```
 
-## Work to do
+## How to build
+
+```
+npm install
+npm start
+```
+
+The binary is then in `./lib/bs/native/main.native`.
+
+## Things still to be implemented
+
+- [ ] Interactive code samples!
+  - [ ] First pass - include the compiled javascript for code samples so you can see the result
+  - [ ] Second pass - make the code samples editable, with an in-page compiler so you can experiment
+- [ ] Parse the bsconfig.json and package.json of a project to determine the github url, name, source directories, etc.
+- [ ] Handle ocamldoc (see included octavius source) so we can build ocamly projects too
+
+## itemized work to do
 
 - [x] aliases - only show the last item of a type path (full on hover)
   - if the last item is "t", then also show the parent

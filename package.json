@@ -10,13 +10,14 @@
     "generator"
   ],
   "repository": {
-    "url": "git@github.com:jaredly/docre.git",
+    "url": "jaredly/docre",
     "type": "git"
   },
   "description": "A clean & easy documentation generator for reason/bucklescript/ocaml",
   "author": "Jared Forsyth",
   "license": "ISC",
   "dependencies": {
-    "bs-platform": "bsansouci/bsb-native#fast"
+    "bs-platform": "bsansouci/bsb-native#fast",
+    "rex-json": "github:jaredly/rex-json"
   }
 }

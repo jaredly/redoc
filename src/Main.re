@@ -51,7 +51,7 @@ let filterDuplicates = cmts => {
   });
 };
 
-let rec linkifyMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) => {
+let linkifyMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) => {
   let rel = Files.relpath(Filename.dirname(curPath));
   switch element {
   | Omd.Url(href, contents, title) when String.length(href) > 0 => {
@@ -196,8 +196,9 @@ let makeSearcher = (dest) => {
 
   (searchables, processDocString)
 };
+open Infix;
 
-let generateMultiple = (dest, cmts, markdowns) => {
+let generateMultiple = (url, dest, cmts, markdowns) => {
   Files.mkdirp(dest);
 
   let cmts = filterDuplicates(cmts);
@@ -231,7 +232,20 @@ let generateMultiple = (dest, cmts, markdowns) => {
 
     let (stamps, topdoc, allDocs) = processCmt(name, cmt);
     let searchPrinter = GenerateDoc.printer(searchHref(names), stamps);
-    let text = Docs.generate(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(searchPrinter, output, name), name, topdoc, stamps, allDocs, names, markdowns);
+    let sourceUrl = url |?> (((url, base, compiledBase)) => {
+      let relative = Files.relpath(compiledBase, cmt) |> Filename.chop_extension;
+      let isInterface = Filename.check_suffix(cmt, "i");
+      let re = Filename.concat(base, relative) ++ (isInterface ? ".rei" : ".re");
+      let ml = Filename.concat(base, relative) ++ (isInterface ? ".mli" : ".ml");
+      if (Files.exists(re)) {
+        Some(url ++ relative ++ (isInterface ? ".rei" : ".re"))
+      } else if (Files.exists(ml)) {
+        Some(url ++ relative ++ (isInterface ? ".mli" : ".ml"))
+      } else {
+        None
+      }
+    });
+    let text = Docs.generate(~sourceUrl, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(searchPrinter, output, name), name, topdoc, stamps, allDocs, names, markdowns);
 
     Files.writeFile(output, text) |> ignore;
   });
@@ -243,9 +257,15 @@ let generateMultiple = (dest, cmts, markdowns) => {
     let main = processDocString(searchPrinter, path, name, ~override, [], name, None, contents);
     /* Omd.to_html(~override, Omd.of_string(contents)); */
 
+    let sourceUrl = url |?> (((url, _, _)) => {
+      let relative = Files.relpath(dest, path |> Filename.chop_extension |> x => x ++ ".md");
+      Some(url ++ "docs/" ++ relative)
+    });
+
+
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
-    let html = Docs.page(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
+    let html = Docs.page(~sourceUrl, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
 
     Files.writeFile(path, html) |> ignore;
   });
@@ -264,7 +284,7 @@ let generateMultiple = (dest, cmts, markdowns) => {
       <script defer src="elasticlunr.js"></script>
       <script defer src="search.js"></script>
     |}, DocsTemplate.searchStyle);
-    let html = Docs.page(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), "Search", [], projectListing, markdowns, main);
+    let html = Docs.page(~sourceUrl=None, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), "Search", [], projectListing, markdowns, main);
     Files.writeFile(path, html) |> ignore;
     Files.writeFile(dest /+ "search.js", DocsTemplate.searchScript) |> ignore;
     Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
@@ -344,7 +364,9 @@ let generateProject = (projectName, base) => {
   };
   let found = Files.collect(compiledRoot, name => Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
   let markdowns = getMarkdowns(projectName, base);
-  generateMultiple(base /+ "docs", found, markdowns);
+  let url = ParseConfig.getUrl(base);
+  open Infix;
+  generateMultiple(url |?>> (url => (url, base, compiledRoot)), base /+ "docs", found, markdowns);
 };
 
 /* let generateDocs = (cmt) => {
@@ -364,15 +386,13 @@ Usage:
 |};
 
 let main = () => {
-  Printf.sprintf("%s", "°") |> print_endline;
-  String.escaped("°") |> print_endline;
   switch (Sys.argv |> Array.to_list) {
   | [_] => generateProject(String.capitalize(Filename.dirname(Unix.getcwd())), ".")
   | [_, "-h"] => print_endline(docs)
   | [_, thing, ..._] when thing != "" && thing.[0] == '-' => print_endline(docs)
   | [_, name] => generateProject(name, ".")
   | [_, name, base] => generateProject(name, base)
-  | [_, "cmts", dest, ...rest] => generateMultiple(dest, rest, [])
+  | [_, "cmts", dest, ...rest] => generateMultiple(None, dest, rest, [])
   | [_, "annotate", source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
   | _ => print_endline(docs)
   }

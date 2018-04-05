@@ -149,10 +149,7 @@ let textForDoc = (path, (name, _, content)) => {
   };
 };
 
-let (|?) = (o, d) => switch o { | None => d | Some(v) => v };
-let (|?>) = (o, fn) => switch o { | None => None | Some(v) => fn(v) };
-let (|?>>) = (o, fn) => switch o { | None => None | Some(v) => Some(fn(v)) };
-let fold = (o, d, f) => switch o { | None => d | Some(v) => f(v) };
+open Infix;
 
 let div = (cls, body) => "<div class='" ++ cls ++ "'>" ++ body ++ "</div>";
 

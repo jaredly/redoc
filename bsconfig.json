@@ -9,7 +9,7 @@
     "src",
     "omd"
   ],
-  "bs-dependencies": [],
+  "bs-dependencies": ["rex-json"],
   "ocaml-dependencies": ["compiler-libs", "unix", "bigarray", "str"],
   "entries": [{
     "backend": "native",

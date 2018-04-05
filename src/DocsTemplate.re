@@ -258,6 +258,14 @@ a:hover, a:focus {
   width: 600px;
   padding: 0 16px;
   box-sizing: border-box;
+  position: relative;
+}
+
+.edit-link {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 24px 0;
 }
 
 a, a:visited,

@@ -42,6 +42,7 @@ The binary is then in `./lib/bs/native/main.native`.
   - [x] a table of contents
   - [x] listing of other modules in this package
   - [ ] highlight the currently selected thing in the sidebar. scroll-tracking
+- [ ] have an "edit this file" link on the page
 - [x] make sure mobile looks nice
 - [x] make it easy to build for a whole project
 - [x] collapse top thing when on mobile

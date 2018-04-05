@@ -7,9 +7,10 @@
   },
   "sources": [
     "src",
+    "omd"
   ],
   "bs-dependencies": [],
-  "ocamlfind-dependencies": ["compiler-libs", "unix"],
+  "ocaml-dependencies": ["compiler-libs", "unix", "bigarray", "str"],
   "entries": [{
     "backend": "native",
     "main-module": "Main"

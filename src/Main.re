@@ -265,9 +265,10 @@ let generateMultiple = (dest, cmts, markdowns) => {
     Files.writeFile(path, html) |> ignore;
     Files.writeFile(dest /+ "search.js", DocsTemplate.searchScript) |> ignore;
     Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
+    Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
+    MakeIndex.run(dest /+ "elasticlunr.js", dest /+ "searchables.json")
   };
 
-  Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
 };
 
 let unwrap = (m, n) => switch n { | None => failwith(m) | Some(n) => n };

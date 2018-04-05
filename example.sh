@@ -60,7 +60,5 @@ base=${base}/node_modules/@jaredly/reprocessing/lib/bs/js/src
 # done
 
 ./_build/install/default/bin/docre multiple docs/ ${base}/*.cmt*
-node makeIndex.js ./docs/searchables.json
 
 ./_build/install/default/bin/docre project Reprocessing ../../games/reprocessing
-node makeIndex.js ../../games/reprocessing/docs/searchables.json

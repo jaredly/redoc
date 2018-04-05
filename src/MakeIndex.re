@@ -28,7 +28,8 @@ let execSync = (cmd, input) => {
 
 let source = {|
 console.log(process.argv);
-var [_, elasticlunr, json] = process.argv;
+var elasticlunr = process.argv[1];
+var json = process.argv[2];
 var relative = function (n) { return n[0] == '.' || n[0] == '/' ? n : './' + n; };
 var elastic = require(relative(elasticlunr));
 var data = require(relative(json));
@@ -43,7 +44,7 @@ data.forEach(function(doc, i) {
   index.addDoc(doc);
 });
 
-const fs = require('fs');
+var fs = require('fs');
 fs.writeFileSync(json + ".index.js", "window.searchindex = " + JSON.stringify(index.toJSON()));
 console.log("Finished generating index!");
 |} |> Str.global_replace(Str.regexp_string("\n"), "");

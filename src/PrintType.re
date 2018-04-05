@@ -50,6 +50,9 @@ let tuple_list = (items, loop) => {
   str(")")
 };
 
+let replace = (one, two, text) => Str.global_replace(Str.regexp_string(one), two, text);
+let htmlEscape = text => replace("<", "&lt;", text) |> replace(">", "&gt;");
+
 let print_expr = (stringifier, typ) => {
   let loop = stringifier.expr(stringifier);
   open Types;
@@ -81,15 +84,15 @@ let print_expr = (stringifier, typ) => {
     | args => tuple_list(args, loop)
     }
   }
-  | Tobject(_, _) => str("<object>")
-  | Tfield(_, _, _, _) => str("<field>")
-  | Tnil => str("nil")
   | Tlink(inner) => loop(inner)
   | Tsubst(inner) => loop(inner)
-  | Tvariant(_) => str("<variant>")
-  | Tunivar(_) => str("<univar>")
-  | Tpoly(_, _) => str("<poly>")
-  | Tpackage(_, _, _) => str("<package>")
+  | Tfield(_, _, _, _)
+  | Tnil
+  | Tvariant(_)
+  | Tunivar(_)
+  | Tpoly(_, _)
+  | Tpackage(_, _, _)
+  | Tobject(_, _) => str({Printtyp.type_expr(Format.str_formatter, typ); Format.flush_str_formatter()} |> htmlEscape)
   }
 };
 

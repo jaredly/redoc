@@ -358,9 +358,16 @@ let getMarkdowns = (projectName, base) => {
 
 let generateProject = (projectName, base) => {
   let compiledRoot = base /+ "lib/bs/js/";
-  if (!Files.exists(compiledRoot)) {
-    print_endline("You must run bucklescript first to generate the artifacts. " ++ compiledRoot ++ " not found.");
-    exit(1);
+  let compiledRoot = if (!Files.exists(compiledRoot)) {
+    let compiledRoot = base /+ "lib/bs/";
+    if (!Files.exists(compiledRoot)) {
+      print_endline("You must run bucklescript first to generate the artifacts. " ++ compiledRoot ++ " not found.");
+      exit(1);
+    } else {
+      compiledRoot
+    }
+  } else {
+    compiledRoot
   };
   let found = Files.collect(compiledRoot, name => Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
   let markdowns = getMarkdowns(projectName, base);

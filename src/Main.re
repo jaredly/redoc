@@ -356,6 +356,16 @@ let getMarkdowns = (projectName, base) => {
   List.sort(compare, files) |> List.map(((_, html, contents, name)) => (html, contents, name))
 };
 
+let absify = path => {
+  if (path == "") {
+    Unix.getcwd()
+  } else if (path.[0] == '/') {
+    path
+  } else {
+    Filename.concat(Unix.getcwd(), path)
+  }
+};
+
 let generateProject = (projectName, base) => {
   let compiledRoot = base /+ "lib/bs/js/";
   let compiledRoot = if (!Files.exists(compiledRoot)) {
@@ -374,6 +384,10 @@ let generateProject = (projectName, base) => {
   let url = ParseConfig.getUrl(base);
   open Infix;
   generateMultiple(url |?>> (url => (url, base, compiledRoot)), base /+ "docs", found, markdowns);
+  let localUrl = "file://" ++ absify(base) /+ "docs" /+ "index.html";
+  print_newline();
+  print_endline("Complete! Docs are available in " ++ (base /+ "docs") ++ "\nOpen " ++ localUrl ++ " in your browser to view");
+  print_newline();
 };
 
 /* let generateDocs = (cmt) => {

@@ -39,6 +39,8 @@ The binary is then in `./lib/bs/native/main.native`.
 
 ## itemized work to do
 
+- [ ] argument-level documentation
+- [ ] add cli options for debug, verbose mode, etc.
 - [ ] add cards for social media sharing
 - [ ] respect @deprecated (and other things?)
 - [x] aliases - only show the last item of a type path (full on hover)

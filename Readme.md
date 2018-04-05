@@ -5,7 +5,7 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
 
 ## How to use:
 
-get the binary (either by downloading it, or building it yourself).
+get the binary (either by [downloading it](https://github.com/jaredly/docre/releases/), or building it yourself).
 
 ```
 Usage:

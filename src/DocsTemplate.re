@@ -7,6 +7,10 @@ let searchStyle = {|
   font-size: 20px;
 }
 
+.result .result-highlighted {
+  color: #ff6dff!important;
+}
+
 .result {
   padding: 8px;
   border-bottom: 1px solid #eee;
@@ -14,7 +18,6 @@ let searchStyle = {|
 |};
 
 let searchScript = {|
-
 (function() {
   var node = (tag, attrs, children) => {
     var node = document.createElement(tag)
@@ -47,6 +50,49 @@ let searchScript = {|
   var index = elasticlunr.Index.load(window.searchindex);
   var config = {bool: 'AND', fields: {title: {boost: 2}, contents: {boost: 1}}, expand: true};
 
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+  }
+
+  var walk = (node, fn) => {
+    var nodes = [].slice.call(node.childNodes)
+    nodes.forEach(child => {
+      if (false === fn(child)) return;
+      if (child.parentNode === node) {
+        walk(child, fn)
+      }
+    })
+  }
+
+  var highlightNode = (node, token) => {
+    walk(node, node => {
+      if (node.nodeName === '#text') {
+        let at = 0;
+        let pieces = [];
+        node.textContent.replace(new RegExp(escapeRegExp(token), 'gi'), (matched, pos, full) => {
+          pieces.push(document.createTextNode(full.slice(at, pos)))
+          pieces.push(span({class: 'result-highlighted'}, [matched]))
+          at = pos + matched.length
+        })
+        if (pieces.length === 0) {
+          return
+        }
+        if (at < node.textContent.length) {
+          pieces.push(document.createTextNode(node.textContent.slice(at)))
+        }
+        node.replaceWith(...pieces)
+      }
+    })
+  }
+
+  var highlightingNode = (text, tokens) => {
+    var node = raw(text);
+    tokens.forEach(token => highlightNode(node, token))
+    return node
+  };
+
+  window.highlightNode = highlightNode
+
   var search = text => {
     var results = index.search(text, config).slice(0, 30);
     render(document.getElementById('search-results'), div(
@@ -55,7 +101,12 @@ let searchScript = {|
         {class: 'result'},
         [
           a({href, class: 'title'}, [title]),
-          div({}, [raw(rendered)])
+          div({}, [
+            highlightingNode(rendered, text.split(/\s+/g))
+            // raw(text.split(/\s+/g).reduce(
+            //   (text, item) => text.replace(new RegExp(escapeRegExp(item), 'ig'), "<span class='result-highlighted'>$&</span>"), rendered
+            // ))
+          ])
         ]
       ))
     ))
@@ -73,7 +124,6 @@ let searchScript = {|
     search(text)
   })
 })();
-
 |};
 
 let styles = {|

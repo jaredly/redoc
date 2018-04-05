@@ -84,10 +84,11 @@ let serializeSearchable = ((href, title, contents, rendered, breadcrumb)) => {
 
 let serializeSearchables = searchables => "[" ++ String.concat(",\n", List.map(serializeSearchable, searchables)) ++ "]";
 
-let makeTokenCollector = base => {
+let makeTokenCollector = (base) => {
   let tokens = ref([]);
   let addToken = n => tokens := [n, ...tokens^];
   open PrintType.T;
+  /* let base = PrintType.default; */
   /* TODO collect arg labels from expressions */
   (tokens, {
     ...base,
@@ -127,7 +128,7 @@ let makeSearcher = (dest) => {
   };
 
   /** All to make things searchable */
-  let processDocString = (fileName, fileTitle, ~override=?, path, name, typ, rawText) => {
+  let processDocString = (searchPrinter, fileName, fileTitle, ~override=?, path, name, typ, rawText) => {
     /* let id = GenerateDoc.makeId(path @ [name], typ); */
     let title = path == [] ? fileTitle : String.concat(".", path);
     open PrepareDocs.T;
@@ -140,7 +141,7 @@ let makeSearcher = (dest) => {
       | Module(_) =>  makeId(PModule)
       | Value(typ) => {
         /** TODO use the other printer for nice linking of things. also want to highlight fn argument labels. */
-        let (tokens, printer) = makeTokenCollector(PrintType.default);
+        let (tokens, printer) = makeTokenCollector(searchPrinter);
         let text = "<h4 class='item'>" ++ GenerateDoc.prettyString(printer.PrintType.T.value(printer, name, name, typ)) ++ "</h4>";
         let tokens = name ++ " " ++ String.concat(" ", tokens^);
         addSearchable(fileName, Some(GenerateDoc.makeId(path, PValue)), title, tokens, text, fileTitle);
@@ -148,7 +149,7 @@ let makeSearcher = (dest) => {
       }
       | Type(typ) => {
         /* print_endline("making a search for type"); */
-        let (tokens, printer) = makeTokenCollector(PrintType.default);
+        let (tokens, printer) = makeTokenCollector(searchPrinter);
         let text = "<h4 class='item'>" ++ GenerateDoc.prettyString(printer.PrintType.T.decl(printer, name, name, typ)) ++ "</h4>";
         let tokens = name ++ " " ++ String.concat(" ", tokens^);
         addSearchable(fileName, Some(GenerateDoc.makeId(path, PType)), title, tokens, text, fileTitle);
@@ -204,11 +205,20 @@ let generateMultiple = (dest, cmts, markdowns) => {
   Files.writeFile(cssLoc, DocsTemplate.styles) |> ignore;
   Files.writeFile(jsLoc, DocsTemplate.script) |> ignore;
 
+  let names = List.map(getName, cmts);
+
   let (searchables, processDocString) = makeSearcher(dest);
+
+  let searchHref = (names, doc) => {
+    switch (Docs.formatHref("", names, doc)) {
+    | None => None
+    /* | Some(href) when href != "" && href.[0] == '#' => Some(href) */
+    | Some(href) => Some("./api/" ++ href)
+    }
+  };
 
   let api = dest /+ "api";
   Files.mkdirp(api);
-  let names = List.map(getName, cmts);
   cmts |> List.iter(cmt => {
     let name = getName(cmt);
     let output = dest /+ "api" /+ name ++ ".html";
@@ -217,7 +227,8 @@ let generateMultiple = (dest, cmts, markdowns) => {
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
 
     let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-    let text = Docs.generate(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(output, name), name, topdoc, stamps, allDocs, names, markdowns);
+    let searchPrinter = GenerateDoc.printer(searchHref(names), stamps);
+    let text = Docs.generate(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(searchPrinter, output, name), name, topdoc, stamps, allDocs, names, markdowns);
 
     Files.writeFile(output, text) |> ignore;
   });
@@ -225,7 +236,8 @@ let generateMultiple = (dest, cmts, markdowns) => {
   markdowns |> List.iter(((path, contents, name)) => {
     let rel = Files.relpath(Filename.dirname(path));
     let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, linkifyMarkdown(path, dest));
-    let main = processDocString(path, name, ~override, [], name, None, contents);
+    let searchPrinter = GenerateDoc.printer(searchHref(names), []);
+    let main = processDocString(searchPrinter, path, name, ~override, [], name, None, contents);
     /* Omd.to_html(~override, Omd.of_string(contents)); */
 
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);

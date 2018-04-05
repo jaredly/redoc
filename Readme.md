@@ -97,3 +97,6 @@ Js.log("A shared canvas is created, and maybe floats somewhere? idk");
 ## Related work
 
 http://davidchristiansen.dk/drafts/final-pretty-printer-draft.pdf
+
+ooh check this out
+https://github.com/martinklepsch/cljdoc

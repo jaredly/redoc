@@ -39,6 +39,7 @@ The binary is then in `./lib/bs/native/main.native`.
 
 ## itemized work to do
 
+- [ ] add cards for social media sharing
 - [ ] respect @deprecated (and other things?)
 - [x] aliases - only show the last item of a type path (full on hover)
   - if the last item is "t", then also show the parent

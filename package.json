@@ -2,7 +2,8 @@
   "name": "docre",
   "version": "0.0.1",
   "scripts": {
-    "start": "bsb -make-world -backend native -w"
+    "start": "bsb -make-world -backend native",
+    "watch": "bsb -make-world -backend native -w"
   },
   "keywords": [
     "BuckleScript",

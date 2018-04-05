@@ -31,7 +31,10 @@ The binary is then in `./lib/bs/native/main.native`.
 - [ ] Interactive code samples!
   - [ ] First pass - include the compiled javascript for code samples so you can see the result
   - [ ] Second pass - make the code samples editable, with an in-page compiler so you can experiment
-- [ ] Parse the bsconfig.json and package.json of a project to determine the github url, name, source directories, etc.
+- [ ] Parse the bsconfig.json and package.json of a project
+  - [x] to determine the github url
+    - [ ] support all types of github specifications https://docs.npmjs.com/files/package.json
+  - [ ] name, source directories, etc.
 - [ ] Handle ocamldoc (see included octavius source) so we can build ocamly projects too
 
 ## itemized work to do

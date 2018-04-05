@@ -23,11 +23,12 @@ let makeMarkdowns = markdowns => {
   }
 };
 
-let generate = (name, tocItems, projectListing, markdowns) => {
+let generate = (name, tocItems, projectListing, markdowns, searchPath) => {
   Printf.sprintf({|
     <div class='sidebar-wrapper'>
     <div class='sidebar-expander'>Show navigation</div>
     <div class='sidebar'>
+      <a href="%s" style="display: block; padding: 0 8px;">Search</a>
       %s
       <div class='table-of-contents'>
       <div class='toc-header'>Page Contents</div>
@@ -37,6 +38,7 @@ let generate = (name, tocItems, projectListing, markdowns) => {
     </div>
     </div>
   |},
+  searchPath,
   makeMarkdowns(markdowns),
   makeToc(tocItems),
   projectListing == [] ? "" : showPackage(projectListing)

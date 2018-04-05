@@ -51,7 +51,7 @@ let filterDuplicates = cmts => {
   });
 };
 
-let rec processMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) => {
+let rec linkifyMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) => {
   let rel = Files.relpath(Filename.dirname(curPath));
   switch element {
   | Omd.Url(href, contents, title) when String.length(href) > 0 => {
@@ -73,6 +73,127 @@ let rec processMarkdown = (curPath, basePath, addTocs, tocLevel, override, eleme
   }
 };
 
+let (|?) = (o, d) => switch o { | None => d | Some(v) => v };
+let (|?>) = (o, fn) => switch o { | None => None | Some(v) => fn(v) };
+let (|?>>) = (o, fn) => switch o { | None => None | Some(v) => Some(fn(v)) };
+let fold = (o, d, f) => switch o { | None => d | Some(v) => f(v) };
+
+let serializeSearchable = ((href, title, contents, rendered, breadcrumb)) => {
+  Printf.sprintf({|{"href": %S, "title": %S, "contents": %S, "rendered": %S, "breadcrumb": %S}|}, href, title, contents, rendered, breadcrumb)
+};
+
+let serializeSearchables = searchables => "[" ++ String.concat(",\n", List.map(serializeSearchable, searchables)) ++ "]";
+
+let makeTokenCollector = (base) => {
+  let tokens = ref([]);
+  let addToken = n => tokens := [n, ...tokens^];
+  open PrintType.T;
+  /* let base = PrintType.default; */
+  /* TODO collect arg labels from expressions */
+  (tokens, {
+    ...base,
+    expr: (printer, expr) => {
+      switch (expr.Types.desc) {
+      | Tarrow(label, arg, result, _) => {
+        let (args, _) = PrintType.collectArgs([(label, arg)], result);
+        args |> List.iter(((label, _)) => {
+          let label = label != "" && label.[0] == '?' ? String.sub(label, 1, String.length(label) - 1) : label;
+          addToken(label)
+        });
+      }
+      | _ => ()
+      };
+      base.expr(printer, expr)
+    },
+    path: (printer, path, pathType) => {
+      switch path {
+      | Path.Pident({name})
+      | Pdot(_, name, _) => addToken(name)
+      | Papply(_, _) => ()
+      };
+      base.path(printer, path, pathType)
+    },
+    ident: (printer, {Ident.name} as i) => {
+      addToken(name);
+      base.ident(printer, i)
+    }
+  })
+};
+
+let makeSearcher = (dest) => {
+  let searchables = ref([]);
+  let addSearchable = (file, hash, title, contents, rendered, breadcrumb) => {
+    let href = Files.relpath(dest, file) ++ fold(hash, "", h => "#" ++ h);
+    searchables := [(href, title, contents, rendered, breadcrumb), ...searchables^];
+  };
+
+  /** All to make things searchable */
+  let processDocString = (searchPrinter, fileName, fileTitle, ~override=?, path, name, typ, rawText) => {
+    /* let id = GenerateDoc.makeId(path @ [name], typ); */
+    let title = path == [] ? fileTitle : String.concat(".", path);
+    open PrepareDocs.T;
+    /** The representation of the value itself */
+    let makeId = t => path == [] ? None : Some(GenerateDoc.makeId(path, t));
+    /* print_endline(name); */
+    let hash = switch typ {
+    | None => None
+    | Some(t) => switch t {
+      | Module(_) =>  makeId(PModule)
+      | Value(typ) => {
+        /** TODO use the other printer for nice linking of things. also want to highlight fn argument labels. */
+        let (tokens, printer) = makeTokenCollector(searchPrinter);
+        let text = "<h4 class='item'>" ++ GenerateDoc.prettyString(printer.PrintType.T.value(printer, name, name, typ)) ++ "</h4>";
+        let tokens = name ++ " " ++ String.concat(" ", tokens^);
+        addSearchable(fileName, Some(GenerateDoc.makeId(path, PValue)), title, tokens, text, fileTitle);
+        makeId(PValue)
+      }
+      | Type(typ) => {
+        /* print_endline("making a search for type"); */
+        let (tokens, printer) = makeTokenCollector(searchPrinter);
+        let text = "<h4 class='item'>" ++ GenerateDoc.prettyString(printer.PrintType.T.decl(printer, name, name, typ)) ++ "</h4>";
+        let tokens = name ++ " " ++ String.concat(" ", tokens^);
+        addSearchable(fileName, Some(GenerateDoc.makeId(path, PType)), title, tokens, text, fileTitle);
+        makeId(PType)
+      }
+      | StandaloneDoc(_) | Include(_) => None
+      }
+    };
+
+    if (rawText == "") {
+      ""
+    } else {
+      /** Docstring paragraphs */
+      let md = Omd.of_string(rawText);
+      /** TODO track headings within this for better breadcrumb */
+      let _ = Omd.Representation.visit(el => {
+        switch el {
+        | Omd.Paragraph(t) => {
+          let text = Omd.to_text(t);
+          if (String.trim(text) == "@all" || String.length(text) > 4 && String.sub(text, 0, 4) == "@doc") {
+            ()
+          } else {
+            addSearchable(fileName, hash, title, text, Omd.to_html(~override?, t), fileTitle)
+          }
+        }
+        | Code_block(lang, contents) => {
+          /** TODO get elasticlunr to allow me to provide my own tokenization for a block of text. e.g. here just include the identifiers */
+          addSearchable(fileName, None, "code block", contents, "<pre><code>" ++ contents ++ "</code></pre>", fileTitle)
+        }
+        | H1(t) | H2(t) | H3(t) | H4(t) | H5(t) => {
+          let title = Omd.to_text(t);
+          addSearchable(fileName, Some(GenerateDoc.cleanForLink(title)), title, "", "", fileTitle)
+        }
+        | _ => ()
+        };
+        None
+      }, md);
+      Omd.to_html(~override?, md)
+    }
+  };
+
+  (searchables, processDocString)
+};
+
 let generateMultiple = (dest, cmts, markdowns) => {
   Files.mkdirp(dest);
 
@@ -84,9 +205,20 @@ let generateMultiple = (dest, cmts, markdowns) => {
   Files.writeFile(cssLoc, DocsTemplate.styles) |> ignore;
   Files.writeFile(jsLoc, DocsTemplate.script) |> ignore;
 
+  let names = List.map(getName, cmts);
+
+  let (searchables, processDocString) = makeSearcher(dest);
+
+  let searchHref = (names, doc) => {
+    switch (Docs.formatHref("", names, doc)) {
+    | None => None
+    /* | Some(href) when href != "" && href.[0] == '#' => Some(href) */
+    | Some(href) => Some("./api/" ++ href)
+    }
+  };
+
   let api = dest /+ "api";
   Files.mkdirp(api);
-  let names = List.map(getName, cmts);
   cmts |> List.iter(cmt => {
     let name = getName(cmt);
     let output = dest /+ "api" /+ name ++ ".html";
@@ -95,22 +227,47 @@ let generateMultiple = (dest, cmts, markdowns) => {
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
 
     let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-    let text = Docs.generate(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, topdoc, stamps, allDocs, names, markdowns);
+    let searchPrinter = GenerateDoc.printer(searchHref(names), stamps);
+    let text = Docs.generate(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(searchPrinter, output, name), name, topdoc, stamps, allDocs, names, markdowns);
 
     Files.writeFile(output, text) |> ignore;
   });
 
   markdowns |> List.iter(((path, contents, name)) => {
     let rel = Files.relpath(Filename.dirname(path));
-    let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, processMarkdown(path, dest));
-    let main = Omd.to_html(~override, Omd.of_string(contents));
+    let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, linkifyMarkdown(path, dest));
+    let searchPrinter = GenerateDoc.printer(searchHref(names), []);
+    let main = processDocString(searchPrinter, path, name, ~override, [], name, None, contents);
+    /* Omd.to_html(~override, Omd.of_string(contents)); */
 
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
-    let html = Docs.page(~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
+    let html = Docs.page(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
 
     Files.writeFile(path, html) |> ignore;
   });
+
+  {
+    let path = dest /+ "search.html";
+    let rel = Files.relpath(Filename.dirname(path));
+    let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
+    let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
+    let main = Printf.sprintf({|
+      <input placeholder="Search the docs" id="search-input"/>
+      <style>%s</style>
+      <div id="search-results"></div>
+      <link rel=stylesheet href="search.css">
+      <script defer src="searchables.json.index.js"></script>
+      <script defer src="elasticlunr.js"></script>
+      <script defer src="search.js"></script>
+    |}, DocsTemplate.searchStyle);
+    let html = Docs.page(~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), "Search", [], projectListing, markdowns, main);
+    Files.writeFile(path, html) |> ignore;
+    Files.writeFile(dest /+ "search.js", DocsTemplate.searchScript) |> ignore;
+    Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
+    Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
+    MakeIndex.run(dest /+ "elasticlunr.js", dest /+ "searchables.json")
+  };
 };
 
 let unwrap = (m, n) => switch n { | None => failwith(m) | Some(n) => n };
@@ -183,20 +340,20 @@ let generateProject = (projectName, base) => {
   generateMultiple(base /+ "docs", found, markdowns);
 };
 
-let generateDocs = (cmt) => {
+/* let generateDocs = (cmt) => {
   let name = getName(cmt);
   let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-  Docs.generate(~cssLoc=None, ~jsLoc=None, name, topdoc, stamps, allDocs, [], []);
-};
+  Docs.generate(~cssLoc=None, ~jsLoc=None, ~processMarkdown=(~override, _, _, _, _) => None, name, topdoc, stamps, allDocs, [], []);
+}; */
 
 let main = () => {
   switch (Sys.argv |> Array.to_list) {
   | [_, "project", name, base] => generateProject(name, base)
   | [_, "multiple", dest, ...rest] => generateMultiple(dest, rest, [])
   | [_, source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
-  | [_, cmt, output] => Files.writeFile(output, generateDocs(cmt)) |> ignore
+  /* | [_, cmt, output] => Files.writeFile(output, generateDocs(cmt)) |> ignore */
   | _ => {
-    print_endline("\n\nUsage: docre some.re some.cmt some.mlast output.html");
+    print_endline("\n\nUsage: docre project ./some/base/");
   }
   }
 };

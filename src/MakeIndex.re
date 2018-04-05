@@ -28,17 +28,17 @@ let execSync = (cmd, input) => {
 
 let source = {|
 console.log(process.argv);
-const [_, elasticlunr, json] = process.argv;
-const relative = n => n[0] == '.' || n[0] == '/' ? n : './' + n;
-const elastic = require(relative(elasticlunr));
-const data = require(relative(json));
+var [_, elasticlunr, json] = process.argv;
+var relative = function (n) { return n[0] == '.' || n[0] == '/' ? n : './' + n; };
+var elastic = require(relative(elasticlunr));
+var data = require(relative(json));
 
-const index = new elastic.Index();
+var index = new elastic.Index();
 index.addField("title");
 index.addField("contents");
 index.setRef("id");
 
-data.forEach((doc, i) => {
+data.forEach(function(doc, i) {
   doc.id = '' + i;
   index.addDoc(doc);
 });

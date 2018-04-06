@@ -123,6 +123,38 @@ let makeTokenCollector = (base) => {
   })
 };
 
+type codeContext = Normal | Node | Window | Iframe | Canvas;
+type codeOptions = {
+  context: codeContext,
+  shouldFail: bool,
+  dontRun: bool,
+};
+
+let parseCodeOptions = lang => {
+  let parts = Str.split(Str.regexp_string(";"), lang);
+  if (List.mem("skip", parts)) {
+    None
+  } else {
+    Some(List.fold_left((options, item) => {
+      switch item {
+      | "raises" => {...options, shouldFail: true}
+      | "window" => {...options, context: Window}
+      | "canvas" => {...options, context: Canvas}
+      | "dont-run" | "just-check" => {...options, dontRun: true}
+      | "reason" => options
+      | _ => {
+        print_endline("Skipping unexpected code option: " ++ item);
+        options
+      }
+      }
+    }, {
+      context: Normal,
+      shouldFail: false,
+      dontRun: false,
+    }, parts))
+  }
+};
+
 let makeDocStringProcessor = (dest) => {
   let searchables = ref([]);
   let addSearchable = (file, hash, title, contents, rendered, breadcrumb) => {
@@ -132,9 +164,15 @@ let makeDocStringProcessor = (dest) => {
 
   let codeBlocks = ref((0, []));
   let addBlock = (fileName, lang, contents) => {
-    let (id, blocks) = codeBlocks^;
-    codeBlocks := (id + 1, [(id, fileName, lang, contents), ...blocks]);
-    id
+    let options = parseCodeOptions(lang);
+    switch (options) {
+    | None => -1
+    | Some(options) => {
+      let (id, blocks) = codeBlocks^;
+      codeBlocks := (id + 1, [(id, fileName, options, contents), ...blocks]);
+      id
+    }
+    }
   };
 
   /** All to make things searchable */
@@ -314,8 +352,7 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
     let (_, blocks) = codeBlocks^;
     let src = base /+ "src";
     let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
-    blocks |> List.iter(((id, fileName, lang, content)) => {
-      /* TODO parse the lang for options */
+    blocks |> List.iter(((id, fileName, options, content)) => {
       Files.writeFile(src /+ blockFileName(id) ++ ".re", content ++ "/* " ++ fileName ++ " */") |> ignore
     });
     let (output, success) = MakeIndex.execSync(base /+ "node_modules/.bin/bsb" ++ " -make-world -backend js");
@@ -325,15 +362,24 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
       failwith("Unable to run bsb on examples");
     };
     print_endline("Running tests");
-    blocks |> List.iter(((id, fileName, lang, content)) => {
+    /* TODO run in parallel - maybe all in the same node process?? */
+    blocks |> List.iter(((id, fileName, options, content)) => {
       print_endline(string_of_int(id) ++ " - " ++ fileName);
       let name = blockFileName(id);
       let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt";
       let js = base /+ "lib/js/src/" ++ name ++ ".js";
-      let (output, success) = MakeIndex.execSync("node " ++ js);
-      if (!success) {
-        print_endline(String.concat("\n", output));
-        print_endline("Failed to run " ++ name ++ " in " ++ fileName);
+      if (!options.dontRun) {
+        let (output, success) = MakeIndex.execSync("node " ++ js);
+        if (options.shouldFail) {
+          if (success) {
+            print_endline("Expected to fail but didnt " ++ name ++ " in " ++ fileName);
+          }
+        } else {
+          if (!success) {
+            print_endline(String.concat("\n", output));
+            print_endline("Failed to run " ++ name ++ " in " ++ fileName);
+          };
+        }
       };
       let jsContents = Files.readFile(js);
       Unix.unlink(src /+ name ++ ".re");

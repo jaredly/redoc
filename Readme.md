@@ -36,6 +36,7 @@ The binary is then in `./lib/bs/native/main.native`.
     - [ ] support all types of github specifications https://docs.npmjs.com/files/package.json
   - [ ] name, source directories, etc.
 - [ ] Handle ocamldoc (see included octavius source) so we can build ocamly projects too
+- [ ] Support crowdin translations
 
 ## itemized work to do
 

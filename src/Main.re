@@ -237,7 +237,7 @@ let makeDocStringProcessor = (dest) => {
       }, md);
       Omd.to_html(~override=el => switch el {
       | Omd.Code_block(lang, contents) => {
-        let id = addBlock(fileName ++ Infix.(hash |? ""), lang, contents);
+        let id = addBlock(fileName ++ "#" ++ Infix.(hash |? ""), lang, contents);
         Some("<pre class='code' data-code-id='" ++ string_of_int(id) ++ "'><code>" ++ Omd_utils.htmlentities(contents) ++ "</code></pre>")
       }
       | _ => switch override {
@@ -355,7 +355,7 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
     blocks |> List.iter(((id, fileName, options, content)) => {
       Files.writeFile(src /+ blockFileName(id) ++ ".re", content ++ "/* " ++ fileName ++ " */") |> ignore
     });
-    let (output, success) = MakeIndex.execSync(base /+ "node_modules/.bin/bsb" ++ " -make-world -backend js");
+    let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world -backend js");
     if (!success) {
       print_endline("Bsb output:");
       print_endline(String.concat("\n", output));
@@ -369,14 +369,17 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
       let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt";
       let js = base /+ "lib/js/src/" ++ name ++ ".js";
       if (!options.dontRun) {
-        let (output, success) = MakeIndex.execSync("node " ++ js);
+        let (output, err, success) = Commands.execFull("node " ++ js ++ "");
         if (options.shouldFail) {
           if (success) {
+            print_endline(String.concat("\n", output));
+            print_endline(String.concat("\n", err));
             print_endline("Expected to fail but didnt " ++ name ++ " in " ++ fileName);
           }
         } else {
           if (!success) {
             print_endline(String.concat("\n", output));
+            print_endline(String.concat("\n", err));
             print_endline("Failed to run " ++ name ++ " in " ++ fileName);
           };
         }

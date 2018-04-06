@@ -3,8 +3,10 @@
   "version": "0.0.1",
   "scripts": {
     "start": "bsb -make-world -backend native",
-    "watch": "bsb -make-world -backend native -w"
+    "watch": "bsb -make-world -backend native -w",
+    "postinstall": "bsb -make-world -backend native"
   },
+  "bin": "./docre.sh",
   "keywords": [
     "BuckleScript",
     "documentation",

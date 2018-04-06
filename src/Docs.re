@@ -1,6 +1,4 @@
 
-open Parsetree;
-
 let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char"];
 
 let formatHref = (name, projectNames, (modName, inner, ptype)) => {

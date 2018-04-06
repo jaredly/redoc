@@ -47,12 +47,15 @@ let cleanOffStars = doc => {
     | [one, ...rest] => (first || String.trim(one) == "") ? loop(false, rest) : combine(findStars(one), loop(false, rest))
     }
   };
-  let num = loop(true, lines);
+  let num = switch lines {
+  | [] => None
+  | [first, ...rest] => loop(true, rest)
+  };
   switch num {
   | None | Some(0) => doc
   | Some(num) => switch lines {
     | [] | [_] => doc
-    | [one, ...rest] => one ++ "\n" ++ String.concat("\n", rest |> List.map(trimFirst(num)))
+    | [one, ...rest] => String.trim(one) ++ "\n" ++ String.concat("\n", rest |> List.map(trimFirst(num)))
     }
   }
 };

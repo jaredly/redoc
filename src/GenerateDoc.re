@@ -215,28 +215,35 @@ let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docs
 and docsForModule = (printer, processDocString, path, tocLevel, name, docString, contents) => {
   open Omd;
 
+  let shownItems = Hashtbl.create(100);
+  let shownAll = ref(false);
+
+  let docItems = List.rev(uniqueItems(contents));
+
   let processMagics = (addTocs, lastLevel, recur, element) => switch element {
   | Paragraph([Text(t)]) => {
     if (String.trim(t) == "@all") {
       Some((List.map(doc => {
         let (html, tocs) = generateDoc(printer, processDocString, path, tocLevel + lastLevel^, doc);
+        shownAll := true;
         addTocs(tocs);
         html
-      }, List.rev(uniqueItems(contents))) |> String.concat("\n\n")) ++ "\n")
+      }, docItems) |> String.concat("\n\n")) ++ "\n")
     } else if (Str.string_match(Str.regexp("^@doc [^\n]+"), t, 0)) {
       Some({
         let text = Str.matched_string(t);
         let raw = String.sub(text, 5, String.length(text) - 5);
         let items = Str.split(Str.regexp_string(","), raw) |> List.map(String.trim);
-        items |> List.map(name => fold(findByName(contents, name), "Invalid doc item referenced: " ++ name, (doc) => {
+        (items |> List.map(name => fold(findByName(docItems, name), "Invalid doc item referenced: " ++ name, (doc) => {
+          Hashtbl.add(shownItems, doc, true);
           let (html, tocs) = generateDoc(printer, processDocString, path, tocLevel + lastLevel^, doc);
           addTocs(tocs);
           html
-        })) |> String.concat("\n\n");
+        }))) |> String.concat("\n\n");
       })
     } else if (String.trim(t) == "@includes") {
       Some({
-        let items = contents |> List.filter(((_, _, docItem)) => switch docItem {
+        let items = docItems |> List.filter(((_, _, docItem)) => switch docItem {
         | Include(_) => true
         | _ => false
         });
@@ -246,6 +253,18 @@ and docsForModule = (printer, processDocString, path, tocLevel, name, docString,
           html
         }) |> String.concat("\n\n")
       })
+    } else if (String.trim(t) == "@rest") {
+      let itemsLeft = docItems |> List.filter(item => !Hashtbl.mem(shownItems, item));
+      if (itemsLeft == []) {
+        None
+      } else {
+        Some("<p>other items defined</p>" ++ (itemsLeft |> List.map(doc => {
+          Hashtbl.add(shownItems, doc, true);
+          let (html, tocs) = generateDoc(printer, processDocString, path, tocLevel + lastLevel^, doc);
+          addTocs(tocs);
+          html
+        }) |> String.concat("\n\n")))
+      }
     } else {
       None
     }
@@ -255,5 +274,5 @@ and docsForModule = (printer, processDocString, path, tocLevel, name, docString,
 
   let (tocItems, override) = trackToc(tocLevel, processMagics);
 
-  (processDocString(~override, path, name, Some(Module(Items([]))), docString), tocItems^)
+  (processDocString(~override, path, name, Some(Module(Items([]))), docString ++ "\n\n@rest"), tocItems^)
 };

@@ -52,7 +52,7 @@ let page = (~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=false, na
 
 let generate = (~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~processDocString, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
   let mainMarkdown = switch (topdoc) {
-  | None => GenerateDoc.defaultMain(~addHeading=true, name)
+  | None => Omd.of_string(GenerateDoc.defaultMain(~addHeading=true, name))
   | Some(doc) => doc
   };
 

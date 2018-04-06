@@ -62,7 +62,7 @@ let rec findDocAttribute = attributes => {
   open Parsetree;
   switch attributes {
   | [] => None
-  | [({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}])), ...rest] => Some(cleanOffStars(doc))
+  | [({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}])), ...rest] => Some(cleanOffStars(doc) |> Omd.of_string)
   | [_, ...rest] => findDocAttribute(rest)
   }
 };

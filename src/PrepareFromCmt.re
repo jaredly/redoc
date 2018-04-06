@@ -1,4 +1,3 @@
-open Typedtree;
 
 module T = {
   type pathType = PrintType.pathType = PModule | PModuleType | PValue | PType;
@@ -19,7 +18,7 @@ module T = {
     | CModule(list(cdoc))
     | CType(Types.type_expr)
   and cdoc = (string, compactItem) */
-  and doc = (string, option(string), docItem);
+  and doc = (string, option(Omd.t), docItem);
 
 };
 open T;
@@ -27,7 +26,7 @@ open T;
 open PrepareUtils;
 
 let rec findAllDocsType = (signature) => {
-  open Types;
+  open! Types;
   List.fold_left((items, item) => switch item {
   | Sig_value({stamp, name}, {val_type, val_kind, val_attributes}) => {
     [(name, findDocAttribute(val_attributes), Value(val_type)), ...items]

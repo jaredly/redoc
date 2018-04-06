@@ -38,28 +38,7 @@ let parseCodeOptions = lang => {
   }
 };
 
-/** TODO don't parse the docstrings twice */
-let iterDocstrings = (fn, cmt) => {
-  let blocks = ref([]);
-  let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
-  switch annots {
-  | Cmt_format.Implementation({str_items} as s) => {
-    let (topdoc, allDocs) = PrepareDocs.findAllDocs(str_items);
-    allDocs |> List.iter(PrepareDocs.iter(((name, docString, _)) => {
-      fn(name, docString)
-    }))
-  }
-  | Cmt_format.Interface({sig_items} as s) => {
-    let (topdoc, allDocs) = PrepareDocs.findAllDocsIntf(sig_items);
-    allDocs |> List.iter(PrepareDocs.iter(((name, docString, _)) => {
-      fn(name, docString)
-    }))
-  }
-  | _ => failwith("Not a valid cmt file")
-  };
-};
-
-  /* TODO allow package-global settings, like "run this in node" */
+/* TODO allow package-global settings, like "run this in node" */
 let process = (markdowns, cmts, base) =>  {
     let codeBlocks = ref((0, []));
     let addBlock = (fileName, lang, contents) => {
@@ -82,17 +61,17 @@ let process = (markdowns, cmts, base) =>  {
     });
 
     markdowns |> List.iter(((path, contents, name)) => {
-      let _ = collect(path, Omd.of_string(contents));
+      let _ = collect(path, contents);
     });
 
-    cmts |> List.iter(cmt => {
-      iterDocstrings((name, docString) => {
+    cmts |> List.iter(((name, cmt, _, _, allDocs)) => {
+      allDocs |> List.iter(PrepareDocs.iter(((name, docString, _)) => {
         switch docString {
         | None => ()
         | Some(docString) =>
-        let _ = collect(cmt ++ " > " ++ name, Omd.of_string(docString))
+        let _ = collect(cmt ++ " > " ++ name, docString)
         }
-      }, cmt)
+      }))
     });
 
     let (_, blocks) = codeBlocks^;

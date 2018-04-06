@@ -10,7 +10,7 @@ module T = {
     /* | ModType */
     | Include(option(Path.t), list(doc))
     /* | CompactModule(list(cdoc)) */
-    | StandaloneDoc(string)
+    | StandaloneDoc(Omd.t)
   and moduleContents =
     | Items(list(doc))
     | Alias(Path.t)
@@ -20,7 +20,7 @@ module T = {
     | CModule(list(cdoc))
     | CType(Types.type_expr)
   and cdoc = (string, compactItem) */
-  and doc = (string, option(string), docItem);
+  and doc = (string, option(Omd.t), docItem);
 
 };
 open T;
@@ -141,7 +141,7 @@ let rec findAllDocs = (structure) => {
     } else {None}
     , bindings, items) |> a => (global, a)
   | Tstr_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
-    let doc = cleanOffStars(doc);
+    let doc = cleanOffStars(doc) |> Omd.of_string;
     if (items == [] && global == None) {
       (Some(doc), [])
     } else {
@@ -204,7 +204,7 @@ and findAllDocsIntf = (signature) => {
       (global, [(txt, findDocAttribute(val_attributes), Value(val_val.val_type)), ...items])
     } else {(global, items)}
   | Tsig_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
-    let doc = cleanOffStars(doc);
+    let doc = cleanOffStars(doc) |> Omd.of_string;
     if (items == [] && global == None) {
       (Some(doc), [])
     } else {

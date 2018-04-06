@@ -23,7 +23,7 @@ let processCmt = (name, cmt) => {
 
     let stamps = PrepareDocs.organizeTypes((name, []), str_items);
     let (topdoc, allDocs) = PrepareDocs.findAllDocs(str_items);
-    (stamps, topdoc, allDocs)
+    (name, cmt, stamps, topdoc, allDocs)
   }
   | Cmt_format.Interface({sig_items} as s) => {
     /* Printtyped.interface(Format.str_formatter, s);
@@ -32,7 +32,7 @@ let processCmt = (name, cmt) => {
 
     let stamps = PrepareDocs.organizeTypesIntf((name, []), sig_items);
     let (topdoc, allDocs) = PrepareDocs.findAllDocsIntf(sig_items);
-    (stamps, topdoc, allDocs)
+    (name, cmt, stamps, topdoc, allDocs)
   }
   | _ => failwith("Not a valid cmt file")
   };
@@ -129,7 +129,7 @@ let makeDocStringProcessor = (dest) => {
   };
 
   /** All to make things searchable */
-  let processDocString = (searchPrinter, fileName, fileTitle, ~override=?, path, name, typ, rawText) => {
+  let processDocString = (searchPrinter, fileName, fileTitle, ~override=?, path, name, typ, mdNode) => {
     /* let id = GenerateDoc.makeId(path @ [name], typ); */
     let title = path == [] ? fileTitle : String.concat(".", path);
     open PrepareDocs.T;
@@ -160,43 +160,38 @@ let makeDocStringProcessor = (dest) => {
       }
     };
 
-    if (rawText == "") {
-      ""
-    } else {
-      /** Docstring paragraphs */
-      let md = Omd.of_string(rawText);
-      /** TODO track headings within this for better breadcrumb */
-      let _ = Omd.Representation.visit(el => {
-        switch el {
-        | Omd.Paragraph(t) => {
-          let text = Omd.to_text(t);
-          if (String.trim(text) == "@all" || String.length(text) > 4 && String.sub(text, 0, 4) == "@doc") {
-            ()
-          } else {
-            addSearchable(fileName, hash, title, text, Omd.to_html(~override?, t), fileTitle)
-          }
+    /** Docstring paragraphs */
+    /** TODO track headings within this for better breadcrumb */
+    let _ = Omd.Representation.visit(el => {
+      switch el {
+      | Omd.Paragraph(t) => {
+        let text = Omd.to_text(t);
+        if (String.trim(text) == "@all" || String.length(text) > 4 && String.sub(text, 0, 4) == "@doc") {
+          ()
+        } else {
+          addSearchable(fileName, hash, title, text, Omd.to_html(~override?, t), fileTitle)
         }
-        | Code_block(lang, contents) => {
-          /** TODO parse the contents & provide better tokens */
-          addSearchable(fileName, None, "code block", contents, "<pre><code>" ++ contents ++ "</code></pre>", fileTitle);
-        }
-        | H1(t) | H2(t) | H3(t) | H4(t) | H5(t) => {
-          let title = Omd.to_text(t);
-          addSearchable(fileName, Some(GenerateDoc.cleanForLink(title)), title, "", "", fileTitle)
-        }
-        | _ => ()
-        };
-        None
-      }, md);
-      Omd.to_html(~override?, md)
-    }
+      }
+      | Code_block(lang, contents) => {
+        /** TODO parse the contents & provide better tokens */
+        addSearchable(fileName, None, "code block", contents, "<pre><code>" ++ contents ++ "</code></pre>", fileTitle);
+      }
+      | H1(t) | H2(t) | H3(t) | H4(t) | H5(t) => {
+        let title = Omd.to_text(t);
+        addSearchable(fileName, Some(GenerateDoc.cleanForLink(title)), title, "", "", fileTitle)
+      }
+      | _ => ()
+      };
+      None
+    }, mdNode);
+    Omd.to_html(~override?, mdNode)
   };
 
   (searchables, processDocString)
 };
 open Infix;
 
-let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
+let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns: list((string, Omd.t, string))) => {
   Files.mkdirp(dest);
 
   let cmts = filterDuplicates(cmts);
@@ -219,19 +214,21 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
     }
   };
 
-  let codeBlocks = CodeSnippets.process(markdowns, cmts, base);
+  let processedCmts = cmts |> List.map(cmt => processCmt(getName(cmt), cmt));
+
+  let codeBlocks = CodeSnippets.process(markdowns, processedCmts, base);
 
 
   let api = dest /+ "api";
   Files.mkdirp(api);
-  cmts |> List.iter(cmt => {
+  processedCmts |> List.iter(((name, cmt, stamps, topdoc, allDocs)) => {
     let name = getName(cmt);
     let output = dest /+ "api" /+ name ++ ".html";
     let rel = Files.relpath(Filename.dirname(output));
 
-    let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
+    let markdowns = List.map(((path, _contents, name)) => (rel(path), name), markdowns);
 
-    let (stamps, topdoc, allDocs) = processCmt(name, cmt);
+    /* let (stamps, topdoc, allDocs) = processCmt(name, cmt); */
     let searchPrinter = GenerateDoc.printer(searchHref(names), stamps);
     let sourceUrl = url |?> (url => {
       let relative = Files.relpath(compiledBase, cmt) |> Filename.chop_extension;
@@ -251,7 +248,7 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
     Files.writeFile(output, text) |> ignore;
   });
 
-  markdowns |> List.iter(((path, contents, name)) => {
+  (markdowns) |> List.iter(((path, contents, name)) => {
     let rel = Files.relpath(Filename.dirname(path));
     let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, linkifyMarkdown(path, dest));
     let searchPrinter = GenerateDoc.printer(searchHref(names), []);
@@ -263,7 +260,7 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
       Some(url ++ "docs/" ++ relative)
     });
 
-    let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
+    let markdowns = List.map(((path, _contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
     let html = Docs.page(~sourceUrl, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
 
@@ -353,7 +350,7 @@ let getMarkdowns = (projectName, base) => {
   } else {
     files
   };
-  List.sort(compare, files) |> List.map(((_, html, contents, name)) => (html, contents, name))
+  List.sort(compare, files) |> List.map(((_, html, contents, name)) => (html, Omd.of_string(contents), name))
 };
 
 let absify = path => {

@@ -157,17 +157,16 @@ let marked = (override, text) => Omd.to_html(~override, Omd.of_string(text));
 
 let link = (id, text) => Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id, id, text);
 
-type t = (~override: (Omd.element) => option(string)=?, list(string), string, option(PrepareDocs.T.docItem), string) => string;
+type t = (~override: (Omd.element) => option(string)=?, list(string), string, option(PrepareDocs.T.docItem), Omd.t) => string;
 
-let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docstring, content)) => {
-  open PrepareDocs.T;
+let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docstring: option(Omd.t), content)) => {
+  open! PrepareDocs.T;
   let id = makeId(path @ [name]);
   let (middle, tocs) = switch content {
   | Module(items) => {
-    open PrepareDocs.T;
     let (post, body, tocs) = switch items {
     | Items(items) => {
-      let (html, tocs) = docsForModule(printer, processDocString, path @ [name], tocLevel + 1, name, docstring |? defaultMain(name), items);
+      let (html, tocs) = docsForModule(printer, processDocString, path @ [name], tocLevel + 1, name, docstring |? Omd.of_string(defaultMain(name)), items);
       ("", div("body module-body", html), tocs)
     }
     | Alias(modulePath) => (" : " ++ prettyString(printer.path(printer, modulePath, PModule)), fold(docstring, "", (doc) => div("body module-body", processDocString(path @ [name], name, Some(Module(Alias(modulePath))), doc))), [])
@@ -179,7 +178,7 @@ let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docs
   | Include(maybePath, contents) => {
     /* TODO hyperlink the path */
     let name = fold(maybePath, "", Path.name);
-    let (html, tocs) = docsForModule(printer, processDocString, path, tocLevel, name, docstring |? "@all", contents);
+    let (html, tocs) = docsForModule(printer, processDocString, path, tocLevel, name, docstring |? [Omd.Paragraph([Omd.Text("@all")])], contents);
     (Printf.sprintf({|<h4 class='item module'>include %s</h4><div class='body module-body include-body'>%s</div>|}, name, html), tocs)
   }
   | Value(typ) => {
@@ -187,7 +186,7 @@ let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docs
     let t = printer.value(printer, name, link, typ) |> prettyString;
     let rendered = switch docstring {
     | None => {
-      processDocString(path @ [name], name, Some(Value(typ)), "") |> ignore; /* hack */
+      processDocString(path @ [name], name, Some(Value(typ)), []) |> ignore; /* hack */
       /* TODO should I be so loud about missing docs? */
       /* "<span class='missing'>No documentation for this value</span>" */
       ""
@@ -202,7 +201,7 @@ let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docs
     let t = printer.decl(printer, name, link, typ) |> prettyString;
     let rendered = switch docstring {
     | None => {
-      processDocString(path @ [name], name, Some(Type(typ)), "") |> ignore; /* hack */
+      processDocString(path @ [name], name, Some(Type(typ)), []) |> ignore; /* hack */
       /* "<span class='missing'>No documentation for this type</span>" */
       ""
     }
@@ -277,5 +276,5 @@ and docsForModule = (printer, processDocString, path, tocLevel, name, docString,
 
   let (tocItems, override) = trackToc(tocLevel, processMagics);
 
-  (processDocString(~override, path, name, Some(Module(Items([]))), docString ++ "\n\n@rest"), tocItems^)
+  (processDocString(~override, path, name, Some(Module(Items([]))), docString @ [Omd.Paragraph([Omd.Text("@rest")])]), tocItems^)
 };

@@ -123,11 +123,18 @@ let makeTokenCollector = (base) => {
   })
 };
 
-let makeSearcher = (dest) => {
+let makeDocStringProcessor = (dest) => {
   let searchables = ref([]);
   let addSearchable = (file, hash, title, contents, rendered, breadcrumb) => {
     let href = Files.relpath(dest, file) ++ fold(hash, "", h => "#" ++ h);
     searchables := [(href, title, contents, rendered, breadcrumb), ...searchables^];
+  };
+
+  let codeBlocks = ref((0, []));
+  let addBlock = (fileName, lang, contents) => {
+    let (id, blocks) = codeBlocks^;
+    codeBlocks := (id + 1, [(id, fileName, lang, contents), ...blocks]);
+    id
   };
 
   /** All to make things searchable */
@@ -179,8 +186,8 @@ let makeSearcher = (dest) => {
           }
         }
         | Code_block(lang, contents) => {
-          /** TODO get elasticlunr to allow me to provide my own tokenization for a block of text. e.g. here just include the identifiers */
-          addSearchable(fileName, None, "code block", contents, "<pre><code>" ++ contents ++ "</code></pre>", fileTitle)
+          /** TODO parse the contents & provide better tokens */
+          addSearchable(fileName, None, "code block", contents, "<pre><code>" ++ contents ++ "</code></pre>", fileTitle);
         }
         | H1(t) | H2(t) | H3(t) | H4(t) | H5(t) => {
           let title = Omd.to_text(t);
@@ -190,15 +197,26 @@ let makeSearcher = (dest) => {
         };
         None
       }, md);
-      Omd.to_html(~override?, md)
+      Omd.to_html(~override=el => switch el {
+      | Omd.Code_block(lang, contents) => {
+        let id = addBlock(fileName ++ Infix.(hash |? ""), lang, contents);
+        Some("<pre class='code' data-code-id='" ++ string_of_int(id) ++ "'><code>" ++ Omd_utils.htmlentities(contents) ++ "</code></pre>")
+      }
+      | _ => switch override {
+      | None => None
+      | Some(override) => override(el)
+      }
+      }, md)
     }
   };
 
-  (searchables, processDocString)
+  (searchables, codeBlocks, processDocString)
 };
 open Infix;
 
-let generateMultiple = (url, dest, cmts, markdowns) => {
+let codeBlockPrefix = "DOCRE_CODE_BLOCK_";
+
+let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
   Files.mkdirp(dest);
 
   let cmts = filterDuplicates(cmts);
@@ -211,7 +229,7 @@ let generateMultiple = (url, dest, cmts, markdowns) => {
 
   let names = List.map(getName, cmts);
 
-  let (searchables, processDocString) = makeSearcher(dest);
+  let (searchables, codeBlocks, processDocString) = makeDocStringProcessor(dest);
 
   let searchHref = (names, doc) => {
     switch (Docs.formatHref("", names, doc)) {
@@ -232,7 +250,7 @@ let generateMultiple = (url, dest, cmts, markdowns) => {
 
     let (stamps, topdoc, allDocs) = processCmt(name, cmt);
     let searchPrinter = GenerateDoc.printer(searchHref(names), stamps);
-    let sourceUrl = url |?> (((url, base, compiledBase)) => {
+    let sourceUrl = url |?> (url => {
       let relative = Files.relpath(compiledBase, cmt) |> Filename.chop_extension;
       let isInterface = Filename.check_suffix(cmt, "i");
       let re = Filename.concat(base, relative) ++ (isInterface ? ".rei" : ".re");
@@ -257,11 +275,10 @@ let generateMultiple = (url, dest, cmts, markdowns) => {
     let main = processDocString(searchPrinter, path, name, ~override, [], name, None, contents);
     /* Omd.to_html(~override, Omd.of_string(contents)); */
 
-    let sourceUrl = url |?> (((url, _, _)) => {
+    let sourceUrl = url |?> (url => {
       let relative = Files.relpath(dest, path |> Filename.chop_extension |> x => x ++ ".md");
       Some(url ++ "docs/" ++ relative)
     });
-
 
     let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
@@ -290,6 +307,38 @@ let generateMultiple = (url, dest, cmts, markdowns) => {
     Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
     Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
     MakeIndex.run(dest /+ "elasticlunr.js", dest /+ "searchables.json")
+  };
+
+  /* TODO allow package-global settings, like "run this in node" */
+  {
+    let (_, blocks) = codeBlocks^;
+    let src = base /+ "src";
+    let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
+    blocks |> List.iter(((id, fileName, lang, content)) => {
+      /* TODO parse the lang for options */
+      Files.writeFile(src /+ blockFileName(id) ++ ".re", content ++ "/* " ++ fileName ++ " */") |> ignore
+    });
+    let (output, success) = MakeIndex.execSync(base /+ "node_modules/.bin/bsb" ++ " -make-world -backend js");
+    if (!success) {
+      print_endline("Bsb output:");
+      print_endline(String.concat("\n", output));
+      failwith("Unable to run bsb on examples");
+    };
+    print_endline("Running tests");
+    blocks |> List.iter(((id, fileName, lang, content)) => {
+      print_endline(string_of_int(id) ++ " - " ++ fileName);
+      let name = blockFileName(id);
+      let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt";
+      let js = base /+ "lib/js/src/" ++ name ++ ".js";
+      let (output, success) = MakeIndex.execSync("node " ++ js);
+      if (!success) {
+        print_endline(String.concat("\n", output));
+        print_endline("Failed to run " ++ name ++ " in " ++ fileName);
+      };
+      let jsContents = Files.readFile(js);
+      Unix.unlink(src /+ name ++ ".re");
+      ()
+    });
   };
 };
 
@@ -366,6 +415,11 @@ let absify = path => {
   }
 };
 
+let startsWith = (full, prefix) => String.length(full) >= String.length(prefix) && String.sub(full, 0, String.length(prefix)) == prefix;
+let isCmt = name => {
+  !startsWith(Filename.basename(name), codeBlockPrefix) && (Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
+};
+
 let generateProject = (projectName, base) => {
   let compiledRoot = base /+ "lib/bs/js/";
   let compiledRoot = if (!Files.exists(compiledRoot)) {
@@ -379,22 +433,15 @@ let generateProject = (projectName, base) => {
   } else {
     compiledRoot
   };
-  let found = Files.collect(compiledRoot, name => Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
+  let found = Files.collect(compiledRoot, isCmt);
   let markdowns = getMarkdowns(projectName, base);
   let url = ParseConfig.getUrl(base);
-  open Infix;
-  generateMultiple(url |?>> (url => (url, base, compiledRoot)), base /+ "docs", found, markdowns);
+  generateMultiple(base, compiledRoot, url, base /+ "docs", found, markdowns);
   let localUrl = "file://" ++ absify(base) /+ "docs" /+ "index.html";
   print_newline();
   print_endline("Complete! Docs are available in " ++ (base /+ "docs") ++ "\nOpen " ++ localUrl ++ " in your browser to view");
   print_newline();
 };
-
-/* let generateDocs = (cmt) => {
-  let name = getName(cmt);
-  let (stamps, topdoc, allDocs) = processCmt(name, cmt);
-  Docs.generate(~cssLoc=None, ~jsLoc=None, ~processMarkdown=(~override, _, _, _, _) => None, name, topdoc, stamps, allDocs, [], []);
-}; */
 
 let docs = {|
 Usage:
@@ -413,7 +460,7 @@ let main = () => {
   | [_, thing, ..._] when thing != "" && thing.[0] == '-' => print_endline(docs)
   | [_, name] => generateProject(name, ".")
   | [_, name, base] => generateProject(name, base)
-  | [_, "cmts", dest, ...rest] => generateMultiple(None, dest, rest, [])
+  /* | [_, "cmts", dest, ...rest] => generateMultiple(None, None, dest, rest, []) */
   | [_, "annotate", source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
   | _ => print_endline(docs)
   }

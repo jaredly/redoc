@@ -258,8 +258,8 @@ and docsForModule = (printer, processDocString, path, tocLevel, name, docString,
       })
     } else if (String.trim(t) == "@rest") {
       let itemsLeft = docItems |> List.filter(item => !Hashtbl.mem(shownItems, item));
-      if (itemsLeft == []) {
-        None
+      if (itemsLeft == [] || shownAll^) {
+        Some("")
       } else {
         Some("<p>other items defined</p>" ++ (itemsLeft |> List.map(doc => {
           Hashtbl.add(shownItems, doc, true);

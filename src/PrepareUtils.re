@@ -47,10 +47,7 @@ let cleanOffStars = doc => {
     | [one, ...rest] => (first || String.trim(one) == "") ? loop(false, rest) : combine(findStars(one), loop(false, rest))
     }
   };
-  let num = switch lines {
-  | [] => None
-  | [first, ...rest] => loop(true, rest)
-  };
+  let num = loop(true, lines);
   switch num {
   | None | Some(0) => doc
   | Some(num) => switch lines {

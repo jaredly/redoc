@@ -188,7 +188,9 @@ let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docs
     let rendered = switch docstring {
     | None => {
       processDocString(path @ [name], name, Some(Value(typ)), "") |> ignore; /* hack */
-      "<span class='missing'>No documentation for this value</span>"
+      /* TODO should I be so loud about missing docs? */
+      /* "<span class='missing'>No documentation for this value</span>" */
+      ""
     }
     | Some(text) => processDocString(path @ [name], name, Some(Value(typ)), text)
     };
@@ -201,7 +203,8 @@ let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docs
     let rendered = switch docstring {
     | None => {
       processDocString(path @ [name], name, Some(Type(typ)), "") |> ignore; /* hack */
-      "<span class='missing'>No documentation for this type</span>"
+      /* "<span class='missing'>No documentation for this type</span>" */
+      ""
     }
     | Some(text) => processDocString(path @ [name], name, Some(Type(typ)), text)
     };

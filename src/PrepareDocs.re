@@ -25,6 +25,14 @@ module T = {
 };
 open T;
 
+let rec iter = (fn, (name, docString, item) as doc) => {
+  fn(doc);
+  switch item {
+  | Include(_, children) | Module(Items(children)) => List.iter(iter(fn), children)
+  | _ => ()
+  }
+};
+
 let rec doubleFold = (fn, items) => {
   List.fold_left(((left, right), item) => {
     let (l, r) = fn(item);

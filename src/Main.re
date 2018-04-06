@@ -73,10 +73,7 @@ let linkifyMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) 
   }
 };
 
-let (|?) = (o, d) => switch o { | None => d | Some(v) => v };
-let (|?>) = (o, fn) => switch o { | None => None | Some(v) => fn(v) };
-let (|?>>) = (o, fn) => switch o { | None => None | Some(v) => Some(fn(v)) };
-let fold = (o, d, f) => switch o { | None => d | Some(v) => f(v) };
+open Infix;
 
 let replace = (one, two, text) => Str.global_replace(Str.regexp_string(one), two, text);
 let escape = text => replace("\\", "\\\\", text) |> replace("\n", "\\n") |> replace("\"", "\\\"");
@@ -123,56 +120,12 @@ let makeTokenCollector = (base) => {
   })
 };
 
-type codeContext = Normal | Node | Window | Iframe | Canvas;
-type codeOptions = {
-  context: codeContext,
-  shouldFail: bool,
-  dontRun: bool,
-};
-
-let parseCodeOptions = lang => {
-  let parts = Str.split(Str.regexp_string(";"), lang);
-  if (List.mem("skip", parts)) {
-    None
-  } else {
-    Some(List.fold_left((options, item) => {
-      switch item {
-      | "raises" => {...options, shouldFail: true}
-      | "window" => {...options, context: Window}
-      | "canvas" => {...options, context: Canvas}
-      | "dont-run" | "just-check" => {...options, dontRun: true}
-      | "reason" => options
-      | _ => {
-        print_endline("Skipping unexpected code option: " ++ item);
-        options
-      }
-      }
-    }, {
-      context: Normal,
-      shouldFail: false,
-      dontRun: false,
-    }, parts))
-  }
-};
 
 let makeDocStringProcessor = (dest) => {
   let searchables = ref([]);
   let addSearchable = (file, hash, title, contents, rendered, breadcrumb) => {
     let href = Files.relpath(dest, file) ++ fold(hash, "", h => "#" ++ h);
     searchables := [(href, title, contents, rendered, breadcrumb), ...searchables^];
-  };
-
-  let codeBlocks = ref((0, []));
-  let addBlock = (fileName, lang, contents) => {
-    let options = parseCodeOptions(lang);
-    switch (options) {
-    | None => -1
-    | Some(options) => {
-      let (id, blocks) = codeBlocks^;
-      codeBlocks := (id + 1, [(id, fileName, options, contents), ...blocks]);
-      id
-    }
-    }
   };
 
   /** All to make things searchable */
@@ -235,24 +188,13 @@ let makeDocStringProcessor = (dest) => {
         };
         None
       }, md);
-      Omd.to_html(~override=el => switch el {
-      | Omd.Code_block(lang, contents) => {
-        let id = addBlock(fileName ++ "#" ++ Infix.(hash |? ""), lang, contents);
-        Some("<pre class='code' data-code-id='" ++ string_of_int(id) ++ "'><code>" ++ Omd_utils.htmlentities(contents) ++ "</code></pre>")
-      }
-      | _ => switch override {
-      | None => None
-      | Some(override) => override(el)
-      }
-      }, md)
+      Omd.to_html(~override?, md)
     }
   };
 
-  (searchables, codeBlocks, processDocString)
+  (searchables, processDocString)
 };
 open Infix;
-
-let codeBlockPrefix = "DOCRE_CODE_BLOCK_";
 
 let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
   Files.mkdirp(dest);
@@ -267,7 +209,7 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
 
   let names = List.map(getName, cmts);
 
-  let (searchables, codeBlocks, processDocString) = makeDocStringProcessor(dest);
+  let (searchables, processDocString) = makeDocStringProcessor(dest);
 
   let searchHref = (names, doc) => {
     switch (Docs.formatHref("", names, doc)) {
@@ -276,6 +218,9 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
     | Some(href) => Some("./api/" ++ href)
     }
   };
+
+  let codeBlocks = CodeSnippets.process(markdowns, cmts, base);
+
 
   let api = dest /+ "api";
   Files.mkdirp(api);
@@ -345,49 +290,6 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns) => {
     Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
     Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
     MakeIndex.run(dest /+ "elasticlunr.js", dest /+ "searchables.json")
-  };
-
-  /* TODO allow package-global settings, like "run this in node" */
-  {
-    let (_, blocks) = codeBlocks^;
-    let src = base /+ "src";
-    let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
-    blocks |> List.iter(((id, fileName, options, content)) => {
-      Files.writeFile(src /+ blockFileName(id) ++ ".re", content ++ "/* " ++ fileName ++ " */") |> ignore
-    });
-    let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world -backend js");
-    if (!success) {
-      print_endline("Bsb output:");
-      print_endline(String.concat("\n", output));
-      failwith("Unable to run bsb on examples");
-    };
-    print_endline("Running tests");
-    /* TODO run in parallel - maybe all in the same node process?? */
-    blocks |> List.iter(((id, fileName, options, content)) => {
-      print_endline(string_of_int(id) ++ " - " ++ fileName);
-      let name = blockFileName(id);
-      let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt";
-      let js = base /+ "lib/js/src/" ++ name ++ ".js";
-      if (!options.dontRun) {
-        let (output, err, success) = Commands.execFull("node " ++ js ++ "");
-        if (options.shouldFail) {
-          if (success) {
-            print_endline(String.concat("\n", output));
-            print_endline(String.concat("\n", err));
-            print_endline("Expected to fail but didnt " ++ name ++ " in " ++ fileName);
-          }
-        } else {
-          if (!success) {
-            print_endline(String.concat("\n", output));
-            print_endline(String.concat("\n", err));
-            print_endline("Failed to run " ++ name ++ " in " ++ fileName);
-          };
-        }
-      };
-      let jsContents = Files.readFile(js);
-      Unix.unlink(src /+ name ++ ".re");
-      ()
-    });
   };
 };
 
@@ -466,7 +368,7 @@ let absify = path => {
 
 let startsWith = (full, prefix) => String.length(full) >= String.length(prefix) && String.sub(full, 0, String.length(prefix)) == prefix;
 let isCmt = name => {
-  !startsWith(Filename.basename(name), codeBlockPrefix) && (Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
+  !startsWith(Filename.basename(name), CodeSnippets.codeBlockPrefix) && (Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
 };
 
 let generateProject = (projectName, base) => {

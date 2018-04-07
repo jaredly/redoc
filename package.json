@@ -21,6 +21,7 @@
   "license": "ISC",
   "dependencies": {
     "bs-platform": "bsansouci/bsb-native#fast",
+    "minimist.re": "0.0.5",
     "rex-json": "github:jaredly/rex-json"
   }
 }

@@ -198,7 +198,7 @@ let makeDocStringProcessor = (dest, outerOverride) => {
 };
 open Infix;
 
-let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns: list((string, Omd.t, string))) => {
+let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: list((string, Omd.t, string))) => {
   Files.mkdirp(dest);
 
   let cmts = filterDuplicates(cmts);
@@ -221,7 +221,7 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns: list((st
 
   let processedCmts = cmts |> List.map(cmt => processCmt(getName(cmt), cmt));
 
-  let codeBlocksOverride = CodeSnippets.process(markdowns, processedCmts, base);
+  let codeBlocksOverride = CodeSnippets.process(~test, markdowns, processedCmts, base);
 
   let (searchables, processDocString) = makeDocStringProcessor(dest, codeBlocksOverride);
 
@@ -375,10 +375,10 @@ let isCmt = name => {
   !startsWith(Filename.basename(name), CodeSnippets.codeBlockPrefix) && (Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
 };
 
-let generateProject = (projectName, base) => {
-  let compiledRoot = base /+ "lib/bs/js/";
+let generateProject = (~projectName, ~root, ~target, ~test) => {
+  let compiledRoot = root /+ "lib/bs/js/";
   let compiledRoot = if (!Files.exists(compiledRoot)) {
-    let compiledRoot = base /+ "lib/bs/";
+    let compiledRoot = root /+ "lib/bs/";
     if (!Files.exists(compiledRoot)) {
       print_endline("You must run bucklescript first to generate the artifacts. " ++ compiledRoot ++ " not found.");
       exit(1);
@@ -389,26 +389,65 @@ let generateProject = (projectName, base) => {
     compiledRoot
   };
   let found = Files.collect(compiledRoot, isCmt);
-  let markdowns = getMarkdowns(projectName, base);
-  let url = ParseConfig.getUrl(base);
-  generateMultiple(base, compiledRoot, url, base /+ "docs", found, markdowns);
-  let localUrl = "file://" ++ absify(base) /+ "docs" /+ "index.html";
+  let markdowns = getMarkdowns(projectName, root);
+  let url = ParseConfig.getUrl(root);
+  generateMultiple(~test, root, compiledRoot, url, root /+ "docs", found, markdowns);
+  let localUrl = "file://" ++ absify(root) /+ "docs" /+ "index.html";
   print_newline();
-  print_endline("Complete! Docs are available in " ++ (base /+ "docs") ++ "\nOpen " ++ localUrl ++ " in your browser to view");
+  print_endline("Complete! Docs are available in " ++ (root /+ "docs") ++ "\nOpen " ++ localUrl ++ " in your browser to view");
   print_newline();
 };
 
-let docs = {|
-Usage:
-      docre [project title = directory name] [base directory = .] [output directory = ./docs]
-        When run with no arguments, the current directory is used.
-        You must run bucklescript first to generate the necessary artifacts.
+let parse = Minimist.parse(
+  ~alias=[("h", "help"), ("test", "doctest")],
+  ~presence=["help", "doctest"],
+  ~multi=[],
+  ~strings=["target", "root", "name"]
+);
 
-      docre -h
-        show this help
+let help = {|
+# docre - a clean & easy documentation generator
+
+Usage: docre [options]
+
+  --root (default: current directory)
+      expected to contain bsconfig.json, and bs-platform in the node_modules
+  --target (default: {root}/docs)
+      where we should write out the docs
+  --name (default: the name of the directory, capitalized)
+      what this project is called
+  --doctest (default: false)
+      execute the documentation snippets to make sure they run w/o erroring
+  -h, --help
+      print this help
 |};
 
-let main = () => {
+let fail = (msg) => {
+  print_endline(msg);
+  print_endline(help);
+  exit(1);
+};
+
+let args = List.tl(Array.to_list(Sys.argv));
+
+open Infix;
+
+switch (parse(args)) {
+| Minimist.Error(err) => fail(Minimist.report(err))
+| Ok({Minimist.strings, presence}) =>
+  open Minimist;
+  if (has("help", presence)) {
+    print_endline(help); exit(0);
+  } else {
+    let root = get(strings, "root") |? Unix.getcwd();
+    let target = get(strings, "target") |? (root /+ "docs");
+    let projectName = get(strings, "name") |? String.capitalize(Filename.dirname(root));
+    generateProject(~root, ~target, ~projectName, ~test=has("doctest", presence))
+  }
+};
+
+
+/* let main = () => {
   switch (Sys.argv |> Array.to_list) {
   | [_] => generateProject(String.capitalize(Filename.dirname(Unix.getcwd())), ".")
   | [_, "-h"] => print_endline(docs)
@@ -421,4 +460,4 @@ let main = () => {
   }
 };
 
-main();
+main(); */

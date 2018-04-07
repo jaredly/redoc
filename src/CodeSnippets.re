@@ -44,7 +44,7 @@ let highlight = (lang, content, cmt, js) => {
 };
 
 /* TODO allow package-global settings, like "run this in node" */
-let process = (markdowns, cmts, base) =>  {
+let process = (~test, markdowns, cmts, base) =>  {
   let codeBlocks = ref((0, []));
   let addBlock = (el, fileName, lang, contents) => {
     let options = parseCodeOptions(lang);
@@ -91,19 +91,21 @@ let process = (markdowns, cmts, base) =>  {
     print_endline(String.concat("\n", output));
     failwith("Unable to run bsb on examples");
   };
-  print_endline("Running tests");
+  if (test) {
+    print_endline("Running tests");
+  };
 
   let blocksByEl = Hashtbl.create(100);
 
   /* TODO run in parallel - maybe all in the same node process?? */
   /* if (false) { */
     blocks |> List.iter(((el, id, fileName, options, content)) => {
-      print_endline(string_of_int(id) ++ " - " ++ fileName);
       let name = blockFileName(id);
       let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt";
       let js = base /+ "lib/js/src/" ++ name ++ ".js";
       Hashtbl.replace(blocksByEl, el, (cmt, js));
-      if (!options.dontRun) {
+      if (test && !options.dontRun) {
+        print_endline(string_of_int(id) ++ " - " ++ fileName);
         let (output, err, success) = Commands.execFull("node " ++ js ++ "");
         if (options.shouldFail) {
           if (success) {

@@ -25,21 +25,24 @@ let annotateText = (tags, inserts, text) => {
     }
   });
 
-  let tag_starts = Array.make(String.length(text), []);
-  let tag_closes = Array.make(String.length(text), 0);
+  let positions = String.length(text) + 1;
+
+  let tag_starts = Array.make(positions, []);
+  let tag_closes = Array.make(positions, 0);
   tags |> List.iter(((cstart, cend, attributes)) => {
     tag_starts[cstart] = [attributes, ...tag_starts[cstart]];
+    /* print_endline(string_of_int(cend)); */
     tag_closes[cend] = tag_closes[cend] + 1;
   });
 
-  let extra_inserts = Array.make(String.length(text), []);
+  let extra_inserts = Array.make(positions, []);
   inserts |> List.iter(((pos, text)) => {
       extra_inserts[pos] = [text, ...extra_inserts[pos]]
   });
 
   let b = Buffer.create(String.length(text));
   let rec loop = (i) => {
-    if (i >= Array.length(tag_closes)) {
+    if (i >= positions) {
       ()
     } else {
       if (tag_closes[i] != 0) {
@@ -58,7 +61,9 @@ let annotateText = (tags, inserts, text) => {
         List.iter(attributes => Buffer.add_string(b, "<span " ++ attributes ++ ">"), tag_starts[i])
       };
 
-      addHtmlEscapedToBuffer(b, text.[i]);
+      if (i < positions - 1) {
+        addHtmlEscapedToBuffer(b, text.[i]);
+      };
 
       loop(i + 1);
     }
@@ -68,37 +73,46 @@ let annotateText = (tags, inserts, text) => {
   Buffer.to_bytes(b) |> Bytes.to_string
 };
 
+let showType = typ => PrintType.default.expr(PrintType.default, typ) |> GenerateDoc.prettyString;
+
+Printexc.record_backtrace(true);
+
 let iterTags = (cmt, addTag) => {
+  let addColor = (loc, className) => addTag(loc, "class='" ++ className ++ "'");
+  let addColorType = (loc, className, typ) => addTag(loc, "class='" ++ className ++ "' data-type=\"" ++ showType(typ) ++ "\"");
+  let addType = (loc, typ) => addTag(loc, "data-type=\"" ++ showType(typ) ++ "\"");
   /* TODO report types with all of this probably? */
   let module Iter = {
     include TypedtreeIter.DefaultIteratorArgument;
-    let enter_expression = ({exp_desc, exp_loc}) => {
+    let enter_expression = ({exp_desc, exp_loc, exp_type}) => {
+      let addColorT = (loc, cls) => addColorType(loc, cls, exp_type);
       switch exp_desc {
       /* TODO dive into the longident */
-      | Texp_ident(path, {txt: Lident(text), loc}, _) when !(text.[0] >= 'a' && text.[0] <= 'z') => addTag(loc, "operator")
-      | Texp_ident(path, {txt, loc}, _) => addTag(loc, "ident")
-      | Texp_constant(Const_int(_)) => addTag(exp_loc, "int")
-      | Texp_constant(Const_float(_)) => addTag(exp_loc, "float")
-      | Texp_constant(Const_string(_)) => addTag(exp_loc, "string")
-      | Texp_construct({txt, loc}, desc, args) => addTag(loc, "constructor")
+      | Texp_ident(path, {txt: Lident(text), loc}, _) when !(text.[0] >= 'a' && text.[0] <= 'z') => addColorT(loc, "operator")
+      | Texp_ident(path, {txt, loc}, _) => addColorT(loc, "ident")
+      | Texp_constant(Const_int(_)) => addColorT(exp_loc, "int")
+      | Texp_constant(Const_float(_)) => addColorT(exp_loc, "float")
+      | Texp_constant(Const_string(_)) => addColorT(exp_loc, "string")
+      | Texp_construct({txt, loc}, desc, args) => addColorT(loc, "constructor")
       /* | Texp_variant */
       | _ => ()
+      /* | addType(exp_loc, exp_type) */
       }
     };
     let enter_core_type = ({ctyp_desc, ctyp_loc: loc}) => {
       switch ctyp_desc {
-      | Ttyp_var(string) => addTag(loc, "type-vbl")
-      | Ttyp_constr(path, {txt, loc}, args) => addTag(loc, "type-constructor")
+      | Ttyp_var(string) => addColor(loc, "type-vbl")
+      | Ttyp_constr(path, {txt, loc}, args) => addColor(loc, "type-constructor")
       | _ => ()
       }
     };
-    let enter_pattern = ({pat_desc, pat_loc}) => {
+    let enter_pattern = ({pat_desc, pat_loc, pat_type}) => {
       switch pat_desc {
-      | Tpat_var(path, {txt, loc}) => addTag(loc, "pattern-ident")
-      | Tpat_construct({txt, loc}, desc, args) => addTag(loc, "patern-constructor")
-      | Tpat_constant(Const_int(_)) => addTag(pat_loc, "int")
-      | Tpat_constant(Const_float(_)) => addTag(pat_loc, "float")
-      | Tpat_constant(Const_string(_)) => addTag(pat_loc, "string")
+      | Tpat_var(path, {txt, loc}) => addColorType(loc, "pattern-ident", pat_type)
+      | Tpat_construct({txt, loc}, desc, args) => addColorType(loc, "patern-constructor", pat_type)
+      | Tpat_constant(Const_int(_)) => addColorType(pat_loc, "int", pat_type)
+      | Tpat_constant(Const_float(_)) => addColorType(pat_loc, "float", pat_type)
+      | Tpat_constant(Const_string(_)) => addColorType(pat_loc, "string", pat_type)
       | _ => ()
       }
     };
@@ -125,8 +139,8 @@ let collectRanges = (cmt) => {
 
 let highlight = (text, cmt) => {
   let ranges = collectRanges(cmt);
-  let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, className)) => {
-    (pos_cnum, cend, "class='" ++ className ++ "'")
+  let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {
+    (pos_cnum, cend, attributes)
   });
   let inserts = []; /* TODO annotate "open"s? */
   annotateText(tags, inserts, text)

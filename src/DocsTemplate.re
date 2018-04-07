@@ -207,6 +207,23 @@ pre.code {
   font-weight: bold;
 }
 
+.type-hovered {
+  text-decoration: underline;
+}
+
+.type-viewer {
+  position: absolute;
+  display: none;
+  background-color: white;
+  white-space: pre;
+  padding: 8px 16px;
+  pointer-events: none;
+  margin-top: 10px;
+  margin-left: 10px;
+  box-shadow: 0 1px 6px #555;
+  border-radius: 3px;
+}
+
 |};
 
 
@@ -263,6 +280,7 @@ pre {
 
 pre > code,
 h4.item,
+.type-viewer,
 p code {
   font-family: 'SF Mono', Menlo, monospace;
   letter-spacing: 0;
@@ -354,7 +372,7 @@ a:hover, a:focus {
 .edit-link {
   position: absolute;
   top: 0;
-  right: 0;
+  right: 16px;
   margin: 24px 0;
 }
 
@@ -520,7 +538,34 @@ a.level-5 {
 }
 |} ++ syntaxHighlighting;
 
-let script = {|
+let typeScript = {|
+var listenForTypes = () => {
+  var typeViewer = document.createElement('div')
+  typeViewer.className = 'type-viewer'
+  document.body.appendChild(typeViewer)
+  ;[].forEach.call(document.querySelectorAll('pre.code'), el => {
+    el.addEventListener('mousemove', evt => {
+      typeViewer.style.top = evt.pageY + 'px'
+      typeViewer.style.left = evt.pageX + 'px'
+    });
+    el.addEventListener('mouseover', evt => {
+      if (evt.target.getAttribute('data-type')) {
+        evt.target.classList.add('type-hovered')
+        typeViewer.textContent = evt.target.getAttribute('data-type')
+        typeViewer.style.display = 'block'
+      }
+    })
+    el.addEventListener('mouseout', evt => {
+      if (evt.target.getAttribute('data-type')) {
+        evt.target.classList.remove('type-hovered')
+        typeViewer.style.display = 'none'
+      }
+    })
+  })
+}
+|};
+
+let script = typeScript ++ {|
 var checkHash = () => {
   if (!window.shouldCheckHashes) {
     return
@@ -548,6 +593,7 @@ window.onload = () => {
       expander.textContent = 'Hide navigation'
     }
   }
+  listenForTypes();
 }
 window.onhashchange = checkHash
 |};

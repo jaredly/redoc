@@ -62,6 +62,12 @@ let print_expr = (stringifier, typ) => {
   | Tarrow(label, arg, result, _) => {
     let (args, result) = collectArgs([(label, arg)], result);
     let args = List.rev(args);
+    switch args {
+    | [("", typ)] => {
+      loop(typ)
+    }
+    | _ => {
+
     str("(") @!
     indentGroup(
       break @!
@@ -73,7 +79,10 @@ let print_expr = (stringifier, typ) => {
       }
     }, args)
     @! dedent
-    ) @! str(") => ") @!
+    ) @! str(")")
+    }
+    }
+     @! str(" => ") @!
     loop(result);
   }
   | Ttuple(items) => tuple_list(items, loop)

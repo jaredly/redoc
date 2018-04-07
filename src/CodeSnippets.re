@@ -39,7 +39,8 @@ let parseCodeOptions = lang => {
 };
 
 let highlight = (lang, content, cmt, js) => {
-  "<pre class='code'><code>" ++ Omd_utils.htmlentities(content) ++ "</code></pre>"
+
+  "<pre class='code'><code>" ++ CodeHighlight.highlight(content, cmt) ++ "</code></pre>"
 };
 
 /* TODO allow package-global settings, like "run this in node" */
@@ -95,32 +96,34 @@ let process = (markdowns, cmts, base) =>  {
   let blocksByEl = Hashtbl.create(100);
 
   /* TODO run in parallel - maybe all in the same node process?? */
-  blocks |> List.iter(((el, id, fileName, options, content)) => {
-    print_endline(string_of_int(id) ++ " - " ++ fileName);
-    let name = blockFileName(id);
-    let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt";
-    let js = base /+ "lib/js/src/" ++ name ++ ".js";
-    Hashtbl.replace(blocksByEl, el, (cmt, js));
-    if (!options.dontRun) {
-      let (output, err, success) = Commands.execFull("node " ++ js ++ "");
-      if (options.shouldFail) {
-        if (success) {
-          print_endline(String.concat("\n", output));
-          print_endline(String.concat("\n", err));
-          print_endline("Expected to fail but didnt " ++ name ++ " in " ++ fileName);
+  /* if (false) { */
+    blocks |> List.iter(((el, id, fileName, options, content)) => {
+      print_endline(string_of_int(id) ++ " - " ++ fileName);
+      let name = blockFileName(id);
+      let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt";
+      let js = base /+ "lib/js/src/" ++ name ++ ".js";
+      Hashtbl.replace(blocksByEl, el, (cmt, js));
+      if (!options.dontRun) {
+        let (output, err, success) = Commands.execFull("node " ++ js ++ "");
+        if (options.shouldFail) {
+          if (success) {
+            print_endline(String.concat("\n", output));
+            print_endline(String.concat("\n", err));
+            print_endline("Expected to fail but didnt " ++ name ++ " in " ++ fileName);
+          }
+        } else {
+          if (!success) {
+            print_endline(String.concat("\n", output));
+            print_endline(String.concat("\n", err));
+            print_endline("Failed to run " ++ name ++ " in " ++ fileName);
+          };
         }
-      } else {
-        if (!success) {
-          print_endline(String.concat("\n", output));
-          print_endline(String.concat("\n", err));
-          print_endline("Failed to run " ++ name ++ " in " ++ fileName);
-        };
-      }
-    };
-    let jsContents = Files.readFile(js);
-    Unix.unlink(src /+ name ++ ".re");
-    ()
-  });
+      };
+      let jsContents = Files.readFile(js);
+      Unix.unlink(src /+ name ++ ".re");
+      ()
+    });
+  /* }; */
 
   (element) => switch element {
   | Omd.Code_block(lang, content) => {

@@ -126,6 +126,96 @@ let searchScript = {|
 })();
 |};
 
+
+
+
+
+
+let syntaxHighlighting = {|
+pre.code > code {
+  color: #aaa;
+}
+pre.code {
+  border-radius: 3px;
+  box-shadow: 0 0.5px 3px #aaa;
+  background-color: white;
+}
+.code .ident, .code .pattern-ident {
+    color: #000;
+}
+
+.code .module-identifier {
+  color: #aa0;
+}
+
+.code .constructor,
+.code .pattern-constructor {
+  color: #0af;
+}
+
+.code .type-value-identifier,
+.code .type-constructor,
+.code .type-module-identifier {
+  color: #c100af;
+}
+
+.code .type-vbl,
+.code .open-module-identifier,
+.code .type-module-identifier,
+.code .let-module-identifier,
+.code .constructor-module-identifier,
+.code .switch-module-identifier,
+.code .record-module-identifier,
+.code .field-module-identifier {
+  color: #a0a;
+}
+
+.code .open-value-identifier,
+.code .let-value-identifier,
+.code .switch-value-identifier,
+.code .record-value-identifier,
+.code .field-value-identifier {
+  color: #0aa;
+}
+
+.code .unused-identifier {
+  color: #00a;
+}
+
+.code .declaration-var {
+  color: #a50000;
+}
+
+.code .string {
+    color: #33a20d;
+}
+
+.code .int {
+    color: #5656cc;
+}
+
+.code .boolean {
+    color: #ff8f8f;
+}
+
+.code .float {
+    color: #d49523;
+}
+
+.code .operator {
+  color: #9b9bff;
+  font-weight: bold;
+}
+
+|};
+
+
+
+
+
+
+
+
 let styles = {|
 body {
   font-family: system-ui;
@@ -428,7 +518,7 @@ a.level-5 {
   display: inline-block;
   background-size: contain;
 }
-|};
+|} ++ syntaxHighlighting;
 
 let script = {|
 var checkHash = () => {

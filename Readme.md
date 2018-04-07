@@ -8,13 +8,20 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
 get the binary (either by [downloading it](https://github.com/jaredly/docre/releases/), or building it yourself).
 
 ```txt
-Usage:
-      docre [project title = directory name] [base directory = .] [output directory = ./docs]
-        When run with no arguments, the current directory is used.
-        You must run bucklescript first to generate the necessary artifacts.
+# docre - a clean & easy documentation generator
 
-      docre -h
-        show this help
+Usage: docre [options]
+
+  --root (default: current directory)
+      expected to contain bsconfig.json, and bs-platform in the node_modules
+  --target (default: {root}/docs)
+      where we should write out the docs
+  --name (default: the name of the directory, capitalized)
+      what this project is called
+  --doctest (default: false)
+      execute the documentation snippets to make sure they run w/o erroring
+  -h, --help
+      print this help
 ```
 
 ## How to build

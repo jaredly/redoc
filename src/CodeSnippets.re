@@ -222,6 +222,8 @@ let compileSnippets = (base, blocks) => {
       if (!options.shouldParseFail) {
         print_endline("Failed to parse " ++ re);
         print_endline(out);
+        print_endline(reasonContent);
+        print_newline();
       };
       Some("Parse error:\n" ++ out);
     } else {
@@ -234,6 +236,8 @@ let compileSnippets = (base, blocks) => {
         if (!options.shouldTypeFail) {
           print_endline("Failed to compile " ++ re);
           print_endline(out);
+          print_endline(reasonContent);
+          print_newline();
         };
         Some("Compile error:\n" ++ out);
       } else { None };
@@ -276,7 +280,7 @@ let process = (~test, markdowns, cmts, base) =>  {
 
     /* TODO run in parallel - maybe all in the same node process?? */
     blocks |> List.iter(((el, id, fileName, options, content, name, js, error)) => {
-      if (test && !options.dontRun && !options.shouldParseFail && !options.shouldTypeFail) {
+      if (test && !options.dontRun && !options.shouldParseFail && !options.shouldTypeFail && options.context == Normal) {
         print_endline(string_of_int(id) ++ " - " ++ fileName);
         switch error {
         | Some(error) => print_endline("Not running because of error " ++ error)
@@ -307,10 +311,7 @@ let process = (~test, markdowns, cmts, base) =>  {
   (element) => switch element {
   | Omd.Code_block(lang, content) => {
     switch (Hashtbl.find(blocksByEl, element)) {
-    | exception Not_found => {
-      print_endline("Not found code block " ++ content);
-      None
-    }
+    | exception Not_found => None
     | (cmt, js, error, options, content) => {
       if (options.hide) {
         Some("")

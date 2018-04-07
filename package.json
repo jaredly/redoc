@@ -21,6 +21,7 @@
   "license": "ISC",
   "dependencies": {
     "bs-platform": "bsansouci/bsb-native#fast",
+    "pack.re": "jaredly/pack.re",
     "minimist.re": "0.0.5",
     "rex-json": "1.3.0"
   }

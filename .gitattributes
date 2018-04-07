@@ -1,2 +1,3 @@
 docs/*.html binary
 docs/*/*.html binary
+package-lock.json binary

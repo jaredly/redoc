@@ -57,24 +57,24 @@ let process = (markdowns, cmts, base) =>  {
     }
   };
 
-  let collect = (fileName) => Omd.Representation.visit(el => switch el {
+  let collect = (fileName, md) => Omd.Representation.visit(el => switch el {
     | Omd.Code_block(lang, contents) => {
       addBlock(el, fileName, lang, contents);
       None
     }
     | _ => None
-  });
+  }, md) |> ignore;
 
   markdowns |> List.iter(((path, contents, name)) => {
-    let _ = collect(path, contents);
+    collect(path, contents);
   });
 
-  cmts |> List.iter(((name, cmt, _, _, allDocs)) => {
+  cmts |> List.iter(((name, cmt, _, topDoc, allDocs)) => {
+    Infix.(topDoc |?>> collect(cmt) |> ignore);
     allDocs |> List.iter(PrepareDocs.iter(((name, docString, _)) => {
       switch docString {
       | None => ()
-      | Some(docString) =>
-      let _ = collect(cmt ++ " > " ++ name, docString)
+      | Some(docString) => collect(cmt ++ " > " ++ name, docString)
       }
     }))
   });
@@ -128,7 +128,10 @@ let process = (markdowns, cmts, base) =>  {
   (element) => switch element {
   | Omd.Code_block(lang, content) => {
     switch (Hashtbl.find(blocksByEl, element)) {
-    | exception Not_found => None
+    | exception Not_found => {
+      print_endline("Not found code block " ++ content);
+      None
+    }
     | (cmt, js) => {
       Some(highlight(lang, content, cmt, js))
     }

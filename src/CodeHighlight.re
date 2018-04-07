@@ -14,7 +14,7 @@ let addHtmlEscapedToBuffer = (buffer, char) => {
   };
 };
 
-let annotateText = (tags, inserts, text) => {
+let annotateText = (tags, inserts, text, offset) => {
   let tags = tags |> List.sort(((aStart, aEnd, _), (bStart, bEnd, _)) => {
     let startDiff = aStart - bStart;
     /** If they start at the same time, the *larger* range should go First */
@@ -23,7 +23,7 @@ let annotateText = (tags, inserts, text) => {
     } else {
       startDiff
     }
-  });
+  }) |> List.filter(((st, en, _)) => st >= offset && en >= offset) |> List.map(((st, en, t)) => (st - offset, en - offset, t));
 
   let positions = String.length(text) + 1;
 
@@ -92,7 +92,18 @@ let iterTags = (cmt, addTag) => {
       | Texp_ident(path, {txt, loc}, _) => addColorT(loc, "ident")
       | Texp_constant(Const_int(_)) => addColorT(exp_loc, "int")
       | Texp_constant(Const_float(_)) => addColorT(exp_loc, "float")
-      | Texp_constant(Const_string(_)) => addColorT(exp_loc, "string")
+      | Texp_constant(Const_string(content, tag)) => {
+        let expectedMaxSize = switch tag {
+        | None => String.length(String.escaped(content)) + 2
+        | Some(tag) => String.length(String.escaped(content)) + (String.length(tag) * 2) + 4
+        };
+        if (exp_loc.Location.loc_end.pos_cnum - exp_loc.Location.loc_start.pos_cnum > expectedMaxSize) {
+          /* This is the jsx <div> bug where the div string thinks it's the size of the whole tag. */
+          ()
+        } else {
+          addColorT(exp_loc, "string")
+        }
+      }
       | Texp_field(target, {txt, loc}, {lbl_arg}) => addColorType(loc, "field", lbl_arg)
       | Texp_construct({txt: Lident("::"), loc}, desc, args) => addType(loc, exp_type)
       | Texp_construct({txt, loc}, desc, args) => addColorT(loc, "constructor")
@@ -123,14 +134,28 @@ let iterTags = (cmt, addTag) => {
     };
   };
   let module IterIter = TypedtreeIter.MakeIterator(Iter);
-  let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
 
-  switch annots {
+  let iter_part = part => switch part {
+  | Cmt_format.Partial_structure(str) => IterIter.iter_structure(str)
+  | Partial_structure_item(str) => IterIter.iter_structure_item(str)
+  | Partial_signature(str) => IterIter.iter_signature(str)
+  | Partial_signature_item(str) => IterIter.iter_signature_item(str)
+  | Partial_expression(expression) => IterIter.iter_expression(expression)
+  | Partial_pattern(pattern) => IterIter.iter_pattern(pattern)
+  | Partial_class_expr(class_expr) => IterIter.iter_class_expr(class_expr)
+  | Partial_module_type(module_type) => IterIter.iter_module_type(module_type)
+  };
+
+  switch cmt {
   | Cmt_format.Implementation(str) => {
-    IterIter.iter_structure(str)
+    IterIter.iter_structure(str);
   }
   | Cmt_format.Interface(sign) => {
-    IterIter.iter_signature(sign)
+    IterIter.iter_signature(sign);
+  }
+  | Cmt_format.Partial_implementation(parts)
+  | Cmt_format.Partial_interface(parts) => {
+    Array.iter(iter_part, parts);
   }
   | _ => failwith("Not a valid cmt file")
   };
@@ -142,11 +167,57 @@ let collectRanges = (cmt) => {
   tags^;
 };
 
+let removeIfThere = path => Files.exists(path) ? Unix.unlink(path) : ();
+
 let highlight = (text, cmt) => {
-  let ranges = collectRanges(cmt);
-  let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {
-    (pos_cnum, cend, attributes)
-  });
-  let inserts = []; /* TODO annotate "open"s? */
-  annotateText(tags, inserts, text)
+  print_endline("Highlith " ++ cmt);
+  if (Files.exists(cmt)) {
+    let {Cmt_format.cmt_annots, cmt_builddir, cmt_sourcefile, cmt_modname, cmt_comments} = Cmt_format.read_cmt(cmt);
+    /* Unix.unlink(cmt); */
+    let base = cmt |> Filename.chop_extension;
+    /* removeIfThere(base ++ ".cmi"); */
+    /* removeIfThere(base ++ ".cmj"); */
+    /* removeIfThere(base ++ ".mlast"); */
+    /* removeIfThere(base ++ ".mlast.d"); */
+    let partial = switch cmt_annots {
+    | Cmt_format.Partial_implementation(_) | Cmt_format.Partial_interface(_) => true
+    | _ => false
+    };
+    print_endline(cmt_modname ++ " built in " ++ cmt_builddir);
+    switch cmt_sourcefile {
+    | None => print_endline("No source file")
+    | Some(f) => print_endline("Source: " ++ f)
+    };
+    cmt_comments |> List.iter(((text, loc)) => {
+      print_endline("Comment: " ++ text);
+    });
+    print_newline();
+
+    if (partial) {
+      print_endline("⚠️  ⚠️  ⚠️ Compilation failed!!");
+      print_newline();
+      print_endline(text);
+    };
+
+    let lines = Str.split(Str.regexp_string("\n"), text);
+    let rec loop = (offset, lines) => {
+      switch lines {
+      | [] => (offset, "")
+      | [line, ...rest] when line != "" && line.[0] == '#' => {
+        loop(offset + String.length(line) + 1, rest)
+      }
+      | _ => (offset, String.concat("\n", lines))
+      }
+    };
+    let (offset, text) = loop(0, lines);
+
+    let ranges = collectRanges(cmt_annots);
+    let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {
+      (pos_cnum, cend, attributes)
+    });
+    let inserts = []; /* TODO annotate "open"s? */
+    annotateText(tags, inserts, text, offset) ++ (partial ? "<div style='color: red'>Compilation failed!!</div>" : "")
+  } else {
+    Omd_utils.htmlentities(text) ++ "<strong>Compilation failed!</strong>"
+  }
 };

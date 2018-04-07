@@ -121,7 +121,7 @@ let makeTokenCollector = (base) => {
 };
 
 
-let makeDocStringProcessor = (dest) => {
+let makeDocStringProcessor = (dest, outerOverride) => {
   let searchables = ref([]);
   let addSearchable = (file, hash, title, contents, rendered, breadcrumb) => {
     let href = Files.relpath(dest, file) ++ fold(hash, "", h => "#" ++ h);
@@ -130,6 +130,13 @@ let makeDocStringProcessor = (dest) => {
 
   /** All to make things searchable */
   let processDocString = (searchPrinter, fileName, fileTitle, ~override=?, path, name, typ, mdNode) => {
+    let override = switch override {
+    | None => outerOverride
+    | Some(inner) => el => switch (inner(el)) {
+    | None => outerOverride(el)
+    | x => x
+    }
+    };
     /* let id = GenerateDoc.makeId(path @ [name], typ); */
     let title = path == [] ? fileTitle : String.concat(".", path);
     open PrepareDocs.T;
@@ -169,7 +176,7 @@ let makeDocStringProcessor = (dest) => {
         if (String.trim(text) == "@all" || String.length(text) > 4 && String.sub(text, 0, 4) == "@doc") {
           ()
         } else {
-          addSearchable(fileName, hash, title, text, Omd.to_html(~override?, t), fileTitle)
+          addSearchable(fileName, hash, title, text, Omd.to_html(~override, t), fileTitle)
         }
       }
       | Code_block(lang, contents) => {
@@ -184,7 +191,7 @@ let makeDocStringProcessor = (dest) => {
       };
       None
     }, mdNode);
-    Omd.to_html(~override?, mdNode)
+    Omd.to_html(~override, mdNode)
   };
 
   (searchables, processDocString)
@@ -204,8 +211,6 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns: list((st
 
   let names = List.map(getName, cmts);
 
-  let (searchables, processDocString) = makeDocStringProcessor(dest);
-
   let searchHref = (names, doc) => {
     switch (Docs.formatHref("", names, doc)) {
     | None => None
@@ -216,7 +221,9 @@ let generateMultiple = (base, compiledBase, url, dest, cmts, markdowns: list((st
 
   let processedCmts = cmts |> List.map(cmt => processCmt(getName(cmt), cmt));
 
-  let codeBlocks = CodeSnippets.process(markdowns, processedCmts, base);
+  let codeBlocksOverride = CodeSnippets.process(markdowns, processedCmts, base);
+
+  let (searchables, processDocString) = makeDocStringProcessor(dest, codeBlocksOverride);
 
 
   let api = dest /+ "api";

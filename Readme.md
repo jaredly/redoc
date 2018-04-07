@@ -40,7 +40,9 @@ The binary is then in `./lib/bs/native/main.native`.
 
 ## itemized work to do
 
-- [ ] argument-level documentation
+- [ ] argument-level documentation (refmt doesn't parse this properly :/)
+- [ ] topologically sort the items in the sidebar
+- [ ] allow embedding of the docs for another module in a markdown page / module docs
 - [ ] add cli options for debug, verbose mode, etc.
 - [ ] add cards for social media sharing
 - [ ] respect @deprecated (and other things?)

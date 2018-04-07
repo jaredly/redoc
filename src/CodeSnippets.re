@@ -82,15 +82,26 @@ let highlight = (lang, content, cmt, js, error) => {
 };
 
 /** TODO only remove from the first consecutive lines. */
-let removeHashes = text => Str.global_replace(Str.regexp("^# "), "  ", text);
+let removeHashes = text => Str.global_replace(Str.regexp("^#"), " ", text);
+
+let hashAll = text => Str.split(Str.regexp_string("\n"), text) |> List.map(t => "#" ++ t) |> String.concat("\n");
 
 let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));
+  let shared = ref([]);
   let addBlock = (el, fileName, lang, contents) => {
     let options = parseCodeOptions(lang);
     switch (options) {
     | None => ()
     | Some(options) => {
+      let contents = switch (options.uses) {
+      | [] => contents
+      | uses => (List.map(name => List.assoc(name, shared^) |> hashAll, uses) @ [contents]) |> String.concat("\n")
+      };
+      switch (options.sharedAs) {
+      | None => ()
+      | Some(name) => shared := [(name, contents), ...shared^];
+      };
       let (id, blocks) = codeBlocks^;
       codeBlocks := (id + 1, [(el, id, fileName, options, contents), ...blocks]);
     }
@@ -137,7 +148,7 @@ let refmtCommand = (base, re, refmt) => {
 
 let justBscCommand = (base, re, includes) => {
   Printf.sprintf(
-    {|%s %s -impl %s|},
+    {|%s -w -A %s -impl %s|},
     base /+ "node_modules/.bin/bsc",
     includes |> List.map(Printf.sprintf("-I %S")) |> String.concat(" "),
     re
@@ -182,8 +193,18 @@ let compileSnippets = (base, blocks) => {
 
     /* let cmt = base /+ "lib/bs/src/" ++ name ++ ".cmt";
     let js = base /+ "lib/js/src/" ++ name ++ ".js"; */
+    let reasonContent = removeHashes(content) ++ " /* " ++ fileName ++ " */";
+    /* How do we knock the cache based on dependencies mtimes? */
+    /* Maybe find all the .cmj files in the deps, and find the most recent one? */
+    /* And then it's ok to take a bit of time I guess */
+    /* TODO don't do extra work if nothing has changed. */
+    /* if (Files.readFile(re) == Some(reasonContent)) {
+      /* ok we're done */
+    } else {
 
-    Files.writeFile(re, removeHashes(content) ++ " /* " ++ fileName ++ " */") |> ignore;
+    } */
+
+    Files.writeFile(re, reasonContent) |> ignore;
 
     let refmt = base /+ "node_modules/bs-platform/lib/refmt3.exe";
     let refmt = if (Files.exists(refmt)) {
@@ -218,9 +239,9 @@ let compileSnippets = (base, blocks) => {
       } else { None };
     };
 
-    Hashtbl.replace(blocksByEl, el, (cmt, js, error));
+    Hashtbl.replace(blocksByEl, el, (cmt, js, error, options, content));
 
-    (el, id, fileName, options, content, name, js)
+    (el, id, fileName, options, content, name, js, error)
   });
 
   /* let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world"); */
@@ -254,9 +275,12 @@ let process = (~test, markdowns, cmts, base) =>  {
     print_endline("Running tests");
 
     /* TODO run in parallel - maybe all in the same node process?? */
-    blocks |> List.iter(((el, id, fileName, options, content, name, js)) => {
-      if (test && !options.dontRun) {
+    blocks |> List.iter(((el, id, fileName, options, content, name, js, error)) => {
+      if (test && !options.dontRun && !options.shouldParseFail && !options.shouldTypeFail) {
         print_endline(string_of_int(id) ++ " - " ++ fileName);
+        switch error {
+        | Some(error) => print_endline("Not running because of error " ++ error)
+        | None =>
         let cmd = Printf.sprintf("node -e \"%s\"", snippetLoader(packageJsonName, Files.absify(base), js) |> escape);
         let (output, err, success) = Commands.execFull(cmd);
         /* let (output, err, success) = Commands.execFull("node " ++ js ++ ""); */
@@ -273,6 +297,7 @@ let process = (~test, markdowns, cmts, base) =>  {
             print_endline("Failed to run " ++ name ++ " in " ++ fileName);
           };
         }
+        }
       };
       let jsContents = Files.readFile(js);
       ()
@@ -286,8 +311,12 @@ let process = (~test, markdowns, cmts, base) =>  {
       print_endline("Not found code block " ++ content);
       None
     }
-    | (cmt, js, error) => {
-      Some(highlight(lang, content, cmt, js, error))
+    | (cmt, js, error, options, content) => {
+      if (options.hide) {
+        Some("")
+      } else {
+        Some(highlight(lang, content, cmt, js, error))
+      }
     }
     }
   }

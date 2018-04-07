@@ -197,6 +197,7 @@ let highlight = (text, cmt) => {
       print_endline("⚠️  ⚠️  ⚠️ Compilation failed!!");
       print_newline();
       print_endline(text);
+      print_newline();
     };
 
     let lines = Str.split(Str.regexp_string("\n"), text);

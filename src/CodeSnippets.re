@@ -50,8 +50,7 @@ let highlight = (lang, content, cmt, js) => {
 
 let removeHashes = text => Str.global_replace(Str.regexp("^# "), "  ", text);
 
-/* TODO allow package-global settings, like "run this in node" */
-let process = (~test, markdowns, cmts, base) =>  {
+let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));
   let addBlock = (el, fileName, lang, contents) => {
     let options = parseCodeOptions(lang);
@@ -86,32 +85,49 @@ let process = (~test, markdowns, cmts, base) =>  {
     }))
   });
 
-  let (_, blocks) = codeBlocks^;
+  codeBlocks^ |> snd
+};
+
+let compileSnippets = (base, blocks) => {
+  let blocksByEl = Hashtbl.create(100);
+
   let src = base /+ "src";
   let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
-  blocks |> List.iter(((_el, id, fileName, options, content)) => {
-    Files.writeFile(src /+ blockFileName(id) ++ ".re", removeHashes(content) ++ " /* " ++ fileName ++ " */") |> ignore
+
+  let blocks = blocks |> List.map(((el, id, fileName, options, content)) => {
+    let name = blockFileName(id);
+    /* let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt"; */
+    let cmt = base /+ "lib/bs/src/" ++ name ++ ".cmt";
+    let js = base /+ "lib/js/src/" ++ name ++ ".js";
+    Hashtbl.replace(blocksByEl, el, (cmt, js));
+
+    Files.writeFile(src /+ name ++ ".re", removeHashes(content) ++ " /* " ++ fileName ++ " */") |> ignore;
+    (el, id, fileName, options, content, name, js)
   });
+
   let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world"); /*  -backend js */
   if (!success) {
     print_endline("Bsb output:");
     print_endline(String.concat("\n", output));
     print_endline("Error while running bsb on examples");
   };
+      /* Unix.unlink(src /+ name ++ ".re"); */
+
+  (blocksByEl, blocks)
+};
+
+/* TODO allow package-global settings, like "run this in node" */
+let process = (~test, markdowns, cmts, base) =>  {
+
+  let blocks = getCodeBlocks(markdowns, cmts);
+
+  let (blocksByEl, blocks) = compileSnippets(base, blocks);
+
   if (test) {
     print_endline("Running tests");
-  };
 
-  let blocksByEl = Hashtbl.create(100);
-
-  /* TODO run in parallel - maybe all in the same node process?? */
-  /* if (false) { */
-    blocks |> List.iter(((el, id, fileName, options, content)) => {
-      let name = blockFileName(id);
-      /* let cmt = base /+ "lib/bs/js/src/" ++ name ++ ".cmt"; */
-      let cmt = base /+ "lib/bs/src/" ++ name ++ ".cmt";
-      let js = base /+ "lib/js/src/" ++ name ++ ".js";
-      Hashtbl.replace(blocksByEl, el, (cmt, js));
+    /* TODO run in parallel - maybe all in the same node process?? */
+    blocks |> List.iter(((el, id, fileName, options, content, name, js)) => {
       if (test && !options.dontRun) {
         print_endline(string_of_int(id) ++ " - " ++ fileName);
         let (output, err, success) = Commands.execFull("node " ++ js ++ "");
@@ -130,10 +146,9 @@ let process = (~test, markdowns, cmts, base) =>  {
         }
       };
       let jsContents = Files.readFile(js);
-      /* Unix.unlink(src /+ name ++ ".re"); */
       ()
     });
-  /* }; */
+  };
 
   (element) => switch element {
   | Omd.Code_block(lang, content) => {

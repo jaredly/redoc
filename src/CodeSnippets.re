@@ -182,23 +182,27 @@ let compileSnippets = (base, blocks) => {
     let cmd = refmtCommand(base, re);
     let (output, err, success) = Commands.execFull(cmd);
     let error = if (!success) {
-      print_endline("Failed to parse " ++ re);
+      /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
       let out = String.concat("\n", output) ++ String.concat("\n", err);
       let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
-      print_endline(out);
-      Some(out);
+      if (!options.shouldParseFail) {
+        print_endline("Failed to parse " ++ re);
+        print_endline(out);
+      };
+      Some("Parse error:\n" ++ out);
     } else {
-
       let cmd = justBscCommand(base, re ++ "_ppx.ast", deps);
       let (output, err, success) = Commands.execFull(cmd);
       if (!success) {
-        print_endline("Failed to compile " ++ re);
+        /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
         let out = String.concat("\n", output) ++ String.concat("\n", err);
         let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
-        print_endline(out);
-        Some(out);
+        if (!options.shouldTypeFail) {
+          print_endline("Failed to compile " ++ re);
+          print_endline(out);
+        };
+        Some("Compile error:\n" ++ out);
       } else { None };
-
     };
 
     Hashtbl.replace(blocksByEl, el, (cmt, js, error));

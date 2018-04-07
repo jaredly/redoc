@@ -352,7 +352,7 @@ p code {
   border-radius: 3px;
   font-family: 'sf mono', monospace;
   font-size: 0.9em;
-  /* background: #f7f7f7; */
+  background: white;
   /* color: #222; */
   box-shadow: 0 0 1px #aaa;
 }

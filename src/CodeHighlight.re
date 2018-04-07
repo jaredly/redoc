@@ -193,12 +193,12 @@ let highlight = (text, cmt) => {
     });
     /* print_newline(); */
 
-    if (partial) {
+    /* if (partial) {
       print_endline("⚠️  ⚠️  ⚠️ Compilation failed!!");
       print_newline();
       print_endline(text);
       print_newline();
-    };
+    }; */
 
     let lines = Str.split(Str.regexp_string("\n"), text);
     let rec loop = (offset, lines) => {
@@ -217,8 +217,11 @@ let highlight = (text, cmt) => {
       (pos_cnum, cend, attributes)
     });
     let inserts = []; /* TODO annotate "open"s? */
-    annotateText(tags, inserts, text, offset) ++ (partial ? "<div style='color: red'>Compilation failed!!</div>" : "")
+    annotateText(tags, inserts, text, offset)
+    /* ++ (partial ? "<div style='color: red'>Compilation failed!!</div>" : "") */
   } else {
-    Omd_utils.htmlentities(text) ++ "<strong>Compilation failed!</strong>"
+    /* TODO use the parsed AST if present */
+    Omd_utils.htmlentities(text)
+    /* ++ "<strong>Compilation failed!</strong>" */
   }
 };

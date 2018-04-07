@@ -13,7 +13,7 @@ type codeOptions = {
 
 let parseCodeOptions = lang => {
   let parts = Str.split(Str.regexp_string(";"), lang);
-  if (List.mem("skip", parts)) {
+  if (List.mem("skip", parts)  || List.mem("bash", parts) || List.mem("txt", parts)) {
     None
   } else {
     Some(List.fold_left((options, item) => {

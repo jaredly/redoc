@@ -19,7 +19,7 @@ let annotateText = (tags, inserts, text) => {
     let startDiff = aStart - bStart;
     /** If they start at the same time, the *larger* range should go First */
     if (startDiff === 0) {
-      bEnd - aEnd
+      aEnd - bEnd
     } else {
       startDiff
     }
@@ -93,10 +93,13 @@ let iterTags = (cmt, addTag) => {
       | Texp_constant(Const_int(_)) => addColorT(exp_loc, "int")
       | Texp_constant(Const_float(_)) => addColorT(exp_loc, "float")
       | Texp_constant(Const_string(_)) => addColorT(exp_loc, "string")
+      | Texp_field(target, {txt, loc}, {lbl_arg}) => addColorType(loc, "field", lbl_arg)
+      | Texp_construct({txt: Lident("::"), loc}, desc, args) => addType(loc, exp_type)
       | Texp_construct({txt, loc}, desc, args) => addColorT(loc, "constructor")
+      | Texp_record(_) => addType(exp_loc, exp_type)
       /* | Texp_variant */
       | _ => ()
-      /* | addType(exp_loc, exp_type) */
+      /* | _ => addType(exp_loc, exp_type) */
       }
     };
     let enter_core_type = ({ctyp_desc, ctyp_loc: loc}) => {
@@ -109,7 +112,9 @@ let iterTags = (cmt, addTag) => {
     let enter_pattern = ({pat_desc, pat_loc, pat_type}) => {
       switch pat_desc {
       | Tpat_var(path, {txt, loc}) => addColorType(loc, "pattern-ident", pat_type)
-      | Tpat_construct({txt, loc}, desc, args) => addColorType(loc, "patern-constructor", pat_type)
+      /* | Tpat_construct({txt, loc}, desc, args) => addColorType(loc, "patern-constructor", pat_type) */
+      | Tpat_construct({txt: Lident("::"), loc}, desc, args) => addType(loc, pat_type)
+      | Tpat_construct({txt, loc}, desc, args) => addColorType(loc, "pattern-constructor", pat_type)
       | Tpat_constant(Const_int(_)) => addColorType(pat_loc, "int", pat_type)
       | Tpat_constant(Const_float(_)) => addColorType(pat_loc, "float", pat_type)
       | Tpat_constant(Const_string(_)) => addColorType(pat_loc, "string", pat_type)

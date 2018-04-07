@@ -1,4 +1,29 @@
 
+var listenForTypes = () => {
+  var typeViewer = document.createElement('div')
+  typeViewer.className = 'type-viewer'
+  document.body.appendChild(typeViewer)
+  ;[].forEach.call(document.querySelectorAll('pre.code'), el => {
+    el.addEventListener('mousemove', evt => {
+      typeViewer.style.top = evt.pageY + 'px'
+      typeViewer.style.left = evt.pageX + 'px'
+    });
+    el.addEventListener('mouseover', evt => {
+      if (evt.target.getAttribute('data-type')) {
+        evt.target.classList.add('type-hovered')
+        typeViewer.textContent = evt.target.getAttribute('data-type')
+        typeViewer.style.display = 'block'
+      }
+    })
+    el.addEventListener('mouseout', evt => {
+      if (evt.target.getAttribute('data-type')) {
+        evt.target.classList.remove('type-hovered')
+        typeViewer.style.display = 'none'
+      }
+    })
+  })
+}
+
 var checkHash = () => {
   if (!window.shouldCheckHashes) {
     return
@@ -26,5 +51,6 @@ window.onload = () => {
       expander.textContent = 'Hide navigation'
     }
   }
+  listenForTypes();
 }
 window.onhashchange = checkHash

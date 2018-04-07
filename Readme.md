@@ -7,7 +7,7 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
 
 get the binary (either by [downloading it](https://github.com/jaredly/docre/releases/), or building it yourself).
 
-```
+```txt
 Usage:
       docre [project title = directory name] [base directory = .] [output directory = ./docs]
         When run with no arguments, the current directory is used.
@@ -19,7 +19,7 @@ Usage:
 
 ## How to build
 
-```
+```bash
 npm install
 npm start
 ```
@@ -40,6 +40,8 @@ The binary is then in `./lib/bs/native/main.native`.
 
 ## itemized work to do
 
+- [ ] accept cli args
+- [x] highlighting in code blocks + hover-for-type
 - [ ] argument-level documentation (refmt doesn't parse this properly :/)
 - [ ] topologically sort the items in the sidebar
 - [ ] allow embedding of the docs for another module in a markdown page / module docs

@@ -166,15 +166,13 @@ pre.code {
 .code .constructor-module-identifier,
 .code .switch-module-identifier,
 .code .record-module-identifier,
-.code .field-module-identifier {
+.code .field-module-identifier
+{
   color: #a0a;
 }
 
-.code .open-value-identifier,
-.code .let-value-identifier,
-.code .switch-value-identifier,
-.code .record-value-identifier,
-.code .field-value-identifier {
+.code .field
+{
   color: #0aa;
 }
 
@@ -327,10 +325,14 @@ h4.module {
   padding-left: 24px;
 }
 
+.body > pre:first-child {
+  margin-top: 8px;
+}
 .body > p:first-child {
   margin-top: 0px;
 }
 
+.body > pre:last-child,
 .body > p:last-child {
   margin-bottom: 8px;
 }

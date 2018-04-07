@@ -360,16 +360,6 @@ let getMarkdowns = (projectName, base) => {
   List.sort(compare, files) |> List.map(((_, html, contents, name)) => (html, Omd.of_string(contents), name))
 };
 
-let absify = path => {
-  if (path == "") {
-    Unix.getcwd()
-  } else if (path.[0] == '/') {
-    path
-  } else {
-    Filename.concat(Unix.getcwd(), path)
-  }
-};
-
 let startsWith = (full, prefix) => String.length(full) >= String.length(prefix) && String.sub(full, 0, String.length(prefix)) == prefix;
 let isCmt = name => {
   !startsWith(Filename.basename(name), CodeSnippets.codeBlockPrefix) && (Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
@@ -392,7 +382,7 @@ let generateProject = (~projectName, ~root, ~target, ~test) => {
   let markdowns = getMarkdowns(projectName, root);
   let url = ParseConfig.getUrl(root);
   generateMultiple(~test, root, compiledRoot, url, root /+ "docs", found, markdowns);
-  let localUrl = "file://" ++ absify(root) /+ "docs" /+ "index.html";
+  let localUrl = "file://" ++ Files.absify(root) /+ "docs" /+ "index.html";
   print_newline();
   print_endline("Complete! Docs are available in " ++ (root /+ "docs") ++ "\nOpen " ++ localUrl ++ " in your browser to view");
   print_newline();

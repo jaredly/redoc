@@ -1,6 +1,16 @@
 
 let split = (str, string) => Str.split(Str.regexp_string(str), string);
 
+let absify = path => {
+  if (path == "") {
+    Unix.getcwd()
+  } else if (path.[0] == '/') {
+    path
+  } else {
+    Filename.concat(Unix.getcwd(), path)
+  }
+};
+
 [@test [
   (("/a/b/c", "/a/b/d"), "../d"),
   (("/a/b/c", "/a/b/d/e"), "../d/e"),

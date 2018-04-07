@@ -124,10 +124,10 @@ let getCodeBlocks = (markdowns, cmts) => {
 
 open Infix;
 
-let refmtCommand = (base, re) => {
+let refmtCommand = (base, re, refmt) => {
   Printf.sprintf({|cat %s | %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
   re,
-  base /+ "node_modules/bs-platform/lib/refmt.exe",
+  refmt,
   re,
   base /+ "node_modules/bs-platform/lib/reactjs_jsx_ppx_2.exe",
   re,
@@ -144,23 +144,29 @@ let justBscCommand = (base, re, includes) => {
   )
 };
 
-let bscCommand = (base, re, includes) => {
-  Printf.sprintf(
-    {|%s -pp '%s --print binary' -ppx '%s' %s -impl %s|},
-    base /+ "node_modules/.bin/bsc",
-    base /+ "node_modules/bs-platform/lib/refmt.exe",
-    base /+ "node_modules/bs-platform/lib/reactjs_jsx_ppx_2.exe",
-    includes |> List.map(Printf.sprintf("-I %S")) |> String.concat(" "),
-    re
-  )
+let snippetLoader = (name, basePath, snippetPath) => Printf.sprintf({|
+var path = require('path');
+var Module = require('module');
+var oldResolveFilename = Module._resolveFilename;
+Module._resolveFilename = function (request, parent, isMain) {
+  var name = '%s/';
+  var base = '%s';
+  if (request.indexOf(name) === 0) {
+    return oldResolveFilename.call(this, path.join(base, request.slice(name.length)), parent, isMain);
+  }
+
+  return oldResolveFilename.call(this, request, parent, isMain);
 };
+require('%s')
+|}, name, basePath, snippetPath);
 
 let compileSnippets = (base, blocks) => {
   let blocksByEl = Hashtbl.create(100);
 
   let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
+  let isNative = config |> Json.get("entries") != None;
 
-  let deps = [base /+ "lib/bs/src"]; /* TODO find dependency build directories */
+  let deps = [base /+ (isNative ? "lib/bs/js/src" : "lib/bs/src")]; /* TODO find dependency build directories */
 
   let tmp = base /+ "node_modules/.docre";
   Files.mkdirp(tmp);
@@ -179,7 +185,14 @@ let compileSnippets = (base, blocks) => {
 
     Files.writeFile(re, removeHashes(content) ++ " /* " ++ fileName ++ " */") |> ignore;
 
-    let cmd = refmtCommand(base, re);
+    let refmt = base /+ "node_modules/bs-platform/lib/refmt3.exe";
+    let refmt = if (Files.exists(refmt)) {
+      refmt
+    } else {
+      base /+ "node_modules/bs-platform/lib/refmt.exe";
+    };
+
+    let cmd = refmtCommand(base, re, refmt);
     let (output, err, success) = Commands.execFull(cmd);
     let error = if (!success) {
       /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
@@ -222,10 +235,18 @@ let compileSnippets = (base, blocks) => {
   (blocksByEl, blocks)
 };
 
+let escape = text => text
+|> Str.global_replace(Str.regexp_string("\\"), "\\\\")
+|> Str.global_replace(Str.regexp_string("\n"), " ")
+|> Str.global_replace(Str.regexp_string("\""), "\\\"")
+;
+
 /* TODO allow package-global settings, like "run this in node" */
 let process = (~test, markdowns, cmts, base) =>  {
 
   let blocks = getCodeBlocks(markdowns, cmts);
+  let packageJson = Json.parse(Files.readFile(base /+ "package.json") |! "No package.json in " ++ base);
+  let packageJsonName = packageJson |> Json.get("name") |?> Json.string |! "Missing name in package.json";
 
   let (blocksByEl, blocks) = compileSnippets(base, blocks);
 
@@ -236,7 +257,9 @@ let process = (~test, markdowns, cmts, base) =>  {
     blocks |> List.iter(((el, id, fileName, options, content, name, js)) => {
       if (test && !options.dontRun) {
         print_endline(string_of_int(id) ++ " - " ++ fileName);
-        let (output, err, success) = Commands.execFull("node " ++ js ++ "");
+        let cmd = Printf.sprintf("node -e \"%s\"", snippetLoader(packageJsonName, Files.absify(base), js) |> escape);
+        let (output, err, success) = Commands.execFull(cmd);
+        /* let (output, err, success) = Commands.execFull("node " ++ js ++ ""); */
         if (options.shouldRaise) {
           if (success) {
             print_endline(String.concat("\n", output));

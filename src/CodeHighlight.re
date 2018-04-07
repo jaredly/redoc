@@ -170,7 +170,7 @@ let collectRanges = (cmt) => {
 let removeIfThere = path => Files.exists(path) ? Unix.unlink(path) : ();
 
 let highlight = (text, cmt) => {
-  print_endline("Highlith " ++ cmt);
+  /* print_endline("Highlith " ++ cmt); */
   if (Files.exists(cmt)) {
     let {Cmt_format.cmt_annots, cmt_builddir, cmt_sourcefile, cmt_modname, cmt_comments} = Cmt_format.read_cmt(cmt);
     /* Unix.unlink(cmt); */
@@ -183,15 +183,15 @@ let highlight = (text, cmt) => {
     | Cmt_format.Partial_implementation(_) | Cmt_format.Partial_interface(_) => true
     | _ => false
     };
-    print_endline(cmt_modname ++ " built in " ++ cmt_builddir);
-    switch cmt_sourcefile {
+    /* print_endline(cmt_modname ++ " built in " ++ cmt_builddir); */
+    /* switch cmt_sourcefile {
     | None => print_endline("No source file")
     | Some(f) => print_endline("Source: " ++ f)
-    };
+    }; */
     cmt_comments |> List.iter(((text, loc)) => {
       print_endline("Comment: " ++ text);
     });
-    print_newline();
+    /* print_newline(); */
 
     if (partial) {
       print_endline("⚠️  ⚠️  ⚠️ Compilation failed!!");

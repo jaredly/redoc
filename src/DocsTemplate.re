@@ -276,9 +276,18 @@ pre {
   overflow: auto;
 }
 
+div.compile-error {
+  padding: 8px 16px;
+  background-color: #ffebeb;
+  margin-top: -24px;
+  margin-bottom: 32px;
+  white-space: pre-wrap;
+}
+
 pre > code,
 h4.item,
 .type-viewer,
+div.compile-error,
 p code {
   font-family: 'SF Mono', Menlo, monospace;
   letter-spacing: 0;
@@ -343,6 +352,9 @@ p code {
   border-radius: 3px;
   font-family: 'sf mono', monospace;
   font-size: 0.9em;
+  /* background: #f7f7f7; */
+  /* color: #222; */
+  box-shadow: 0 0 1px #aaa;
 }
 
 a {

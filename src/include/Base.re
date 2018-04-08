@@ -36,9 +36,13 @@ blockquote {
   padding-left: 16px;
 }
 
-pre {
-  padding: 8px 16px;
+.code-block {
   margin: 32px 0;
+}
+
+pre {
+  margin: 0;
+  padding: 8px 16px;
   background-color: #f1f8ff;
   overflow: auto;
 }

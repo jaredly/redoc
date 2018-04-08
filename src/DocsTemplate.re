@@ -33,14 +33,33 @@ let codeBlocks = {|
 }
 
 .block-target-large {
-  margin-top: -24px;
   height: 24px;
-  margin-bottom: 32px;
+  background-color: #afa;
+  cursor: pointer;
+  text-align: center;
+}
+
+.block-target-right {
+  background-color: #afa;
+  cursor: pointer;
+  height: 24px;
+  background-color: #afa;
+  border-radius: 3px;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 16px;
+  width: 32px;
+  opacity: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .block-target-small {
+  cursor: pointer;
   height: 24px;
-  background-color: green;
+  background-color: #afa;
   border-radius: 3px;
   position: absolute;
   top: 0;
@@ -49,10 +68,37 @@ let codeBlocks = {|
   height: 2.5em;
   opacity: 0.1;
   transition: opacity 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .code-block:hover .block-target-small {
   opacity: 1;
 }
+
+.block-target-container {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  min-height: 42px;
+  margin-left: 16px;
+  padding: 8px 16px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  width: 200px;
+}
+.block-target-container.active {
+  box-shadow: 0 0 1px #aaa inset;
+}
+
+
+@media(max-width: 1000px) {
+  .block-target-container {
+    position: static;
+  }
+}
+
 |};
 
 
@@ -74,6 +120,7 @@ let blockScript = {|
     })
     return loadingPromise
   };
+
   var initBlocks = () => {
     ;[].forEach.call(document.querySelectorAll('div.block-target'), el => {
       const context = el.getAttribute('data-context');
@@ -94,13 +141,16 @@ let blockScript = {|
 
       let ran = false
 
+      window.process = {env: {NODE_ENV: 'production'}}
+
       const runBlock = (context) => {
         if (ran) {
           return
         }
         ran = true
         loadDeps().then(() => {
-          const bundle = docuemnt.querySelector('script.docre-bundle[data-block-id="' + id + '"]')
+          const bundle = document.querySelector('script[type=docre-bundle][data-block-id="' + id + '"]')
+          console.log(id)
           if (!bundle) {
             console.error('bundle not found')
             return
@@ -118,6 +168,7 @@ let blockScript = {|
             // TODO check if it's a promise or something... and maybe wait?
             eval(bundle.textContent);
           } catch (error) {
+            oldConsole.error(error)
             addLog('error', [error && error.message])
           }
           window.console = oldConsole
@@ -133,7 +184,7 @@ let blockScript = {|
         play.onclick = () => {
           console.log('start the music!')
           startBlock.style.display = 'none'
-          runBlock({contextCanvas: canvas, contextCanvasId: canvas.id})
+          runBlock({sandboxCanvas: canvas, sandboxCanvasId: canvas.id})
         }
         const canvasBlock = div({class: 'block-canvas-container'}, [
           canvas,
@@ -144,24 +195,29 @@ let blockScript = {|
         const target = div({id: 'block-target-div-' + id})
         const container = div({class: 'block-target-container'}, [target])
         parent.appendChild(container)
-        const startBlock = div({class: 'block-target-large'}, ["▶"])
+        const startBlock = div({class: 'block-target-right'}, ["▶"])
         startBlock.onclick = () => {
           startBlock.style.display = 'none'
-          runBlock({contextDiv: target, contextDivId: target.id})
+          container.classList.add('active')
+          runBlock({sandboxDiv: target, sandboxDivId: target.id})
         }
         parent.appendChild(startBlock)
       } else {
+        /*
         const startBlock = div({class: 'block-target-small'}, ["▶"])
         parent.appendChild(startBlock)
         startBlock.onclick = () => {
           startBlock.style.display = 'none'
           runBlock({})
         }
+        */
       }
 
       parent.appendChild(logs)
     })
   }
+
+
 |};
 
 let typeScript = {|

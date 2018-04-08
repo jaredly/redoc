@@ -198,7 +198,7 @@ let makeDocStringProcessor = (dest, outerOverride) => {
 };
 open Infix;
 
-let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: list((string, Omd.t, string))) => {
+let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: list((string, option(string), Omd.t, string))) => {
   Files.mkdirp(dest);
 
   let cmts = filterDuplicates(cmts);
@@ -234,7 +234,7 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
     let output = dest /+ "api" /+ name ++ ".html";
     let rel = Files.relpath(Filename.dirname(output));
 
-    let markdowns = List.map(((path, _contents, name)) => (rel(path), name), markdowns);
+    let markdowns = List.map(((path, source, _contents, name)) => (rel(path), name), markdowns);
 
     /* let (stamps, topdoc, allDocs) = processCmt(name, cmt); */
     let searchPrinter = GenerateDoc.printer(searchHref(names), stamps);
@@ -256,7 +256,7 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
     Files.writeFile(output, text) |> ignore;
   });
 
-  (markdowns) |> List.iter(((path, contents, name)) => {
+  (markdowns) |> List.iter(((path, source, contents, name)) => {
     let rel = Files.relpath(Filename.dirname(path));
     let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, linkifyMarkdown(path, dest));
     let searchPrinter = GenerateDoc.printer(searchHref(names), []);
@@ -264,11 +264,13 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
     /* Omd.to_html(~override, Omd.of_string(contents)); */
 
     let sourceUrl = url |?> (url => {
-      let relative = Files.relpath(dest, path |> Filename.chop_extension |> x => x ++ ".md");
-      Some(url ++ "docs/" ++ relative)
+      source |?>> (source => {
+        let relative = Files.relpath(dest, source);
+        url ++ "docs/" ++ relative
+      })
     });
 
-    let markdowns = List.map(((path, _contents, name)) => (rel(path), name), markdowns);
+    let markdowns = List.map(((path, _source, _contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
     let html = Docs.page(~sourceUrl, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
 
@@ -278,7 +280,7 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
   {
     let path = dest /+ "search.html";
     let rel = Files.relpath(Filename.dirname(path));
-    let markdowns = List.map(((path, contents, name)) => (rel(path), name), markdowns);
+    let markdowns = List.map(((path, source, contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
     let main = Printf.sprintf({|
       <input placeholder="Search the docs" id="search-input"/>
@@ -349,16 +351,24 @@ let getMarkdowns = (projectName, base) => {
   let docsBase = base /+ "docs";
   let files = Files.collect(docsBase, name => Filename.check_suffix(name, ".md"));
   let files = files |> List.map(path => {
-    (getOrder(path), htmlName(path), Files.readFile(path) |> unwrap("Unable to read markdown file " ++ path), getTitle(path, docsBase))
+    (getOrder(path), htmlName(path), Some(path), Files.readFile(path) |> unwrap("Unable to read markdown file " ++ path), getTitle(path, docsBase))
   });
-  let files = if (!List.exists(((_, path, _, _)) => String.lowercase(path) == String.lowercase(docsBase) /+ "readme.md", files)) {
+  let files = if (!List.exists(((_, path, _, _, _)) => String.lowercase(path) == String.lowercase(docsBase) /+ "readme.md", files)) {
     let readme = base /+ "Readme.md";
-    let contents = Files.readFile(readme) |> optOr("# " ++ projectName ++ "\n\nWelcome to the documentation!");
-    [("", base /+ "docs" /+ "index.html", contents, "Home"), ...files]
+    switch (Files.readDirectory(base) |> List.find(name => String.lowercase(name) == "readme.md")) {
+    | exception Not_found => {
+      [("", base /+ "docs" /+ "index.html", None,  "# " ++ projectName ++ "\n\nWelcome to the documentation!", "Home"), ...files]
+    }
+    | name => {
+      let readme = base /+ name;
+      let contents = Files.readFile(readme) |! "Unable to read " ++ readme;
+      [("", base /+ "docs" /+ "index.html", Some(readme), contents, "Home"), ...files]
+    }
+    }
   } else {
     files
   };
-  List.sort(compare, files) |> List.map(((_, html, contents, name)) => (html, Omd.of_string(contents), name))
+  List.sort(compare, files) |> List.map(((_, html, source, contents, name)) => (html, source, Omd.of_string(contents), name))
 };
 
 let startsWith = (full, prefix) => String.length(full) >= String.length(prefix) && String.sub(full, 0, String.length(prefix)) == prefix;

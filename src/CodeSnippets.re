@@ -209,7 +209,7 @@ let getCodeBlocks = (markdowns, cmts) => {
     | _ => None
   }, md) |> ignore;
 
-  markdowns |> List.iter(((path, contents, name)) => {
+  markdowns |> List.iter(((path, source, contents, name)) => {
     collect(path, contents);
   });
 

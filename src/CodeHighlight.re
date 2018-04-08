@@ -14,7 +14,7 @@ let addHtmlEscapedToBuffer = (buffer, char) => {
   };
 };
 
-let annotateText = (tags, inserts, text, offset) => {
+let annotateText = (tags, inserts, text, offset, backOffset) => {
   let tags = tags |> List.sort(((aStart, aEnd, _), (bStart, bEnd, _)) => {
     let startDiff = aStart - bStart;
     /** If they start at the same time, the *larger* range should go First */
@@ -23,7 +23,7 @@ let annotateText = (tags, inserts, text, offset) => {
     } else {
       startDiff
     }
-  }) |> List.filter(((st, en, _)) => st >= offset && en >= offset) |> List.map(((st, en, t)) => (st - offset, en - offset, t));
+  }) |> List.filter(((st, en, _)) => st >= offset && en >= offset && st <= backOffset && en <= backOffset) |> List.map(((st, en, t)) => (st - offset, en - offset, t));
 
   let positions = String.length(text) + 1;
 
@@ -182,19 +182,22 @@ let highlight = (text, cmt) => {
   let lines = Str.split(Str.regexp_string("\n"), text);
   let rec loop = (offset, lines) => {
     switch lines {
-    | [] => (offset, "")
     | [line, ...rest] when line != "" && line.[0] == '#' => {
       loop(offset + String.length(line) + 1, rest)
     }
-    | _ => (offset, String.concat("\n", lines))
+    | _ => (offset, lines)
     }
   };
-  let (offset, text) = loop(0, lines);
+  let (frontOffset, lines) = loop(0, lines);
+  let (backOffset, lines) = loop(0, List.rev(lines));
+  let backOffset = String.length(text) - backOffset;
+  let text = String.concat("\n", List.rev(lines));
+  /* let (offset, text) = loop(0, lines); */
 
   let ranges = collectRanges(cmt_annots);
   let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {
     (pos_cnum, cend, attributes)
   });
   let inserts = []; /* TODO annotate "open"s? */
-  annotateText(tags, inserts, text, offset)
+  annotateText(tags, inserts, text, frontOffset, backOffset)
 };

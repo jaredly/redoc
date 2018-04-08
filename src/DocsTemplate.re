@@ -96,6 +96,8 @@ let codeBlocks = {|
 @media(max-width: 1000px) {
   .block-target-container {
     position: static;
+    margin-left: 0;
+    margin-top: 8px;
   }
 }
 

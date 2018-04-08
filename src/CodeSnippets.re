@@ -162,11 +162,12 @@ let removeHashes = text => {
   | [one, ...rest] when one.[0] == '#' => [" " ++ sliceToEnd(one, 1), ...loop(rest)]
   | _ => lines
   };
-  String.concat("\n", loop(splitLines(text)))
+  let front = loop(splitLines(text));
+  String.concat("\n", List.rev(loop(List.rev(front))))
 };
 
 
-let hashAll = text => splitLines(text) |> List.map(t => "#" ++ t) |> String.concat("\n");
+let hashAll = text => splitLines(text) |> List.map(t => (t == "" || t.[0] != '#') ? "#" ++ t : t) |> String.concat("\n");
 
 let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));
@@ -176,16 +177,26 @@ let getCodeBlocks = (markdowns, cmts) => {
     switch (options) {
     | None => ()
     | Some(options) => {
-      let content = switch (options.uses) {
+      let content = List.fold_left((content, name) => {
+        let text = List.assoc(name, shared^) |> hashAll;
+        let rx = Str.regexp_string("#%{code}%");
+        switch (Str.search_forward(rx, text, 0)) {
+        | exception Not_found => text ++ "\n" ++ content
+        | _ => Str.replace_first(rx, content, text)
+        }
+      }, content, options.uses);
+      /* let content = switch (options.uses) {
       | [] => content
       | uses => (List.map(name => List.assoc(name, shared^) |> hashAll, uses) @ [content]) |> String.concat("\n")
-      };
+      }; */
+      /* TODO I might want to be able to have something be shared & visible... not sure though */
       switch (options.sharedAs) {
-      | None => ()
+      | None => {
+        let (id, blocks) = codeBlocks^;
+        codeBlocks := (id + 1, [{el, id, fileName, options, content}, ...blocks]);
+      }
       | Some(name) => shared := [(name, content), ...shared^];
       };
-      let (id, blocks) = codeBlocks^;
-      codeBlocks := (id + 1, [{el, id, fileName, options, content}, ...blocks]);
     }
     }
   };
@@ -402,7 +413,13 @@ let process = (~test, markdowns, cmts, base, dest) =>  {
   (element) => switch element {
   | Omd.Code_block(lang, content) => {
     switch (Hashtbl.find(blocksByEl, element)) {
-    | exception Not_found => None
+    | exception Not_found => {
+      let options = parseCodeOptions(lang);
+      switch options {
+      | Some({sharedAs: Some(_)}) => Some("")
+      | _ => None
+      }
+    }
     | {block, status} => {
       if (block.options.hide) {
         Some("")

@@ -47,13 +47,14 @@ The binary is then in `./lib/bs/native/main.native`.
 
 ## itemized work to do
 
-- [ ] accept cli args
+- [ ] "edit" on readme doesn't go to the right place (docs/index.md)
+- [x] accept cli args
 - [x] highlighting in code blocks + hover-for-type
 - [ ] argument-level documentation (refmt doesn't parse this properly :/)
 - [ ] topologically sort the items in the sidebar
 - [ ] allow embedding of the docs for another module in a markdown page / module docs
 - [ ] add cli options for debug, verbose mode, etc.
-- [ ] add cards for social media sharing
+- [ ] add meta tag cards for social media sharing
 - [ ] respect @deprecated (and other things?)
 - [x] aliases - only show the last item of a type path (full on hover)
   - if the last item is "t", then also show the parent

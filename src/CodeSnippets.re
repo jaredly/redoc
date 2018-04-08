@@ -3,7 +3,17 @@ let codeBlockPrefix = "DOCRE_CODE_BLOCK_";
 
 let (/+) = Filename.concat;
 
-type codeContext = Normal | Node | Window | Iframe | Canvas;
+type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
+let contextString = c => switch c {
+| Normal => "normal"
+| Log => "log"
+| Node => "node"
+| Window => "window"
+| Iframe => "iframe"
+| Canvas => "canvas"
+| Div => "div"
+};
+
 type codeOptions = {
   context: codeContext,
   shouldParseFail: bool,
@@ -37,6 +47,8 @@ let parseCodeOptions = lang => {
       | "window" => {...options, context: Window}
       | "canvas" => {...options, context: Canvas}
       | "iframe" => {...options, context: Iframe}
+      | "log" => {...options, context: Log}
+      | "div" => {...options, context: Div}
 
       | "raises" => {...options, shouldRaise: true}
       | "parse-fail" => {...options, shouldParseFail: true}
@@ -74,36 +86,106 @@ let parseCodeOptions = lang => {
   }
 };
 
-let highlight = (lang, content, cmt, js, error) => {
-  "<pre class='code'><code>" ++ CodeHighlight.highlight(content, cmt) ++ "</code></pre>" ++ (switch error {
-  | None => ""
-  | Some(err) => "<div class='compile-error'>" ++ Omd_utils.htmlentities(err) ++ "</div>"
-  })
+type codeBlock = {
+  el: Omd.element,
+  id: int,
+  fileName: string,
+  options: codeOptions,
+  content: string,
 };
 
-/** TODO only remove from the first consecutive lines. */
-let removeHashes = text => Str.global_replace(Str.regexp("^#"), " ", text);
+type compilationStatus =
+  /* | Skipped */
+  | ParseError(string)
+  | TypeError(string, string) /* error & cmt file */
+  | Success(string, string) /* cmt & js files */
+  ; /* TODO maybe do the bundling earlier, so that it can be processed in parallel? */
 
-let hashAll = text => Str.split(Str.regexp_string("\n"), text) |> List.map(t => "#" ++ t) |> String.concat("\n");
+type compiledBlock = {
+  block: codeBlock,
+  status: compilationStatus,
+  /* reasonSource: string, */
+};
+
+let sprintf = Printf.sprintf;
+let html = Omd_utils.htmlentities;
+let escapeScript = text => Str.global_replace(Str.regexp_string("</script"), "<\\/script", text);
+
+let highlight = ({id, content, options}, status, bundle) => {
+  let cmt = switch status {
+  | ParseError(_) => None
+  | TypeError(_, cmt) => Some(cmt)
+  | Success(cmt, _) => Some(cmt)
+  };
+  let code = switch cmt {
+  | None => html(content)
+  | Some(cmt) => CodeHighlight.highlight(content, cmt)
+  };
+
+  let after = switch status {
+  | ParseError(text) => sprintf({|<div class='parse-error'>Parse Error:\n%s</div>|}, html(text))
+  | TypeError(text, _) => sprintf({|<div class='type-error'>Type Error:\n%s</div>|}, html(text))
+  | Success(cmt, js) => Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
+      switch options.context {
+      | Node => ""
+      | _ => sprintf({|<div data-block-id='%d' data-context=%S class='block-target'></div>|}, id, contextString(options.context))
+      },
+      id,
+      bundle(js)
+    )
+  };
+
+  sprintf(
+    {|<div class='code-block'>
+  <pre class='code' data-block-id='%d' id='block-%d'><code>%s</code></pre>
+  <script type='docre-source' data-block-id="%d">%s</script>
+  %s
+</div>|},
+    id,
+    id,
+    code,
+    id,
+    escapeScript(content),
+    after
+  )
+};
+
+let splitLines = text => Str.split(Str.regexp_string("\n"), text);
+
+let sliceToEnd = (text, i) => String.sub(text, i, String.length(text) - i);
+
+/* let removeHashes = text => Str.global_replace(Str.regexp("^#"), " ", text); */
+let removeHashes = text => {
+  let rec loop = lines => switch lines {
+  | [] => []
+  | ["", ...rest] => ["", ...loop(rest)]
+  | [one, ...rest] when one.[0] == '#' => [" " ++ sliceToEnd(one, 1), ...loop(rest)]
+  | _ => lines
+  };
+  String.concat("\n", loop(splitLines(text)))
+};
+
+
+let hashAll = text => splitLines(text) |> List.map(t => "#" ++ t) |> String.concat("\n");
 
 let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));
   let shared = ref([]);
-  let addBlock = (el, fileName, lang, contents) => {
+  let addBlock = (el, fileName, lang, content) => {
     let options = parseCodeOptions(lang);
     switch (options) {
     | None => ()
     | Some(options) => {
-      let contents = switch (options.uses) {
-      | [] => contents
-      | uses => (List.map(name => List.assoc(name, shared^) |> hashAll, uses) @ [contents]) |> String.concat("\n")
+      let content = switch (options.uses) {
+      | [] => content
+      | uses => (List.map(name => List.assoc(name, shared^) |> hashAll, uses) @ [content]) |> String.concat("\n")
       };
       switch (options.sharedAs) {
       | None => ()
-      | Some(name) => shared := [(name, contents), ...shared^];
+      | Some(name) => shared := [(name, content), ...shared^];
       };
       let (id, blocks) = codeBlocks^;
-      codeBlocks := (id + 1, [(el, id, fileName, options, contents), ...blocks]);
+      codeBlocks := (id + 1, [{el, id, fileName, options, content}, ...blocks]);
     }
     }
   };
@@ -184,7 +266,7 @@ let compileSnippets = (base, blocks) => {
 
   let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
 
-  let blocks = blocks |> List.map(((el, id, fileName, options, content)) => {
+  let blocks = blocks |> List.map(({el, id, fileName, options, content} as block) => {
 
     let name = blockFileName(id);
     let re = tmp /+ name ++ ".re";
@@ -215,7 +297,7 @@ let compileSnippets = (base, blocks) => {
 
     let cmd = refmtCommand(base, re, refmt);
     let (output, err, success) = Commands.execFull(cmd);
-    let error = if (!success) {
+    let status = if (!success) {
       /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
       let out = String.concat("\n", output) ++ String.concat("\n", err);
       let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
@@ -225,7 +307,7 @@ let compileSnippets = (base, blocks) => {
         print_endline(reasonContent);
         print_newline();
       };
-      Some("Parse error:\n" ++ out);
+      ParseError(out);
     } else {
       let cmd = justBscCommand(base, re ++ "_ppx.ast", deps);
       let (output, err, success) = Commands.execFull(cmd);
@@ -239,13 +321,13 @@ let compileSnippets = (base, blocks) => {
           print_endline(reasonContent);
           print_newline();
         };
-        Some("Compile error:\n" ++ out);
-      } else { None };
+        TypeError(out, cmt);
+      } else { Success(cmt, js) };
     };
 
-    Hashtbl.replace(blocksByEl, el, (cmt, js, error, options, content));
+    Hashtbl.replace(blocksByEl, el, {status, block});
 
-    (el, id, fileName, options, content, name, js, error)
+    {status, block}
   });
 
   /* let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world"); */
@@ -267,7 +349,7 @@ let escape = text => text
 ;
 
 /* TODO allow package-global settings, like "run this in node" */
-let process = (~test, markdowns, cmts, base) =>  {
+let process = (~test, markdowns, cmts, base, dest) =>  {
 
   let blocks = getCodeBlocks(markdowns, cmts);
   let packageJson = Json.parse(Files.readFile(base /+ "package.json") |! "No package.json in " ++ base);
@@ -279,12 +361,11 @@ let process = (~test, markdowns, cmts, base) =>  {
     print_endline("Running tests");
 
     /* TODO run in parallel - maybe all in the same node process?? */
-    blocks |> List.iter(((el, id, fileName, options, content, name, js, error)) => {
+    blocks |> List.iter(({status, block: {options, fileName, id}}) => {
       if (test && !options.dontRun && !options.shouldParseFail && !options.shouldTypeFail && options.context == Normal) {
         print_endline(string_of_int(id) ++ " - " ++ fileName);
-        switch error {
-        | Some(error) => print_endline("Not running because of error " ++ error)
-        | None =>
+        switch status {
+        | Success(_, js) =>
         let cmd = Printf.sprintf("node -e \"%s\"", snippetLoader(packageJsonName, Files.absify(base), js) |> escape);
         let (output, err, success) = Commands.execFull(cmd);
         /* let (output, err, success) = Commands.execFull("node " ++ js ++ ""); */
@@ -292,31 +373,41 @@ let process = (~test, markdowns, cmts, base) =>  {
           if (success) {
             print_endline(String.concat("\n", output));
             print_endline(String.concat("\n", err));
-            print_endline("Expected to fail but didnt " ++ name ++ " in " ++ fileName);
+            print_endline("Expected to fail but didnt " ++ string_of_int(id) ++ " in " ++ fileName);
           }
         } else {
           if (!success) {
             print_endline(String.concat("\n", output));
             print_endline(String.concat("\n", err));
-            print_endline("Failed to run " ++ name ++ " in " ++ fileName);
+            print_endline("Failed to run " ++ string_of_int(id) ++ " in " ++ fileName);
           };
         }
+        | _ => print_endline("Not running because of error")
         }
       };
-      let jsContents = Files.readFile(js);
+      /* let jsContents = Files.readFile(js); */
       ()
     });
   };
+
+  let optMap = (fn, items) => List.fold_left((result, item) => switch (fn(item)) { | None => result | Some(res) => [res, ...result]}, [], items);
+
+  let allJsFiles: list(string) = blocks |> optMap(({status}) => switch status {
+    | Success(_, js) => Some(js) | _ => None
+  });
+
+  let bundle = Packre.Pack.process(~mode=Packre.Types.JustExternals, ~renames=[(packageJsonName, base)], ~base, allJsFiles);
+  Files.writeFile(dest /+ "all-deps.js", bundle ++ ";window.loadedAllDeps = true;") |> ignore;
 
   (element) => switch element {
   | Omd.Code_block(lang, content) => {
     switch (Hashtbl.find(blocksByEl, element)) {
     | exception Not_found => None
-    | (cmt, js, error, options, content) => {
-      if (options.hide) {
+    | {block, status} => {
+      if (block.options.hide) {
         Some("")
       } else {
-        Some(highlight(lang, content, cmt, js, error))
+        Some(highlight(block, status, js => Packre.Pack.process(~mode=Packre.Types.ExternalEverything, ~renames=[(packageJsonName, base)], ~base, [js])))
       }
     }
     }

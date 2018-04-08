@@ -205,6 +205,7 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
 
   let cssLoc = Filename.concat(dest, "styles.css");
   let jsLoc = Filename.concat(dest, "script.js");
+  let allDeps = Filename.concat(dest, "all-deps.js");
 
   Files.writeFile(cssLoc, DocsTemplate.styles) |> ignore;
   Files.writeFile(jsLoc, DocsTemplate.script) |> ignore;
@@ -221,7 +222,7 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
 
   let processedCmts = cmts |> List.map(cmt => processCmt(getName(cmt), cmt));
 
-  let codeBlocksOverride = CodeSnippets.process(~test, markdowns, processedCmts, base);
+  let codeBlocksOverride = CodeSnippets.process(~test, markdowns, processedCmts, base, dest);
 
   let (searchables, processDocString) = makeDocStringProcessor(dest, codeBlocksOverride);
 
@@ -290,7 +291,7 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
     |}, DocsTemplate.searchStyle);
     let html = Docs.page(~sourceUrl=None, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), "Search", [], projectListing, markdowns, main);
     Files.writeFile(path, html) |> ignore;
-    Files.writeFile(dest /+ "search.js", DocsTemplate.searchScript) |> ignore;
+    Files.writeFile(dest /+ "search.js", SearchScript.js) |> ignore;
     Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
     Files.writeFile(dest /+ "searchables.json", serializeSearchables(searchables^)) |> ignore;
     MakeIndex.run(dest /+ "elasticlunr.js", dest /+ "searchables.json")

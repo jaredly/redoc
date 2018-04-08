@@ -31,7 +31,6 @@ let annotateText = (tags, inserts, text, offset) => {
   let tag_closes = Array.make(positions, 0);
   tags |> List.iter(((cstart, cend, attributes)) => {
     tag_starts[cstart] = [attributes, ...tag_starts[cstart]];
-    /* print_endline(string_of_int(cend)); */
     tag_closes[cend] = tag_closes[cend] + 1;
   });
 
@@ -170,58 +169,32 @@ let collectRanges = (cmt) => {
 let removeIfThere = path => Files.exists(path) ? Unix.unlink(path) : ();
 
 let highlight = (text, cmt) => {
-  /* print_endline("Highlith " ++ cmt); */
-  if (Files.exists(cmt)) {
-    let {Cmt_format.cmt_annots, cmt_builddir, cmt_sourcefile, cmt_modname, cmt_comments} = Cmt_format.read_cmt(cmt);
-    /* Unix.unlink(cmt); */
-    let base = cmt |> Filename.chop_extension;
-    /* removeIfThere(base ++ ".cmi"); */
-    /* removeIfThere(base ++ ".cmj"); */
-    /* removeIfThere(base ++ ".mlast"); */
-    /* removeIfThere(base ++ ".mlast.d"); */
-    let partial = switch cmt_annots {
-    | Cmt_format.Partial_implementation(_) | Cmt_format.Partial_interface(_) => true
-    | _ => false
-    };
-    /* print_endline(cmt_modname ++ " built in " ++ cmt_builddir); */
-    /* switch cmt_sourcefile {
-    | None => print_endline("No source file")
-    | Some(f) => print_endline("Source: " ++ f)
-    }; */
-    cmt_comments |> List.iter(((text, loc)) => {
-      print_endline("Comment: " ++ text);
-    });
-    /* print_newline(); */
+  let {Cmt_format.cmt_annots, cmt_builddir, cmt_sourcefile, cmt_modname, cmt_comments} = Cmt_format.read_cmt(cmt);
+  let base = cmt |> Filename.chop_extension;
+  let partial = switch cmt_annots {
+  | Cmt_format.Partial_implementation(_) | Cmt_format.Partial_interface(_) => true
+  | _ => false
+  };
+  cmt_comments |> List.iter(((text, loc)) => {
+    print_endline("Comment: " ++ text);
+  });
 
-    /* if (partial) {
-      print_endline("⚠️  ⚠️  ⚠️ Compilation failed!!");
-      print_newline();
-      print_endline(text);
-      print_newline();
-    }; */
+  let lines = Str.split(Str.regexp_string("\n"), text);
+  let rec loop = (offset, lines) => {
+    switch lines {
+    | [] => (offset, "")
+    | [line, ...rest] when line != "" && line.[0] == '#' => {
+      loop(offset + String.length(line) + 1, rest)
+    }
+    | _ => (offset, String.concat("\n", lines))
+    }
+  };
+  let (offset, text) = loop(0, lines);
 
-    let lines = Str.split(Str.regexp_string("\n"), text);
-    let rec loop = (offset, lines) => {
-      switch lines {
-      | [] => (offset, "")
-      | [line, ...rest] when line != "" && line.[0] == '#' => {
-        loop(offset + String.length(line) + 1, rest)
-      }
-      | _ => (offset, String.concat("\n", lines))
-      }
-    };
-    let (offset, text) = loop(0, lines);
-
-    let ranges = collectRanges(cmt_annots);
-    let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {
-      (pos_cnum, cend, attributes)
-    });
-    let inserts = []; /* TODO annotate "open"s? */
-    annotateText(tags, inserts, text, offset)
-    /* ++ (partial ? "<div style='color: red'>Compilation failed!!</div>" : "") */
-  } else {
-    /* TODO use the parsed AST if present */
-    Omd_utils.htmlentities(text)
-    /* ++ "<strong>Compilation failed!</strong>" */
-  }
+  let ranges = collectRanges(cmt_annots);
+  let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {
+    (pos_cnum, cend, attributes)
+  });
+  let inserts = []; /* TODO annotate "open"s? */
+  annotateText(tags, inserts, text, offset)
 };

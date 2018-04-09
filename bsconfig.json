@@ -7,10 +7,10 @@
     "error": "+8"
   },
   "sources": [
-    "src",
+    {"dir": "src", "subdirs": true},
     "omd"
   ],
-  "bs-dependencies": ["rex-json", "minimist.re"],
+  "bs-dependencies": ["rex-json", "minimist.re", "pack.re"],
   "ocaml-dependencies": ["compiler-libs", "unix", "bigarray", "str"],
   "entries": [{
     "backend": "native",

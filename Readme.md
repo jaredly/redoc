@@ -36,24 +36,26 @@ The binary is then in `./lib/bs/native/main.native`.
 ## Things still to be implemented
 
 - [ ] Interactive code samples!
-  - [ ] First pass - include the compiled javascript for code samples so you can see the result
+  - [x] First pass - include the compiled javascript for code samples so you can see the result
   - [ ] Second pass - make the code samples editable, with an in-page compiler so you can experiment
 - [ ] Parse the bsconfig.json and package.json of a project
   - [x] to determine the github url
     - [ ] support all types of github specifications https://docs.npmjs.com/files/package.json
-  - [ ] name, source directories, etc.
+  - [x] name, source directories, etc.
 - [ ] Handle ocamldoc (see included octavius source) so we can build ocamly projects too
 - [ ] Support crowdin translations
+- [ ] Support docs versioning -- hang on to older versions & provide links to them
 
 ## itemized work to do
 
-- [ ] accept cli args
+- [ ] "edit" on readme doesn't go to the right place (docs/index.md)
+- [x] accept cli args
 - [x] highlighting in code blocks + hover-for-type
 - [ ] argument-level documentation (refmt doesn't parse this properly :/)
 - [ ] topologically sort the items in the sidebar
 - [ ] allow embedding of the docs for another module in a markdown page / module docs
 - [ ] add cli options for debug, verbose mode, etc.
-- [ ] add cards for social media sharing
+- [ ] add meta tag cards for social media sharing
 - [ ] respect @deprecated (and other things?)
 - [x] aliases - only show the last item of a type path (full on hover)
   - if the last item is "t", then also show the parent

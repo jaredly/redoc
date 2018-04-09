@@ -31,6 +31,8 @@ let execFull = (~input=?, ~env=Unix.environment(), cmd) => {
     };
   };
   let (out, err) = loop(([], [], [cmd_out_descr, cmd_err_descr]));
+  let out = List.rev(out);
+  let err = List.rev(err);
   switch(Unix.close_process_full((cmd_out, cmd_in, cmd_err))) {
     | WEXITED(0) => (out, err, true)
     | WEXITED(_)

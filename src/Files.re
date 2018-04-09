@@ -1,6 +1,16 @@
 
 let split = (str, string) => Str.split(Str.regexp_string(str), string);
 
+let absify = path => {
+  if (path == "") {
+    Unix.getcwd()
+  } else if (path.[0] == '/') {
+    path
+  } else {
+    Filename.concat(Unix.getcwd(), path)
+  }
+};
+
 [@test [
   (("/a/b/c", "/a/b/d"), "../d"),
   (("/a/b/c", "/a/b/d/e"), "../d/e"),
@@ -151,6 +161,14 @@ let rec walk = (path, fn) => {
   | None => ()
   | Some({Unix.st_kind: Unix.S_DIR}) => readDirectory(path) |> List.iter((name) => walk(Filename.concat(path, name), fn));
   | _ => fn(path)
+  }
+};
+
+let rec collectDirs = (path) => {
+  switch (maybeStat(path)) {
+  | None => []
+  | Some({Unix.st_kind: Unix.S_DIR}) => [path, ...readDirectory(path) |> List.map((name) => collectDirs(Filename.concat(path, name))) |> List.concat];
+  | _ => []
   }
 };
 

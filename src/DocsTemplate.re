@@ -93,9 +93,43 @@ let codeBlocks = {|
 }
 
 
+.block-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  box-shadow: 0 0 1px #aaa;
+  border-radius: 3px;
+  margin-left: 16px;
+}
+
+.block-canvas-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 64px;
+  /* margin-left: -26px; */
+  color: rgba(0, 0, 0, 0.2);
+  /* margin-top: -17px; */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
 @media(max-width: 1000px) {
   .block-target-container {
     position: static;
+    margin-left: 0;
+    margin-top: 8px;
+  }
+  .block-canvas-container {
+    top: 0;
+    left: 0;
+    position: relative;
     margin-left: 0;
     margin-top: 8px;
   }
@@ -183,9 +217,11 @@ let blockScript = {|
       if (context === 'canvas') {
         const play = div({class: 'block-canvas-play'}, ["▶"])
         const canvas = node('canvas', {id: 'block-canvas-' + id})
+        canvas.width = 200
+        canvas.height = 200
         play.onclick = () => {
           console.log('start the music!')
-          startBlock.style.display = 'none'
+          play.style.display = 'none'
           runBlock({sandboxCanvas: canvas, sandboxCanvasId: canvas.id})
         }
         const canvasBlock = div({class: 'block-canvas-container'}, [

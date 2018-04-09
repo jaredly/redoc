@@ -164,6 +164,14 @@ let rec walk = (path, fn) => {
   }
 };
 
+let rec collectDirs = (path) => {
+  switch (maybeStat(path)) {
+  | None => []
+  | Some({Unix.st_kind: Unix.S_DIR}) => [path, ...readDirectory(path) |> List.map((name) => collectDirs(Filename.concat(path, name))) |> List.concat];
+  | _ => []
+  }
+};
+
 let rec collect = (path, test) => {
   switch (maybeStat(path)) {
   | None => []

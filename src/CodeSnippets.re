@@ -264,13 +264,65 @@ Module._resolveFilename = function (request, parent, isMain) {
 require('%s')
 |}, name, basePath, snippetPath);
 
+let optMap = (fn, items) => List.fold_left((result, item) => switch (fn(item)) { | None => result | Some(res) => [res, ...result]}, [], items);
+
+let sliceToEnd = (s, num) => String.length(s) < num ? s : String.sub(s, num, String.length(s) - num);
+
+let getSourceDirectories = (base, config) => {
+  let rec handleItem = (current, item) => {
+    switch item {
+    | Json.Array(contents) => List.map(handleItem(current), contents) |> List.concat
+    | Json.String(text) => [text]
+    | Json.Object(_) =>
+      let dir = Json.get("dir", item) |?> Json.string |? "Must specify directory";
+      let typ = item |> Json.get("type") |?> Json.string |? "lib";
+      if (typ == "dev") {
+        []
+      } else {
+        [dir, ...switch (item |> Json.get("subdirs")) {
+        | None => []
+        | Some(Json.True) => Files.collectDirs(current /+ dir) |> List.map(Files.relpath(base))
+        | Some(item) => handleItem(current /+ dir, item)
+        }]
+      }
+    | _ => failwith("Invalid subdirs entry")
+    };
+  };
+  config |> Json.get("sources") |?>> handleItem(base) |? []
+};
+
+let isNative = config => Json.get("entries", config) != None || Json.get("allowed-build-kinds", config) != None;
+
+let getDependencyDirs = (base, config) => {
+  let deps = config |> Json.get("bs-dependencies") |?> Json.array |? [] |> optMap(Json.string);
+  deps |> List.map(name => {
+    let loc = base /+ "node_modules" /+ name;
+    switch (Files.readFile(loc /+ "bsconfig.json")) {
+    | Some(text) =>
+      let inner = Json.parse(text);
+      let allowedKinds = inner |> Json.get("allowed-build-kinds") |?> Json.array |?>> List.map(Json.string |.! "allowed-build-kinds must be strings") |? ["js"];
+      let isNative = isNative(inner);
+      /* TODO get directories from config */
+      if (List.mem("js", allowedKinds)) {
+        getSourceDirectories(loc, inner) |> List.map(name => loc /+ (isNative ? "lib/bs/js" : "lib/bs") /+ name);
+      } else {
+        []
+      }
+    | None =>
+      print_endline("Skipping dependency: " ++ name);
+      []
+    }
+  }) |> List.concat
+};
+
 let compileSnippets = (base, blocks) => {
   let blocksByEl = Hashtbl.create(100);
 
   let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
-  let isNative = config |> Json.get("entries") != None;
+  let isNative = isNative(config);
 
-  let deps = [base /+ (isNative ? "lib/bs/js/src" : "lib/bs/src")]; /* TODO find dependency build directories */
+  let mine = getSourceDirectories(base, config) |> List.map(name => base /+ (isNative ? "lib/bs/js" : "lib/bs") /+ name);
+  let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */
 
   let tmp = base /+ "node_modules/.docre";
   Files.mkdirp(tmp);
@@ -320,13 +372,14 @@ let compileSnippets = (base, blocks) => {
       };
       ParseError(out);
     } else {
-      let cmd = justBscCommand(base, re ++ "_ppx.ast", deps);
+      let cmd = justBscCommand(base, re ++ "_ppx.ast", dependencyDirs);
       let (output, err, success) = Commands.execFull(cmd);
       if (!success) {
         /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
         let out = String.concat("\n", output) ++ String.concat("\n", err);
         let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
         if (!options.shouldTypeFail) {
+        print_endline(cmd);
           print_endline("Failed to compile " ++ re);
           print_endline(out);
           print_endline(reasonContent);
@@ -400,8 +453,6 @@ let process = (~test, markdowns, cmts, base, dest) =>  {
       ()
     });
   };
-
-  let optMap = (fn, items) => List.fold_left((result, item) => switch (fn(item)) { | None => result | Some(res) => [res, ...result]}, [], items);
 
   let allJsFiles: list(string) = blocks |> optMap(({status}) => switch status {
     | Success(_, js) => Some(js) | _ => None

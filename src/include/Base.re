@@ -86,6 +86,23 @@ div.compile-error {
   opacity: 1;
 }
 
+.code-post, .code-pre {
+  padding: 8px 16px;
+  background-color: #eee;
+}
+
+.code-post {
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.code-pre {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.code-post,
+.code-pre,
 .CodeMirror,
 .CodeMirror pre,
 .code-block,

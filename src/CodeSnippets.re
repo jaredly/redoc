@@ -120,8 +120,11 @@ let highlight = ({id, content, options}, status, bundle) => {
   | TypeError(_, cmt) => Some(cmt)
   | Success(cmt, _) => Some(cmt)
   };
-  let code = switch cmt {
-  | None => html(content)
+  let (pre, code, post) = switch cmt {
+  | None => {
+    let (pre, _, code, post, _) = CodeHighlight.codeSections(content);
+    (pre, html(code), post)
+  }
   | Some(cmt) => CodeHighlight.highlight(content, cmt)
   };
 
@@ -138,15 +141,22 @@ let highlight = ({id, content, options}, status, bundle) => {
     )
   };
 
+  let preCode = pre == "" ? "" : "<div class='code-pre'>" ++ html(pre) ++ "</div>";
+  let postCode = post == "" ? "" : "<div class='code-post'>" ++ html(post) ++ "</div>";
+
   sprintf(
     {|<div class='code-block'>
+  %s
   <pre class='code' data-block-id='%d' id='block-%d'><code>%s</code></pre>
   %s
   %s
+  %s
 </div>|},
+    preCode,
     id,
     id,
     code,
+    postCode,
     options.noEdit ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
     after
   )

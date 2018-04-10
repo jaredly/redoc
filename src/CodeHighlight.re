@@ -168,15 +168,35 @@ let collectRanges = (cmt) => {
 
 let removeIfThere = path => Files.exists(path) ? Unix.unlink(path) : ();
 
-let isHashed = t => t != "" && (t.[0] == '#' || (t.[0] == '!' && String.length(t) >= 2 && t.[1] == '#'));
+let sliceToEnd = (text, i) => String.sub(text, i, String.length(text) - i);
 
-let rec separateHashed = (offset, lines) => {
+let isHashed = t => t != "" && (t.[0] == '#' || (t.[0] == '!' && String.length(t) >= 2 && t.[1] == '#'));
+let unHash = t => if (t == "") {
+  t
+} else if (t.[0] == '#') {
+  sliceToEnd(t, 1)
+} else if (String.length(t) >= 2 && t.[0] == '!' && t.[1] == '#') {
+  sliceToEnd(t, 2)
+} else {
+  t
+};
+
+let rec separateHashed = (offset, collector, lines) => {
   switch lines {
   | [line, ...rest] when isHashed(line) => {
-    separateHashed(offset + String.length(line) + 1, rest)
+    separateHashed(offset + String.length(line) + 1, line.[0] == '!' ? [unHash(line), ...collector] : collector, rest)
   }
-  | _ => (offset, lines)
+  | _ => (offset, collector, lines)
   }
+};
+
+let codeSections = text => {
+  let lines = Str.split(Str.regexp_string("\n"), text);
+  let (frontOffset, pre, lines) = separateHashed(0, [], lines);
+  let (backOffset, post, lines) = separateHashed(0, [], List.rev(lines));
+  let backOffset = String.length(text) - backOffset;
+  let text = String.concat("\n", List.rev(lines));
+  (String.trim(String.concat("\n", pre)), frontOffset, text, String.trim(String.concat("\n", List.rev(post))), backOffset)
 };
 
 let highlight = (text, cmt) => {
@@ -190,11 +210,12 @@ let highlight = (text, cmt) => {
     print_endline("Comment: " ++ text);
   });
 
-  let lines = Str.split(Str.regexp_string("\n"), text);
+  let (pre, frontOffset, text, post, backOffset) = codeSections(text);
+  /* let lines = Str.split(Str.regexp_string("\n"), text);
   let (frontOffset, lines) = separateHashed(0, lines);
   let (backOffset, lines) = separateHashed(0, List.rev(lines));
   let backOffset = String.length(text) - backOffset;
-  let text = String.concat("\n", List.rev(lines));
+  let text = String.concat("\n", List.rev(lines)); */
   /* let (offset, text) = loop(0, lines); */
 
   let ranges = collectRanges(cmt_annots);
@@ -202,5 +223,5 @@ let highlight = (text, cmt) => {
     (pos_cnum, cend, attributes)
   });
   let inserts = []; /* TODO annotate "open"s? */
-  annotateText(tags, inserts, text, frontOffset, backOffset)
+  (pre, annotateText(tags, inserts, text, frontOffset, backOffset), post)
 };

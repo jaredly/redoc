@@ -171,6 +171,7 @@ var initBlocks = () => {
 
 
     const execute = (cm, code, before) => {
+      logs.innerHTML = ''
       cm.getAllMarks().forEach(mark => {
         cm.removeLineWidget(mark)
       })

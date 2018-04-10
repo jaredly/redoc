@@ -373,8 +373,14 @@ let compileSnippets = (base, dest, blocks) => {
   }));
   output_string(out, "window.bsRequirePaths = {\n");
   depsMap |> List.iter(((bsRequire, path)) => {
-    output_string(out, Printf.sprintf({|"%s": "%s",
-|}, bsRequire, Files.relpath(base, path)));
+    output_string(
+      out,
+      Printf.sprintf({|"%s": "%s",
+|},
+        bsRequire,
+        Files.relpath(base, path)
+      )
+    );
   });
   output_string(out, "}\n");
   close_out(out);

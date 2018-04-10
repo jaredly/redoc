@@ -11,6 +11,8 @@ let absify = path => {
   }
 };
 
+let removeExtraDots = path => Str.global_replace(Str.regexp_string("/./"), "/", path);
+
 [@test [
   (("/a/b/c", "/a/b/d"), "../d"),
   (("/a/b/c", "/a/b/d/e"), "../d/e"),
@@ -20,12 +22,14 @@ let absify = path => {
 let relpath = (base, path) => {
   let rec loop = (bp, pp) => {
     switch (bp, pp) {
+    | ([".", ...ra], _) => loop(ra, pp)
+    | (_, [".", ...rb]) => loop(bp, rb)
     | ([a, ...ra], [b, ...rb]) when a == b => loop(ra, rb)
     | _ => (bp, pp)
     }
   };
   let (base, path) = loop(split("/", base), split("/", path));
-  String.concat("/", (base == [] ? ["."] : List.map((_) => "..", base)) @ path)
+  String.concat("/", (base == [] ? ["."] : List.map((_) => "..", base)) @ path) |> removeExtraDots
 };
 
 let symlink = (source, dest) => {

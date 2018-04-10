@@ -284,7 +284,7 @@ var initBlocks = () => {
       const canvas = node('canvas', {id: 'block-canvas-' + id})
       canvas.width = 200
       canvas.height = 200
-      context = {sandboxCanvas: canvas, sandboxCanvasId: canvas.id}
+      context = {sandboxCanvas: canvas, sandboxCanvasId: canvas.id, containerDiv: parent}
       playButton.onclick = () => {
         playButton.textContent = loadingIcon
         runBlock(context).then(() => {
@@ -301,7 +301,7 @@ var initBlocks = () => {
       const container = div({class: 'block-target-container'}, [target])
       parent.appendChild(container)
       playButton = div({class: 'block-target-right'}, [playIcon])
-      context = {sandboxDiv: target, sandboxDivId: target.id}
+      context = {sandboxDiv: target, sandboxDivId: target.id, containerDiv: parent}
       onEditRun = () => container.classList.add('active')
       playButton.onclick = () => {
         playButton.textContent = loadingIcon
@@ -315,7 +315,7 @@ var initBlocks = () => {
       playButton = div({class: 'block-target-right'}, [playIcon])
       playButton.onclick = () => {
         playButton.textContent = loadingIcon
-        runBlock({}).then(() => {
+        runBlock({containerDiv: parent}).then(() => {
           playButton.style.display = 'none'
         })
       }

@@ -385,7 +385,11 @@ let getBsbVersion = base => {
 };
 
 let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
-  let compiledRoot = root /+ "lib/bs/js/";
+  Files.mkdirp(target);
+  let bsConfig = Json.parse(Files.readFile(root /+ "bsconfig.json") |! "No bsconfig.json found");
+  let sourceDirectories = CodeSnippets.getSourceDirectories(root, bsConfig);
+
+  /* let compiledRoot = root /+ "lib/bs/js/";
   let compiledRoot = if (!Files.exists(compiledRoot)) {
     let compiledRoot = root /+ "lib/bs/";
     if (!Files.exists(compiledRoot)) {
@@ -397,7 +401,11 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   } else {
     compiledRoot
   };
-  let found = Files.collect(compiledRoot, isCmt);
+  let found = Files.collect(compiledRoot, isCmt); */
+  let isNative = CodeSnippets.isNative(bsConfig);
+  let compiledRoot = root /+ (isNative ? "lib/bs/js" : "lib/bs");
+  let found = sourceDirectories |> List.map(name => compiledRoot /+ name) |> List.map(p => Files.collect(p, isCmt)) |> List.concat;
+
   let markdowns = getMarkdowns(projectName, root, target);
   let url = ParseConfig.getUrl(root);
 

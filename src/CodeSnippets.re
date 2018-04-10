@@ -284,23 +284,25 @@ let getSourceDirectories = (base, config) => {
   let rec handleItem = (current, item) => {
     switch item {
     | Json.Array(contents) => List.map(handleItem(current), contents) |> List.concat
-    | Json.String(text) => [text]
+    | Json.String(text) => [current /+ text]
     | Json.Object(_) =>
       let dir = Json.get("dir", item) |?> Json.string |? "Must specify directory";
+      let backend = item |> Json.get("backend") |?> Json.array |?>> optMap(Json.string) |? ["js"];
+      /* print_endline("Backend? " ++ String.concat(" & ", backend)); */
       let typ = item |> Json.get("type") |?> Json.string |? "lib";
-      if (typ == "dev") {
+      if (typ == "dev" || !List.mem("js", backend)) {
         []
       } else {
-        [dir, ...switch (item |> Json.get("subdirs")) {
+        [current /+ dir, ...switch (item |> Json.get("subdirs")) {
         | None => []
-        | Some(Json.True) => Files.collectDirs(current /+ dir) |> List.map(Files.relpath(base))
+        | Some(Json.True) => Files.collectDirs(base /+ current /+ dir) |> List.map(Files.relpath(base))
         | Some(item) => handleItem(current /+ dir, item)
         }]
       }
     | _ => failwith("Invalid subdirs entry")
     };
   };
-  config |> Json.get("sources") |?>> handleItem(base) |? []
+  config |> Json.get("sources") |?>> handleItem("") |? []
 };
 
 let isNative = config => Json.get("entries", config) != None || Json.get("allowed-build-kinds", config) != None;
@@ -348,6 +350,9 @@ let compileSnippets = (base, dest, blocks) => {
     base /+ "lib/js" /+ name
   ));
   let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */
+  /* print_endline("All deps:"); */
+  /* dependencyDirs |> List.iter(((a, b)) => print_endline("  " ++ a)); */
+  /* failwith("Sadness"); */
 
   let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat;
   let out = open_out(dest /+ "bucklescript-deps.js");

@@ -132,6 +132,8 @@ let codeBlocks = {|
     position: relative;
     margin-left: 0;
     margin-top: 8px;
+    display: flex;
+    justify-content: center;
   }
 }
 

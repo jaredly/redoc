@@ -114,7 +114,7 @@ let sprintf = Printf.sprintf;
 let html = Omd_utils.htmlentities;
 let escapeScript = text => Str.global_replace(Str.regexp_string("</script"), "<\\/script", text);
 
-let highlight = ({id, content, options}, status, bundle) => {
+let highlight = (~editingEnabled, {id, content, options}, status, bundle) => {
   let cmt = switch status {
   | ParseError(_) => None
   | TypeError(_, cmt) => Some(cmt)
@@ -157,7 +157,7 @@ let highlight = ({id, content, options}, status, bundle) => {
     id,
     code,
     postCode,
-    options.noEdit ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
+    (!editingEnabled || options.noEdit) ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
     after
   )
 };
@@ -472,7 +472,7 @@ let escape = text => text
 ;
 
 /* TODO allow package-global settings, like "run this in node" */
-let process = (~test, markdowns, cmts, base, dest) =>  {
+let process = (~editingEnabled, ~test, markdowns, cmts, base, dest) =>  {
 
   let blocks = getCodeBlocks(markdowns, cmts);
   let packageJson = Json.parse(Files.readFile(base /+ "package.json") |! "No package.json in " ++ base);
@@ -540,7 +540,7 @@ let process = (~test, markdowns, cmts, base, dest) =>  {
       if (block.options.hide) {
         Some("")
       } else {
-        Some(highlight(block, status, js => Packre.Pack.process(~mode=Packre.Types.ExternalEverything, ~renames=[(packageJsonName, base)], ~base, [js])))
+        Some(highlight(~editingEnabled, block, status, js => Packre.Pack.process(~mode=Packre.Types.ExternalEverything, ~renames=[(packageJsonName, base)], ~base, [js])))
       }
     }
     }

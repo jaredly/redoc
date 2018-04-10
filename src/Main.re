@@ -198,7 +198,7 @@ let makeDocStringProcessor = (dest, outerOverride) => {
 };
 open Infix;
 
-let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: list((string, option(string), Omd.t, string))) => {
+let generateMultiple = (~editingEnabled, ~test, base, compiledBase, url, dest, cmts, markdowns: list((string, option(string), Omd.t, string))) => {
   Files.mkdirp(dest);
 
   let cmts = filterDuplicates(cmts);
@@ -222,7 +222,7 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
 
   let processedCmts = cmts |> List.map(cmt => processCmt(getName(cmt), cmt));
 
-  let codeBlocksOverride = CodeSnippets.process(~test, markdowns, processedCmts, base, dest);
+  let codeBlocksOverride = CodeSnippets.process(~editingEnabled, ~test, markdowns, processedCmts, base, dest);
 
   let (searchables, processDocString) = makeDocStringProcessor(dest, codeBlocksOverride);
 
@@ -374,6 +374,16 @@ let isCmt = name => {
   !startsWith(Filename.basename(name), CodeSnippets.codeBlockPrefix) && (Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
 };
 
+let getBsbVersion = base => {
+  let (out, success) = Commands.execSync(base /+ "node_modules/.bin/bsb -version");
+  if (!success) {
+    "2.2.3"
+  } else {
+    let out = String.concat("", out) |> String.trim;
+    out
+  }
+};
+
 let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   let compiledRoot = root /+ "lib/bs/js/";
   let compiledRoot = if (!Files.exists(compiledRoot)) {
@@ -390,15 +400,29 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   let found = Files.collect(compiledRoot, isCmt);
   let markdowns = getMarkdowns(projectName, root, target);
   let url = ParseConfig.getUrl(root);
-  generateMultiple(~test, root, compiledRoot, url, target, found, markdowns);
 
   let static = Filename.dirname(selfPath) /+ "../../../static";
-  ["bs-2.2.4.js", "jsx-ppx.js", "refmt.js", "block-script.js",
+  let bsbVersion = getBsbVersion(root);
+  let bsbFile = static /+ "bs-" ++ bsbVersion ++ ".js";
+  let editingEnabled = Files.exists(bsbFile);
+  if (editingEnabled) {
+    Files.copy(bsbFile, target /+ "bucklescript.js") |> ignore;
+  } else {
+    print_endline("No bucklescript file available -- editing will be disabled")
+  };
+
+  generateMultiple(~editingEnabled, ~test, root, compiledRoot, url, target, found, markdowns);
+
+  [
+  "block-script.js",
+  ...editingEnabled ? [
+  "jsx-ppx.js", "refmt.js",
   "codemirror-5.36.0/lib/codemirror.js",
   "codemirror-5.36.0/lib/codemirror.css",
   "codemirror-5.36.0/mode/rust/rust.js",
   "codemirror-5.36.0/addon/mode/simple.js",
-  ] |> List.iter(name => {
+  ] : []]
+  |> List.iter(name => {
     print_endline("Copy " ++ static /+ name);
     Files.copy(static /+ name, target /+ Filename.basename(name)) |> ignore;
   });

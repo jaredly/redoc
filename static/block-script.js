@@ -61,7 +61,7 @@ const memoLoad = absPath => {
 const loadDeps = memoLoad('all-deps.js');
 const loadJsx = memoLoad('jsx-ppx.js');
 const loadRefmt = memoLoad('refmt.js');
-const loadOcaml = memoLoad('bs-2.2.4.js');
+const loadOcaml = memoLoad('bucklescript.js');
 const loadOcamlDeps = memoLoad('bucklescript-deps.js');
 const loadCodeMirror = memoLoad('codemirror.js');
 const loadRust = memoLoad('rust.js');
@@ -213,7 +213,11 @@ var initBlocks = () => {
 
         let js
         try {
-          const result = window.ocaml.compile(ppxed)
+          let result = window.ocaml.compile(ppxed)
+          if (typeof result === 'string') {
+            // bs 2.2.3
+            result = JSON.parse(result)
+          }
           const {js_code, js_error_msg, row, column, endRow, endColumn} = result
           if (!js_code && js_error_msg) {
             // TODO: just compile the straight reason, so these numbers mean something

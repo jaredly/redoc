@@ -244,26 +244,29 @@ var initBlocks = () => {
       let before = 0
       let after = 0
       for (let i=0; i<lines.length; i++) {
-        if (lines[i][0] != '#') {
+        let line = lines[i]
+        if (line[0] == '#' || (line[0] == '!' && line[1] == '#')) {
+          before = i + 1
+        } else {
           break
         }
-        before = i + 1
       }
 
       for (let i=1; i<=lines.length; i++) {
-        if (lines[lines.length - i][0] != '#') {
+        let line = lines[lines.length - i]
+        if (line[0] == '#' || (line[0] == '!' && line[1] == '#')) {
+          after = i
+        } else {
           break
         }
-        after = i
       }
       return {
         before,
-        prefix: lines.slice(0, before).map(m => m.slice(1)).join('\n') + (before > 0 ? '\n' : ''),
+        prefix: lines.slice(0, before).map(m => m.replace(/^!?#/, '')).join('\n') + (before > 0 ? '\n' : ''),
         mainCode: lines.slice(before, lines.length - after).join('\n'),
-        suffix: (after > 0 ? '\n' : '') + lines.slice(lines.length - after).map(m => m.slice(1)).join('\n'),
+        suffix: (after > 0 ? '\n' : '') + lines.slice(lines.length - after).map(m => m.replace(/^!?#/, '')).join('\n'),
       }
     }
-
 
     let onEditRun = () => {};
 

@@ -168,6 +168,17 @@ let collectRanges = (cmt) => {
 
 let removeIfThere = path => Files.exists(path) ? Unix.unlink(path) : ();
 
+let isHashed = t => t != "" && (t.[0] == '#' || (t.[0] == '!' && String.length(t) >= 2 && t.[1] == '#'));
+
+let rec separateHashed = (offset, lines) => {
+  switch lines {
+  | [line, ...rest] when isHashed(line) => {
+    separateHashed(offset + String.length(line) + 1, rest)
+  }
+  | _ => (offset, lines)
+  }
+};
+
 let highlight = (text, cmt) => {
   let {Cmt_format.cmt_annots, cmt_builddir, cmt_sourcefile, cmt_modname, cmt_comments} = Cmt_format.read_cmt(cmt);
   let base = cmt |> Filename.chop_extension;
@@ -180,16 +191,8 @@ let highlight = (text, cmt) => {
   });
 
   let lines = Str.split(Str.regexp_string("\n"), text);
-  let rec loop = (offset, lines) => {
-    switch lines {
-    | [line, ...rest] when line != "" && line.[0] == '#' => {
-      loop(offset + String.length(line) + 1, rest)
-    }
-    | _ => (offset, lines)
-    }
-  };
-  let (frontOffset, lines) = loop(0, lines);
-  let (backOffset, lines) = loop(0, List.rev(lines));
+  let (frontOffset, lines) = separateHashed(0, lines);
+  let (backOffset, lines) = separateHashed(0, List.rev(lines));
   let backOffset = String.length(text) - backOffset;
   let text = String.concat("\n", List.rev(lines));
   /* let (offset, text) = loop(0, lines); */

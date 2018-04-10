@@ -162,14 +162,14 @@ let removeHashes = text => {
   | [] => []
   | ["", ...rest] => ["", ...loop(rest)]
   | [one, ...rest] when one.[0] == '#' => [" " ++ sliceToEnd(one, 1), ...loop(rest)]
+  | [one, ...rest] when one.[0] == '!' && String.length(one) >= 2 && one.[1] == '#' => ["  " ++ sliceToEnd(one, 2), ...loop(rest)]
   | _ => lines
   };
   let front = loop(splitLines(text));
   String.concat("\n", List.rev(loop(List.rev(front))))
 };
 
-
-let hashAll = text => splitLines(text) |> List.map(t => (t == "" || t.[0] != '#') ? "#" ++ t : t) |> String.concat("\n");
+let hashAll = text => splitLines(text) |> List.map(t => (CodeHighlight.isHashed(t) ? t : "#" ++ t)) |> String.concat("\n");
 
 let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));

@@ -55,6 +55,11 @@ div.compile-error {
   white-space: pre-wrap;
 }
 
+.CodeMirror {
+  height: auto!important;
+}
+
+.code-block,
 pre > code,
 h4.item,
 .type-viewer,

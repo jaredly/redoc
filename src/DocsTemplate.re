@@ -141,123 +141,6 @@ let codeBlocks = {|
 
 let styles = Base.css ++ SyntaxHighlighting.css ++ codeBlocks;
 
-let blockScript = {|
-  let loadingPromise = null
-  var loadDeps = () => {
-    if (loadingPromise) {
-      return loadingPromise
-    }
-    loadingPromise = new Promise((res, rej) => {
-      const src = window.relativeToRoot + '/all-deps.js'
-      const script = node('script', {src});
-      script.onload = () => res();
-      script.onerror = e => rej(e);
-      document.body.appendChild(script)
-    })
-    return loadingPromise
-  };
-
-  var initBlocks = () => {
-    ;[].forEach.call(document.querySelectorAll('div.block-target'), el => {
-      const context = el.getAttribute('data-context');
-      const id = el.getAttribute('data-block-id');
-      const parent = el.parentNode;
-
-      const logs = div({class: 'block-logs'}, []);
-
-      const addLog = (level, items) => {
-        var text = ''
-        if (items.length === 1 && typeof items[0] === 'string') {
-          text = items[0]
-        } else {
-          text = JSON.stringify(items)
-        }
-        logs.appendChild(div({class: 'block-log level-' + level}, [text]))
-      };
-
-      let ran = false
-
-      window.process = {env: {NODE_ENV: 'production'}}
-
-      const runBlock = (context) => {
-        if (ran) {
-          return
-        }
-        ran = true
-        loadDeps().then(() => {
-          const bundle = document.querySelector('script[type=docre-bundle][data-block-id="' + id + '"]')
-          console.log(id)
-          if (!bundle) {
-            console.error('bundle not found')
-            return
-          }
-          const oldConsole = window.console
-          window.console = {
-            ...window.console,
-            log: (...items) => {oldConsole.log(...items); addLog('log', items)},
-            warn: (...items) => {oldConsole.warn(...items); addLog('warn', items)},
-            error: (...items) => {oldConsole.error(...items); addLog('error', items)},
-          }
-          Object.assign(window, context)
-          // ok folks we're done
-          try {
-            // TODO check if it's a promise or something... and maybe wait?
-            eval(bundle.textContent);
-          } catch (error) {
-            oldConsole.error(error)
-            addLog('error', [error && error.message])
-          }
-          window.console = oldConsole
-          for (let name in context) {
-            window[name] = null
-          }
-        })
-      }
-
-      if (context === 'canvas') {
-        const play = div({class: 'block-canvas-play'}, ["▶"])
-        const canvas = node('canvas', {id: 'block-canvas-' + id})
-        canvas.width = 200
-        canvas.height = 200
-        play.onclick = () => {
-          console.log('start the music!')
-          play.style.display = 'none'
-          runBlock({sandboxCanvas: canvas, sandboxCanvasId: canvas.id})
-        }
-        const canvasBlock = div({class: 'block-canvas-container'}, [
-          canvas,
-          play
-        ]);
-        parent.appendChild(canvasBlock)
-      } else if (context === 'div') {
-        const target = div({id: 'block-target-div-' + id})
-        const container = div({class: 'block-target-container'}, [target])
-        parent.appendChild(container)
-        const startBlock = div({class: 'block-target-right'}, ["▶"])
-        startBlock.onclick = () => {
-          startBlock.style.display = 'none'
-          container.classList.add('active')
-          runBlock({sandboxDiv: target, sandboxDivId: target.id})
-        }
-        parent.appendChild(startBlock)
-      } else {
-        /*
-        const startBlock = div({class: 'block-target-small'}, ["▶"])
-        parent.appendChild(startBlock)
-        startBlock.onclick = () => {
-          startBlock.style.display = 'none'
-          runBlock({})
-        }
-        */
-      }
-
-      parent.appendChild(logs)
-    })
-  }
-
-
-|};
-
 let typeScript = {|
 var listenForTypes = () => {
   var typeViewer = document.createElement('div')
@@ -285,7 +168,7 @@ var listenForTypes = () => {
 }
 |};
 
-let script = ";(function() {" ++ SearchScript.framework ++ blockScript ++ typeScript ++ {|
+let script = ";(function() {" ++ SearchScript.framework ++ typeScript ++ {|
 var checkHash = () => {
   if (!window.shouldCheckHashes) {
     return
@@ -314,7 +197,6 @@ window.onload = () => {
     }
   }
   listenForTypes();
-  initBlocks();
 }
 window.onhashchange = checkHash
 |} ++ "})();";
@@ -328,6 +210,7 @@ let head = (~relativeToRoot, ~cssLoc=?, ~jsLoc=?, name) => Printf.sprintf({|
 <title>%s</title>
 <body>
 <script>window.relativeToRoot=%S</script>
+<script defer src="%s/block-script.js"></script>
 <div id='error-message'>
   ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
 </div>
@@ -337,4 +220,4 @@ let head = (~relativeToRoot, ~cssLoc=?, ~jsLoc=?, name) => Printf.sprintf({|
 }, switch jsLoc {
 | None => "<script>" ++ script ++ "</script>"
 | Some(loc) => "<script defer src='" ++ loc ++ "'></script>"
-}, name, relativeToRoot);
+}, name, relativeToRoot, relativeToRoot);

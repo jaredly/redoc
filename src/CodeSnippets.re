@@ -26,7 +26,7 @@ type codeOptions = {
   hide: bool,
 };
 
-let matchOption = (text, option) => if (Str.string_match(Str.regexp("^" ++ option ++ "(\([^)]+\))$"), text, 0)) {
+let matchOption = (text, option) => if (Str.string_match(Str.regexp("^" ++ option ++ "(\\([^)]+\\))$"), text, 0)) {
   Some(Str.matched_group(1, text));
 } else {
   None
@@ -304,7 +304,10 @@ let getDependencyDirs = (base, config) => {
       let isNative = isNative(inner);
       /* TODO get directories from config */
       if (List.mem("js", allowedKinds)) {
-        getSourceDirectories(loc, inner) |> List.map(name => loc /+ (isNative ? "lib/bs/js" : "lib/bs") /+ name);
+        getSourceDirectories(loc, inner) |> List.map(name => (
+          loc /+ (isNative ? "lib/bs/js" : "lib/bs") /+ name,
+          loc /+ "lib/js" /+ name,
+        ));
       } else {
         []
       }
@@ -315,14 +318,57 @@ let getDependencyDirs = (base, config) => {
   }) |> List.concat
 };
 
-let compileSnippets = (base, blocks) => {
+let startsWith = (prefix, string) => {
+  let lp = String.length(prefix);
+  lp <= String.length(string) && String.sub(string, 0, lp) == prefix
+};
+
+let invert = (f, a) => !f(a);
+
+let compileSnippets = (base, dest, blocks) => {
   let blocksByEl = Hashtbl.create(100);
 
   let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
   let isNative = isNative(config);
 
-  let mine = getSourceDirectories(base, config) |> List.map(name => base /+ (isNative ? "lib/bs/js" : "lib/bs") /+ name);
+  let mine = getSourceDirectories(base, config) |> List.map(name => (
+    base /+ (isNative ? "lib/bs/js" : "lib/bs") /+ name,
+    base /+ "lib/js" /+ name
+  ));
   let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */
+
+  let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat;
+  let out = open_out(dest /+ "bucklescript-deps.js");
+  print_endline("Deps : " ++ String.concat(", ", depsToLoad));
+
+  let depsMap = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => {
+    let path = dir /+ name;
+    let cmj = Filename.chop_extension(name) ++ ".cmj";
+    let js = Filename.chop_extension(name) ++ ".js";
+
+    output_string(out, "ocaml.load_module(\"/static/cmis/" ++ name ++ "\", ");
+    SerializeBinary.pp_string(out, Files.readFile(path) |! "file not readable " ++ path);
+    output_string(out, ",\n\"" ++ cmj ++ "\", ");
+    SerializeBinary.pp_string(out, Files.readFile(Filename.chop_extension(path) ++ ".cmj") |! "cmj not readable " ++ path);
+    output_string(out, ");\n");
+
+    ("stdlib" /+ String.uncapitalize(Filename.chop_extension(name)), jsDir /+ js)
+  })) |> List.concat;
+  let stdlib = base /+ "node_modules/bs-platform/lib/js";
+  let stdlibRequires = Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name);
+  let depsMap = depsMap @ (stdlibRequires |> List.map(path => {
+    ("stdlib" /+ String.uncapitalize(Filename.chop_extension(Filename.basename(path))), path)
+  }));
+  output_string(out, "window.bsRequirePaths = {\n");
+  depsMap |> List.iter(((bsRequire, path)) => {
+    output_string(out, Printf.sprintf({|"%s": "%s",
+|}, bsRequire, Files.relpath(base, path)));
+  });
+  output_string(out, "}\n");
+  close_out(out);
+  print_endline("wrote");
+
+
 
   let tmp = base /+ "node_modules/.docre";
   Files.mkdirp(tmp);
@@ -372,7 +418,8 @@ let compileSnippets = (base, blocks) => {
       };
       ParseError(out);
     } else {
-      let cmd = justBscCommand(base, re ++ "_ppx.ast", dependencyDirs);
+      let includes = dependencyDirs |> List.map(fst);
+      let cmd = justBscCommand(base, re ++ "_ppx.ast", includes);
       let (output, err, success) = Commands.execFull(cmd);
       if (!success) {
         /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
@@ -403,7 +450,7 @@ let compileSnippets = (base, blocks) => {
   }; */
       /* Unix.unlink(src /+ name ++ ".re"); */
 
-  (blocksByEl, blocks)
+  (blocksByEl, blocks, stdlibRequires)
 };
 
 let escape = text => text
@@ -419,7 +466,7 @@ let process = (~test, markdowns, cmts, base, dest) =>  {
   let packageJson = Json.parse(Files.readFile(base /+ "package.json") |! "No package.json in " ++ base);
   let packageJsonName = packageJson |> Json.get("name") |?> Json.string |! "Missing name in package.json";
 
-  let (blocksByEl, blocks) = compileSnippets(base, blocks);
+  let (blocksByEl, blocks, stdlibRequires) = compileSnippets(base, dest, blocks);
 
   if (test) {
     print_endline("Running tests");
@@ -458,7 +505,13 @@ let process = (~test, markdowns, cmts, base, dest) =>  {
     | Success(_, js) => Some(js) | _ => None
   });
 
-  let bundle = Packre.Pack.process(~mode=Packre.Types.JustExternals, ~renames=[(packageJsonName, base)], ~base, allJsFiles);
+  let bundle = Packre.Pack.process(
+    ~mode=Packre.Types.JustExternals,
+    ~renames=[(packageJsonName, base)],
+    ~extraRequires=stdlibRequires,
+    ~base,
+    allJsFiles
+  );
   Files.writeFile(dest /+ "all-deps.js", bundle ++ ";window.loadedAllDeps = true;") |> ignore;
 
   (element) => switch element {

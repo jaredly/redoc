@@ -261,12 +261,11 @@ let generateMultiple = (~test, base, compiledBase, url, dest, cmts, markdowns: l
     let (tocItems, override) = GenerateDoc.trackToc(~lower=true, 0, linkifyMarkdown(path, dest));
     let searchPrinter = GenerateDoc.printer(searchHref(names), []);
     let main = processDocString(searchPrinter, path, name, ~override, [], name, None, contents);
-    /* Omd.to_html(~override, Omd.of_string(contents)); */
 
     let sourceUrl = url |?> (url => {
       source |?>> (source => {
         let relative = Files.relpath(dest, source);
-        url ++ "docs/" ++ relative
+        url /+ Files.relpath(base, dest) /+ relative
       })
     });
 
@@ -347,22 +346,21 @@ let getTitle = (path, base) => {
   }
 };
 
-let getMarkdowns = (projectName, base) => {
-  let docsBase = base /+ "docs";
-  let files = Files.collect(docsBase, name => Filename.check_suffix(name, ".md"));
+let getMarkdowns = (projectName, base, target) => {
+  let files = Files.collect(target, name => Filename.check_suffix(name, ".md"));
   let files = files |> List.map(path => {
-    (getOrder(path), htmlName(path), Some(path), Files.readFile(path) |> unwrap("Unable to read markdown file " ++ path), getTitle(path, docsBase))
+    (getOrder(path), htmlName(path), Some(path), Files.readFile(path) |> unwrap("Unable to read markdown file " ++ path), getTitle(path, target))
   });
-  let files = if (!List.exists(((_, path, _, _, _)) => String.lowercase(path) == String.lowercase(docsBase) /+ "readme.md", files)) {
+  let files = if (!List.exists(((_, path, _, _, _)) => String.lowercase(path) == String.lowercase(target) /+ "readme.md", files)) {
     let readme = base /+ "Readme.md";
     switch (Files.readDirectory(base) |> List.find(name => String.lowercase(name) == "readme.md")) {
     | exception Not_found => {
-      [("", base /+ "docs" /+ "index.html", None,  "# " ++ projectName ++ "\n\nWelcome to the documentation!", "Home"), ...files]
+      [("", target /+ "index.html", None,  "# " ++ projectName ++ "\n\nWelcome to the documentation!", "Home"), ...files]
     }
     | name => {
       let readme = base /+ name;
       let contents = Files.readFile(readme) |! "Unable to read " ++ readme;
-      [("", base /+ "docs" /+ "index.html", Some(readme), contents, "Home"), ...files]
+      [("", target /+ "index.html", Some(readme), contents, "Home"), ...files]
     }
     }
   } else {
@@ -376,7 +374,7 @@ let isCmt = name => {
   !startsWith(Filename.basename(name), CodeSnippets.codeBlockPrefix) && (Filename.check_suffix(name, ".cmt") || Filename.check_suffix(name, ".cmti"));
 };
 
-let generateProject = (~projectName, ~root, ~target, ~test) => {
+let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   let compiledRoot = root /+ "lib/bs/js/";
   let compiledRoot = if (!Files.exists(compiledRoot)) {
     let compiledRoot = root /+ "lib/bs/";
@@ -390,12 +388,22 @@ let generateProject = (~projectName, ~root, ~target, ~test) => {
     compiledRoot
   };
   let found = Files.collect(compiledRoot, isCmt);
-  let markdowns = getMarkdowns(projectName, root);
+  let markdowns = getMarkdowns(projectName, root, target);
   let url = ParseConfig.getUrl(root);
-  generateMultiple(~test, root, compiledRoot, url, root /+ "docs", found, markdowns);
-  let localUrl = "file://" ++ Files.absify(root) /+ "docs" /+ "index.html";
+  generateMultiple(~test, root, compiledRoot, url, target, found, markdowns);
+
+  let static = Filename.dirname(selfPath) /+ "../../../static";
+  ["bs-2.2.4.js", "jsx-ppx.js", "refmt.js", "block-script.js",
+  "codemirror-5.36.0/lib/codemirror.js",
+  "codemirror-5.36.0/lib/codemirror.css",
+  ] |> List.iter(name => {
+    print_endline("Copy " ++ static /+ name);
+    Files.copy(static /+ name, target /+ Filename.basename(name)) |> ignore;
+  });
+
+  let localUrl = "file://" ++ Files.absify(target) /+ "index.html";
   print_newline();
-  print_endline("Complete! Docs are available in " ++ (root /+ "docs") ++ "\nOpen " ++ localUrl ++ " in your browser to view");
+  print_endline("Complete! Docs are available in " ++ target ++ "\nOpen " ++ localUrl ++ " in your browser to view");
   print_newline();
 };
 
@@ -429,7 +437,10 @@ let fail = (msg) => {
   exit(1);
 };
 
-let args = List.tl(Array.to_list(Sys.argv));
+let (selfPath, args) = switch (Array.to_list(Sys.argv)) {
+| [] => { print_endline(help); exit(0); }
+| [one, ...rest] => (one, rest)
+};
 
 open Infix;
 
@@ -443,7 +454,7 @@ switch (parse(args)) {
     let root = get(strings, "root") |? Unix.getcwd();
     let target = get(strings, "target") |? (root /+ "docs");
     let projectName = get(strings, "name") |? String.capitalize(Filename.dirname(root));
-    generateProject(~root, ~target, ~projectName, ~test=has("doctest", presence))
+    generateProject(~selfPath, ~root, ~target, ~projectName, ~test=has("doctest", presence))
   }
 };
 

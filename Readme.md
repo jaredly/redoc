@@ -48,11 +48,11 @@ The binary is then in `./lib/bs/native/main.native`.
 
 ## itemized work to do
 
-- [ ] "edit" on readme doesn't go to the right place (docs/index.md)
+- [x] "edit" on readme doesn't go to the right place (docs/index.md)
 - [x] accept cli args
 - [x] highlighting in code blocks + hover-for-type
 - [ ] argument-level documentation (refmt doesn't parse this properly :/)
-- [ ] topologically sort the items in the sidebar
+- [ ] topologically sort the items in the sidebar - or just allow you to specify order
 - [ ] allow embedding of the docs for another module in a markdown page / module docs
 - [ ] add cli options for debug, verbose mode, etc.
 - [ ] add meta tag cards for social media sharing

@@ -19,6 +19,7 @@ type codeOptions = {
   shouldParseFail: bool,
   shouldTypeFail: bool,
   shouldRaise: bool,
+  noEdit: bool,
   dontRun: bool,
   isolate: bool,
   sharedAs: option(string),
@@ -54,7 +55,8 @@ let parseCodeOptions = lang => {
       | "parse-fail" => {...options, shouldParseFail: true}
       | "type-fail" => {...options, shouldTypeFail: true}
       | "isolate" => {...options, isolate: true}
-      | "dont-run" => {...options, dontRun: true}
+      | "no-run" => {...options, dontRun: true}
+      | "no-edit" => {...options, noEdit: true}
       | "hide" => {...options, hide: true}
       | "reason" => options
       | _ => {
@@ -78,6 +80,7 @@ let parseCodeOptions = lang => {
       shouldTypeFail: false,
       shouldRaise: false,
       dontRun: false,
+      noEdit: false,
       isolate: false,
       sharedAs: None,
       uses: [],
@@ -125,7 +128,7 @@ let highlight = ({id, content, options}, status, bundle) => {
   let after = switch status {
   | ParseError(text) => sprintf({|<div class='parse-error'>Parse Error:\n%s</div>|}, html(text))
   | TypeError(text, _) => sprintf({|<div class='type-error'>Type Error:\n%s</div>|}, html(text))
-  | Success(cmt, js) => Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
+  | Success(cmt, js) => options.dontRun ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
       switch options.context {
       | Node => ""
       | _ => sprintf({|<div data-block-id='%d' data-context=%S class='block-target'></div>|}, id, contextString(options.context))
@@ -138,14 +141,13 @@ let highlight = ({id, content, options}, status, bundle) => {
   sprintf(
     {|<div class='code-block'>
   <pre class='code' data-block-id='%d' id='block-%d'><code>%s</code></pre>
-  <script type='docre-source' data-block-id="%d">%s</script>
+  %s
   %s
 </div>|},
     id,
     id,
     code,
-    id,
-    escapeScript(content),
+    options.noEdit ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
     after
   )
 };

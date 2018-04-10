@@ -59,7 +59,37 @@ div.compile-error {
   height: auto!important;
 }
 
+.CodeMirror-error-mark {
+  background-color: red;
+}
+
+.code-edit-run,
+.code-edit-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 4px 8px;
+  background-color: #eee;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.code-edit-run {
+  opacity: 1;
+  background-color: #8aff62;
+  z-index: 1000;
+  border-radius: 3px;
+}
+
+.code-block:hover .code-edit-button {
+  opacity: 1;
+}
+
+.CodeMirror,
+.CodeMirror pre,
 .code-block,
+.code-block .CodeMirror pre,
 pre > code,
 h4.item,
 .type-viewer,

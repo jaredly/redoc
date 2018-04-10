@@ -3,6 +3,8 @@ let css = {|
 pre.code > code {
   color: #aaa;
 }
+
+.code-block > .CodeMirror,
 pre.code {
   border-radius: 3px;
   box-shadow: 0 0.5px 3px #aaa;

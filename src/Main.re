@@ -396,6 +396,8 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   ["bs-2.2.4.js", "jsx-ppx.js", "refmt.js", "block-script.js",
   "codemirror-5.36.0/lib/codemirror.js",
   "codemirror-5.36.0/lib/codemirror.css",
+  "codemirror-5.36.0/mode/rust/rust.js",
+  "codemirror-5.36.0/addon/mode/simple.js",
   ] |> List.iter(name => {
     print_endline("Copy " ++ static /+ name);
     Files.copy(static /+ name, target /+ Filename.basename(name)) |> ignore;

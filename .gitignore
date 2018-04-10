@@ -8,3 +8,4 @@ npm-debug.log
 log_types.txt
 *.install
 _build
+static/codemirror-5.36.0

@@ -1,5 +1,6 @@
 
 open PrepareDocs.T;
+open CmtFindStamps.T;
 
 let rec findByName = (allDocs, name) => {
   switch allDocs {

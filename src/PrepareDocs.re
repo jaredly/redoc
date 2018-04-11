@@ -2,7 +2,7 @@
 open PrepareUtils;
 
 module T = {
-  type pathType = PrintType.pathType = PModule | PModuleType | PValue | PType;
+  /* include CmtFindStamps.T; */
   type docItem =
     | Value(Types.type_expr)
     | Type(Types.type_declaration)
@@ -33,72 +33,7 @@ let rec iter = (fn, (name, docString, item) as doc) => {
   }
 };
 
-let rec doubleFold = (fn, items) => {
-  List.fold_left(((left, right), item) => {
-    let (l, r) = fn(item);
-    (l @ left, r @ right)
-  }, ([], []), items)
-};
-
-let rec organizeTypesType = (currentPath, types) => {
-  open Types;
-  foldOpt(item => switch item {
-  | Sig_value({stamp, name}, {val_type, val_kind}) => Some((stamp, addToPath(currentPath, name) |> toFullPath(PValue)))
-  | Sig_type({stamp, name}, decl, _) => Some((stamp, addToPath(currentPath, name) |> toFullPath(PType)))
-  | Sig_modtype({stamp, name}, _) => Some((stamp, addToPath(currentPath, name) |> toFullPath(PModule)))
-  | _ => None
-  }, types, [])
-};
-
-let rec organizeTypesIntf = (currentPath, types) => {
-  open Typedtree;
-  List.fold_left((items, item) => {
-      let more = switch (item.sig_desc) {
-      | Tsig_value({val_id: {stamp, name}}) => [(stamp, addToPath(currentPath, name) |> toFullPath(PValue))]
-      | Tsig_type(decls) => List.map(({typ_id: {stamp, name}}) => (stamp, addToPath(currentPath, name) |> toFullPath(PType)), decls)
-      | Tsig_include({incl_mod, incl_type}) => organizeTypesType(currentPath, incl_type)
-      | Tsig_module({md_id: {stamp, name}, md_type: {mty_desc: Tmty_signature(signature)}}) => {
-        let (stamps) = organizeTypesIntf(addToPath(currentPath, name), signature.sig_items);
-        [(stamp, addToPath(currentPath, name) |> toFullPath(PModule)), ...stamps]
-      }
-      | Tsig_module({md_id: {stamp, name}}) => [(stamp, addToPath(currentPath, name) |> toFullPath(PModule))]
-      | _ => []
-      };
-      more @ items
-  }, [], types)
-};
-
-let rec organizeTypes = (currentPath, types) => {
-  open Typedtree;
-  List.fold_left((items, item) => {
-      let more = switch (item.str_desc) {
-      | Tstr_value(_rec, bindings) => (
-        bindings |> filterNil(binding => switch binding {
-        | {vb_pat: {pat_desc: Tpat_var({stamp, name}, _)}} => Some((stamp, addToPath(currentPath, name) |> toFullPath(PValue)))
-        | _ => None
-        }),
-      )
-      | Tstr_type(decls) => List.map(({typ_id: {stamp, name}}) => (stamp, addToPath(currentPath, name) |> toFullPath(PType)), decls)
-      | Tstr_module({mb_id: {stamp, name}, mb_expr: {mod_type, mod_desc: Tmod_structure(structure) | Tmod_constraint({mod_desc: Tmod_structure(structure)}, _, _, _)}})
-       => {
-        let (stamps) = organizeTypes(addToPath(currentPath, name), structure.str_items);
-        [(stamp, addToPath(currentPath, name) |> toFullPath(PModule)), ...stamps]
-      }
-      | Tstr_modtype({mtd_id: {stamp, name}, mtd_type: Some({mty_desc: Tmty_signature(signature), mty_type})}) => {
-        let (stamps) = organizeTypesIntf(addToPath(currentPath, name), signature.sig_items);
-        [(stamp, addToPath(currentPath, name) |> toFullPath(PModule)), ...stamps]
-      }
-      | Tstr_module({mb_id: {stamp, name}}) => [(stamp, addToPath(currentPath, name) |> toFullPath(PModule))]
-      | Tstr_include({incl_loc, incl_mod, incl_attributes, incl_type}) => {
-        organizeTypesType(currentPath, incl_type)
-      }
-      | _ => []
-      };
-      more @ items
-  }, [], types)
-};
-
-let rec findAllDocsType = (signature) => {
+let rec docItemsFromTypes = (signature) => {
   open Types;
   List.fold_left((items, item) => switch item {
   | Sig_value({stamp, name}, {val_type, val_kind, val_attributes}) => [(name, findDocAttribute(val_attributes), Value(val_type)), ...items]
@@ -110,7 +45,7 @@ let rec findAllDocsType = (signature) => {
   open Types;
   switch md_type {
   | Mty_ident(path) | Mty_alias(path) => Alias(path) /* TODO moduleContents */
-  | Mty_signature(signature) => Items(findAllDocsType(signature))
+  | Mty_signature(signature) => Items(docItemsFromTypes(signature))
   | Mty_functor(_, _, typ) => moduleContents(typ)
   }
 };
@@ -127,9 +62,7 @@ let eitherFirst = (opt, (opt2, second)) => {
   (either(opt, opt2), second)
 };
 
-/* TODO maybe use the typedtree for this instead */
-
-let rec findAllDocs = (structure) => {
+let rec docItemsFromStructure = (structure) => {
   open Typedtree;
   List.fold_left(((global, items), item) => switch (item.str_desc) {
   | Tstr_value(_, bindings) => foldOpt(({vb_loc, vb_expr, vb_pat, vb_attributes}) =>
@@ -151,8 +84,8 @@ let rec findAllDocs = (structure) => {
   | Tstr_include({incl_loc, incl_mod, incl_attributes, incl_type}) => {
     if (!hasNoDoc(incl_attributes)) {
       switch incl_mod.mod_desc {
-      | Tmod_ident(path, _) => ((Path.name(path), findDocAttribute(incl_attributes), Include(Some(path), findAllDocsType(incl_type))))
-      | _ => (("", findDocAttribute(incl_attributes), Include(None, findAllDocsType(incl_type))))
+      | Tmod_ident(path, _) => ((Path.name(path), findDocAttribute(incl_attributes), Include(Some(path), docItemsFromTypes(incl_type))))
+      | _ => (("", findDocAttribute(incl_attributes), Include(None, docItemsFromTypes(incl_type))))
       } |> a => (global, [a, ...items])
     } else {(global, items)}
   }
@@ -160,7 +93,6 @@ let rec findAllDocs = (structure) => {
     if (!hasNoDoc(typ_attributes)) {
       Some((txt, findDocAttribute(typ_attributes), Type(typ_type)))
     } else {None}, decls, items) |> a => (global, a)
-  /* | Pstr_module({pmb_attributes, pmb_loc, pmb_name: {txt}, pmb_expr: {pmod_desc: Pmod_constraint({pmod_desc: Pmod_structure(structure)}, _)}}) */
   | Tstr_module({mb_attributes, mb_loc, mb_name: {txt}, mb_expr}) => {
     if (hasNoDoc(mb_attributes)) {
       (global, items)
@@ -176,7 +108,7 @@ and moduleContentsStr = ({Typedtree.mod_desc, mod_attributes, mod_loc}) => {
   open Typedtree;
   switch mod_desc {
   | Tmod_structure(structure) => {
-    let (docc, contents) = findAllDocs(structure.str_items);
+    let (docc, contents) = docItemsFromStructure(structure.str_items);
     (docc, Items(contents))
   }
   | Tmod_constraint(mmod, mtyp, _, _) => {
@@ -193,10 +125,10 @@ and moduleContentsStr = ({Typedtree.mod_desc, mod_attributes, mod_loc}) => {
 and moduleContentsType = (modtype) => Types.(switch modtype {
   | Mty_ident(path) | Mty_alias(path) => Alias(path)
   | Mty_functor(_, _, tt) => moduleContentsType(tt)
-  | Mty_signature(sign) => Items(findAllDocsType(sign))
+  | Mty_signature(sign) => Items(docItemsFromTypes(sign))
 })
 
-and findAllDocsIntf = (signature) => {
+and docItemsFromSignature = (signature) => {
   open Typedtree;
   List.fold_left(((global, items), item) => switch (item.sig_desc) {
   | Tsig_value({val_name: {txt, loc}, val_val, val_attributes, val_loc}) =>
@@ -214,8 +146,8 @@ and findAllDocsIntf = (signature) => {
   | Tsig_include({incl_loc, incl_mod, incl_attributes, incl_type}) => {
     if (!hasNoDoc(incl_attributes)) {
       switch incl_mod.mty_desc {
-      | Tmty_ident(path, _) | Tmty_alias(path, _) => Some((Path.name(path), findDocAttribute(incl_attributes), Include(Some(path), findAllDocsType(incl_type))))
-      | _ => Some(("", findDocAttribute(incl_attributes), Include(None, findAllDocsType(incl_type))))
+      | Tmty_ident(path, _) | Tmty_alias(path, _) => Some((Path.name(path), findDocAttribute(incl_attributes), Include(Some(path), docItemsFromTypes(incl_type))))
+      | _ => Some(("", findDocAttribute(incl_attributes), Include(None, docItemsFromTypes(incl_type))))
       } |> a => switch a {
       | None => (global, items)
       | Some(item) => {
@@ -243,14 +175,13 @@ and moduleContentsSig = ({Typedtree.mty_desc, mty_attributes, mty_loc}) => {
   open Typedtree;
   switch mty_desc {
   | Tmty_signature(signature) => {
-    let (docc, contents) = findAllDocsIntf(signature.sig_items);
+    let (docc, contents) = docItemsFromSignature(signature.sig_items);
     (docc, Items(contents))
   }
   | Tmty_alias(path, _) | Tmty_ident(path, _) => (findDocAttribute(mty_attributes), Alias(path))
   | Tmty_functor(_, _, _, result) => moduleContentsSig(result) |> mapFst(either(findDocAttribute(mty_attributes)))
   | Tmty_with(inner, _) => moduleContentsSig(inner) |> mapFst(either(findDocAttribute(mty_attributes)))
   | Tmty_typeof(modd)
-  /* => moduleContentsStr(modd) |> mapFst(either(findDocAttribute(mty_attributes))) */
     => assert(false)
   }
 };

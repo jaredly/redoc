@@ -211,12 +211,6 @@ let highlight = (text, cmt) => {
   });
 
   let (pre, frontOffset, text, post, backOffset) = codeSections(text);
-  /* let lines = Str.split(Str.regexp_string("\n"), text);
-  let (frontOffset, lines) = separateHashed(0, lines);
-  let (backOffset, lines) = separateHashed(0, List.rev(lines));
-  let backOffset = String.length(text) - backOffset;
-  let text = String.concat("\n", List.rev(lines)); */
-  /* let (offset, text) = loop(0, lines); */
 
   let ranges = collectRanges(cmt_annots);
   let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {

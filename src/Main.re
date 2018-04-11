@@ -21,8 +21,8 @@ let processCmt = (name, cmt) => {
     let out = Format.flush_str_formatter();
     Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
 
-    let stamps = PrepareDocs.organizeTypes((name, []), str_items);
-    let (topdoc, allDocs) = PrepareDocs.findAllDocs(str_items);
+    let stamps = CmtFindStamps.stampsFromTypedtreeImplementation((name, []), str_items);
+    let (topdoc, allDocs) = PrepareDocs.docItemsFromStructure(str_items);
     (name, cmt, stamps, topdoc, allDocs)
   }
   | Cmt_format.Interface({sig_items} as s) => {
@@ -30,8 +30,8 @@ let processCmt = (name, cmt) => {
     let out = Format.flush_str_formatter();
     Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
 
-    let stamps = PrepareDocs.organizeTypesIntf((name, []), sig_items);
-    let (topdoc, allDocs) = PrepareDocs.findAllDocsIntf(sig_items);
+    let stamps = CmtFindStamps.stampsFromTypedtreeInterface((name, []), sig_items);
+    let (topdoc, allDocs) = PrepareDocs.docItemsFromSignature(sig_items);
     (name, cmt, stamps, topdoc, allDocs)
   }
   | _ => failwith("Not a valid cmt file")
@@ -88,7 +88,6 @@ let makeTokenCollector = (base) => {
   let tokens = ref([]);
   let addToken = n => tokens := [n, ...tokens^];
   open PrintType.T;
-  /* let base = PrintType.default; */
   /* TODO collect arg labels from expressions */
   (tokens, {
     ...base,
@@ -436,7 +435,6 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   "codemirror-5.36.0/addon/mode/simple.js",
   ] : []]
   |> List.iter(name => {
-    /* print_endline("Copy " ++ static /+ name); */
     Files.copy(~source=static /+ name, ~dest=target /+ Filename.basename(name)) |> ignore;
   });
 

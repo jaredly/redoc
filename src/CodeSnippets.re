@@ -266,7 +266,7 @@ let getCodeBlocks = (markdowns, cmts) => {
 
   cmts |> List.iter(((name, cmt, _, topDoc, allDocs)) => {
     Infix.(topDoc |?>> collect(cmt) |> ignore);
-    allDocs |> List.iter(PrepareDocs.iter(((name, docString, _)) => {
+    allDocs |> List.iter(CmtFindDocItems.iter(((name, docString, _)) => {
       switch docString {
       | None => ()
       | Some(docString) => collect(cmt ++ " > " ++ name, docString)

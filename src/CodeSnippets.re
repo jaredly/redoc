@@ -180,6 +180,12 @@ let removeHashes = text => {
 };
 
 let hashAll = text => splitLines(text) |> List.map(t => (CodeHighlight.isHashed(t) ? t : "#" ++ t)) |> String.concat("\n");
+let slice = (s, pre, post) => String.sub(s, pre, String.length(s) - pre + post);
+let startsWith = (prefix, string) => {
+  let lp = String.length(prefix);
+  lp <= String.length(string) && String.sub(string, 0, lp) == prefix
+};
+
 
 let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));
@@ -190,12 +196,20 @@ let getCodeBlocks = (markdowns, cmts) => {
     | None => ()
     | Some(options) => {
       let content = List.fold_left((content, name) => {
-        let text = List.assoc(name, shared^) |> hashAll;
-        let rx = Str.regexp_string("#%{code}%");
-        switch (Str.search_forward(rx, text, 0)) {
-        | exception Not_found => text ++ "\n" ++ content
-        | _ => Str.replace_first(rx, content, text)
+        switch (List.assoc(name, shared^)) {
+        | exception Not_found => {
+          print_endline("Unknown shared " ++ name);
+          content ++ " /* unknown shared " ++ name ++ " */"
         }
+        | text => {
+          let text = text |> hashAll;
+          let rx = Str.regexp_string("#%{code}%");
+          switch (Str.search_forward(rx, text, 0)) {
+          | exception Not_found => text ++ "\n" ++ content
+          | _ => Str.replace_first(rx, content, text)
+          }
+        }
+      }
       }, content, options.uses);
       /* let content = switch (options.uses) {
       | [] => content
@@ -213,7 +227,16 @@ let getCodeBlocks = (markdowns, cmts) => {
     }
   };
 
-  let collect = (fileName, md) => Omd.Representation.visit(el => switch el {
+  let rec collect = (fileName, md) => Omd.Representation.visit(el => switch el {
+    | Omd.Html_comment(text) when startsWith("<!--!", text) => {
+      print_endline("DOC COMMENT");
+      collect(fileName, Omd.of_string(slice(text, 5, -3)));
+      None
+    }
+    | Omd.Html_comment(text) => {
+      print_endline("Comment " ++ text);
+      None
+    }
     | Omd.Code_block(lang, contents) => {
       addBlock(el, fileName, lang, contents);
       None
@@ -332,11 +355,6 @@ let getDependencyDirs = (base, config) => {
   }) |> List.concat
 };
 
-let startsWith = (prefix, string) => {
-  let lp = String.length(prefix);
-  lp <= String.length(string) && String.sub(string, 0, lp) == prefix
-};
-
 let invert = (f, a) => !f(a);
 
 let compileSnippets = (base, dest, blocks) => {
@@ -356,7 +374,7 @@ let compileSnippets = (base, dest, blocks) => {
 
   let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat;
   let out = open_out(dest /+ "bucklescript-deps.js");
-  print_endline("Deps : " ++ String.concat(", ", depsToLoad));
+  /* print_endline("Deps : " ++ String.concat(", ", depsToLoad)); */
 
   let depsMap = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => {
     let path = dir /+ name;

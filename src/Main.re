@@ -120,6 +120,13 @@ let makeTokenCollector = (base) => {
   })
 };
 
+let sliceToEnd = (s, num) => String.length(s) < num ? s : String.sub(s, num, String.length(s) - num);
+let slice = (s, pre, post) => String.sub(s, pre, String.length(s) - pre + post);
+
+let startsWith = (prefix, string) => {
+  let lp = String.length(prefix);
+  lp <= String.length(string) && String.sub(string, 0, lp) == prefix
+};
 
 let makeDocStringProcessor = (dest, outerOverride) => {
   let searchables = ref([]);
@@ -166,6 +173,17 @@ let makeDocStringProcessor = (dest, outerOverride) => {
       | StandaloneDoc(_) | Include(_) => None
       }
     };
+
+    let mdNode = Omd.Representation.visit(el => switch el {
+    | Omd.Html_comment(text) when startsWith(text, "<!--!") => {
+      Some(Omd.of_string(slice(text, 5, -3)))
+    }
+    /* | Html_comment(text) => {
+      print_endline("Got a comment here " ++ text);
+      None
+    } */
+    | _ => None
+    }, mdNode);
 
     /** Docstring paragraphs */
     /** TODO track headings within this for better breadcrumb */
@@ -389,19 +407,6 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   let bsConfig = Json.parse(Files.readFile(root /+ "bsconfig.json") |! "No bsconfig.json found");
   let sourceDirectories = CodeSnippets.getSourceDirectories(root, bsConfig);
 
-  /* let compiledRoot = root /+ "lib/bs/js/";
-  let compiledRoot = if (!Files.exists(compiledRoot)) {
-    let compiledRoot = root /+ "lib/bs/";
-    if (!Files.exists(compiledRoot)) {
-      print_endline("You must run bucklescript first to generate the artifacts. " ++ compiledRoot ++ " not found.");
-      exit(1);
-    } else {
-      compiledRoot
-    }
-  } else {
-    compiledRoot
-  };
-  let found = Files.collect(compiledRoot, isCmt); */
   let isNative = CodeSnippets.isNative(bsConfig);
   let compiledRoot = root /+ (isNative ? "lib/bs/js" : "lib/bs");
   let found = sourceDirectories |> List.map(name => compiledRoot /+ name) |> List.map(p => Files.collect(p, isCmt)) |> List.concat;
@@ -414,7 +419,7 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   let bsbFile = static /+ "bs-" ++ bsbVersion ++ ".js";
   let editingEnabled = Files.exists(bsbFile);
   if (editingEnabled) {
-    Files.copy(bsbFile, target /+ "bucklescript.js") |> ignore;
+    Files.copy(~source=bsbFile, ~dest=target /+ "bucklescript.js") |> ignore;
   } else {
     print_endline("No bucklescript file available -- editing will be disabled")
   };
@@ -432,7 +437,7 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   ] : []]
   |> List.iter(name => {
     print_endline("Copy " ++ static /+ name);
-    Files.copy(static /+ name, target /+ Filename.basename(name)) |> ignore;
+    Files.copy(~source=static /+ name, ~dest=target /+ Filename.basename(name)) |> ignore;
   });
 
   let localUrl = "file://" ++ Files.absify(target) /+ "index.html";

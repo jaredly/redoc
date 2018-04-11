@@ -19,6 +19,8 @@ type codeOptions = {
   shouldParseFail: bool,
   shouldTypeFail: bool,
   shouldRaise: bool,
+  prefix: int,
+  suffix: int,
   noEdit: bool,
   dontRun: bool,
   isolate: bool,
@@ -63,13 +65,18 @@ let parseCodeOptions = lang => {
         switch (matchOption(item, "shared")) {
         | Some(name) => {...options, sharedAs: Some(name)}
         | None => switch (matchOption(item, "use")) {
-        | Some(name) => {...options, uses: [name, ...options.uses]}
-        | None => {
+          | Some(name) => {...options, uses: [name, ...options.uses]}
+          | None => switch (matchOption(item, "prefix")) {
+            | Some(content) => {...options, prefix: int_of_string(content)}
+            | None => switch (matchOption(item, "suffix")) {
+              | Some(content) => {...options, suffix: int_of_string(content)}
+              | None => {
+                print_endline("Skipping unexpected code option: " ++ item);
+                options
+              }
+            }
 
-          print_endline("Skipping unexpected code option: " ++ item);
-          options
-
-        }
+          }
         }
         }
       }
@@ -83,6 +90,8 @@ let parseCodeOptions = lang => {
       noEdit: false,
       isolate: false,
       sharedAs: None,
+      prefix: 0,
+      suffix: 0,
       uses: [],
       hide: false,
     }, parts))
@@ -186,7 +195,6 @@ let startsWith = (prefix, string) => {
   lp <= String.length(string) && String.sub(string, 0, lp) == prefix
 };
 
-
 let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));
   let shared = ref([]);
@@ -195,6 +203,19 @@ let getCodeBlocks = (markdowns, cmts) => {
     switch (options) {
     | None => ()
     | Some(options) => {
+
+      let content = options.prefix == 0 && options.suffix == 0 ? content : {
+        let lines = splitLines(content) |> Array.of_list;
+        for (i in 0 to options.prefix - 1) {
+          lines[i] = "#" ++ lines[i];
+        };
+        let ln = Array.length(lines);
+        for (i in 0 to options.suffix - 1) {
+          lines[ln - 1 - i] = "#" ++ lines[ln - 1 - i];
+        };
+        String.concat("\n", Array.to_list(lines))
+      };
+
       let content = List.fold_left((content, name) => {
         switch (List.assoc(name, shared^)) {
         | exception Not_found => {
@@ -211,11 +232,7 @@ let getCodeBlocks = (markdowns, cmts) => {
         }
       }
       }, content, options.uses);
-      /* let content = switch (options.uses) {
-      | [] => content
-      | uses => (List.map(name => List.assoc(name, shared^) |> hashAll, uses) @ [content]) |> String.concat("\n")
-      }; */
-      /* TODO I might want to be able to have something be shared & visible... not sure though */
+
       switch (options.sharedAs) {
       | None => {
         let (id, blocks) = codeBlocks^;
@@ -229,7 +246,6 @@ let getCodeBlocks = (markdowns, cmts) => {
 
   let rec collect = (fileName, md) => Omd.Representation.visit(el => switch el {
     | Omd.Html_comment(text) when startsWith("<!--!", text) => {
-      print_endline("DOC COMMENT");
       collect(fileName, Omd.of_string(slice(text, 5, -3)));
       None
     }
@@ -407,7 +423,6 @@ let compileSnippets = (base, dest, blocks) => {
   });
   output_string(out, "}\n");
   close_out(out);
-  print_endline("wrote");
 
 
 

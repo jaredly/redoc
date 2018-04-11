@@ -23,7 +23,7 @@ open T;
 
 let break = Pretty.line("");
 let space = Pretty.line(" ");
-let dedent = Pretty.back(4, "");
+let dedent = Pretty.back(2, "");
 
 let str = Pretty.text;
 let (@!) = Pretty.append;
@@ -41,7 +41,7 @@ let commad_list = (loop, items) => {
   sepd_list(str(",") @! space, items, loop)
 };
 
-let indentGroup = doc => Pretty.indent(4, Pretty.group(doc));
+let indentGroup = doc => Pretty.indent(2, Pretty.group(doc));
 
 let tuple_list = (items, loop) => {
   str("(") @! indentGroup(break @!

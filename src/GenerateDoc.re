@@ -250,6 +250,7 @@ and docsForModule = (printer, processDocString, path, tocLevel, name, docString,
         | _ => false
         });
         items |> List.map(doc => {
+          Hashtbl.add(shownItems, doc, true);
           let (html, tocs) = generateDoc(printer, processDocString, path, tocLevel + lastLevel^, doc);
           addTocs(tocs);
           html

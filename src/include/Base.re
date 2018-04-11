@@ -147,6 +147,9 @@ p code {
 h1, h2 {
   margin-top: 24px;
 }
+h1, h2, h3, h4 {
+  color: #444;
+}
 
 h4.module {
   font-size: 110%%;

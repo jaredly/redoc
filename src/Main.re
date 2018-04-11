@@ -436,7 +436,7 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
   "codemirror-5.36.0/addon/mode/simple.js",
   ] : []]
   |> List.iter(name => {
-    print_endline("Copy " ++ static /+ name);
+    /* print_endline("Copy " ++ static /+ name); */
     Files.copy(~source=static /+ name, ~dest=target /+ Filename.basename(name)) |> ignore;
   });
 

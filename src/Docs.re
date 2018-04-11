@@ -1,5 +1,5 @@
 
-let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char"];
+let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char", "int64"];
 
 let formatHref = (name, projectNames, (modName, inner, ptype)) => {
   let modName = if (modName == "<global>") {

@@ -58,24 +58,6 @@
   }, [], types)
 }; */
 
-/**
-
-What I really want.
-
-type nodes = {
-  [id: int]: {
-    text: string, /* has a tags that are <a data-target-id="10"> </a> */
-    dependsOn: list(int),
-  }
-}
-
-What needs to be solved for this to happen?
-- currently type & value refs come as paths, I need to resolve those paths to the stamp declaration.
-- for PIdents that's easy
-- maybe start with that, get fancy later
-
- */
-
 let filterNil = (fn, items) => List.fold_left(
   (items, item) => switch (fn(item)) {
   | None => items
@@ -205,31 +187,6 @@ let highlightItem = item => {
     })
   }));
 
-  /* let iter_part = part => switch part {
-  | Cmt_format.Partial_structure(str) => TagIterator.iter_structure(str)
-  | Partial_structure_item(str) => TagIterator.iter_structure_item(str)
-  | Partial_signature(str) => TagIterator.iter_signature(str)
-  | Partial_signature_item(str) => TagIterator.iter_signature_item(str)
-  | Partial_expression(expression) => TagIterator.iter_expression(expression)
-  | Partial_pattern(pattern) => TagIterator.iter_pattern(pattern)
-  | Partial_class_expr(class_expr) => TagIterator.iter_class_expr(class_expr)
-  | Partial_module_type(module_type) => TagIterator.iter_module_type(module_type)
-  };
-
-  switch cmt {
-  | Cmt_format.Implementation(str) => {
-    TagIterator.iter_structure(str);
-  }
-  | Cmt_format.Interface(sign) => {
-    TagIterator.iter_signature(sign);
-  }
-  | Cmt_format.Partial_implementation(parts)
-  | Cmt_format.Partial_interface(parts) => {
-    Array.iter(iter_part, parts);
-  }
-  | _ => failwith("Not a valid cmt file")
-  }; */
-
   TagIterator.iter_structure_item(item);
 
   (foundTags^, externalValues^, externalTypes^)
@@ -276,7 +233,9 @@ let rec chart = (structureItems) => {
   }, [], structureItems)
 };
 
-let process = (cmt, modStamps, typStamps, valStamps) => {
+let slice = (text, pstart, pend) => String.sub(text, pstart, pend - pstart);
+
+let process = (moduleName, structure, sourceText, modStamps, typStamps, valStamps) => {
   /* let stamps = Hashtbl.create(100); */
   /* let rootNode = Module(moduleName, topChildren); */
   /* let items = ref([]);
@@ -287,6 +246,7 @@ let process = (cmt, modStamps, typStamps, valStamps) => {
    * So that means:
    * - each module needs separate lists of types, values, and submodules
    */
+  let id = stamp => moduleName ++ "/" ++ string_of_int(stamp);
 
   /* TODO I could probably inline this into `chart` */
   let rec collect = (nodes) => {
@@ -294,25 +254,25 @@ let process = (cmt, modStamps, typStamps, valStamps) => {
       switch node {
       | Module(name, children) => {
         let organized = collect(children);
-        Hashtbl.replace(modStamps, stamp, organized);
-        (types, values, [(name, stamp), ...modules])
+        Hashtbl.replace(modStamps, id(stamp), organized);
+        (types, values, [(name, id(stamp)), ...modules])
       }
       | Item(loc, item, tags, vals, typs) => {
         let (name, table) = switch item {
         | Type(name) => (name, typStamps)
         | Value(name) => (name, valStamps)
         };
-        Hashtbl.replace(table, stamp, (name, loc, tags, vals, typs));
+        Hashtbl.replace(table, id(stamp), (name, moduleName, loc, tags, vals, typs, slice(sourceText, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)));
         switch item {
-        | Type(_) => ([(name, stamp), ...types], values, modules)
-        | Value(_) => (types, [(name, stamp), ...values], modules)
+        | Type(_) => ([(name, id(stamp)), ...types], values, modules)
+        | Value(_) => (types, [(name, id(stamp)), ...values], modules)
         }
       }
       }
     }, ([], [], []), nodes)
   };
 
-  collect(chart(cmt))
+  collect(chart(structure))
 };
 
 let showType = typ => PrintType.default.expr(PrintType.default, typ) |> GenerateDoc.prettyString;
@@ -327,6 +287,8 @@ let rec flatten = path => switch path {
   }
   | Papply(_) => failwith("Cannot apply paths")
 };
+
+let toId = (moduleName, stamp) => moduleName ++ "/" ++ string_of_int(stamp);
 
 let rec deepValue = (names, (_types, values, modules), valStamps, modStamps) => {
   switch names {
@@ -347,24 +309,24 @@ let rec deepType = (names, (types, _values, modules), typStamps, modStamps) => {
   | [] => `Missing
   | [name] => switch (List.assoc(name, types)) {
     | exception Not_found => `Missing
-    | stamp => `Global(stamp)
+    | id => `Global(id)
     }
   | [modname, ...names] => switch (List.assoc(modname, modules)) {
     | exception Not_found => `Missing
-    | stamp => deepType(names, Hashtbl.find(modStamps, stamp), typStamps, modStamps)
+    | id => deepType(names, Hashtbl.find(modStamps, id), typStamps, modStamps)
     }
   }
 };
 
-let resolveValue = (valStamps, modStamps, globalMods, path) => {
+let resolveValue = (moduleName, valStamps, modStamps, globalMods, path) => {
   switch path {
-  | Path.Pident({stamp}) => switch (Hashtbl.find(valStamps, stamp)) {
-    | exception Not_found => `Local(stamp)
-    | _ => `Global(stamp)
+  | Path.Pident({stamp}) => switch (Hashtbl.find(valStamps, toId(moduleName, stamp))) {
+    | exception Not_found => `Local(toId(moduleName, stamp))
+    | _ => `Global(toId(moduleName, stamp))
     }
   | Pdot(_) => {
     let ({Ident.stamp, name}, names) = flatten(path);
-    switch (stamp == 0 ? Hashtbl.find(globalMods, name) : Hashtbl.find(modStamps, stamp)) {
+    switch (stamp == 0 ? Hashtbl.find(globalMods, name) : Hashtbl.find(modStamps, toId(moduleName, stamp))) {
     | exception Not_found => {print_endline("Cannot find module " ++ name); `Missing}
     | contents => deepValue(names, contents, valStamps, modStamps)
     }
@@ -374,15 +336,15 @@ let resolveValue = (valStamps, modStamps, globalMods, path) => {
 };
 
 /* TODO consolidate with deepType? */
-let resolveType = (typStamps, modStamps, globalMods, path) => {
+let resolveType = (moduleName, typStamps, modStamps, globalMods, path) => {
   switch path {
-  | Path.Pident({stamp}) => switch (Hashtbl.find(typStamps, stamp)) {
-    | exception Not_found => `Local(stamp)
-    | _ => `Global(stamp)
+  | Path.Pident({stamp}) => switch (Hashtbl.find(typStamps, toId(moduleName, stamp))) {
+    | exception Not_found => `Local(toId(moduleName, stamp))
+    | _ => `Global(toId(moduleName, stamp))
     }
   | Pdot(_) => {
     let ({Ident.stamp, name}, names) = flatten(path);
-    switch (stamp == 0 ? Hashtbl.find(globalMods, name) : Hashtbl.find(modStamps, stamp)) {
+    switch (stamp == 0 ? Hashtbl.find(globalMods, name) : Hashtbl.find(modStamps, toId(moduleName, stamp))) {
     | exception Not_found => {print_endline("Cannot find module " ++ name); `Missing}
     | contents => deepType(names, contents, typStamps, modStamps)
     }
@@ -398,30 +360,63 @@ let processMany = (modules) => {
   let typStamps = Hashtbl.create(100);
   let valStamps = Hashtbl.create(100);
 
-  List.iter(((name, cmt, sourceText)) => {
-    Hashtbl.replace(globalMods, name, process(cmt, modStamps, typStamps, valStamps))
+  List.iter(((name, structure, sourceText)) => {
+    Hashtbl.replace(globalMods, name, process(name, structure, sourceText, modStamps, typStamps, valStamps))
   }, modules);
 
-  let stampAttr = stamp => "data-local-define='" ++ string_of_int(stamp) ++ "'";
-  let stampUse = stamp => switch stamp {
-  | `Missing => ""
-  | `Local(stamp) => "data-local-use='" ++ string_of_int(stamp) ++ "'"
-  | `Global(stamp) => "data-global-use='" ++ string_of_int(stamp) ++ "'"
+  let stampAttr = (moduleName, stamp) => "data-local-define='" ++ moduleName ++ "/" ++ string_of_int(stamp) ++ "'";
+  let stampUse = (stamp) => switch stamp {
+  | `Missing => "data-stamp-missing"
+  | `Local(stamp) => "data-local-use='" ++ (stamp) ++ "'"
+  | `Global(stamp) => "data-global-use='" ++ (stamp) ++ "'"
   };
 
-  let mapTag = tag => switch tag {
+  let mapTag = (moduleName, tag) => switch tag {
   | TypeHover(typ) => "data-type=\"" ++ showType(typ) ++ "\""
   | Cls(string) => "class=\"" ++ string ++ "\""
-  | TypeDef({stamp, name}) => stampAttr(stamp)
-  | ValueDef({stamp, name}) => stampAttr(stamp)
-  | TypeRef(path) => resolveType(typStamps, modStamps, globalMods, path) |> stampUse
-  | ValueRef(path) => resolveValue(valStamps, modStamps, globalMods, path) |> stampUse
+  | TypeDef({stamp, name}) => stampAttr(moduleName, stamp)
+  | ValueDef({stamp, name}) => stampAttr(moduleName, stamp)
+  | TypeRef(path) => resolveType(moduleName, typStamps, modStamps, globalMods, path) |> stampUse
+  | ValueRef(path) => resolveValue(moduleName, valStamps, modStamps, globalMods, path) |> stampUse
   };
 
-  valStamps |> Hashtbl.iter((key, (name, loc, tags, vals, typs)) => {
+  /* TODO track the parentage of values */
+  let annotatedValues = Hashtbl.fold((key, (name, moduleName, loc, tags, vals, typs, text), items) => {
     let resolvedTags = tags |> List.map(((loc, tags)) => {
-      (loc, tags |> List.map(mapTag))
+      (loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, tags |> List.map(mapTag(moduleName)) |> String.concat(" "))
     });
-    ()
-  });
+    [(key, loc, CodeHighlight.annotateText(resolvedTags, [], text, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)), ...items];
+  }, valStamps, []);
+
+  let annotatedTypes = Hashtbl.fold((key, (name, moduleName, loc, tags, vals, typs, text), items) => {
+    let resolvedTags = tags |> List.map(((loc, tags)) => {
+      (loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, tags |> List.map(mapTag(moduleName)) |> String.concat(" "))
+    });
+    [(key, loc, CodeHighlight.annotateText(resolvedTags, [], text, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)), ...items];
+  }, typStamps, []);
+
+  annotatedValues @ annotatedTypes
 };
+
+let (/+) = Filename.concat;
+open Infix;
+
+let main = () => {
+  switch (Sys.argv |> Array.to_list) {
+  | [_, cmtdir, srcdir] => {
+    let files = Files.readDirectory(cmtdir) |> List.filter(n => Filename.check_suffix(n, ".cmt")) |> List.map(name => (cmtdir /+ name, srcdir /+ Filename.chop_extension(name) ++ ".re")) |> List.filter(((a, b)) => Files.exists(b));
+    let ready = files |> List.map(((cmt, src)) => {
+      let name = Filename.basename(cmt) |> Filename.chop_extension |> String.capitalize;
+      let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
+      switch annots {
+      | Cmt_format.Implementation({str_items}) => (name, str_items, Files.readFile(src) |! "Unable to read source file")
+      | _ => failwith("Bad cmt")
+      }
+    });
+    let allValues = processMany(ready);
+    Files.writeFile("./descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((stamp, loc, text)) => Printf.sprintf({|"%s": %S|}, stamp, text), allValues)) ++ "}") |> ignore
+  }
+  | _ => print_endline("Usage: descartes cmtdir srcdir")
+  }
+};
+main();

@@ -4,6 +4,10 @@ span[data-global-use] {
   cursor: pointer;
 }
 
+div[data-global-use] {
+  cursor: pointer;
+}
+
 span[data-local-use] {
   border-bottom: 1px dashed;
   border-bottom-color: #afa;
@@ -24,6 +28,7 @@ pre.code {
   box-shadow: 0 0.5px 3px #aaa;
   background-color: white;
   padding: 4px 8px;
+  overflow: auto;
 }
 .code .ident, .code .pattern-ident {
     color: #000;

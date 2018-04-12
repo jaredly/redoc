@@ -15,7 +15,7 @@
             node.setAttribute(attr, attrs[attr])
           }
         }
-        children && children.forEach(child => node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
+        children && children.forEach(child => child && node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
         return node
       }
       var named = tag => (attrs, children) => node(tag, attrs, children)
@@ -36,7 +36,12 @@
       var root = document.getElementById('main')
 
       render(root, div({}, Object.keys(DATA).map(k => {
-        return node('pre', {class: 'code', id: 'block-' + k}, [raw(DATA[k], 'code')])
+        return div({class: 'item' + (DATA[k].values.length === 0 ? ' isolated' : ''), id: 'block-' + k}, [
+          node('pre', {class: 'code'}, [raw(DATA[k].html, 'code')]),
+          DATA[k].values.length ? div({class: 'uses'}, DATA[k].values.map(({id, name, moduleName}) => (
+            div({class: 'use', 'data-global-use': id}, [moduleName + "." + name])
+          ))) : null
+        ])
       })))
 
       root.addEventListener('click', evt => {

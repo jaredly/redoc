@@ -235,6 +235,17 @@ let rec chart = (structureItems) => {
 
 let slice = (text, pstart, pend) => String.sub(text, pstart, pend - pstart);
 
+type fullItem = {
+  id: string,
+  name: string,
+  moduleName: string,
+  loc: Location.t,
+  tags: list((Location.t, list(tag))),
+  vals: list(Path.t),
+  typs: list(Path.t),
+  text: string,
+};
+
 let process = (moduleName, structure, sourceText, modStamps, typStamps, valStamps) => {
   /* let stamps = Hashtbl.create(100); */
   /* let rootNode = Module(moduleName, topChildren); */
@@ -262,7 +273,7 @@ let process = (moduleName, structure, sourceText, modStamps, typStamps, valStamp
         | Type(name) => (name, typStamps)
         | Value(name) => (name, valStamps)
         };
-        Hashtbl.replace(table, id(stamp), (name, moduleName, loc, tags, vals, typs, slice(sourceText, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)));
+        Hashtbl.replace(table, id(stamp), {id: id(stamp), name, moduleName, loc, tags, vals, typs, text: slice(sourceText, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)});
         switch item {
         | Type(_) => ([(name, id(stamp)), ...types], values, modules)
         | Value(_) => (types, [(name, id(stamp)), ...values], modules)
@@ -353,6 +364,11 @@ let resolveType = (moduleName, typStamps, modStamps, globalMods, path) => {
   }
 };
 
+let unique = list => {
+  let hash = Hashtbl.create(10);
+  list |> List.filter(item => Hashtbl.mem(hash, item) ? false : {Hashtbl.add(hash, item, true); true})
+};
+
 let processMany = (modules) => {
   let globalMods = Hashtbl.create(100);
 
@@ -380,20 +396,28 @@ let processMany = (modules) => {
   | ValueRef(path) => resolveValue(moduleName, valStamps, modStamps, globalMods, path) |> stampUse
   };
 
-  /* TODO track the parentage of values */
-  let annotatedValues = Hashtbl.fold((key, (name, moduleName, loc, tags, vals, typs, text), items) => {
+  let resolveItem = ({id, name, moduleName, loc, tags, vals, typs, text}) => {
     let resolvedTags = tags |> List.map(((loc, tags)) => {
       (loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, tags |> List.map(mapTag(moduleName)) |> String.concat(" "))
     });
-    [(key, loc, CodeHighlight.annotateText(resolvedTags, [], text, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)), ...items];
-  }, valStamps, []);
+    let text = CodeHighlight.annotateText(resolvedTags, [], text, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum);
+    let vals = vals |> List.map(path => resolveValue(moduleName, valStamps, modStamps, globalMods, path)) |> unique |> CodeSnippets.optMap(res => switch res {
+    | `Missing => None
+    | `Local(_) => None
+    | `Global(id) => Some(Hashtbl.find(valStamps, id))
+    })
+    ;
+    let typs = typs |> List.map(path => resolveType(moduleName, typStamps, modStamps, globalMods, path)) |> unique |> CodeSnippets.optMap(res => switch res {
+    | `Missing => None
+    | `Local(_) => None
+    | `Global(id) => Some(Hashtbl.find(typStamps, id))
+    });
+    (id, loc, text, vals, typs)
+  };
 
-  let annotatedTypes = Hashtbl.fold((key, (name, moduleName, loc, tags, vals, typs, text), items) => {
-    let resolvedTags = tags |> List.map(((loc, tags)) => {
-      (loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, tags |> List.map(mapTag(moduleName)) |> String.concat(" "))
-    });
-    [(key, loc, CodeHighlight.annotateText(resolvedTags, [], text, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)), ...items];
-  }, typStamps, []);
+  /* TODO track the parentage of values */
+  let annotatedValues = Hashtbl.fold((key, item, items) => [resolveItem(item), ...items], valStamps, []);
+  let annotatedTypes = Hashtbl.fold((key, item, items) => [resolveItem(item), ...items], typStamps, []);
 
   annotatedValues @ annotatedTypes
 };
@@ -414,9 +438,17 @@ let main = () => {
       }
     });
     let allValues = processMany(ready);
-    Files.writeFile("./descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((stamp, loc, text)) => Printf.sprintf({|"%s": %S|}, stamp, text), allValues)) ++ "}") |> ignore
+    Files.writeFile("./descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((stamp, loc, text, vals, typs)) => {
+      Printf.sprintf(
+        {|"%s": {"html": %S, "values": %s}|},
+        stamp,
+        text,
+        "[" ++ String.concat(", ", List.map(({id, name, moduleName}) => Printf.sprintf({|{"id": %S, "name": %S, "moduleName": %S}|}, id, name, moduleName), vals)) ++ "]"
+      )
+    }, allValues)) ++ "}") |> ignore
   }
   | _ => print_endline("Usage: descartes cmtdir srcdir")
   }
 };
+
 main();

@@ -412,14 +412,16 @@ let processMany = (modules) => {
     | `Local(_) => None
     | `Global(id) => Some(Hashtbl.find(typStamps, id))
     });
-    (id, loc, text, vals, typs)
+    (id, name, moduleName, loc, text, vals, typs)
   };
 
   /* TODO track the parentage of values */
   let annotatedValues = Hashtbl.fold((key, item, items) => [resolveItem(item), ...items], valStamps, []);
   let annotatedTypes = Hashtbl.fold((key, item, items) => [resolveItem(item), ...items], typStamps, []);
 
-  annotatedValues @ annotatedTypes
+  annotatedValues
+  /* TODO don't super need these for my current visualization */
+   /* @ annotatedTypes */
 };
 
 let (/+) = Filename.concat;
@@ -438,10 +440,12 @@ let main = () => {
       }
     });
     let allValues = processMany(ready);
-    Files.writeFile("./descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((stamp, loc, text, vals, typs)) => {
+    Files.writeFile("./descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((id, name, moduleName, loc, text, vals, typs)) => {
       Printf.sprintf(
-        {|"%s": {"html": %S, "values": %s}|},
-        stamp,
+        {|"%s": {"name": %S, "moduleName": %S, "html": %S, "values": %s}|},
+        id,
+        name,
+        moduleName,
         text,
         "[" ++ String.concat(", ", List.map(({id, name, moduleName}) => Printf.sprintf({|{"id": %S, "name": %S, "moduleName": %S}|}, id, name, moduleName), vals)) ++ "]"
       )

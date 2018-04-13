@@ -1,5 +1,5 @@
 
-span[data-global-use] {
+[data-global-use] {
     /* background-color: #ddd; */
   cursor: pointer;
   border-bottom: 1px dashed;

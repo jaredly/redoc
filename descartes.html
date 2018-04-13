@@ -84,12 +84,35 @@ pre {
   margin: 0;
 }
 
+
+#graph {
+  display: flex;
+  flex-direction: row;
+}
+
+.modulesList {
+    background: rgba(255,255,255,0.8);
+    padding: 8px;
+    overflow: auto;
+    height: 500px;
+}
+.modulesList .module {
+  display: flex;
+  word-break: break-word;
+}
+.module-dot {
+  flex-shrink: 0;
+  width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
 </style>
 <body>
   <div id="graph"></div>
   <div id="main"></div>
   <script>
-    (function() {
+    var dsl = (function() {
 
       var node = (tag, attrs, children) => {
         var node = document.createElement(tag)
@@ -137,32 +160,12 @@ pre {
         }
       })
 
+      return {node, div, span, a, raw, render}
     })();
   </script>
 
   <script>
     (function() {
-
-      var width = window.innerWidth,
-          height = 500;
-
-      var svg = d3.select("#graph").append("svg")
-          .attr("width", width)
-          .attr("height", height);
-
-      svg.append("rect")
-        .attr("width", width)
-        .attr("height", height)
-        .style("fill", "none")
-        .style("pointer-events", "all")
-        .call(d3.zoom()
-            .scaleExtent([1 / 8, 4])
-            .on("zoom", zoomed));
-
-      var g = svg.append('g')
-
-      var link = g.selectAll(".link"),
-          node = g.selectAll(".node");
 
       var graph = {nodes: [], links: []};
       // Ignore operators
@@ -192,6 +195,41 @@ pre {
       let moduleList = Object.keys(moduleNames);
 
       var c20 = d3.scaleOrdinal(moduleList.length > 10 ? d3.schemeCategory20 : d3.schemeCategory10);
+
+        ;(function() {
+
+        const {node, div, span} = dsl;
+        const root = div({class: 'modulesList'}, [
+          div({class: 'modulesTitle'}, ['Module names']),
+          ...moduleList.map((name, i) => div({class: 'module'}, [
+            div({style: {backgroundColor: c20(i)}, class: 'module-dot'}, []),
+            name
+          ]))
+        ])
+        document.getElementById('graph').appendChild(root)
+        })();
+
+      var width = window.innerWidth,
+          height = 500;
+
+      var svg = d3.select("#graph").append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+      svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .call(d3.zoom()
+            .scaleExtent([1 / 8, 4])
+            .on("zoom", zoomed));
+
+      var g = svg.append('g')
+
+      var link = g.selectAll(".link"),
+          node = g.selectAll(".node");
+
 
       var force = d3.forceSimulation()
             .force("charge", d3.forceManyBody().strength(-700).distanceMin(100).distanceMax(1000))
@@ -273,15 +311,17 @@ pre {
             return "translate(" + d.x + "," + d.y + ")";
         });
 
-        moduleList.forEach((n, i) => {
-          var g = svg.append('g')
-            .attr('transform', `translate(20, ${20 + i * 20})`)
-          g.append('circle').attr('r', 10).attr('fill', c20(i))
-          g.append('text').text(n)
-          .attr('dx', 20)
-          .attr('dy', 7)
-        })
+        // moduleList.forEach((n, i) => {
+        //   var g = svg.append('g')
+        //     .attr('transform', `translate(20, ${20 + i * 20})`)
+        //   g.append('circle').attr('r', 10).attr('fill', c20(i))
+        //   g.append('text').text(n)
+        //   .attr('dx', 20)
+        //   .attr('dy', 7)
+        // })
+
       }
+
 
       function dblclick(d) {
         d3.select(this).classed("fixed", d.fixed = false);

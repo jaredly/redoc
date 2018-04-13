@@ -427,10 +427,18 @@ let processMany = (modules) => {
 let (/+) = Filename.concat;
 open Infix;
 
+let gatherCmts = (cmtdir, srcdir, skip) => {
+  Files.collect(cmtdir, path => Filename.check_suffix(path, ".cmt") && !List.mem(Filename.basename(path) |> Filename.chop_extension, skip)) |> List.map(path => (
+    path,
+    srcdir /+ (Files.relpath(cmtdir, Filename.chop_extension(path) ++ ".re"))
+  )) |> List.filter(((a, b)) => Files.exists(b))
+};
+
 let main = () => {
   switch (Sys.argv |> Array.to_list) {
-  | [_, cmtdir, srcdir] => {
-    let files = Files.readDirectory(cmtdir) |> List.filter(n => Filename.check_suffix(n, ".cmt")) |> List.map(name => (cmtdir /+ name, srcdir /+ Filename.chop_extension(name) ++ ".re")) |> List.filter(((a, b)) => Files.exists(b));
+  | [_, cmtdir, srcdir, ...skip] => {
+    /* let files = Files.readDirectory(cmtdir) |> List.filter(n => Filename.check_suffix(n, ".cmt")) |> List.map(name => (cmtdir /+ name, srcdir /+ Filename.chop_extension(name) ++ ".re")) |> List.filter(((a, b)) => Files.exists(b)); */
+    let files = gatherCmts(cmtdir, srcdir, skip);
     let ready = files |> List.map(((cmt, src)) => {
       let name = Filename.basename(cmt) |> Filename.chop_extension |> String.capitalize;
       let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;

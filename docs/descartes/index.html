@@ -22,6 +22,11 @@ circle.ring {
   stroke: #aaa;
   fill: none;
 }
+circle.entry-ring {
+  stroke: #f00;
+  stroke-width: 4;
+  fill: rgba(0, 0, 0, 0.1);
+}
 
 circle.no-deps {
   stroke-width: 2;
@@ -122,6 +127,7 @@ width: 15px;
 
 .uses {
     display: flex;
+    align-items: center;
 }
 
 .use {
@@ -129,11 +135,26 @@ width: 15px;
     margin: 4px;
 }
 
+.use-title {
+  font-size: 12px;
+  padding-left: 4px;
+  font-style: italic;
+}
+
 </style>
 <body>
   <div id="graph"></div>
   <div id="main"></div>
   <script>
+
+    var toLinks = {}
+    Object.keys(DATA).forEach((k, i) => {
+      DATA[k].values.forEach(({id}) => {
+        if (!toLinks[id]) toLinks[id] = []
+        toLinks[id].push(k)
+      })
+    });
+
     var dsl = (function() {
 
       var node = (tag, attrs, children) => {
@@ -169,9 +190,13 @@ width: 15px;
         return div({class: 'item' + (DATA[k].values.length === 0 ? ' isolated' : ''), id: 'block-' + k}, [
           div({class: 'moduleName'}, [DATA[k].moduleName]),
           node('pre', {class: 'code'}, [raw(DATA[k].html, 'code')]),
-          DATA[k].values.length ? div({class: 'uses'}, DATA[k].values.map(({id, name, moduleName}) => (
+          DATA[k].values.length ? div({class: 'uses'},
+          [span({class: 'use-title'}, ["Uses: "]), ...DATA[k].values.map(({id, name, moduleName}) => (
             div({class: 'use', 'data-global-use': id}, [moduleName + "." + name])
-          ))) : null
+          ))]) : null,
+          toLinks[k] ? div({class: 'uses'}, [span({class: 'use-title'}, ["Used by: "]), ...toLinks[k].map(id => (
+            div({class: 'use', 'data-global-use': id}, [DATA[id].moduleName + '.' + DATA[id].name])
+          ))]): null
         ])
       })))
 
@@ -190,17 +215,11 @@ width: 15px;
     (function() {
 
       var graph = {nodes: [], links: []};
+
       // Ignore operators
       var keys = Object.keys(DATA).filter(n => DATA[n].name.match(/^[a-zA-z]/));
       var moduleNames = {};
       // Remove things that don't link to anywhere
-      var toLinks = {}
-      keys.forEach((k, i) => {
-        DATA[k].values.forEach(({id}) => {
-          if (!toLinks[id]) toLinks[id] = []
-          toLinks[id].push(k)
-        })
-      });
       keys = keys.filter(k => (toLinks[k] && toLinks[k].length) || DATA[k].values.length);
 
       const findRecursiveSize = k => {
@@ -216,14 +235,16 @@ width: 15px;
       }
       Object.keys(DATA).forEach(findRecursiveSize);
 
+      var baseSize = 10;
+
       keys.forEach((k, i) => {
         var item = DATA[k];
         moduleNames[item.moduleName] = true
         var node = {
-          x: 50 * Math.cos(i / keys.length * Math.PI),
-          y: 50 * Math.sin(i / keys.length * Math.PI),
-          size: Math.sqrt(item.lines) + 4,
-          recursiveSize: Math.sqrt(item.recursiveSize) + 4,
+          x: 500 * Math.cos(i / keys.length * Math.PI) + Math.random() * 100,
+          y: 500 * Math.sin(i / keys.length * Math.PI) + Math.random() * 100,
+          size: Math.sqrt(item.lines) + baseSize,
+          recursiveSize: Math.sqrt(item.recursiveSize) + baseSize,
           id: k,
           name: item.name,
           noDeps: item.values.length === 0,
@@ -280,10 +301,10 @@ width: 15px;
 
       var force = d3.forceSimulation()
             .force("charge", d3.forceManyBody().strength(-700).distanceMin(100).distanceMax(1000))
-            .force("link", d3.forceLink().id(function(d) { return d.index }))
+            .force("link", d3.forceLink().id(function(d) { return d.index }).distance(d => 100))
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("y", d3.forceY(0.001))
-            .force("x", d3.forceX(0.001))
+            // .force("y", d3.forceY(0.001))
+            // .force("x", d3.forceX(0.001))
 
       force
           .nodes(graph.nodes)
@@ -306,6 +327,11 @@ width: 15px;
 
 
       node.append('circle')
+          .attr('r', d => d.recursiveSize)
+          .attr('display', d => d.noDeps ? 'none' : '')
+          .attr('class', d => d.noDeps ? 'nodeps-ring' : (toLinks[d.id] ? 'ring' : 'entry-ring'));
+
+      node.append('circle')
           .attr('r', d => d.size)
           .attr('class', d => d.noDeps ? 'no-deps' : '')
           // .attr('stroke-width', d => d.noDeps ? 5 : 1)
@@ -313,10 +339,6 @@ width: 15px;
             return c20(moduleList.indexOf(d.moduleName))
               // return color(d.group);
           });
-
-      node.append('circle')
-          .attr('r', d => d.recursiveSize)
-          .attr('class', 'ring');
 
       node.append("text")
           .attr('class', 'background')

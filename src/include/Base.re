@@ -117,8 +117,8 @@ p code {
   font-size: 15px;
   line-height: 1.5em;
 
-  font-weight: 200;
-  color: #666;
+  font-weight: normal;
+  color: #333;
 }
 
 .body {

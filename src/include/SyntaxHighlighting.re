@@ -20,7 +20,7 @@ pre.code {
 
 .code .constructor,
 .code .pattern-constructor {
-  color: #006bb2;
+  color: #800000;
 }
 
 .code .type-value-identifier,

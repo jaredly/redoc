@@ -1,7 +1,9 @@
 
 span[data-global-use] {
-    background-color: #ddd;
+    /* background-color: #ddd; */
   cursor: pointer;
+  border-bottom: 1px dashed;
+  border-bottom-color: #aaa;
 }
 
 div[data-global-use] {
@@ -9,13 +11,13 @@ div[data-global-use] {
 }
 
 span[data-local-use] {
-  border-bottom: 1px dashed;
-  border-bottom-color: #afa;
+  /* border-bottom: 1px dashed;
+  border-bottom-color: #afa; */
 }
 
 span[data-local-define] {
-  border-bottom: 1px dashed;
-  border-bottom-color: #aaa;
+  /* border-bottom: 1px dashed;
+  border-bottom-color: #aaa; */
 }
 
 pre.code > code {

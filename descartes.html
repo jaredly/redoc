@@ -171,6 +171,15 @@ pre {
       // Ignore operators
       var keys = Object.keys(DATA).filter(n => DATA[n].name.match(/^[a-zA-z]/));
       var moduleNames = {};
+      var toLinks = {}
+      keys.forEach((k, i) => {
+        DATA[k].values.forEach(({id}) => {
+          if (!toLinks[id]) toLinks[id] = []
+          toLinks[id].push(k)
+        })
+      });
+      keys = keys.filter(k => (toLinks[k] && toLinks[k].length) || DATA[k].values.length);
+
       keys.forEach((k, i) => {
         var item = DATA[k];
         moduleNames[item.moduleName] = true

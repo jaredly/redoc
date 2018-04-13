@@ -2,7 +2,8 @@
 <script src="./descartes.js"></script>
 <link rel=stylesheet href="./descartes.css">
 <!-- <script src="https://d3js.org/d3.v3.min.js"></script> -->
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+<script src="./d3.v4.min.js"></script>
 <style>
   .link {
   stroke: #aaa;
@@ -15,6 +16,11 @@
 
 circle {
   stroke: none;
+}
+
+circle.ring {
+  stroke: #aaa;
+  fill: none;
 }
 
 circle.no-deps {
@@ -171,6 +177,7 @@ pre {
       // Ignore operators
       var keys = Object.keys(DATA).filter(n => DATA[n].name.match(/^[a-zA-z]/));
       var moduleNames = {};
+      // Remove things that don't link to anywhere
       var toLinks = {}
       keys.forEach((k, i) => {
         DATA[k].values.forEach(({id}) => {
@@ -180,12 +187,27 @@ pre {
       });
       keys = keys.filter(k => (toLinks[k] && toLinks[k].length) || DATA[k].values.length);
 
+      const findRecursiveSize = k => {
+        if (!DATA[k] || DATA[k].recursiveSize != null) {
+          return
+        }
+        // DATA[k].recursiveSize = Math.sqrt(DATA[k].lines);
+        DATA[k].recursiveSize = DATA[k].lines;
+        DATA[k].values.forEach(v => {
+          findRecursiveSize(v.id);
+          DATA[k].recursiveSize += DATA[v.id].recursiveSize
+        });
+      }
+      Object.keys(DATA).forEach(findRecursiveSize);
+
       keys.forEach((k, i) => {
         var item = DATA[k];
         moduleNames[item.moduleName] = true
         var node = {
           x: 50 * Math.cos(i / keys.length * Math.PI),
           y: 50 * Math.sin(i / keys.length * Math.PI),
+          size: Math.sqrt(item.lines) + 4,
+          recursiveSize: Math.sqrt(item.recursiveSize) + 4,
           id: k,
           name: item.name,
           noDeps: item.values.length === 0,
@@ -268,13 +290,17 @@ pre {
 
 
       node.append('circle')
-          .attr('r', 13)
+          .attr('r', d => d.size)
           .attr('class', d => d.noDeps ? 'no-deps' : '')
           // .attr('stroke-width', d => d.noDeps ? 5 : 1)
           .attr('fill', function (d) {
             return c20(moduleList.indexOf(d.moduleName))
               // return color(d.group);
           });
+
+      node.append('circle')
+          .attr('r', d => d.recursiveSize)
+          .attr('class', 'ring');
 
       node.append("text")
           .attr('class', 'background')

@@ -1,63 +1,4 @@
 
-/**
- * Two ways to identify a given value:
- * its stamp.
- * it's parent (current path)'s stamp.
- * from that, I think we'll be able to work all the things out.
- *
- * oh but there are also different scopes folks.
- *
- * A given module can have:
- * - types
- * - values
- * - modules
- * - module types
- */
-
-/**
- * What do I even want on the other end?
- *
- * blocks of code, linked to each other.
- * oh I also want collapsing of things. that would be cool.
- *
- *
- * Give each thing a unique ID.
- * the paths are a way of accessing that ID
- *
- * also I don't really care about what open a thing came from. It's fine.
-*/
-
-/* let rec chart = (addItem, types) => {
-  open Typedtree;
-  List.fold_left((items, item) => {
-      let more = switch (item.str_desc) {
-      | Tstr_value(recc, bindings) => (
-        bindings |> filterNil(binding => switch binding {
-        | {vb_pat: {pat_desc: Tpat_var({stamp, name}, _)}} => {
-          addItem(stamp, name, {...item, str_desc: Tstr_value(recc, [binding])})
-          Some((stamp, Value(name)))
-        }
-        | _ => None
-        }),
-      )
-      | Tstr_type(decls) => List.map(({typ_id: {stamp, name}} as decl) => {
-        addItem(stamp, name, {...item, str_desc: Tstr_type([decl])});
-        (stamp, Type(name))
-      }, decls)
-      | Tstr_module({mb_id: {stamp, name}, mb_expr: {
-        mod_type,
-        mod_desc: Tmod_structure(structure) | Tmod_constraint({mod_desc: Tmod_structure(structure)}, _, _, _)
-      }}) => {
-        /* TODO do I need to record modules as such? */
-        let children = chart(addItem, structure.str_items);
-        [(stamp, Module(name, children))]
-      }
-      | _ => []
-      };
-      more @ items
-  }, [], types)
-}; */
-
 let filterNil = (fn, items) => List.fold_left(
   (items, item) => switch (fn(item)) {
   | None => items
@@ -437,7 +378,6 @@ let gatherCmts = (cmtdir, srcdir, skip) => {
 let main = () => {
   switch (Sys.argv |> Array.to_list) {
   | [_, cmtdir, srcdir, ...skip] => {
-    /* let files = Files.readDirectory(cmtdir) |> List.filter(n => Filename.check_suffix(n, ".cmt")) |> List.map(name => (cmtdir /+ name, srcdir /+ Filename.chop_extension(name) ++ ".re")) |> List.filter(((a, b)) => Files.exists(b)); */
     let files = gatherCmts(cmtdir, srcdir, skip);
     let ready = files |> List.map(((cmt, src)) => {
       let name = Filename.basename(cmt) |> Filename.chop_extension |> String.capitalize;
@@ -450,12 +390,14 @@ let main = () => {
     let allValues = processMany(ready);
     Files.writeFile("./descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((id, name, moduleName, loc, text, vals, typs)) => {
       Printf.sprintf(
-        {|"%s": {"name": %S, "moduleName": %S, "html": %S, "values": %s}|},
+        {|"%s": {"name": %S, "moduleName": %S, "html": %S, "values": %s, "chars": %d, "lines": %d}|},
         id,
         name,
         moduleName,
         text,
-        "[" ++ String.concat(", ", List.map(({id, name, moduleName}) => Printf.sprintf({|{"id": %S, "name": %S, "moduleName": %S}|}, id, name, moduleName), vals)) ++ "]"
+        "[" ++ String.concat(", ", List.map(({id, name, moduleName}) => Printf.sprintf({|{"id": %S, "name": %S, "moduleName": %S}|}, id, name, moduleName), vals)) ++ "]",
+        loc.Location.loc_end.pos_cnum - loc.Location.loc_start.pos_cnum,
+        loc.Location.loc_end.pos_lnum - loc.Location.loc_start.pos_lnum
       )
     }, allValues)) ++ "}") |> ignore
   }

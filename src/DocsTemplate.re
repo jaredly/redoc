@@ -8,7 +8,7 @@ let searchStyle = {|
 }
 
 .result .result-highlighted {
-  color: #ff6dff!important;
+  color: #a33fa3!important;
 }
 
 .result {

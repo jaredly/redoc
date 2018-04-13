@@ -26,7 +26,7 @@ pre.code {
 .code .type-value-identifier,
 .code .type-constructor,
 .code .type-module-identifier {
-  color: #c100af;
+  color: #81006f;
 }
 
 .code .type-vbl,
@@ -38,7 +38,7 @@ pre.code {
 .code .record-module-identifier,
 .code .field-module-identifier
 {
-  color: #a0a;
+  color: #808;
 }
 
 .code .field
@@ -55,23 +55,23 @@ pre.code {
 }
 
 .code .string {
-    color: #33a20d;
+    color: #30620d;
 }
 
 .code .int {
-    color: #5656cc;
+    color: #36369c;
 }
 
 .code .boolean {
-    color: #ff8f8f;
+    color: #a74444;
 }
 
 .code .float {
-    color: #d49523;
+    color: #a06000;
 }
 
 .code .operator {
-  color: #9b9bff;
+  color: #6060a3;
   font-weight: bold;
 }
 

@@ -1,7 +1,7 @@
 
 let css = {|
 pre.code > code {
-  color: #aaa;
+  color: #555;
 }
 
 .code-block > .CodeMirror,
@@ -15,12 +15,12 @@ pre.code {
 }
 
 .code .module-identifier {
-  color: #aa0;
+  color: #707000;
 }
 
 .code .constructor,
 .code .pattern-constructor {
-  color: #0af;
+  color: #006bb2;
 }
 
 .code .type-value-identifier,

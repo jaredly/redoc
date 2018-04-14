@@ -388,7 +388,7 @@ let main = () => {
       }
     });
     let allValues = processMany(ready);
-    Files.writeFile("./descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((id, name, moduleName, loc, text, vals, typs)) => {
+    Files.writeFile("./docs/descartes/descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((id, name, moduleName, loc, text, vals, typs)) => {
       Printf.sprintf(
         {|"%s": {"name": %S, "moduleName": %S, "html": %S, "values": %s, "chars": %d, "lines": %d}|},
         id,

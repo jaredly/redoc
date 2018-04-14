@@ -1,9 +1,13 @@
 
+.under-link,
+a.under-link,
 [data-global-use] {
     /* background-color: #ddd; */
   cursor: pointer;
   border-bottom: 1px dashed;
   border-bottom-color: #aaa;
+  text-decoration: none;
+  color: inherit;
 }
 
 div[data-global-use] {

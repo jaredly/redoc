@@ -1,0 +1,144 @@
+<!doctype html>
+<script src="./descartes.js"></script>
+<link rel=stylesheet href="./descartes.css">
+<link rel=stylesheet href="./graph.css">
+<!-- <script src="https://d3js.org/d3.v3.min.js"></script> -->
+<!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+<script src="./d3.v4.min.js"></script>
+<style>
+body {
+  font-family: system-ui, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  font-weight: 200;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+}
+
+#main {
+  flex: 1;
+  overflow: auto;
+}
+
+.moduleName {
+  font-weight: 200;
+  font-size: 12px;
+  padding: 4px 0;
+  color: #4196cc;
+  font-family: system-ui;
+}
+
+.item {
+  padding: 16px 8px;
+}
+
+pre {
+  margin: 0;
+}
+
+.modulesList {
+    background: rgba(255,255,255,0.8);
+    padding: 8px;
+    overflow: auto;
+    height: 500px;
+    width: 180px;
+    flex-shrink: 0;
+}
+.modulesList .module {
+  display: flex;
+  word-break: break-word;
+}
+
+.uses {
+    display: flex;
+    align-items: center;
+}
+
+.use {
+    font-size: 12px;
+    margin: 4px;
+}
+
+.use-title {
+  font-size: 12px;
+  padding-left: 4px;
+  font-style: italic;
+}
+
+</style>
+<body>
+  <div id="graph"></div>
+  <div id="main"></div>
+  <script>
+
+    var toLinks = {}
+    Object.keys(DATA).forEach((k, i) => {
+      DATA[k].values.forEach(({id}) => {
+        if (!toLinks[id]) toLinks[id] = []
+        toLinks[id].push(k)
+      })
+    });
+
+    var dsl = (function() {
+
+      var node = (tag, attrs, children) => {
+        var node = document.createElement(tag)
+        for (var attr in attrs) {
+          if (attr === 'style') {
+            Object.assign(node.style, attrs[attr])
+          } else {
+            node.setAttribute(attr, attrs[attr])
+          }
+        }
+        children && children.forEach(child => child && node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
+        return node
+      }
+      var named = tag => (attrs, children) => node(tag, attrs, children)
+      var div = named('div')
+      var span = named('span')
+      var a = named('a')
+      var raw = (text, tag='div') => {
+        var node = document.createElement(tag)
+        node.innerHTML = text
+        return node
+      };
+
+      var render = (target, node) => {
+        target.innerHTML = ''
+        target.appendChild(node)
+      };
+
+      var root = document.getElementById('main')
+
+      render(root, div({}, Object.keys(DATA).map(k => {
+        return div({class: 'item' + (DATA[k].values.length === 0 ? ' isolated' : ''), id: 'block-' + k}, [
+          div({class: 'moduleName'}, [DATA[k].moduleName]),
+          node('pre', {class: 'code'}, [raw(DATA[k].html, 'code')]),
+          DATA[k].values.length ? div({class: 'uses'},
+          [span({class: 'use-title'}, ["Uses: "]), ...DATA[k].values.map(({id, name, moduleName}) => (
+            div({class: 'use', 'data-global-use': id}, [moduleName + "." + name])
+          ))]) : null,
+          toLinks[k] ? div({class: 'uses'}, [span({class: 'use-title'}, ["Used by: "]), ...toLinks[k].map(id => (
+            div({class: 'use', 'data-global-use': id}, [DATA[id].moduleName + '.' + DATA[id].name])
+          ))]): null
+        ])
+      })))
+
+      root.addEventListener('click', evt => {
+        var id = evt.target.getAttribute('data-global-use')
+        if (id) {
+          window.location.hash = '#block-' + id
+        }
+      })
+
+      return {node, div, span, a, raw, render}
+    })();
+  </script>
+
+  <script src="./graph.js"></script>
+</body>

@@ -230,10 +230,10 @@ pre {
             display: 'flex',
             flexShrink: 0,
             flexWrap: 'wrap',
-          }}, before.map(id => div({
+          }}, before.map(id => DATA[id] ? div({
             style: {margin: '4px', cursor: 'pointer'},
             class: uses.indexOf(id) !== -1 ? 'pre-used' : '',
-            'data-global-use': id}, [DATA[id].name]))),
+            'data-global-use': id}, [DATA[id].name]) : null)),
 
           div({style:{
             padding: '8px 16px',
@@ -250,10 +250,10 @@ pre {
             display: 'flex',
             flexShrink: 0,
             flexWrap: 'wrap',
-          }}, after.map(siblingId => div({
+          }}, after.map(siblingId => DATA[siblingId] ? div({
             style: {margin: '4px', cursor: 'pointer'},
             class: (toLinks[id] || []).indexOf(siblingId) !== -1 ? 'post-user' : '',
-            'data-global-use': siblingId}, [DATA[siblingId].name]))),
+            'data-global-use': siblingId}, [DATA[siblingId].name]) : null)),
 
         ]),
         div({style: {

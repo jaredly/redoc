@@ -101,6 +101,10 @@ pre {
   margin: 8px;
 }
 
+.pre-used, .post-user {
+  outline: 1px solid red;
+}
+
 </style>
 <body>
   <div id="graph"></div>
@@ -192,9 +196,16 @@ pre {
         border-radius: 3px;
       }
       `
+
       currentId = id
       const item = DATA[id]
       if (!item) return
+      const parent = MODULES[item.moduleName];
+      const siblings = parent ? parent.ids : [];
+      const idx = siblings.indexOf(id);
+      const before = siblings.slice(0, idx)
+      const after = siblings.slice(idx + 1)
+      const uses = item.values.map(v => v.id)
       render(root, div({style: {
         flexDirection: 'row',
         display: 'flex',
@@ -214,15 +225,36 @@ pre {
           justifyContent: 'center',
           flexDirection: 'column',
         }}, [
+
+          div({style: {
+            display: 'flex',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}, before.map(id => div({
+            style: {margin: '4px', cursor: 'pointer'},
+            class: uses.indexOf(id) !== -1 ? 'pre-used' : '',
+            'data-global-use': id}, [DATA[id].name]))),
+
           div({style:{
             padding: '8px 16px',
             fontSize: '20px',
           }}, [item.moduleName + '.' + item.name]),
+
           // TODO things above in the module?
           node('pre', {class: 'code'}, [
             raw(item.html, 'code')
-          ])
+          ]),
           // TODO things below in the module
+
+          div({style: {
+            display: 'flex',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}, after.map(siblingId => div({
+            style: {margin: '4px', cursor: 'pointer'},
+            class: (toLinks[id] || []).indexOf(siblingId) !== -1 ? 'post-user' : '',
+            'data-global-use': siblingId}, [DATA[siblingId].name]))),
+
         ]),
         div({style: {
           flex: 1,
@@ -266,24 +298,6 @@ pre {
       }
     })
 
-    // var dsl = (function() {
-
-    //   render(root, div({}, Object.keys(DATA).map(k => {
-    //     return div({class: 'item' + (DATA[k].values.length === 0 ? ' isolated' : ''), id: 'block-' + k}, [
-    //       div({class: 'moduleName'}, [DATA[k].moduleName]),
-    //       node('pre', {class: 'code'}, [raw(DATA[k].html, 'code')]),
-    //       DATA[k].values.length ? div({class: 'uses'},
-    //       [span({class: 'use-title'}, ["Uses: "]), ...DATA[k].values.map(({id, name, moduleName}) => (
-    //         div({class: 'use', 'data-global-use': id}, [moduleName + "." + name])
-    //       ))]) : null,
-    //       toLinks[k] ? div({class: 'uses'}, [span({class: 'use-title'}, ["Used by: "]), ...toLinks[k].map(id => (
-    //         div({class: 'use', 'data-global-use': id}, [DATA[id].moduleName + '.' + DATA[id].name])
-    //       ))]): null
-    //     ])
-    //   })))
-
-    //   return {node, div, span, a, raw, render}
-    // })();
   </script>
 
 </body>

@@ -206,7 +206,7 @@ let process = (moduleName, structure, sourceText, modStamps, typStamps, valStamp
       switch node {
       | Module(name, children) => {
         let organized = collect(children);
-        Hashtbl.replace(modStamps, id(stamp), organized);
+        Hashtbl.replace(modStamps, id(stamp), (name, organized));
         (types, values, [(name, id(stamp)), ...modules])
       }
       | Item(loc, item, tags, vals, typs) => {
@@ -242,7 +242,7 @@ let rec flatten = path => switch path {
 
 let toId = (moduleName, stamp) => moduleName ++ "/" ++ string_of_int(stamp);
 
-let rec deepValue = (names, (_types, values, modules), valStamps, modStamps) => {
+let rec deepValue = (names, (_name, (_types, values, modules)), valStamps, modStamps) => {
   switch names {
   | [] => `Missing
   | [name] => switch (List.assoc(name, values)) {
@@ -256,7 +256,7 @@ let rec deepValue = (names, (_types, values, modules), valStamps, modStamps) => 
   }
 };
 
-let rec deepType = (names, (types, _values, modules), typStamps, modStamps) => {
+let rec deepType = (names, (_name, (types, _values, modules)), typStamps, modStamps) => {
   switch names {
   | [] => `Missing
   | [name] => switch (List.assoc(name, types)) {
@@ -318,7 +318,7 @@ let processMany = (modules) => {
   let valStamps = Hashtbl.create(100);
 
   List.iter(((name, structure, sourceText)) => {
-    Hashtbl.replace(globalMods, name, process(name, structure, sourceText, modStamps, typStamps, valStamps))
+    Hashtbl.replace(globalMods, name, (name, process(name, structure, sourceText, modStamps, typStamps, valStamps)))
   }, modules);
 
   let stampAttr = (moduleName, stamp) => "data-local-define='" ++ moduleName ++ "/" ++ string_of_int(stamp) ++ "'";
@@ -360,7 +360,19 @@ let processMany = (modules) => {
   let annotatedValues = Hashtbl.fold((key, item, items) => [resolveItem(item), ...items], valStamps, []);
   let annotatedTypes = Hashtbl.fold((key, item, items) => [resolveItem(item), ...items], typStamps, []);
 
-  annotatedValues
+  let allModules =
+  Hashtbl.fold((key, (name, (types, values, modules)), items) => [
+    (key, name, List.map(snd, types) @ List.map(snd, values) @ List.map(snd, modules)),
+    ...items
+  ], modStamps, [])
+  @
+  Hashtbl.fold((key, (name, (types, values, modules)), items) => [
+    (key, name, List.map(snd, types) @ List.map(snd, values) @ List.map(snd, modules)),
+    ...items
+  ], globalMods, [])
+  ;
+
+  (annotatedValues, allModules)
   /* TODO don't super need these for my current visualization */
    /* @ annotatedTypes */
 };
@@ -387,8 +399,9 @@ let main = () => {
       | _ => failwith("Bad cmt")
       }
     });
-    let allValues = processMany(ready);
-    Files.writeFile("./docs/descartes/descartes.js", "window.DATA = {" ++ String.concat(",\n", List.map(((id, name, moduleName, loc, text, vals, typs)) => {
+
+    let (allValues, allModules) = processMany(ready);
+    let contents = "window.DATA = {" ++ String.concat(",\n", List.map(((id, name, moduleName, loc, text, vals, typs)) => {
       Printf.sprintf(
         {|"%s": {"name": %S, "moduleName": %S, "html": %S, "values": %s, "chars": %d, "lines": %d}|},
         id,
@@ -399,7 +412,10 @@ let main = () => {
         loc.Location.loc_end.pos_cnum - loc.Location.loc_start.pos_cnum,
         loc.Location.loc_end.pos_lnum - loc.Location.loc_start.pos_lnum
       )
-    }, allValues)) ++ "}") |> ignore
+    }, allValues)) ++ "};\nwindow.MODULES = {" ++
+    String.concat(",\n", allModules |> List.map(((id, name, ids)) => Printf.sprintf({|%S: {"name": %S, "ids": [%s]}|}, id, name, String.concat(", ", List.map(Printf.sprintf("%S"), ids)))))
+    ++ "}";
+    Files.writeFile("./docs/descartes/descartes.js", contents) |> ignore
   }
   | _ => print_endline("Usage: descartes cmtdir srcdir")
   }

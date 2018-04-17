@@ -1,3 +1,30 @@
+;(function() {
+  var node = (tag, attrs, children) => {
+    var node = document.createElement(tag)
+    for (var attr in attrs) {
+      if (attr === 'style') {
+        Object.assign(node.style, attrs[attr])
+      } else {
+        node.setAttribute(attr, attrs[attr])
+      }
+    }
+    children && children.forEach(child => node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
+    return node
+  }
+  var named = tag => (attrs, children) => node(tag, attrs, children)
+  var div = named('div')
+  var span = named('span')
+  var a = named('a')
+  var raw = text => {
+    var node = document.createElement('div')
+    node.innerHTML = text
+    return node
+  };
+
+  var render = (target, node) => {
+    target.innerHTML = ''
+    target.appendChild(node)
+  };
 
 var listenForTypes = () => {
   var typeViewer = document.createElement('div')
@@ -54,3 +81,4 @@ window.onload = () => {
   listenForTypes();
 }
 window.onhashchange = checkHash
+})();

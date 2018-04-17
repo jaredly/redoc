@@ -358,7 +358,7 @@ let getDependencyDirs = (base, config) => {
       /* TODO get directories from config */
       if (List.mem("js", allowedKinds)) {
         getSourceDirectories(loc, inner) |> List.map(name => (
-          loc /+ (isNative ? "lib/bs/js" : "lib/bs") /+ name,
+          loc /+ (isNative ? "lib/bs/js" : "lib/ocaml") /+ name,
           loc /+ "lib/js" /+ name,
         ));
       } else {
@@ -373,16 +373,16 @@ let getDependencyDirs = (base, config) => {
 
 let invert = (f, a) => !f(a);
 
-let compileSnippets = (base, dest, blocks) => {
+let compileSnippets = (~bsRoot, base, dest, blocks) => {
   let blocksByEl = Hashtbl.create(100);
 
   let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
   let isNative = isNative(config);
 
   let mine = getSourceDirectories(base, config) |> List.map(name => (
-    base /+ (isNative ? "lib/bs/js" : "lib/bs") /+ name,
+    base /+ (isNative ? "lib/bs/js" : "lib/ocaml") /+ name,
     base /+ "lib/js" /+ name
-  ));
+  )) |> List.filter(((compiled, sourced)) => Files.exists(compiled));
   let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */
   /* print_endline("All deps:"); */
   /* dependencyDirs |> List.iter(((a, b)) => print_endline("  " ++ a)); */
@@ -405,8 +405,8 @@ let compileSnippets = (base, dest, blocks) => {
 
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(name)), jsDir /+ js)
   })) |> List.concat;
-  let stdlib = base /+ "node_modules/bs-platform/lib/js";
-  let stdlibRequires = Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name);
+  let stdlib = bsRoot /+ "lib/js";
+  let stdlibRequires = Files.exists(stdlib) ? (Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name)) : [];
   let depsMap = depsMap @ (stdlibRequires |> List.map(path => {
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(Filename.basename(path))), path)
   }));
@@ -453,11 +453,11 @@ let compileSnippets = (base, dest, blocks) => {
 
     Files.writeFile(re, reasonContent) |> ignore;
 
-    let refmt = base /+ "node_modules/bs-platform/lib/refmt3.exe";
+    let refmt = bsRoot /+ "lib/refmt3.exe";
     let refmt = if (Files.exists(refmt)) {
       refmt
     } else {
-      base /+ "node_modules/bs-platform/lib/refmt.exe";
+      bsRoot /+ "lib/refmt.exe";
     };
 
     let cmd = refmtCommand(base, re, refmt);
@@ -516,13 +516,13 @@ let escape = text => text
 ;
 
 /* TODO allow package-global settings, like "run this in node" */
-let process = (~editingEnabled, ~test, markdowns, cmts, base, dest) =>  {
+let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) =>  {
 
   let blocks = getCodeBlocks(markdowns, cmts);
   let packageJson = Json.parse(Files.readFile(base /+ "package.json") |! "No package.json in " ++ base);
   let packageJsonName = packageJson |> Json.get("name") |?> Json.string |! "Missing name in package.json";
 
-  let (blocksByEl, blocks, stdlibRequires) = compileSnippets(base, dest, blocks);
+  let (blocksByEl, blocks, stdlibRequires) = compileSnippets(~bsRoot, base, dest, blocks);
 
   if (test) {
     print_endline("Running tests");
@@ -552,7 +552,6 @@ let process = (~editingEnabled, ~test, markdowns, cmts, base, dest) =>  {
         | _ => print_endline("Not running because of error")
         }
       };
-      /* let jsContents = Files.readFile(js); */
       ()
     });
   };
@@ -561,13 +560,15 @@ let process = (~editingEnabled, ~test, markdowns, cmts, base, dest) =>  {
     | Success(_, js) => Some(js) | _ => None
   });
 
-  let bundle = Packre.Pack.process(
+  let bundle = try (Packre.Pack.process(
     ~mode=Packre.Types.JustExternals,
     ~renames=[(packageJsonName, base)],
     ~extraRequires=stdlibRequires,
     ~base,
     allJsFiles
-  );
+  )) {
+    | _ => "alert('Failed to bundle')"
+  };
   Files.writeFile(dest /+ "all-deps.js", bundle ++ ";window.loadedAllDeps = true;") |> ignore;
 
   (element) => switch element {

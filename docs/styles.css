@@ -36,16 +36,81 @@ blockquote {
   padding-left: 16px;
 }
 
-pre {
-  padding: 8px 16px;
+.code-block {
   margin: 32px 0;
+}
+
+pre {
+  margin: 0;
+  padding: 8px 16px;
   background-color: #f1f8ff;
   overflow: auto;
 }
 
+div.compile-error {
+  padding: 8px 16px;
+  background-color: #ffebeb;
+  margin-top: -24px;
+  margin-bottom: 32px;
+  white-space: pre-wrap;
+}
+
+.CodeMirror {
+  height: auto!important;
+}
+
+.CodeMirror-error-mark {
+  background-color: red;
+}
+
+.code-edit-run,
+.code-edit-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 4px 8px;
+  background-color: #eee;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.code-edit-run {
+  opacity: 1;
+  background-color: #8aff62;
+  z-index: 1000;
+  border-radius: 3px;
+}
+
+.code-block:hover .code-edit-button {
+  opacity: 1;
+}
+
+.code-post, .code-pre {
+  padding: 8px 16px;
+  background-color: #eee;
+}
+
+.code-post {
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.code-pre {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.code-post,
+.code-pre,
+.CodeMirror,
+.CodeMirror pre,
+.code-block,
+.code-block .CodeMirror pre,
 pre > code,
 h4.item,
 .type-viewer,
+div.compile-error,
 p code {
   font-family: 'SF Mono', Menlo, monospace;
   letter-spacing: 0;
@@ -82,6 +147,9 @@ p code {
 h1, h2 {
   margin-top: 24px;
 }
+h1, h2, h3, h4 {
+  color: #444;
+}
 
 h4.module {
   font-size: 110%%;
@@ -110,6 +178,9 @@ p code {
   border-radius: 3px;
   font-family: 'sf mono', monospace;
   font-size: 0.9em;
+  background: white;
+  /* color: #222; */
+  box-shadow: 0 0 1px #aaa;
 }
 
 a {
@@ -309,6 +380,8 @@ a.level-5 {
 pre.code > code {
   color: #aaa;
 }
+
+.code-block > .CodeMirror,
 pre.code {
   border-radius: 3px;
   box-shadow: 0 0.5px 3px #aaa;
@@ -394,5 +467,115 @@ pre.code {
   margin-left: 10px;
   box-shadow: 0 1px 6px #555;
   border-radius: 3px;
+}
+
+
+.code-block {
+  position: relative;
+}
+
+.block-target-large {
+  height: 24px;
+  background-color: #afa;
+  cursor: pointer;
+  text-align: center;
+}
+
+.block-target-right {
+  background-color: #afa;
+  cursor: pointer;
+  height: 24px;
+  background-color: #afa;
+  border-radius: 3px;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 16px;
+  width: 32px;
+  opacity: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-target-small {
+  cursor: pointer;
+  height: 24px;
+  background-color: #afa;
+  border-radius: 3px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 2.5em;
+  opacity: 0.1;
+  transition: opacity 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.code-block:hover .block-target-small {
+  opacity: 1;
+}
+
+.block-target-container {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  min-height: 42px;
+  margin-left: 16px;
+  padding: 8px 16px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  width: 200px;
+}
+.block-target-container.active {
+  box-shadow: 0 0 1px #aaa inset;
+}
+
+
+.block-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  box-shadow: 0 0 1px #aaa;
+  border-radius: 3px;
+  margin-left: 16px;
+}
+
+.block-canvas-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 64px;
+  /* margin-left: -26px; */
+  color: rgba(0, 0, 0, 0.2);
+  /* margin-top: -17px; */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+@media(max-width: 1000px) {
+  .block-target-container {
+    position: static;
+    margin-left: 0;
+    margin-top: 8px;
+  }
+  .block-canvas-container {
+    top: 0;
+    left: 0;
+    position: relative;
+    margin-left: 0;
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+  }
 }
 

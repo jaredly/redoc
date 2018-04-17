@@ -215,7 +215,7 @@ let makeDocStringProcessor = (dest, outerOverride) => {
 };
 open Infix;
 
-let generateMultiple = (~editingEnabled, ~test, base, compiledBase, url, dest, cmts, markdowns: list((string, option(string), Omd.t, string))) => {
+let generateMultiple = (~bsRoot, ~editingEnabled, ~test, base, compiledBase, url, dest, cmts, markdowns: list((string, option(string), Omd.t, string))) => {
   Files.mkdirp(dest);
 
   let cmts = filterDuplicates(cmts);
@@ -239,7 +239,7 @@ let generateMultiple = (~editingEnabled, ~test, base, compiledBase, url, dest, c
 
   let processedCmts = cmts |> List.map(cmt => processCmt(getName(cmt), cmt));
 
-  let codeBlocksOverride = CodeSnippets.process(~editingEnabled, ~test, markdowns, processedCmts, base, dest);
+  let codeBlocksOverride = CodeSnippets.process(~bsRoot, ~editingEnabled, ~test, markdowns, processedCmts, base, dest);
 
   let (searchables, processDocString) = makeDocStringProcessor(dest, codeBlocksOverride);
 
@@ -401,14 +401,18 @@ let getBsbVersion = base => {
   }
 };
 
-let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
+let generateProject = (~selfPath, ~projectName, ~root, ~target, ~sourceDirectories, ~test, ~bsRoot) => {
   Files.mkdirp(target);
   let bsConfig = Json.parse(Files.readFile(root /+ "bsconfig.json") |! "No bsconfig.json found");
-  let sourceDirectories = CodeSnippets.getSourceDirectories(root, bsConfig);
+  let (found, compiledRoot) = sourceDirectories == [] ? {
+    let sourceDirectories = CodeSnippets.getSourceDirectories(root, bsConfig);
+    let isNative = CodeSnippets.isNative(bsConfig);
+    let compiledRoot = root /+ (isNative ? "lib/bs/js" : "lib/bs");
+    let found = sourceDirectories |> List.map(name => compiledRoot /+ name) |> List.map(p => Files.collect(p, isCmt)) |> List.concat;
+    (found, compiledRoot)
+    /* HACKKKK */
+  } : (sourceDirectories |> List.map(p => Files.collect(p, isCmt)) |> List.concat, List.hd(sourceDirectories));
 
-  let isNative = CodeSnippets.isNative(bsConfig);
-  let compiledRoot = root /+ (isNative ? "lib/bs/js" : "lib/bs");
-  let found = sourceDirectories |> List.map(name => compiledRoot /+ name) |> List.map(p => Files.collect(p, isCmt)) |> List.concat;
 
   let markdowns = getMarkdowns(projectName, root, target);
   let url = ParseConfig.getUrl(root);
@@ -423,7 +427,7 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
     print_endline("No bucklescript file available -- editing will be disabled")
   };
 
-  generateMultiple(~editingEnabled, ~test, root, compiledRoot, url, target, found, markdowns);
+  generateMultiple(~bsRoot, ~editingEnabled, ~test, root, compiledRoot, url, target, found, markdowns);
 
   [
   "block-script.js",
@@ -447,8 +451,8 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~test) => {
 let parse = Minimist.parse(
   ~alias=[("h", "help"), ("test", "doctest")],
   ~presence=["help", "doctest"],
-  ~multi=[],
-  ~strings=["target", "root", "name"]
+  ~multi=["cmi-directory"],
+  ~strings=["target", "root", "name", "bs-root"]
 );
 
 let help = {|
@@ -462,6 +466,8 @@ Usage: docre [options]
       where we should write out the docs
   --name (default: the name of the directory, capitalized)
       what this project is called
+  --cmi-directory
+  --bs-root (default: root/node_modules/bs-platform)
   --doctest (default: false)
       execute the documentation snippets to make sure they run w/o erroring
   -h, --help
@@ -483,15 +489,17 @@ open Infix;
 
 switch (parse(args)) {
 | Minimist.Error(err) => fail(Minimist.report(err))
-| Ok({Minimist.strings, presence}) =>
+| Ok({Minimist.strings, multi: multiMap, presence}) =>
   open Minimist;
   if (has("help", presence)) {
     print_endline(help); exit(0);
   } else {
     let root = get(strings, "root") |? Unix.getcwd();
+    let bsRoot = get(strings, "bs-root") |? (root /+ "node_modules/bs-platform");
     let target = get(strings, "target") |? (root /+ "docs");
     let projectName = get(strings, "name") |? String.capitalize(Filename.dirname(root));
-    generateProject(~selfPath, ~root, ~target, ~projectName, ~test=has("doctest", presence))
+    let sourceDirectories = multi(multiMap, "cmi-directory");
+    generateProject(~selfPath, ~root, ~target, ~projectName, ~test=has("doctest", presence), ~sourceDirectories, ~bsRoot)
   }
 };
 

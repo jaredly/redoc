@@ -9,6 +9,8 @@ let filterNil = (fn, items) => List.fold_left(
 );
 
 
+let showType = typ => PrintType.default.expr(PrintType.default, typ) |> GenerateDoc.prettyString;
+
 type tag =
   | TypeHover(Types.type_expr)
   | Cls(string)
@@ -139,8 +141,8 @@ type node =
   | Item(Location.t, item, list((Location.t, list(tag))), list(Path.t), list(Path.t))
   | Module(string, list((int, node)))
 and item =
-  | Value(string)
-  | Type(string)
+  | Value(string, string)
+  | Type(string, string)
 ;
 
 let rec chart = (structureItems) => {
@@ -149,16 +151,16 @@ let rec chart = (structureItems) => {
       let more = switch (item.str_desc) {
       | Tstr_value(recc, bindings) => (
         bindings |> filterNil(binding => switch binding {
-        | {vb_loc, vb_pat: {pat_desc: Tpat_var({stamp, name}, _)}} => {
+        | {vb_loc, vb_pat: {pat_desc: Tpat_var({stamp, name}, _), pat_type}} => {
           let (markupTags, externalValues, externalTypes) = highlightItem({...item, str_desc: Tstr_value(recc, [binding])});
-          Some((stamp, Item(vb_loc, Value(name), markupTags, externalValues, externalTypes)))
+          Some((stamp, Item(vb_loc, Value(name, showType(pat_type)), markupTags, externalValues, externalTypes)))
         }
         | _ => None
         }),
       )
       | Tstr_type(decls) => List.map(({typ_loc, typ_id: {stamp, name}} as decl) => {
         let (markupTags, externalValues, externalTypes) = highlightItem({...item, str_desc: Tstr_type([decl])});
-        ((stamp, Item(typ_loc, Type(name), markupTags, externalValues, externalTypes)))
+        ((stamp, Item(typ_loc, Type(name, ""), markupTags, externalValues, externalTypes)))
       }, decls)
       | Tstr_module({mb_id: {stamp, name}, mb_expr: {
         mod_type,
@@ -180,6 +182,7 @@ type fullItem = {
   id: string,
   name: string,
   moduleName: string,
+  typ: string,
   loc: Location.t,
   tags: list((Location.t, list(tag))),
   vals: list(Path.t),
@@ -210,11 +213,11 @@ let process = (moduleName, structure, sourceText, modStamps, typStamps, valStamp
         (types, values, [(name, id(stamp)), ...modules])
       }
       | Item(loc, item, tags, vals, typs) => {
-        let (name, table) = switch item {
-        | Type(name) => (name, typStamps)
-        | Value(name) => (name, valStamps)
+        let (name, table, typ) = switch item {
+        | Type(name, typ) => (name, typStamps, typ)
+        | Value(name, typ) => (name, valStamps, typ)
         };
-        Hashtbl.replace(table, id(stamp), {id: id(stamp), name, moduleName, loc, tags, vals, typs, text: slice(sourceText, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)});
+        Hashtbl.replace(table, id(stamp), {id: id(stamp), name, moduleName, typ, loc, tags, vals, typs, text: slice(sourceText, loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum)});
         switch item {
         | Type(_) => ([(name, id(stamp)), ...types], values, modules)
         | Value(_) => (types, [(name, id(stamp)), ...values], modules)
@@ -226,8 +229,6 @@ let process = (moduleName, structure, sourceText, modStamps, typStamps, valStamp
 
   collect(chart(structure))
 };
-
-let showType = typ => PrintType.default.expr(PrintType.default, typ) |> GenerateDoc.prettyString;
 
 let fold = (d, fn, v) => switch v { | None => d | Some(v) => fn(v) };
 
@@ -337,7 +338,7 @@ let processMany = (modules) => {
   | ValueRef(path) => resolveValue(moduleName, valStamps, modStamps, globalMods, path) |> stampUse
   };
 
-  let resolveItem = ({id, name, moduleName, loc, tags, vals, typs, text}) => {
+  let resolveItem = ({id, name, moduleName, typ, loc, tags, vals, typs, text}) => {
     let resolvedTags = tags |> List.map(((loc, tags)) => {
       (loc.Location.loc_start.pos_cnum, loc.Location.loc_end.pos_cnum, tags |> List.map(mapTag(moduleName)) |> String.concat(" "))
     });
@@ -353,7 +354,7 @@ let processMany = (modules) => {
     | `Local(_) => None
     | `Global(id) => Some(Hashtbl.find(typStamps, id))
     });
-    (id, name, moduleName, loc, text, vals, typs)
+    (id, name, moduleName, typ, loc, text, vals, typs)
   };
 
   /* TODO track the parentage of values */
@@ -401,16 +402,17 @@ let main = () => {
     });
 
     let (allValues, allModules) = processMany(ready);
-    let contents = "window.DATA = {" ++ String.concat(",\n", List.map(((id, name, moduleName, loc, text, vals, typs)) => {
+    let contents = "window.DATA = {" ++ String.concat(",\n", List.map(((id, name, moduleName, typ, loc, text, vals, typs)) => {
       Printf.sprintf(
-        {|"%s": {"name": %S, "moduleName": %S, "html": %S, "values": %s, "chars": %d, "lines": %d}|},
+        {|"%s": {"name": %S, "moduleName": %S, "html": %S, "values": %s, "chars": %d, "lines": %d, "type": %S}|},
         id,
         name,
         moduleName,
         text,
         "[" ++ String.concat(", ", List.map(({id, name, moduleName}) => Printf.sprintf({|{"id": %S, "name": %S, "moduleName": %S}|}, id, name, moduleName), vals)) ++ "]",
         loc.Location.loc_end.pos_cnum - loc.Location.loc_start.pos_cnum,
-        loc.Location.loc_end.pos_lnum - loc.Location.loc_start.pos_lnum
+        loc.Location.loc_end.pos_lnum - loc.Location.loc_start.pos_lnum,
+        typ
       )
     }, allValues)) ++ "};\nwindow.MODULES = {" ++
     String.concat(",\n", allModules |> List.map(((id, name, ids)) => Printf.sprintf({|%S: {"name": %S, "ids": [%s]}|}, id, name, String.concat(", ", List.map(Printf.sprintf("%S"), ids)))))

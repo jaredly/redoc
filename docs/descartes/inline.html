@@ -1,0 +1,364 @@
+<!doctype html>
+<script src="./descartes.js"></script>
+<link rel=stylesheet href="./descartes.css">
+<link rel=stylesheet href="./graph.css">
+<!-- <script src="https://d3js.org/d3.v3.min.js"></script> -->
+<!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+<script src="./d3.v4.min.js"></script>
+<style>
+body {
+  font-family: system-ui, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  font-weight: 200;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+}
+
+div {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+
+#main {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.moduleName {
+  font-weight: 200;
+  font-size: 12px;
+  padding: 4px 0;
+  color: #4196cc;
+  font-family: system-ui;
+}
+
+.item {
+  padding: 16px 8px;
+}
+
+pre {
+  margin: 0;
+}
+
+.modulesList {
+    background: rgba(255,255,255,0.8);
+    padding: 8px;
+    overflow: auto;
+    height: 500px;
+    width: 180px;
+    flex-shrink: 0;
+}
+.modulesList .module {
+  display: flex;
+  word-break: break-word;
+}
+
+.uses {
+    display: flex;
+    align-items: center;
+}
+
+.use {
+    font-size: 12px;
+    margin: 4px;
+}
+
+.use-title {
+  font-size: 12px;
+  padding-left: 4px;
+  font-style: italic;
+}
+
+.preview-small {
+  cursor: pointer;
+  padding: 8px 16px;
+}
+.preview-small:hover {
+  background-color: #eee;
+}
+
+.preview-large {
+  padding: 8px 16px;
+}
+
+.hovered {
+  background-color: #ffcac6;
+}
+
+.side-title {
+  font-size: 14px;
+  text-align: center;
+  margin: 8px;
+}
+
+.pre-used, .post-user {
+  outline: 1px solid red;
+}
+
+.children {
+  border-left: 24px solid white;
+}
+
+</style>
+<body>
+  <div id="graph"></div>
+  <div id="main"></div>
+  <script>
+    var node = (tag, attrs, children) => {
+      var node = document.createElement(tag)
+      for (let attr in attrs) {
+        if (attr === 'style') {
+          Object.assign(node.style, attrs[attr])
+        } else if (attr === 'onclick') {
+          const handler = attrs[attr]
+          node.onclick = evt => handler(node, evt)
+        } else {
+          node.setAttribute(attr, attrs[attr])
+        }
+      }
+      children && children.forEach(child => child && node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
+      return node
+    }
+    var named = tag => (attrs, children) => node(tag, attrs, children)
+    var div = named('div')
+    var span = named('span')
+    var a = named('a')
+    var raw = (text, tag='div') => {
+      var node = document.createElement(tag)
+      node.innerHTML = text
+      return node
+    };
+    var cls = (name, children) => div({class: name}, children)
+    var render = (target, node) => {
+      target.innerHTML = ''
+      target.appendChild(node)
+    };
+    var spacer = n => div({style: {flexBasis: n + 'px', width: n + 'px', height: n + 'px', minWidth: n + 'px', minHeight: n + 'px'}});
+
+
+
+
+
+    var toLinks = {}
+    Object.keys(DATA).forEach((k, i) => {
+      DATA[k].values.forEach(({id}) => {
+        if (!toLinks[id]) toLinks[id] = []
+        toLinks[id].push(k)
+      })
+    });
+
+    const findRecursiveSize = k => {
+      if (!DATA[k] || DATA[k].recursiveSize != null) {
+        return
+      }
+      // DATA[k].recursiveSize = Math.sqrt(DATA[k].lines);
+      DATA[k].recursiveSize = DATA[k].lines + 1;
+      DATA[k].values.forEach(v => {
+        findRecursiveSize(v.id);
+        DATA[k].recursiveSize += DATA[v.id].recursiveSize
+      });
+    }
+    Object.keys(DATA).forEach(findRecursiveSize);
+
+
+
+
+
+
+
+
+
+    var root = document.getElementById('main')
+
+    var defaultId = Object.keys(DATA).find(k => DATA[k].moduleName === 'Main' && DATA[k].name === 'generateProject')
+
+    var randomId = () => defaultId; // Object.keys(DATA)[Math.floor(Math.random() * Object.keys(DATA).length)];
+
+    var id = location.hash.slice(1) != '' ? location.hash.slice(1) : randomId();
+
+    // const preview = (id, left) => {
+    //   const item = DATA[id]
+    //   if (!item) {
+    //     return 'No item by id ' + id
+    //   }
+    //   var content = node('pre', {class: 'code', style: {overflow: 'auto', maxHeight: '300px'}}, [
+    //         raw(item.html, 'code')
+    //       ]);
+    //     var res = div({class: 'preview-large'}, [
+    //       div({style: {padding: '4px'}}, [
+    //         a(Object.assign({href: '#' + id, class: 'under-link'}, left ? {} : {'data-global-use': id}), [
+    //           item.moduleName,
+    //           ".",
+    //           item.name,
+    //         ]),
+    //         spacer(8),
+    //         content,
+    //       ]),
+    //     ])
+    //   return res
+    // }
+
+    var currentId = null;
+
+    var style = document.createElement('style')
+    document.body.appendChild(style)
+
+    const round = (n, by) => Math.round(n * by) / by;
+
+    var header = (item, onclick) => {
+      const size = item.recursiveSize > 1000 ? round(item.recursiveSize / 1000, 100) + 'k' : item.recursiveSize
+      return div({style: {
+      }}, [div({onclick, style: {
+        cursor: 'pointer',
+        display: 'flex',
+        flexDirection: 'row',
+        fontSize: (4 * Math.log(item.recursiveSize) + 10) + 'px'
+      }}, [
+        item.name,
+        spacer(4),
+        `(${size})`,
+      ]),
+      ])
+    };
+
+    var renderCollapsed = (id, onclick) => {
+      const item = DATA[id]
+      if (!item) return div({}, ["No item " + id])
+      return header(item, onclick)
+    };
+
+    var renderExpanded = (id, onclick, oncode) => {
+      const item = DATA[id]
+      if (!item) return div({}, ["No item " + id])
+      if (!item.values.length) return renderCode(id)
+      return div({}, [
+        header(item, onclick),
+
+        div({onclick: () => {
+          oncode()
+        }, style: {
+          cursor: 'pointer',
+        }}, ["📄 View code"]),
+        // div({style: {
+        //   whiteSpace: 'pre-wrap',
+        //   fontFamily: 'sf mono, monospace',
+        //   fontSize: '16px',
+        //   color: '#aaa',
+        // }}, [item.type]),
+
+        div({class: 'children'}, item.values.map(v => renderItem(v.id, true)))
+      ])
+    };
+
+    var renderCode = (id, onclick, onback) => {
+      const item = DATA[id]
+      if (!item) return div({}, ["No item " + id])
+      return div({}, [
+        header(item, onclick),
+
+        div({onclick: () => {
+          onback()
+        }, style: {
+          cursor: 'pointer',
+        }}, ["• View summary"]),
+
+        node('pre', {class: 'code'}, [
+          raw(item.html, 'code')
+        ]),
+      ])
+    };
+
+    var renderItem = (id, collapsed) => {
+      var root
+      var code = false
+      function toggleCode (node, evt) {
+        code = !code
+        var newRoot = code ? renderCode(id, toggle, toggleCode) : renderExpanded(id, toggle, toggleCode)
+        root.replaceWith(newRoot)
+        root = newRoot
+      };
+      function toggle (node, evt) {
+        collapsed = !collapsed
+        var newRoot = collapsed ? renderCollapsed(id, toggle) : renderExpanded(id, toggle, toggleCode)
+        root.replaceWith(newRoot)
+        root = newRoot
+      }
+      root = collapsed ? renderCollapsed(id, toggle) : renderExpanded(id, toggle, toggleCode)
+      return root
+    };
+
+    var main = (id) => {
+      if (id == currentId) return
+      window.location.hash = '#' + id
+
+      currentId = id
+      let item = DATA[id]
+      if (!item) {
+        id = defaultId
+        item = DATA[id]
+      }
+
+      const parent = MODULES[item.moduleName];
+      const siblings = parent ? parent.ids : [];
+      const idx = siblings.indexOf(id);
+      const before = siblings.slice(0, idx)
+      const after = siblings.slice(idx + 1)
+      const uses = item.values.map(v => v.id)
+
+      render(root, div({style: {
+        // width: '600px',
+        display: 'flex',
+        // justifyContent: 'center',
+        flexDirection: 'column',
+        overflow: 'auto',
+        padding: '24px',
+      }}, [
+        renderItem(id, false)
+      ]));
+    };
+
+    main(id)
+
+    window.onhashchange = () => {
+      var id = location.hash.slice(1);
+      main(id)
+    }
+
+    root.addEventListener('click', evt => {
+      var id = evt.target.getAttribute('data-global-use')
+      if (id) {
+        window.location.hash = '#' + id
+      }
+    })
+
+    root.addEventListener('mouseover', evt => {
+      var id = evt.target.getAttribute('data-global-use')
+      if (id) {
+        [].forEach.call(document.querySelectorAll('[data-global-use="' + id + '"'), node => {
+          node.classList.add('hovered')
+        })
+      }
+    })
+
+    root.addEventListener('mouseout', evt => {
+      var id = evt.target.getAttribute('data-global-use')
+      if (id) {
+        [].forEach.call(document.querySelectorAll('[data-global-use="' + id + '"'), node => {
+          node.classList.remove('hovered')
+        })
+      }
+    })
+
+  </script>
+
+</body>

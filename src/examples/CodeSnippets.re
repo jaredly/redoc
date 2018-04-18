@@ -173,7 +173,7 @@ let highlight = (~editingEnabled, {id, content, options}, status, bundle) => {
 
 let splitLines = text => Str.split(Str.regexp_string("\n"), text);
 
-let sliceToEnd = (text, i) => String.sub(text, i, String.length(text) - i);
+let sliceToEnd = (s, num) => String.length(s) < num ? s : String.sub(s, num, String.length(s) - num);
 
 /* let removeHashes = text => Str.global_replace(Str.regexp("^#"), " ", text); */
 let removeHashes = text => {
@@ -316,8 +316,6 @@ require('%s')
 |}, name, basePath, snippetPath);
 
 let optMap = (fn, items) => List.fold_left((result, item) => switch (fn(item)) { | None => result | Some(res) => [res, ...result]}, [], items);
-
-let sliceToEnd = (s, num) => String.length(s) < num ? s : String.sub(s, num, String.length(s) - num);
 
 let getSourceDirectories = (base, config) => {
   let rec handleItem = (current, item) => {

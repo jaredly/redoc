@@ -119,7 +119,8 @@ module Model = {
 
   type id = string;
 
-  type docWithExamples = (Omd.t, list(codeBlock));
+  type docWithExamples = Omd.t;
+  /* (Omd.t, list(codeBlock)); */
 
   type module_ = {
     contents: moduleContents,
@@ -132,18 +133,15 @@ module Model = {
   and itemWithDocs = (string, option(docWithExamples), moduleItem)
     ;
 
-
-
-
   type customPage = {
     title: string,
     /* Missing if the page was generated. relative to repo root */
     sourcePath: option(string),
-    destPath: string,
+    /* destPath: string, */
     contents: docWithExamples,
   };
 
-  type sidebar = SidebarItem(string) | SidebarHeader(string, list(string));
+  type sidebar = SidebarItem(string) | SidebarHeader(string, list(sidebar));
 
   type topModule = {
     name: string,
@@ -156,13 +154,16 @@ module Model = {
     name: string,
     repo: option(string),
     custom: list(customPage),
-    sidebar: option(sidebar),
+    sidebar: option(list(sidebar)),
     namespaced: bool,
+    backend,
     defaultCodeOptions: option(codeOptions),
     modules: Hashtbl.t(string, topModule),
     /* For compiling snippets */
     compiledDependencyDirectories: list(string),
   };
+
+  type codeBlocks = Hashtbl.t((string, string, string), codeBlock);
 
   /* Have some kind of "front-page"? idk */
   type world = {
@@ -186,6 +187,7 @@ module Input = {
     /* If this is absent, no compilation for you!! (or syntax highlighting) */
     bsRoot: option(string),
     refmt: option(string),
+    static: string,
   };
 
   type meta = {
@@ -198,7 +200,8 @@ module Input = {
     /* TODO might be nice to allow things that don't have a bsconfig */
     meta,
     sidebarFile: option(string),
-    customFiles: list(string),
+    /* abs path to .md, relpath to source */
+    customFiles: list((string, option(string))),
     /* abs path to .cmt(i), relpath to source */
     moduleFiles: list((string, string)),
     compiledDependencyDirectories: list(string),
@@ -217,23 +220,4 @@ module Input = {
     packageInput,
     env,
   };
-};
-
-let inputFromArgs = argv => {
-  /* TODO parse */
-  failwith("Not impl")
-};
-
-let packageFromInput = (package, env) => {
-  failwith("nope")
-};
-
-let outputPackage = (package, target) => {
-  ()
-};
-
-let main = () => {
-  let input = inputFromArgs(Sys.argv);
-  let package = packageFromInput(input.Input.packageInput, input.Input.env);
-  outputPackage(package, input.Input.target);
 };

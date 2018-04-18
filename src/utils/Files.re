@@ -13,6 +13,9 @@ let absify = path => {
 
 let removeExtraDots = path => Str.global_replace(Str.regexp_string("/./"), "/", path);
 
+let startsWith = (text, prefix) => String.length(prefix) <= String.length(text)
+  && String.sub(text, 0, String.length(prefix)) == prefix;
+
 [@test [
   (("/a/b/c", "/a/b/d"), "../d"),
   (("/a/b/c", "/a/b/d/e"), "../d/e"),
@@ -20,16 +23,28 @@ let removeExtraDots = path => Str.global_replace(Str.regexp_string("/./"), "/", 
   (("/a/b/c", "/a/b/c/d/e"), "./d/e"),
 ]]
 let relpath = (base, path) => {
-  let rec loop = (bp, pp) => {
-    switch (bp, pp) {
-    | ([".", ...ra], _) => loop(ra, pp)
-    | (_, [".", ...rb]) => loop(bp, rb)
-    | ([a, ...ra], [b, ...rb]) when a == b => loop(ra, rb)
-    | _ => (bp, pp)
+  if (startsWith(path, base)) {
+    let baselen = String.length(base);
+    let rest = String.sub(path, baselen, String.length(path) - baselen);
+    if (rest == "") {
+      "./"
+    } else if (rest.[0] == '/') {
+      "." ++ rest
+    } else {
+      "./" ++ rest
     }
-  };
-  let (base, path) = loop(split("/", base), split("/", path));
-  String.concat("/", (base == [] ? ["."] : List.map((_) => "..", base)) @ path) |> removeExtraDots
+  } else {
+    let rec loop = (bp, pp) => {
+      switch (bp, pp) {
+      | ([".", ...ra], _) => loop(ra, pp)
+      | (_, [".", ...rb]) => loop(bp, rb)
+      | ([a, ...ra], [b, ...rb]) when a == b => loop(ra, rb)
+      | _ => (bp, pp)
+      }
+    };
+    let (base, path) = loop(split("/", base), split("/", path));
+    String.concat("/", (base == [] ? ["."] : List.map((_) => "..", base)) @ path) |> removeExtraDots
+  }
 };
 
 let symlink = (source, dest) => {
@@ -100,6 +115,8 @@ let exists = (path) =>
   | None => false
   | Some(_) => true
   };
+
+let ifExists = path => exists(path) ? Some(path) : None;
 
 let isFile = path => switch (maybeStat(path)) {
 | Some({Unix.st_kind: Unix.S_REG}) => true

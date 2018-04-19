@@ -109,7 +109,9 @@ module Model = {
     | Success(string, string); /* cmt, js files */
     /* ^ the js file bit doesn't apply */
 
+  /** This represents the final result of a code block, all that's needed to render it */
   type codeBlock = {
+    lang: string,
     raw: string,
     html: string,
     filePath: string,
@@ -133,6 +135,14 @@ module Model = {
       | Items(list(doc))
       | Alias(Path.t)
     and doc = (string, option(Omd.t), docItem);
+
+    let rec iter = (fn, (name, docString, item) as doc) => {
+      fn(doc);
+      switch item {
+      | Include(_, children) | Module(Items(children)) => List.iter(iter(fn), children)
+      | _ => ()
+      }
+    };
   };
 
 
@@ -150,7 +160,7 @@ module Model = {
     name: string,
     sourcePath: string,
     docs: option(docWithExamples),
-    contents: list(Docs.doc),
+    items: list(Docs.doc),
     stamps: CmtFindStamps.T.stamps,
   };
 

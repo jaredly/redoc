@@ -53,12 +53,12 @@ let processCmt = (name, cmt) => {
 let processModules = moduleFiles => {
   moduleFiles |> List.map(((cmt, sourcePath)) => {
     let name = Filename.chop_extension(cmt) |> String.capitalize;
-    let (stamps, topDocs, contents) = processCmt(name, cmt);
+    let (stamps, topDocs, items) = processCmt(name, cmt);
     {
       name,
       sourcePath,
       docs: topDocs,
-      contents,
+      items,
       stamps,
     }
   });

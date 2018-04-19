@@ -195,6 +195,38 @@ let startsWith = (prefix, string) => {
   lp <= String.length(string) && String.sub(string, 0, lp) == prefix
 };
 
+let fullContent = (getShared, options, content) => {
+  let content = options.prefix == 0 && options.suffix == 0 ? content : {
+    let lines = splitLines(content) |> Array.of_list;
+    for (i in 0 to options.prefix - 1) {
+      lines[i] = "#" ++ lines[i];
+    };
+    let ln = Array.length(lines);
+    for (i in 0 to options.suffix - 1) {
+      lines[ln - 1 - i] = "#" ++ lines[ln - 1 - i];
+    };
+    String.concat("\n", Array.to_list(lines))
+  };
+
+  List.fold_left((content, name) => {
+    switch (getShared(name)) {
+    | exception Not_found => {
+      print_endline("Unknown shared " ++ name);
+      content ++ " /* unknown shared " ++ name ++ " */"
+    }
+    | text => {
+      let text = text |> hashAll;
+      let rx = Str.regexp_string("#%{code}%");
+      switch (Str.search_forward(rx, text, 0)) {
+      | exception Not_found => text ++ "\n" ++ content
+      | _ => Str.replace_first(rx, content, text)
+      }
+    }
+  }
+  }, content, options.uses);
+
+};
+
 let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));
   let shared = ref([]);
@@ -203,35 +235,7 @@ let getCodeBlocks = (markdowns, cmts) => {
     switch (options) {
     | None => ()
     | Some(options) => {
-
-      let content = options.prefix == 0 && options.suffix == 0 ? content : {
-        let lines = splitLines(content) |> Array.of_list;
-        for (i in 0 to options.prefix - 1) {
-          lines[i] = "#" ++ lines[i];
-        };
-        let ln = Array.length(lines);
-        for (i in 0 to options.suffix - 1) {
-          lines[ln - 1 - i] = "#" ++ lines[ln - 1 - i];
-        };
-        String.concat("\n", Array.to_list(lines))
-      };
-
-      let content = List.fold_left((content, name) => {
-        switch (List.assoc(name, shared^)) {
-        | exception Not_found => {
-          print_endline("Unknown shared " ++ name);
-          content ++ " /* unknown shared " ++ name ++ " */"
-        }
-        | text => {
-          let text = text |> hashAll;
-          let rx = Str.regexp_string("#%{code}%");
-          switch (Str.search_forward(rx, text, 0)) {
-          | exception Not_found => text ++ "\n" ++ content
-          | _ => Str.replace_first(rx, content, text)
-          }
-        }
-      }
-      }, content, options.uses);
+      let content = fullContent(name => List.assoc(name, shared^), options, content);
 
       switch (options.sharedAs) {
       | None => {
@@ -250,7 +254,6 @@ let getCodeBlocks = (markdowns, cmts) => {
       None
     }
     | Omd.Html_comment(text) => {
-      print_endline("Comment " ++ text);
       None
     }
     | Omd.Code_block(lang, contents) => {

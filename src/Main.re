@@ -38,7 +38,7 @@ let processCmt = (name, cmt) => {
   };
 };
 
-let (/+) = Filename.concat;
+open Infix;
 
 let filterDuplicates = cmts => {
   /* Remove .cmt's that have .cmti's */
@@ -58,11 +58,11 @@ let linkifyMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) 
     let contents = Omd.to_html(~override, contents);
     if (href.[0] == '.' || href.[0] == '/' || href.[0] == '#' || href.[0] == '?') {
       let href = if (href.[0] == '/') {
-        rel(Filename.concat(basePath, href))
+        rel(basePath /+ href)
       } else if (href.[0] == '?' || href.[0] == '#') {
         href
       } else {
-        Filename.concat(Filename.dirname(curPath), href)
+        Filename.dirname(curPath) /+ href
       };
       Some(Printf.sprintf({|<a href="%s" title="%s">%s</a>|}, href, title, contents))
     } else {
@@ -72,8 +72,6 @@ let linkifyMarkdown = (curPath, basePath, addTocs, tocLevel, override, element) 
   | _ => None
   }
 };
-
-open Infix;
 
 let replace = (one, two, text) => Str.global_replace(Str.regexp_string(one), two, text);
 let escape = text => replace("\\", "\\\\", text) |> replace("\n", "\\n") |> replace("\"", "\\\"");

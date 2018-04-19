@@ -1,7 +1,7 @@
 
 let codeBlockPrefix = "DOCRE_CODE_BLOCK_";
 
-let (/+) = Filename.concat;
+open Infix;
 
 /* type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
 let contextString = c => switch c {

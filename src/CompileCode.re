@@ -4,7 +4,7 @@ let sanitize = name => Str.global_replace(Str.regexp("[^a-zA-Z0-9_]"), "_", name
 let block = (
   ~editingEnabled,
   ~bundle,
-  {State.bsRoot, refmt, tmp, compiledDependencyDirectories},
+  {State.bsRoot, refmt, tmp, compiledDependencyDirectories, browserCompilerPath},
   {State.Model.name},
   i,
   (page, lang, raw, fullContent, options)
@@ -20,7 +20,7 @@ let block = (
     compiledDependencyDirectories |> List.map(fst)
   );
   let html = CodeSnippets.highlight(
-    ~editingEnabled=true,
+    ~editingEnabled,
     i, /* TODO stop using this data structure, and pass in the name */
     fullContent,
     options,

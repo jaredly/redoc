@@ -378,7 +378,6 @@ let processMany = (modules) => {
    /* @ annotatedTypes */
 };
 
-let (/+) = Filename.concat;
 open Infix;
 
 let gatherCmts = (cmtdir, srcdir, skip) => {

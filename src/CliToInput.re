@@ -1,8 +1,6 @@
 
 open Infix;
 
-let (/+) = Filename.concat;
-
 let fail = (msg) => {
   print_endline(msg);
   exit(1);
@@ -104,7 +102,7 @@ let findProjectFiles = root => {
       ? [root /+ "lib/bs/js", root /+ "lib/bs/native"]
       : [root /+ "lib/bs", root /+ "lib/ocaml"]
   );
-  getSourceDirectories(root, config) |> List.map(Filename.concat(root)) |> List.map(name => Files.collect(name, isSourceFile)) |> List.concat
+  getSourceDirectories(root, config) |> List.map(Infix.fileConcat(root)) |> List.map(name => Files.collect(name, isSourceFile)) |> List.concat
   |> List.map(path => {
     let rel = Files.relpath(root, path);
     (compiledBase /+ compiledName(rel), rel)
@@ -179,6 +177,16 @@ let getPackageJsonName = config => {
   Json.get("name", config) |?>> (Json.string |.! "name must be a string")
 };
 
+let getBsbVersion = base => {
+  let (out, success) = Commands.execSync(base /+ "node_modules/.bin/bsb -version");
+  if (!success) {
+    "2.2.3"
+  } else {
+    let out = String.concat("", out) |> String.trim;
+    out
+  }
+};
+
 let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   open Minimist;
   let root = get(strings, "root") |? Unix.getcwd();
@@ -200,9 +208,10 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   });
 
   let packageJson = Files.ifExists(root /+ "package.json") |?>> (Files.readFile |.! "Unable to read package.json") |?>> Json.parse;
+  let static = Filename.dirname(selfPath) /+ "../../../static";
   {
     env: {
-      static: Filename.dirname(selfPath) /+ "../../../static"
+      static: static
     },
     target: {
       directory: target,
@@ -216,12 +225,17 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
       },
       root,
       backend: (packageJson |?> getPackageJsonName |?> packageJsonName => bsRoot |?> bsRoot => refmt |?>> refmt => State.Bucklescript({
-        bsRoot,
-        packageRoot: root,
-        refmt,
-        tmp: root /+ "node_modules/.docre",
-        compiledDependencyDirectories: dependencyDirectories == [] ? findDependencyDirectories(root) : dependencyDirectories,
-        packageJsonName,
+        let version = getBsbVersion(root);
+        {
+          bsRoot,
+          packageRoot: root,
+          refmt,
+          version,
+          browserCompilerPath: Files.ifExists(static /+ "bs-" ++ version ++ ".js"),
+          tmp: root /+ "node_modules/.docre",
+          compiledDependencyDirectories: dependencyDirectories == [] ? findDependencyDirectories(root) : dependencyDirectories,
+          packageJsonName,
+        }
       })) |? NoBackend,
       sidebarFile: None,
       customFiles: findMarkdownFiles(target, root),

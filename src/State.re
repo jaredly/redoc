@@ -44,6 +44,8 @@ type bucklescriptOptions = {
   packageRoot: string,
   bsRoot: string,
   refmt: string,
+  version: string,
+  browserCompilerPath: option(string),
   tmp: string, /* Where to put compilation artifacts */
   /* (cmt directory, js directory) */
   compiledDependencyDirectories: list((string, string)),

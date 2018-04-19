@@ -83,10 +83,6 @@ let codeFromPackage = ({
   backend,
   defaultCodeOptions,
 }) => {
-  /* Will this also do the processing?
-  maybe not yet. It will return code units ready to be compiled etc. */
-
-  /** TODO defaultCodeOptions */
   let codeBlocks = collectBlocks(modules, custom, defaultCodeOptions);
   let shared = resolveShared(codeBlocks);
 
@@ -100,4 +96,3 @@ let codeFromPackage = ({
 
   processedCodeBlocks |> List.filter(((_, _, _, _, options)) => options.State.Model.expectation != Skip)
 };
-

@@ -18,7 +18,7 @@ let startsWith = (prefix, string) => {
 };
 let invert = (f, a) => !f(a);
 
-let compileBucklescript = ({State.packageRoot, packageJsonName} as bucklescript, package) => {
+let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerPath} as bucklescript, package) => {
   Files.mkdirp(bucklescript.State.tmp);
   let pack = Packre.Pack.process(
     ~renames=[(packageJsonName, packageRoot)],
@@ -26,7 +26,7 @@ let compileBucklescript = ({State.packageRoot, packageJsonName} as bucklescript,
   );
   let jsFiles = ref([]);
   let codeBlocks = ProcessCode.codeFromPackage(package) |> List.mapi(CompileCode.block(
-    ~editingEnabled=true,
+    ~editingEnabled=browserCompilerPath != None,
     ~bundle=js => {
       jsFiles := [js, ...jsFiles^];
       pack(~mode=Packre.Types.ExternalEverything, [js])
@@ -50,15 +50,18 @@ let compileBucklescript = ({State.packageRoot, packageJsonName} as bucklescript,
         "alert('Failed to bundle')"
       }
     };
-    let compilerDeps = Buffer.create(10000);
-    /* TODO maybe write directly to the target? This indirection might not be worth it. */
-    CodeSnippets.writeDeps(
-      ~output_string=Buffer.add_string(compilerDeps),
-      ~dependencyDirs=bucklescript.compiledDependencyDirectories,
-      ~stdlibRequires,
-      ~bsRoot=bucklescript.bsRoot,
-      ~base=packageRoot
-    );
+    let compilerDeps = browserCompilerPath |?>> browserCompilerPath => {
+      let buffer = Buffer.create(10000);
+      /* TODO maybe write directly to the target? This indirection might not be worth it. */
+      CodeSnippets.writeDeps(
+        ~output_string=Buffer.add_string(buffer),
+        ~dependencyDirs=bucklescript.compiledDependencyDirectories,
+        ~stdlibRequires,
+        ~bsRoot=bucklescript.bsRoot,
+        ~base=packageRoot
+      );
+      (browserCompilerPath, buffer)
+    };
     Some((runtimeDeps, compilerDeps));
   } else {
     None
@@ -79,6 +82,7 @@ let main = () => {
   let package = InputToModel.package(input.Input.packageInput);
   let compilationResults = compilePackage(package);
   /* outputPackage(package, allCodeBlocks, input.Input.target); */
+  ModelToOutput.package(package, compilationResults, input.Input.target, input.Input.env);
 };
 
-main();
+let () = main();

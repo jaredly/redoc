@@ -1,5 +1,7 @@
 module T = {
   type pathType = PrintType.pathType = PModule | PModuleType | PValue | PType;
+  type fullPath = (string, list(string), pathType);
+  type stamps = list((int, fullPath));
 };
 open T;
 

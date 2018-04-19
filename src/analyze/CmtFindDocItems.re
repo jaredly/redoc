@@ -1,29 +1,20 @@
 
 open PrepareUtils;
 
-module T = {
-  /* include CmtFindStamps.T; */
+/* module T = {
   type docItem =
     | Value(Types.type_expr)
     | Type(Types.type_declaration)
     | Module(moduleContents)
-    /* | ModType */
     | Include(option(Path.t), list(doc))
-    /* | CompactModule(list(cdoc)) */
     | StandaloneDoc(Omd.t)
   and moduleContents =
     | Items(list(doc))
     | Alias(Path.t)
-    /* | Ident */
-  /* and compactItem =
-    | CValue(Types.type_expr)
-    | CModule(list(cdoc))
-    | CType(Types.type_expr)
-  and cdoc = (string, compactItem) */
   and doc = (string, option(Omd.t), docItem);
+}; */
 
-};
-open T;
+open State.Model.Docs;
 
 let rec iter = (fn, (name, docString, item) as doc) => {
   fn(doc);

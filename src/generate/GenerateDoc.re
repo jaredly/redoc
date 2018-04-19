@@ -1,5 +1,5 @@
 
-open CmtFindDocItems.T;
+open State.Model.Docs;
 open CmtFindStamps.T;
 
 let rec findByName = (allDocs, name) => {
@@ -82,7 +82,7 @@ let ptypePrefix = ptype => {
 };
 
 let makeId = (items, ptype) => {
-  open CmtFindDocItems.T;
+  /* open CmtFindDocItems.T; */
   ptypePrefix(ptype) ++ String.concat(".", items)
 };
 
@@ -158,10 +158,10 @@ let marked = (override, text) => Omd.to_html(~override, Omd.of_string(text));
 
 let link = (id, text) => Printf.sprintf({|<a href="#%s" id="%s">%s</a>|}, id, id, text);
 
-type t = (~override: (Omd.element) => option(string)=?, list(string), string, option(CmtFindDocItems.T.docItem), Omd.t) => string;
+type t = (~override: (Omd.element) => option(string)=?, list(string), string, option(docItem), Omd.t) => string;
 
 let rec generateDoc = (printer, processDocString: t, path, tocLevel, (name, docstring: option(Omd.t), content)) => {
-  open! CmtFindDocItems.T;
+  /* open! CmtFindDocItems.T; */
   let id = makeId(path @ [name]);
   let (middle, tocs) = switch content {
   | Module(items) => {

@@ -122,16 +122,19 @@ module Model = {
   type docWithExamples = Omd.t;
   /* (Omd.t, list(codeBlock)); */
 
-  type module_ = {
-    contents: moduleContents,
-  } and moduleItem =
-    | Module(module_)
-    | Type(Types.type_declaration)
-    | Value(Types.type_expr)
-    | Include(module_)
-  and moduleContents = | Items(list(itemWithDocs)) | Alias(Path.t)
-  and itemWithDocs = (string, option(docWithExamples), moduleItem)
-    ;
+  module Docs = {
+    type docItem =
+      | Value(Types.type_expr)
+      | Type(Types.type_declaration)
+      | Module(moduleContents)
+      | Include(option(Path.t), list(doc))
+      | StandaloneDoc(Omd.t)
+    and moduleContents =
+      | Items(list(doc))
+      | Alias(Path.t)
+    and doc = (string, option(Omd.t), docItem);
+  };
+
 
   type customPage = {
     title: string,
@@ -147,7 +150,8 @@ module Model = {
     name: string,
     sourcePath: string,
     docs: option(docWithExamples),
-    contents: list(itemWithDocs),
+    contents: list(Docs.doc),
+    stamps: CmtFindStamps.T.stamps,
   };
 
   type package = {
@@ -163,6 +167,7 @@ module Model = {
     compiledDependencyDirectories: list(string),
   };
 
+  /* Run through packages & collect codeBlocks for later processing */
   type codeBlocks = Hashtbl.t((string, string, string), codeBlock);
 
   /* Have some kind of "front-page"? idk */

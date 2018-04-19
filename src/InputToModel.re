@@ -24,24 +24,43 @@ let parseCustom = ((absPath, sourcePath)) => {
   }
 };
 
-let getDocableItems = cmt => {
-  ("Hello", None, Module({contents: Items([])}))
-};
+let processCmt = (name, cmt) => {
+  let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
 
-let processCmt = cmt => {
-  (None, [])
+  switch annots {
+  | Cmt_format.Implementation({str_items} as s) => {
+    /* Printtyped.implementation(Format.str_formatter, s);
+    let out = Format.flush_str_formatter();
+    Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
+
+    let stamps = CmtFindStamps.stampsFromTypedtreeImplementation((name, []), str_items);
+    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromStructure(str_items);
+    (stamps, topdoc, allDocs)
+  }
+  | Cmt_format.Interface({sig_items} as s) => {
+    /* Printtyped.interface(Format.str_formatter, s);
+    let out = Format.flush_str_formatter();
+    Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
+
+    let stamps = CmtFindStamps.stampsFromTypedtreeInterface((name, []), sig_items);
+    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromSignature(sig_items);
+    (stamps, topdoc, allDocs)
+  }
+  | _ => failwith("Not a valid cmt file")
+  };
 };
 
 let processModules = moduleFiles => {
   let hash = Hashtbl.create(100);
   moduleFiles |> List.iter(((cmt, sourcePath)) => {
-    let (topDocs, contents) = processCmt(cmt);
-    let name = Filename.chop_extension(cmt);
+    let name = Filename.chop_extension(cmt) |> String.capitalize;
+    let (stamps, topDocs, contents) = processCmt(name, cmt);
     Hashtbl.replace(hash, name, {
       name,
       sourcePath,
       docs: topDocs,
       contents,
+      stamps,
     })
   });
   hash

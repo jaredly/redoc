@@ -145,7 +145,7 @@ let makeDocStringProcessor = (dest, outerOverride) => {
     };
     /* let id = GenerateDoc.makeId(path @ [name], typ); */
     let title = path == [] ? fileTitle : String.concat(".", path);
-    open CmtFindDocItems.T;
+    open State.Model.Docs;
     /** The representation of the value itself */
     let makeId = t => path == [] ? None : Some(GenerateDoc.makeId(path, t));
     /* print_endline(name); */

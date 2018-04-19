@@ -288,26 +288,6 @@ let getCodeBlocks = (markdowns, cmts) => {
 
 open Infix;
 
-let refmtCommand = (base, re, refmt) => {
-  Printf.sprintf({|cat %s | %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
-  re,
-  refmt,
-  re,
-  base /+ "node_modules/bs-platform/lib/reactjs_jsx_ppx_2.exe",
-  re,
-  re
-  )
-};
-
-let justBscCommand = (base, re, includes) => {
-  Printf.sprintf(
-    {|%s -w -A %s -impl %s|},
-    base /+ "node_modules/.bin/bsc",
-    includes |> List.map(Printf.sprintf("-I %S")) |> String.concat(" "),
-    re
-  )
-};
-
 let snippetLoader = (name, basePath, snippetPath) => Printf.sprintf({|
 var path = require('path');
 var Module = require('module');
@@ -363,9 +343,13 @@ let getDependencyDirs = (base, config) => {
       let allowedKinds = inner |> Json.get("allowed-build-kinds") |?> Json.array |?>> List.map(Json.string |.! "allowed-build-kinds must be strings") |? ["js"];
       let isNative = isNative(inner);
       /* TODO get directories from config */
+
+  let compilationBase = isNative ? "lib/bs/js" : (
+    Files.ifExists(loc /+ "lib/ocaml") |? (loc /+ "lib/bs")
+  );
       if (List.mem("js", allowedKinds)) {
         getSourceDirectories(loc, inner) |> List.map(name => (
-          loc /+ (isNative ? "lib/bs/js" : "lib/ocaml") /+ name,
+          compilationBase /+ name,
           loc /+ "lib/js" /+ name,
         ));
       } else {
@@ -419,6 +403,26 @@ let writeDeps = (dest, dependencyDirs, depsToLoad, bsRoot, base) => {
   stdlibRequires
 };
 
+let refmtCommand = (base, re, refmt) => {
+  Printf.sprintf({|cat %s | %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
+  re,
+  refmt,
+  re,
+  base /+ "node_modules/bs-platform/lib/reactjs_jsx_ppx_2.exe",
+  re,
+  re
+  )
+};
+
+let justBscCommand = (base, re, includes) => {
+  Printf.sprintf(
+    {|%s -w -A %s -impl %s|},
+    base /+ "node_modules/.bin/bsc",
+    includes |> List.map(Printf.sprintf("-I %S")) |> String.concat(" "),
+    re
+  )
+};
+
 let processBlock = (base, tmp, name, refmt, options, reasonContent, dependencyDirs) => {
   let re = tmp /+ name ++ ".re";
   let cmt = tmp /+ name ++ ".re_ppx.cmt";
@@ -464,8 +468,12 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
   let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
   let isNative = isNative(config);
 
+  let compilationBase = isNative ? "lib/bs/js" : (
+    Files.ifExists(base /+ "lib/ocaml") |? (base /+ "lib/bs")
+  );
+
   let mine = getSourceDirectories(base, config) |> List.map(name => (
-    base /+ (isNative ? "lib/bs/js" : "lib/ocaml") /+ name,
+    compilationBase /+ name,
     base /+ "lib/js" /+ name
   )) |> List.filter(((compiled, sourced)) => Files.exists(compiled));
   let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */

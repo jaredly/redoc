@@ -114,7 +114,7 @@ module Model = {
     html: string,
     filePath: string,
     /* Has it been evaluated yet? */
-    compilationResult: option(compilationResult),
+    /* compilationResult: option(compilationResult), */
   };
 
   type id = string;
@@ -159,11 +159,12 @@ module Model = {
     repo: option(string),
     custom: list(customPage),
     sidebar: option(list(sidebar)),
+    modules: list(topModule),
+
+    /* For compiling snippets */
     namespaced: bool,
     backend,
     defaultCodeOptions: option(codeOptions),
-    modules: Hashtbl.t(string, topModule),
-    /* For compiling snippets */
     compiledDependencyDirectories: list(string),
   };
 
@@ -172,7 +173,7 @@ module Model = {
 
   /* Have some kind of "front-page"? idk */
   type world = {
-    packages: Hashtbl.t(string, package),
+    packages: list((string, package)),
   };
 };
 

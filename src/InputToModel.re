@@ -51,19 +51,17 @@ let processCmt = (name, cmt) => {
 };
 
 let processModules = moduleFiles => {
-  let hash = Hashtbl.create(100);
-  moduleFiles |> List.iter(((cmt, sourcePath)) => {
+  moduleFiles |> List.map(((cmt, sourcePath)) => {
     let name = Filename.chop_extension(cmt) |> String.capitalize;
     let (stamps, topDocs, contents) = processCmt(name, cmt);
-    Hashtbl.replace(hash, name, {
+    {
       name,
       sourcePath,
       docs: topDocs,
       contents,
       stamps,
-    })
+    }
   });
-  hash
 };
 
 let package = ({State.Input.meta: {packageName, repo}, root, sidebarFile, customFiles, moduleFiles, compiledDependencyDirectories}, {State.Input.bsRoot, refmt, static}) => {

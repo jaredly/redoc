@@ -364,7 +364,7 @@ let getDependencyDirs = (base, config) => {
 
 let invert = (f, a) => !f(a);
 
-let writeDeps = (dest, dependencyDirs, depsToLoad, bsRoot, base) => {
+let writeDeps = (dest, dependencyDirs, depsToLoad, stdlibRequires, bsRoot, base) => {
   let out = open_out(dest);
   /* print_endline("Deps : " ++ String.concat(", ", depsToLoad)); */
 
@@ -381,8 +381,6 @@ let writeDeps = (dest, dependencyDirs, depsToLoad, bsRoot, base) => {
 
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(name)), jsDir /+ js)
   })) |> List.concat;
-  let stdlib = bsRoot /+ "lib/js";
-  let stdlibRequires = Files.exists(stdlib) ? (Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name)) : [];
   let depsMap = depsMap @ (stdlibRequires |> List.map(path => {
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(Filename.basename(path))), path)
   }));
@@ -399,8 +397,6 @@ let writeDeps = (dest, dependencyDirs, depsToLoad, bsRoot, base) => {
   });
   output_string(out, "}\n");
   close_out(out);
-
-  stdlibRequires
 };
 
 let refmtCommand = (base, re, refmt) => {
@@ -435,13 +431,13 @@ let processBlock = (base, tmp, name, refmt, options, reasonContent, dependencyDi
   open State.Model;
   if (!success) {
     let out = String.concat("\n", output) ++ String.concat("\n", err);
-    let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
     if (options.expectation != State.Model.ParseFail) {
       print_endline("Failed to parse " ++ re);
       print_endline(out);
       print_endline(reasonContent);
       print_newline();
     };
+    let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
     ParseError(out);
   } else {
     let includes = dependencyDirs |> List.map(fst);
@@ -449,21 +445,20 @@ let processBlock = (base, tmp, name, refmt, options, reasonContent, dependencyDi
     let (output, err, success) = Commands.execFull(cmd);
     if (!success) {
       let out = String.concat("\n", output) ++ String.concat("\n", err);
-      let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
       if (options.expectation != State.Model.TypeFail) {
-      print_endline(cmd);
+        print_endline(cmd);
         print_endline("Failed to compile " ++ re);
         print_endline(out);
         print_endline(reasonContent);
         print_newline();
       };
+      let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
       TypeError(out, cmt);
     } else { Success(cmt, js) };
   };
 };
 
 let compileSnippets = (~bsRoot, base, dest, blocks) => {
-  let blocksByEl = Hashtbl.create(100);
 
   let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
   let isNative = isNative(config);
@@ -476,43 +471,30 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
     compilationBase /+ name,
     base /+ "lib/js" /+ name
   )) |> List.filter(((compiled, sourced)) => Files.exists(compiled));
-  let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */
-  /* print_endline("All deps:"); */
-  /* dependencyDirs |> List.iter(((a, b)) => print_endline("  " ++ a)); */
-  /* failwith("Sadness"); */
-
+  let dependencyDirs = mine @ getDependencyDirs(base, config);
   let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat;
+  let stdlib = bsRoot /+ "lib/js";
+  let stdlibRequires = Files.exists(stdlib) ? (Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name)) : [];
 
-  let stdlibRequires = writeDeps(dest /+ "bucklescript-deps.js", dependencyDirs, depsToLoad, bsRoot, base);
-
+  writeDeps(dest /+ "bucklescript-deps.js", dependencyDirs, depsToLoad, stdlibRequires, bsRoot, base);
 
   let tmp = base /+ "node_modules/.docre";
   Files.mkdirp(tmp);
 
   let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
-
   let refmt = Files.ifExists(bsRoot /+ "lib/refmt3.exe") |? bsRoot /+ "lib/refmt.exe";
 
+  let blocksByEl = Hashtbl.create(100);
   let blocks = blocks |> List.map(({el, id, fileName, options, content} as block) => {
 
     let name = blockFileName(id);
 
     let reasonContent = removeHashes(content) ++ " /* " ++ fileName ++ " */";
 
-    /* open State.Model; */
     let status = processBlock(base, tmp, name, refmt, options, reasonContent, dependencyDirs);
     Hashtbl.replace(blocksByEl, el, {status, block});
     {status, block}
   });
-
-  /* let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world"); */
-  /* let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world -backend js");
-  if (!success) {
-    print_endline("Bsb output:");
-    print_endline(String.concat("\n", output));
-    print_endline("Error while running bsb on examples");
-  }; */
-      /* Unix.unlink(src /+ name ++ ".re"); */
 
   (blocksByEl, blocks, stdlibRequires)
 };

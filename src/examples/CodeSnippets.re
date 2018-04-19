@@ -380,23 +380,8 @@ let getDependencyDirs = (base, config) => {
 
 let invert = (f, a) => !f(a);
 
-let compileSnippets = (~bsRoot, base, dest, blocks) => {
-  let blocksByEl = Hashtbl.create(100);
-
-  let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
-  let isNative = isNative(config);
-
-  let mine = getSourceDirectories(base, config) |> List.map(name => (
-    base /+ (isNative ? "lib/bs/js" : "lib/ocaml") /+ name,
-    base /+ "lib/js" /+ name
-  )) |> List.filter(((compiled, sourced)) => Files.exists(compiled));
-  let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */
-  /* print_endline("All deps:"); */
-  /* dependencyDirs |> List.iter(((a, b)) => print_endline("  " ++ a)); */
-  /* failwith("Sadness"); */
-
-  let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat;
-  let out = open_out(dest /+ "bucklescript-deps.js");
+let writeDeps = (dest, dependencyDirs, depsToLoad, bsRoot, base) => {
+  let out = open_out(dest);
   /* print_endline("Deps : " ++ String.concat(", ", depsToLoad)); */
 
   let depsMap = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => {
@@ -431,6 +416,66 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
   output_string(out, "}\n");
   close_out(out);
 
+  stdlibRequires
+};
+
+let processBlock = (base, tmp, name, refmt, options, reasonContent, dependencyDirs) => {
+  let re = tmp /+ name ++ ".re";
+  let cmt = tmp /+ name ++ ".re_ppx.cmt";
+  let js = tmp /+ name ++ ".re_ppx.js";
+
+  Files.writeFile(re, reasonContent) |> ignore;
+
+  let cmd = refmtCommand(base, re, refmt);
+  let (output, err, success) = Commands.execFull(cmd);
+  open State.Model;
+  if (!success) {
+    let out = String.concat("\n", output) ++ String.concat("\n", err);
+    let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
+    if (options.expectation != State.Model.ParseFail) {
+      print_endline("Failed to parse " ++ re);
+      print_endline(out);
+      print_endline(reasonContent);
+      print_newline();
+    };
+    ParseError(out);
+  } else {
+    let includes = dependencyDirs |> List.map(fst);
+    let cmd = justBscCommand(base, re ++ "_ppx.ast", includes);
+    let (output, err, success) = Commands.execFull(cmd);
+    if (!success) {
+      let out = String.concat("\n", output) ++ String.concat("\n", err);
+      let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
+      if (options.expectation != State.Model.TypeFail) {
+      print_endline(cmd);
+        print_endline("Failed to compile " ++ re);
+        print_endline(out);
+        print_endline(reasonContent);
+        print_newline();
+      };
+      TypeError(out, cmt);
+    } else { Success(cmt, js) };
+  };
+};
+
+let compileSnippets = (~bsRoot, base, dest, blocks) => {
+  let blocksByEl = Hashtbl.create(100);
+
+  let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
+  let isNative = isNative(config);
+
+  let mine = getSourceDirectories(base, config) |> List.map(name => (
+    base /+ (isNative ? "lib/bs/js" : "lib/ocaml") /+ name,
+    base /+ "lib/js" /+ name
+  )) |> List.filter(((compiled, sourced)) => Files.exists(compiled));
+  let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */
+  /* print_endline("All deps:"); */
+  /* dependencyDirs |> List.iter(((a, b)) => print_endline("  " ++ a)); */
+  /* failwith("Sadness"); */
+
+  let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat;
+
+  let stdlibRequires = writeDeps(dest /+ "bucklescript-deps.js", dependencyDirs, depsToLoad, bsRoot, base);
 
 
   let tmp = base /+ "node_modules/.docre";
@@ -438,72 +483,17 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
 
   let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
 
+  let refmt = Files.ifExists(bsRoot /+ "lib/refmt3.exe") |? bsRoot /+ "lib/refmt.exe";
+
   let blocks = blocks |> List.map(({el, id, fileName, options, content} as block) => {
 
     let name = blockFileName(id);
-    let re = tmp /+ name ++ ".re";
-    let cmt = tmp /+ name ++ ".re_ppx.cmt";
-    let js = tmp /+ name ++ ".re_ppx.js";
 
-    /* let cmt = base /+ "lib/bs/src/" ++ name ++ ".cmt";
-    let js = base /+ "lib/js/src/" ++ name ++ ".js"; */
     let reasonContent = removeHashes(content) ++ " /* " ++ fileName ++ " */";
-    /* How do we knock the cache based on dependencies mtimes? */
-    /* Maybe find all the .cmj files in the deps, and find the most recent one? */
-    /* And then it's ok to take a bit of time I guess */
-    /* TODO don't do extra work if nothing has changed. */
-    /* if (Files.readFile(re) == Some(reasonContent)) {
-      /* ok we're done */
-    } else {
-
-    } */
-
-    Files.writeFile(re, reasonContent) |> ignore;
-
-    let refmt = bsRoot /+ "lib/refmt3.exe";
-    let refmt = if (Files.exists(refmt)) {
-      refmt
-    } else {
-      bsRoot /+ "lib/refmt.exe";
-    };
 
     /* open State.Model; */
-
-    let cmd = refmtCommand(base, re, refmt);
-    let (output, err, success) = Commands.execFull(cmd);
-    open State.Model;
-    let status = if (!success) {
-      /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
-      let out = String.concat("\n", output) ++ String.concat("\n", err);
-      let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
-      if (options.expectation != State.Model.ParseFail) {
-        print_endline("Failed to parse " ++ re);
-        print_endline(out);
-        print_endline(reasonContent);
-        print_newline();
-      };
-      ParseError(out);
-    } else {
-      let includes = dependencyDirs |> List.map(fst);
-      let cmd = justBscCommand(base, re ++ "_ppx.ast", includes);
-      let (output, err, success) = Commands.execFull(cmd);
-      if (!success) {
-        /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
-        let out = String.concat("\n", output) ++ String.concat("\n", err);
-        let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
-        if (options.expectation != State.Model.TypeFail) {
-        print_endline(cmd);
-          print_endline("Failed to compile " ++ re);
-          print_endline(out);
-          print_endline(reasonContent);
-          print_newline();
-        };
-        TypeError(out, cmt);
-      } else { Success(cmt, js) };
-    };
-
+    let status = processBlock(base, tmp, name, refmt, options, reasonContent, dependencyDirs);
     Hashtbl.replace(blocksByEl, el, {status, block});
-
     {status, block}
   });
 

@@ -98,5 +98,6 @@ let codeFromPackage = ({
     (page, lang, content, fullContent, options)
   });
 
+  processedCodeBlocks
 };
 

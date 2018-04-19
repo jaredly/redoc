@@ -12,3 +12,5 @@ let fold = (o, d, f) => switch o { | None => d | Some(v) => f(v) };
 let (|.!) = (fn, message, arg) => fn(arg) |! message;
 
 let (|?<) = (o, fn) => switch o { | None => () | Some(v) => fn(v) };
+
+let (/+) = Filename.concat;

@@ -64,24 +64,15 @@ let processModules = moduleFiles => {
   });
 };
 
-let getPackageJsonName = config => {
-  Json.get("name", config) |?>> (Json.string |.! "name must be a string")
-};
-let (/+) = Filename.concat;
-
-let package = ({State.Input.meta: {packageName, repo}, root, sidebarFile, customFiles, moduleFiles, compiledDependencyDirectories}) => {
-  let packageJson = Files.ifExists(root /+ "package.json") |?>> (Files.readFile |.! "Unable to read package.json") |?>> Json.parse;
+let package = ({State.Input.meta: {packageName, repo}, backend, root, sidebarFile, customFiles, moduleFiles}) => {
   {
     name: packageName,
-    root,
-    packageJsonName: packageJson |?> getPackageJsonName,
     repo,
     sidebar: sidebarFile |?>> parseSidebar,
     custom: List.map(parseCustom, customFiles),
     namespaced: false, /* TODO */
-    backend: Bucklescript,
+    backend,
     defaultCodeOptions: None,
     modules: processModules(moduleFiles),
-    compiledDependencyDirectories,
   }
 };

@@ -119,8 +119,9 @@ let findDependencyDirectories = root => {
       ? [root /+ "lib/bs/js", root /+ "lib/bs/native"]
       : [root /+ "lib/bs", root /+ "lib/ocaml"]
   );
-  let mine = [compiledBase, ...Files.collectDirs(compiledBase)];
-  mine @ (getDependencyDirs(root, config) |> List.map(fst))
+  let jsBase = Files.ifExists(root /+ "lib/js") |! "lib/js not found";
+  let mine = [compiledBase, ...Files.collectDirs(compiledBase)] |> List.map(path => (path, jsBase /+ Files.relpath(compiledBase, path)));
+  mine @ getDependencyDirs(root, config)
 };
 
 
@@ -174,6 +175,10 @@ let getRefmt = bsRoot => {
   Files.ifExists(bsRoot /+ "lib/refmt3.exe") |?? Files.ifExists(bsRoot /+ "lib/refmt.exe")
 };
 
+let getPackageJsonName = config => {
+  Json.get("name", config) |?>> (Json.string |.! "name must be a string")
+};
+
 let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   open Minimist;
   let root = get(strings, "root") |? Unix.getcwd();
@@ -187,15 +192,17 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
     | _ => fail("Invalid project file " ++ line)
     }
   });
-  let dependencyDirectories = multi(multiMap, "dependency-directory");
+  let dependencyDirectories = multi(multiMap, "dependency-directory") |> List.map(line => {
+    switch (Str.split(Str.regexp_string(":"), line)) {
+    | [cmt, js] => (cmt, js)
+    | _ => fail("Invalid dependency directory " ++ line)
+    }
+  });
+
+  let packageJson = Files.ifExists(root /+ "package.json") |?>> (Files.readFile |.! "Unable to read package.json") |?>> Json.parse;
   {
     env: {
-      static: Filename.dirname(selfPath) /+ "../../../static",
-      compilation: bsRoot |?> bsRoot => refmt |?>> refmt => {
-        bsRoot,
-        refmt,
-        tmp: root /+ "node_modules/.docre",
-      }
+      static: Filename.dirname(selfPath) /+ "../../../static"
     },
     target: {
       directory: target,
@@ -208,10 +215,17 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
         repo: None, /* TODO get this */
       },
       root,
+      backend: (packageJson |?> getPackageJsonName |?> packageJsonName => bsRoot |?> bsRoot => refmt |?>> refmt => State.Bucklescript({
+        bsRoot,
+        packageRoot: root,
+        refmt,
+        tmp: root /+ "node_modules/.docre",
+        compiledDependencyDirectories: dependencyDirectories == [] ? findDependencyDirectories(root) : dependencyDirectories,
+        packageJsonName,
+      })) |? NoBackend,
       sidebarFile: None,
       customFiles: findMarkdownFiles(target, root),
       moduleFiles: projectFiles == [] ? findProjectFiles(root) : projectFiles,
-      compiledDependencyDirectories: dependencyDirectories == [] ? findDependencyDirectories(root) : dependencyDirectories,
     },
   };
 };

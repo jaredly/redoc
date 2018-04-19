@@ -352,30 +352,29 @@ let getDependencyDirs = (base, config) => {
 
 let invert = (f, a) => !f(a);
 
-let writeDeps = (~dest, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~base) => {
-  let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat;
-  let out = open_out(dest);
+let writeDeps = (~output_string, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~base) => {
+  /* let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat; */
+  /* let out = open_out(dest); */
 
   let depsMap = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => {
     let path = dir /+ name;
     let cmj = Filename.chop_extension(name) ++ ".cmj";
     let js = Filename.chop_extension(name) ++ ".js";
 
-    output_string(out, "ocaml.load_module(\"/static/cmis/" ++ name ++ "\", ");
-    SerializeBinary.pp_string(out, Files.readFile(path) |! "file not readable " ++ path);
-    output_string(out, ",\n\"" ++ cmj ++ "\", ");
-    SerializeBinary.pp_string(out, Files.readFile(Filename.chop_extension(path) ++ ".cmj") |! "cmj not readable " ++ path);
-    output_string(out, ");\n");
+    output_string("ocaml.load_module(\"/static/cmis/" ++ name ++ "\", ");
+    SerializeBinary.pp_string(output_string, Files.readFile(path) |! "file not readable " ++ path);
+    output_string(",\n\"" ++ cmj ++ "\", ");
+    SerializeBinary.pp_string(output_string, Files.readFile(Filename.chop_extension(path) ++ ".cmj") |! "cmj not readable " ++ path);
+    output_string(");\n");
 
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(name)), jsDir /+ js)
   })) |> List.concat;
   let depsMap = depsMap @ (stdlibRequires |> List.map(path => {
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(Filename.basename(path))), path)
   }));
-  output_string(out, "window.bsRequirePaths = {\n");
+  output_string("window.bsRequirePaths = {\n");
   depsMap |> List.iter(((bsRequire, path)) => {
     output_string(
-      out,
       Printf.sprintf({|"%s": "%s",
 |},
         bsRequire,
@@ -383,8 +382,8 @@ let writeDeps = (~dest, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~base) => {
       )
     );
   });
-  output_string(out, "}\n");
-  close_out(out);
+  output_string("}\n");
+  /* close_out(out); */
 };
 
 let refmtCommand = (base, re, refmt) => {
@@ -523,7 +522,9 @@ let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) => 
 
   let (blocksByEl, blocks, dependencyDirs, stdlibRequires) = compileSnippets(~bsRoot, base, dest, blocks);
 
-  writeDeps(~dest=dest /+ "bucklescript-deps.js", ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~base);
+  let out = open_out(dest /+ "bucklescript-deps.js");
+  writeDeps(~output_string=output_string(out), ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~base);
+  close_out(out);
 
   if (test) {
     print_endline("Running tests");

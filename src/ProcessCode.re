@@ -81,7 +81,6 @@ let codeFromPackage = ({
   namespaced,
   backend,
   defaultCodeOptions,
-  compiledDependencyDirectories
 }) => {
   /* Will this also do the processing?
   maybe not yet. It will return code units ready to be compiled etc. */

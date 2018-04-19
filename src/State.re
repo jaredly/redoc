@@ -40,6 +40,18 @@ I want to mess with the sidebar to allow showing more or less of each section
 
 */
 
+type bucklescriptOptions = {
+  packageRoot: string,
+  bsRoot: string,
+  refmt: string,
+  tmp: string, /* Where to put compilation artifacts */
+  /* (cmt directory, js directory) */
+  compiledDependencyDirectories: list((string, string)),
+  packageJsonName: string,
+};
+
+type backend = NoBackend | Bucklescript(bucklescriptOptions);
+
 module Model = {
   type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
 
@@ -52,9 +64,6 @@ module Model = {
   | Canvas => "canvas"
   | Div => "div"
   };
-
-  /* Note: BsbNative backend doesn't support any of the code contexts */
-  type backend = Jsoo | Bucklescript | BsbNative;
 
   type expectation =
     | Succeed
@@ -78,7 +87,6 @@ module Model = {
   type codeOptions = {
     context: codeContext,
     lang,
-    /* backend, */
     expectation,
     codeDisplay,
     sharedAs: option(string),
@@ -88,8 +96,6 @@ module Model = {
   let defaultOptions = {
     context: Normal,
     lang: Reason,
-    /* TODO I think this has to live at the package level? */
-    /* backend: Bucklescript, */
     expectation: Succeed,
     codeDisplay: {
       prefix: 0,
@@ -166,9 +172,6 @@ module Model = {
 
   type package = {
     name: string,
-    root: string,
-    /* TODO maybe put this under `backend`? it's a bsb option, really. Root is too */
-    packageJsonName: option(string),
     repo: option(string),
     custom: list(customPage),
     sidebar: option(list(sidebar)),
@@ -178,7 +181,6 @@ module Model = {
     namespaced: bool,
     backend,
     defaultCodeOptions: option(codeOptions),
-    compiledDependencyDirectories: list(string),
   };
 
   /* Run through packages & collect codeBlocks for later processing */
@@ -202,14 +204,7 @@ module Model = {
 **/
 
 module Input = {
-  type compilation = {
-    bsRoot: string,
-    refmt: string,
-    tmp: string, /* Where to put compilation artifacts */
-  };
   type env = {
-    /* If this is absent, no compilation for you!! (or syntax highlighting) */
-    compilation: option(compilation),
     static: string,
   };
 
@@ -222,12 +217,12 @@ module Input = {
     root: string,
     /* TODO might be nice to allow things that don't have a bsconfig */
     meta,
+    backend,
     sidebarFile: option(string),
     /* abs path to .md, relpath to source */
     customFiles: list((string, option(string))),
     /* abs path to .cmt(i), relpath to source */
     moduleFiles: list((string, string)),
-    compiledDependencyDirectories: list(string),
   };
 
   type target = {

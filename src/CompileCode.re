@@ -2,8 +2,8 @@
 let block = (
   ~editingEnabled,
   ~bundle,
-  {State.Input.bsRoot, refmt, tmp},
-  {State.Model.name, compiledDependencyDirectories},
+  {State.bsRoot, refmt, tmp, compiledDependencyDirectories},
+  {State.Model.name},
   i,
   (page, lang, raw, fullContent, options)
 ) => {
@@ -14,7 +14,7 @@ let block = (
     name, refmt,
     options,
     fullContent,
-    compiledDependencyDirectories
+    compiledDependencyDirectories |> List.map(fst)
   );
   let html = CodeSnippets.highlight(
     ~editingEnabled=true,

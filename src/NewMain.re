@@ -80,3 +80,5 @@ let main = () => {
   let compilationResults = compilePackage(package);
   /* outputPackage(package, allCodeBlocks, input.Input.target); */
 };
+
+main();

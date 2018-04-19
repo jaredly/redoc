@@ -22,7 +22,7 @@ let oneShouldExist = (message, items) => {
 let startsWith = (text, prefix) => String.length(prefix) <= String.length(text)
   && String.sub(text, 0, String.length(prefix)) == prefix;
 
-let findMarkdownFiles = (base, target) => {
+let findMarkdownFiles = (target, base) => {
   Files.collect(target, name => Filename.check_suffix(name, ".md")) |> List.map(path => {
     (path, if (startsWith(target, base)) { Some(Files.relpath(base, path)) } else {None})
   });
@@ -185,7 +185,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   let bsRoot = get(strings, "bs-root") |?>> shouldExist("provided bs-root doesn't exist") |?? Files.ifExists(root /+ "node_modules/bs-platform");
   let refmt = get(strings, "refmt") |?>> shouldExist("provided refmt doesn't exist") |?? (bsRoot |?> getRefmt);
   let target = get(strings, "target") |? (root /+ "docs");
-  let projectName = get(strings, "name") |? String.capitalize(Filename.dirname(root));
+  let projectName = get(strings, "name") |? String.capitalize(Filename.basename(root));
   let projectFiles = multi(multiMap, "project-file") |> List.map(line => {
     switch (Str.split(Str.regexp_string(":"), line)) {
     | [cmt, relpath] => (cmt, relpath)

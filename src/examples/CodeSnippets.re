@@ -38,8 +38,7 @@ let matchOption = (text, option) => if (Str.string_match(Str.regexp("^" ++ optio
 let parseCodeOptions = (lang, defaultOptions) => {
   open State.Model;
   let parts = Str.split(Str.regexp_string(";"), lang);
-  if (List.mem("skip", parts)
-  || List.mem("bash", parts)
+  if (List.mem("bash", parts)
   || List.mem("txt", parts)
   || List.mem("js", parts)
   || List.mem("javascript", parts)
@@ -56,6 +55,7 @@ let parseCodeOptions = (lang, defaultOptions) => {
 
       | "raises" => {...options, expectation: Raise}
       | "parse-fail" => {...options, expectation: ParseFail}
+      | "skip" => {...options, expectation: Skip}
       | "type-fail" => {...options, expectation: TypeFail}
       /* | "isolate" => {...options, isolate: true} */
       | "no-run" => {...options, expectation: DontRun}

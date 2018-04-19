@@ -22,7 +22,7 @@ let iterBlocks = (modules, custom, fn) => {
     docs |?< iterDocBlocks(fn(name));
     items |> List.iter(State.Model.Docs.iter(((_, docString, _)) => docString |?< iterDocBlocks(fn(name))));
   });
-  custom |> List.iter(({State.Model.contents, title}) => iterDocBlocks(fn(title), contents));
+  custom |> List.iter(({State.Model.contents, title}) => iterDocBlocks(fn(title ++ "_md"), contents));
 };
 
 let collectBlocks = (modules, custom, defaultOptions) => {
@@ -42,7 +42,8 @@ let resolveShared = codeBlocks => {
     | None => ()
     | Some(name) => {
       if (Hashtbl.mem(shared, name)) {
-        failwith("shared() name must be unique within a package");
+        print_endline("Warning! shared() name must be unique within a package: " ++ name);
+        print_endline("This will soon be an error");
       };
       Hashtbl.add(shared, name, (content, options));
     }
@@ -97,6 +98,6 @@ let codeFromPackage = ({
     (page, lang, content, fullContent, options)
   });
 
-  processedCodeBlocks
+  processedCodeBlocks |> List.filter(((_, _, _, _, options)) => options.State.Model.expectation != Skip)
 };
 

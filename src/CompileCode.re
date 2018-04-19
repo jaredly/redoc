@@ -1,4 +1,6 @@
 
+let sanitize = name => Str.global_replace(Str.regexp("[^a-zA-Z0-9_]"), "_", name);
+
 let block = (
   ~editingEnabled,
   ~bundle,
@@ -8,12 +10,13 @@ let block = (
   (page, lang, raw, fullContent, options)
 ) => {
   open State.Model;
-  let name = name ++ "_CODE_BLOCK_" ++ string_of_int(i);
+  let name = sanitize(name) ++ "__" ++ sanitize(page) ++ "_CODE_BLOCK_" ++ string_of_int(i);
+  let reasonContent = CodeSnippets.removeHashes(fullContent) ++ " /* " ++ name ++ " */";
   let compilationResult = CodeSnippets.processBlock(
     bsRoot, tmp,
     name, refmt,
     options,
-    fullContent,
+    reasonContent,
     compiledDependencyDirectories |> List.map(fst)
   );
   let html = CodeSnippets.highlight(

@@ -8,14 +8,25 @@ let packageFromInput = (package, env) => {
   failwith("nope")
 };
 
-let outputPackage = (package, target) => {
-  ()
-};
-
 open State;
+open Infix;
 
 let main = () => {
   let input = CliToInput.parse(Sys.argv);
-  let package = InputToModel.package(input.Input.packageInput, input.Input.env);
-  outputPackage(package, input.Input.target);
+  let package = InputToModel.package(input.Input.packageInput);
+  let allCodeBlocks = input.Input.env.compilation |?>> (compilation) => package.Model.packageJsonName |?>> packageJsonName => {
+    Files.mkdirp(compilation.Input.tmp);
+    ProcessCode.codeFromPackage(package) |> List.mapi(CompileCode.block(
+      ~editingEnabled=true,
+      ~bundle=js => Packre.Pack.process(
+        ~mode=Packre.Types.ExternalEverything,
+        ~renames=[(packageJsonName, package.Model.root)],
+        ~base=package.Model.root,
+        [js]
+      ),
+      compilation,
+      package
+    ))
+  };
+  /* outputPackage(package, allCodeBlocks, input.Input.target); */
 };

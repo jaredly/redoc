@@ -25,9 +25,9 @@ let iterBlocks = (modules, custom, fn) => {
   custom |> List.iter(({State.Model.contents, title}) => iterDocBlocks(fn(title), contents));
 };
 
-let collectBlocks = (modules, custom) => {
+let collectBlocks = (modules, custom, defaultOptions) => {
   let codeBlocks = ref([]);
-  iterBlocks(modules, custom, (page, lang, content) => switch (CodeSnippets.parseCodeOptions(lang)) {
+  iterBlocks(modules, custom, (page, lang, content) => switch (CodeSnippets.parseCodeOptions(lang, defaultOptions |? State.Model.defaultOptions)) {
   | None => ()
   | Some(options) => codeBlocks := [(page, lang, content, options), ...codeBlocks^]
   });
@@ -87,7 +87,7 @@ let codeFromPackage = ({
   maybe not yet. It will return code units ready to be compiled etc. */
 
   /** TODO defaultCodeOptions */
-  let codeBlocks = collectBlocks(modules, custom);
+  let codeBlocks = collectBlocks(modules, custom, defaultCodeOptions);
   let shared = resolveShared(codeBlocks);
 
   let processedCodeBlocks = codeBlocks |> List.map(((page, lang, content, options)) => {

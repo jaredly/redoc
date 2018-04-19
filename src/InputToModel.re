@@ -64,9 +64,17 @@ let processModules = moduleFiles => {
   });
 };
 
-let package = ({State.Input.meta: {packageName, repo}, root, sidebarFile, customFiles, moduleFiles, compiledDependencyDirectories}, {State.Input.bsRoot, refmt, static}) => {
+let getPackageJsonName = config => {
+  Json.get("name", config) |?>> (Json.string |.! "name must be a string")
+};
+let (/+) = Filename.concat;
+
+let package = ({State.Input.meta: {packageName, repo}, root, sidebarFile, customFiles, moduleFiles, compiledDependencyDirectories}) => {
+  let packageJson = Files.ifExists(root /+ "package.json") |?>> (Files.readFile |.! "Unable to read package.json") |?>> Json.parse;
   {
     name: packageName,
+    root,
+    packageJsonName: packageJson |?> getPackageJsonName,
     repo,
     sidebar: sidebarFile |?>> parseSidebar,
     custom: List.map(parseCustom, customFiles),

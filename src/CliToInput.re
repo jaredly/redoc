@@ -191,8 +191,11 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   {
     env: {
       static: Filename.dirname(selfPath) /+ "../../../static",
-      bsRoot,
-      refmt,
+      compilation: bsRoot |?> bsRoot => refmt |?>> refmt => {
+        bsRoot,
+        refmt,
+        tmp: root /+ "node_modules/.docre",
+      }
     },
     target: {
       directory: target,

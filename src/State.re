@@ -114,9 +114,10 @@ module Model = {
     lang: string,
     raw: string,
     html: string,
+    page: string,
     filePath: string,
     /* Has it been evaluated yet? */
-    /* compilationResult: option(compilationResult), */
+    compilationResult: compilationResult,
   };
 
   type id = string;
@@ -145,7 +146,6 @@ module Model = {
     };
   };
 
-
   type customPage = {
     title: string,
     /* Missing if the page was generated. relative to repo root */
@@ -166,6 +166,9 @@ module Model = {
 
   type package = {
     name: string,
+    root: string,
+    /* TODO maybe put this under `backend`? it's a bsb option, really. Root is too */
+    packageJsonName: option(string),
     repo: option(string),
     custom: list(customPage),
     sidebar: option(list(sidebar)),
@@ -199,10 +202,14 @@ module Model = {
 **/
 
 module Input = {
+  type compilation = {
+    bsRoot: string,
+    refmt: string,
+    tmp: string, /* Where to put compilation artifacts */
+  };
   type env = {
     /* If this is absent, no compilation for you!! (or syntax highlighting) */
-    bsRoot: option(string),
-    refmt: option(string),
+    compilation: option(compilation),
     static: string,
   };
 

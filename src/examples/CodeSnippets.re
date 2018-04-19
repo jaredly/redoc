@@ -3,7 +3,7 @@ let codeBlockPrefix = "DOCRE_CODE_BLOCK_";
 
 let (/+) = Filename.concat;
 
-type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
+/* type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
 let contextString = c => switch c {
 | Normal => "normal"
 | Log => "log"
@@ -27,7 +27,7 @@ type codeOptions = {
   sharedAs: option(string),
   uses: list(string),
   hide: bool,
-};
+}; */
 
 let matchOption = (text, option) => if (Str.string_match(Str.regexp("^" ++ option ++ "(\\([^)]+\\))$"), text, 0)) {
   Some(Str.matched_group(1, text));
@@ -36,6 +36,7 @@ let matchOption = (text, option) => if (Str.string_match(Str.regexp("^" ++ optio
 };
 
 let parseCodeOptions = lang => {
+  open State.Model;
   let parts = Str.split(Str.regexp_string(";"), lang);
   if (List.mem("skip", parts)
   || List.mem("bash", parts)
@@ -45,7 +46,7 @@ let parseCodeOptions = lang => {
   || List.mem("sh", parts)) {
     None
   } else {
-    Some(List.fold_left((options, item) => {
+    let options = List.fold_left((options, item) => {
       switch item {
       | "window" => {...options, context: Window}
       | "canvas" => {...options, context: Canvas}
@@ -53,26 +54,32 @@ let parseCodeOptions = lang => {
       | "log" => {...options, context: Log}
       | "div" => {...options, context: Div}
 
-      | "raises" => {...options, shouldRaise: true}
-      | "parse-fail" => {...options, shouldParseFail: true}
-      | "type-fail" => {...options, shouldTypeFail: true}
-      | "isolate" => {...options, isolate: true}
-      | "no-run" => {...options, dontRun: true}
-      | "no-edit" => {...options, noEdit: true}
-      | "hide" => {...options, hide: true}
-      | "reason" => options
+      | "raises" => {...options, expectation: Raise}
+      | "parse-fail" => {...options, expectation: ParseFail}
+      | "type-fail" => {...options, expectation: TypeFail}
+      /* | "isolate" => {...options, isolate: true} */
+      | "no-run" => {...options, expectation: DontRun}
+      | "no-edit" => {...options, codeDisplay: {...options.codeDisplay, noEdit: true}}
+      | "hide" => {...options, codeDisplay: {...options.codeDisplay, hide: true}}
+      | "reason" | "re" => {...options, lang: Reason}
+      | "ocaml" | "ml" => {...options, lang: OCaml}
+      | "txt" => {...options, lang: Txt}
       | _ => {
         switch (matchOption(item, "shared")) {
         | Some(name) => {...options, sharedAs: Some(name)}
         | None => switch (matchOption(item, "use")) {
           | Some(name) => {...options, uses: [name, ...options.uses]}
           | None => switch (matchOption(item, "prefix")) {
-            | Some(content) => {...options, prefix: int_of_string(content)}
+            | Some(content) => {...options, codeDisplay: {...options.codeDisplay, prefix: int_of_string(content)}}
             | None => switch (matchOption(item, "suffix")) {
-              | Some(content) => {...options, suffix: int_of_string(content)}
+              | Some(content) => {...options, codeDisplay: {...options.codeDisplay, suffix: int_of_string(content)}}
               | None => {
-                print_endline("Skipping unexpected code option: " ++ item);
-                options
+                if (parts == [item]) {
+                  {...options, lang: OtherLang(item)}
+                } else {
+                  print_endline("Skipping unexpected code option: " ++ item);
+                  options
+                }
               }
             }
 
@@ -81,20 +88,12 @@ let parseCodeOptions = lang => {
         }
       }
       }
-    }, {
-      context: Normal,
-      shouldParseFail: false,
-      shouldTypeFail: false,
-      shouldRaise: false,
-      dontRun: false,
-      noEdit: false,
-      isolate: false,
-      sharedAs: None,
-      prefix: 0,
-      suffix: 0,
-      uses: [],
-      hide: false,
-    }, parts))
+    }, defaultOptions, parts);
+    if (options.lang == Reason || options.lang == OCaml) {
+      Some(options)
+    } else {
+      None
+    }
   }
 };
 
@@ -102,20 +101,21 @@ type codeBlock = {
   el: Omd.element,
   id: int,
   fileName: string,
-  options: codeOptions,
+  options: State.Model.codeOptions,
   content: string,
 };
 
-type compilationStatus =
+/* type compilationStatus =
   /* | Skipped */
   | ParseError(string)
   | TypeError(string, string) /* error & cmt file */
   | Success(string, string) /* cmt & js files */
-  ; /* TODO maybe do the bundling earlier, so that it can be processed in parallel? */
+  ; TODO maybe do the bundling earlier, so that it can be processed in parallel? */
+
 
 type compiledBlock = {
   block: codeBlock,
-  status: compilationStatus,
+  status: State.Model.compilationResult,
   /* reasonSource: string, */
 };
 
@@ -123,7 +123,13 @@ let sprintf = Printf.sprintf;
 let html = Omd_utils.htmlentities;
 let escapeScript = text => Str.global_replace(Str.regexp_string("</script"), "<\\/script", text);
 
+let shouldBundle = expectation => switch expectation {
+| State.Model.Succeed | Raise => true
+| _ => false
+};
+
 let highlight = (~editingEnabled, {id, content, options}, status, bundle) => {
+  open State.Model;
   let cmt = switch status {
   | ParseError(_) => None
   | TypeError(_, cmt) => Some(cmt)
@@ -140,7 +146,7 @@ let highlight = (~editingEnabled, {id, content, options}, status, bundle) => {
   let after = switch status {
   | ParseError(text) => sprintf({|<div class='parse-error'>Parse Error:\n%s</div>|}, html(text))
   | TypeError(text, _) => sprintf({|<div class='type-error'>Type Error:\n%s</div>|}, html(text))
-  | Success(cmt, js) => options.dontRun ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
+  | Success(cmt, js) => !shouldBundle(options.expectation) ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
       switch options.context {
       | Node => ""
       | _ => sprintf({|<div data-block-id='%d' data-context=%S class='block-target'></div>|}, id, contextString(options.context))
@@ -166,7 +172,7 @@ let highlight = (~editingEnabled, {id, content, options}, status, bundle) => {
     id,
     code,
     postCode,
-    (!editingEnabled || options.noEdit) ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
+    (!editingEnabled || options.codeDisplay.noEdit) ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
     after
   )
 };
@@ -195,14 +201,14 @@ let startsWith = (prefix, string) => {
   lp <= String.length(string) && String.sub(string, 0, lp) == prefix
 };
 
-let fullContent = (getShared, options, content) => {
-  let content = options.prefix == 0 && options.suffix == 0 ? content : {
+let fullContent = (getShared, {State.Model.codeDisplay: {prefix, suffix}} as options, content) => {
+  let content = prefix == 0 && suffix == 0 ? content : {
     let lines = splitLines(content) |> Array.of_list;
-    for (i in 0 to options.prefix - 1) {
+    for (i in 0 to prefix - 1) {
       lines[i] = "#" ++ lines[i];
     };
     let ln = Array.length(lines);
-    for (i in 0 to options.suffix - 1) {
+    for (i in 0 to suffix - 1) {
       lines[ln - 1 - i] = "#" ++ lines[ln - 1 - i];
     };
     String.concat("\n", Array.to_list(lines))
@@ -461,13 +467,16 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
       bsRoot /+ "lib/refmt.exe";
     };
 
+    /* open State.Model; */
+
     let cmd = refmtCommand(base, re, refmt);
     let (output, err, success) = Commands.execFull(cmd);
+    open State.Model;
     let status = if (!success) {
       /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
       let out = String.concat("\n", output) ++ String.concat("\n", err);
       let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
-      if (!options.shouldParseFail) {
+      if (options.expectation != State.Model.ParseFail) {
         print_endline("Failed to parse " ++ re);
         print_endline(out);
         print_endline(reasonContent);
@@ -482,7 +491,7 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
         /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
         let out = String.concat("\n", output) ++ String.concat("\n", err);
         let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
-        if (!options.shouldTypeFail) {
+        if (options.expectation != State.Model.TypeFail) {
         print_endline(cmd);
           print_endline("Failed to compile " ++ re);
           print_endline(out);
@@ -516,6 +525,11 @@ let escape = text => text
 |> Str.global_replace(Str.regexp_string("\""), "\\\"")
 ;
 
+let shouldTest = expectation => switch expectation {
+| State.Model.Succeed | Raise => true
+| _ => false
+};
+
 /* TODO allow package-global settings, like "run this in node" */
 let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) =>  {
 
@@ -530,14 +544,14 @@ let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) => 
 
     /* TODO run in parallel - maybe all in the same node process?? */
     blocks |> List.iter(({status, block: {options, fileName, id}}) => {
-      if (test && !options.dontRun && !options.shouldParseFail && !options.shouldTypeFail && options.context == Normal) {
+      if (test && shouldTest(options.expectation) && options.context == Normal) {
         print_endline(string_of_int(id) ++ " - " ++ fileName);
         switch status {
         | Success(_, js) =>
         let cmd = Printf.sprintf("node -e \"%s\"", snippetLoader(packageJsonName, Files.absify(base), js) |> escape);
         let (output, err, success) = Commands.execFull(cmd);
         /* let (output, err, success) = Commands.execFull("node " ++ js ++ ""); */
-        if (options.shouldRaise) {
+        if (options.expectation == State.Model.Raise) {
           if (success) {
             print_endline(String.concat("\n", output));
             print_endline(String.concat("\n", err));
@@ -583,7 +597,7 @@ let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) => 
       }
     }
     | {block, status} => {
-      if (block.options.hide) {
+      if (block.options.State.Model.codeDisplay.hide) {
         Some("")
       } else {
         Some(highlight(~editingEnabled, block, status, js => Packre.Pack.process(~mode=Packre.Types.ExternalEverything, ~renames=[(packageJsonName, base)], ~base, [js])))

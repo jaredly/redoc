@@ -73,11 +73,11 @@ module Model = {
     hide: bool,
   };
 
-  type syntax = Reason | OCaml;
+  type lang = Reason | OCaml | Txt | OtherLang(string);
 
   type codeOptions = {
     context: codeContext,
-    syntax,
+    lang,
     /* backend, */
     expectation,
     codeDisplay,
@@ -87,7 +87,7 @@ module Model = {
 
   let defaultOptions = {
     context: Normal,
-    syntax: Reason,
+    lang: Reason,
     /* TODO I think this has to live at the package level? */
     /* backend: Bucklescript, */
     expectation: Succeed,
@@ -103,7 +103,7 @@ module Model = {
 
   /* This doesn't apply if I only want to parse */
   type compilationResult =
-    | Skipped
+    /* | Skipped */
     | ParseError(string)
     | TypeError(string, string) /* error & cmt file */
     | Success(string, string); /* cmt, js files */

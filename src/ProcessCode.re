@@ -91,7 +91,7 @@ let codeFromPackage = ({
   let shared = resolveShared(codeBlocks);
 
   let processedCodeBlocks = codeBlocks |> List.map(((page, lang, content, options)) => {
-    let fullContent = switch (options.Shared.Model.sharedAs) {
+    let fullContent = switch (options.State.Model.sharedAs) {
     | None => CodeSnippets.fullContent(Hashtbl.find(shared), options, content)
     | Some(name) => Hashtbl.find(shared, name)
     };

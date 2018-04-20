@@ -50,8 +50,10 @@ let parseCustom = (base, (absPath, sourcePath, destPath)) => {
   }
 };
 
-let processCmt = (name, cmt) => {
+let processCmt = (name, cmt, isMl) => {
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
+
+  let parseDoc = isMl ? MarkdownOfOCamldoc.convert : text => Omd.of_string(text);
 
   switch annots {
   | Cmt_format.Implementation({str_items} as s) => {
@@ -60,7 +62,7 @@ let processCmt = (name, cmt) => {
     Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
 
     let stamps = CmtFindStamps.stampsFromTypedtreeImplementation((name, []), str_items);
-    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromStructure(str_items);
+    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromStructure(parseDoc, str_items);
     (stamps, topdoc, allDocs)
   }
   | Cmt_format.Interface({sig_items} as s) => {
@@ -69,7 +71,7 @@ let processCmt = (name, cmt) => {
     Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
 
     let stamps = CmtFindStamps.stampsFromTypedtreeInterface((name, []), sig_items);
-    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromSignature(sig_items);
+    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromSignature(parseDoc, sig_items);
     (stamps, topdoc, allDocs)
   }
   | _ => failwith("Not a valid cmt file")
@@ -79,7 +81,8 @@ let processCmt = (name, cmt) => {
 let processModules = moduleFiles => {
   moduleFiles |> List.map(((cmt, sourcePath)) => {
     let name = Filename.basename(cmt) |> Filename.chop_extension |> String.capitalize;
-    let (stamps, topDocs, items) = processCmt(name, cmt);
+    let isMl = Filename.check_suffix(sourcePath, ".ml") || Filename.check_suffix(sourcePath, ".mli");
+    let (stamps, topDocs, items) = processCmt(name, cmt, isMl);
     {
       name,
       sourcePath,

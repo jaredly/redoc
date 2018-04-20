@@ -14,16 +14,16 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
-module Types = Types
+module Octavius_types = Octavius_types
 
 module Errors = Errors
 
-type nonrec ('a, 'b) result = ('a, 'b) result =
+type nonrec ('a, 'b) result =
   | Ok of 'a
   | Error of 'b
 
-val parse : Lexing.lexbuf -> (Types.t, Errors.t) result
+val parse : Lexing.lexbuf -> (Octavius_types.t, Errors.t) result
 
 val parse_ref : Lexing.lexbuf -> ((string option * string) list, Errors.t) result
 
-val print : Format.formatter -> Types.t -> unit
+val print : Format.formatter -> Octavius_types.t -> unit

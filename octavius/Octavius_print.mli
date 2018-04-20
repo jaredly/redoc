@@ -16,4 +16,4 @@
 
 open Format
 
-val pp : formatter -> Types.t -> unit
+val pp : formatter -> Octavius_types.t -> unit

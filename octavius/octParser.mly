@@ -1,6 +1,6 @@
 %{
 open Common
-open Types
+open Octavius_types
 open Errors
 
 (* Convert lexing position into error position *)
@@ -130,7 +130,7 @@ let html_close_to_string t = "</" ^ t ^ ">"
 %token <string> Param
 %token AUTHOR
 %token <string> Version
-%token <Types.see_ref> See
+%token <Octavius_types.see_ref> See
 %token <string> Since
 %token <string> Before
 %token DEPRECATED
@@ -144,13 +144,13 @@ let html_close_to_string t = "</" ^ t ^ ">"
 %token END
 
 %token <int * string option> Title
-%token <Types.style_kind> Style
+%token <Octavius_types.style_kind> Style
 %token LIST
 %token ENUM
 %token <bool> Item
 
-%token <Types.ref_kind * string> Ref
-%token <Types.special_ref_kind> Special_Ref
+%token <Octavius_types.ref_kind * string> Ref
+%token <Octavius_types.special_ref_kind> Special_Ref
 
 %token <string> Code
 %token <string> Pre_Code
@@ -188,7 +188,7 @@ let html_close_to_string t = "</" ^ t ^ ">"
 %token <string> Ref_part
 
 %start main
-%type <Types.t> main
+%type <Octavius_types.t> main
 
 %start reference_parts
 %type <(string option * string) list> reference_parts
@@ -446,7 +446,7 @@ item:
 html_text_element:
   HTML_Title text HTML_END_Title
     { let _, n = $1 in
-      if n <> $3 then raise Parse_error;
+      if n <> $3 then raise (Failure "wat");
       Title(n, None, (inner $2)) }
 | HTML_Title text error
     { let tag, _ = $1 in

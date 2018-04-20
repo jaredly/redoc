@@ -14,13 +14,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
-module Types = Types
+module Octavius_types = Octavius_types
 
 module Errors = Errors
 
 open Common
 
-type nonrec ('a, 'b) result = ('a, 'b) result =
+type nonrec ('a, 'b) result =
   | Ok of 'a
   | Error of 'b
 
@@ -45,4 +45,4 @@ let parse_ref lexbuf =
         Error {Errors.error = Lexer err; location}
 
 let print fmt t =
-  Print.pp fmt t
+  Octavius_print.pp fmt t

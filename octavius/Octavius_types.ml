@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
-(** Types for the information collected in comments. *)
+(** Octavius_types for the information collected in comments. *)
 
 (** The differents kinds of style. *)
 type style_kind =

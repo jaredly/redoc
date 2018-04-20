@@ -17,6 +17,14 @@ let oneShouldExist = (message, items) => {
   loop(items)
 };
 
+let ifOneExists = (items) => {
+  let rec loop = left => switch left {
+  | [] => None
+  | [one, ...more] => Files.exists(one) ? Some(one) : loop(more)
+  };
+  loop(items)
+};
+
 let startsWith = (text, prefix) => String.length(prefix) <= String.length(text)
   && String.sub(text, 0, String.length(prefix)) == prefix;
 
@@ -103,6 +111,10 @@ let getDependencyDirs = (base, config) => {
   }) |> List.concat
 };
 
+let isCompiledFile = name =>
+  Filename.check_suffix(name, ".cmt")
+  || Filename.check_suffix(name, ".cmti");
+
 let isSourceFile = name =>
   Filename.check_suffix(name, ".re")
   || Filename.check_suffix(name, ".rei")
@@ -179,11 +191,15 @@ Usage: docre [options]
       what this project is called
   --project-file
       specified as /abs/path/to/.cmt:rel/path/from/repo/root
+  --project-directory
+      path/to/cmt/directory:rel/path/from/root
   --dependency-directory
       a directory containing ".cmj" files that should be '-I'd when compiling snippets
   --bs-root (default: root/node_modules/bs-platform)
   --doctest (default: false)
       execute the documentation snippets to make sure they run w/o erroring
+  --ml
+      assume code snippets are in ocaml syntax, not reason
   -h, --help
       print this help
 |};
@@ -196,8 +212,8 @@ let fail = (msg) => {
 
 let parse = Minimist.parse(
   ~alias=[("h", "help"), ("test", "doctest")],
-  ~presence=["help", "doctest"],
-  ~multi=["project-file", "dependency-directory"],
+  ~presence=["help", "doctest", "ml"],
+  ~multi=["project-file", "dependency-directory", "project-directory"],
   ~strings=["target", "root", "name", "bs-root"]
 );
 
@@ -212,7 +228,7 @@ let getPackageJsonName = config => {
 };
 
 let getBsbVersion = base => {
-  let (out, success) = Commands.execSync(base /+ "node_modules/.bin/bsb -version");
+  let (out, success) = Commands.execSync(base /+ "lib/bsb.exe -version");
   if (!success) {
     "2.2.3"
   } else {
@@ -223,8 +239,8 @@ let getBsbVersion = base => {
 
 let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   open Minimist;
-  let root = get(strings, "root") |? Unix.getcwd();
-  let bsRoot = get(strings, "bs-root") |?>> shouldExist("provided bs-root doesn't exist") |?? Files.ifExists(root /+ "node_modules/bs-platform");
+  let root = get(strings, "root") |?>> Files.absify |? Unix.getcwd();
+  let bsRoot = get(strings, "bs-root") |?>> Files.absify |?>> shouldExist("provided bs-root doesn't exist") |?? Files.ifExists(root /+ "node_modules/bs-platform");
   let refmt = get(strings, "refmt") |?>> shouldExist("provided refmt doesn't exist") |?? (bsRoot |?> getRefmt);
   let target = get(strings, "target") |? (root /+ "docs");
   let projectName = get(strings, "name") |? String.capitalize(Filename.basename(root));
@@ -234,6 +250,15 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
     | _ => fail("Invalid project file " ++ line)
     }
   });
+
+  let projectFiles = projectFiles @ (multi(multiMap, "project-directory") |> List.map(line => {
+    switch (Str.split(Str.regexp_string(":"), line)) {
+    | [cmt, relpath] => Files.readDirectory(cmt) |> List.filter(isCompiledFile)
+    |> List.map(name => (cmt /+ name, relpath /+ Filename.chop_extension(name) ++ ".ml"))
+    | _ => fail("Invalid project file " ++ line)
+    }
+  }) |> List.concat);
+
   let dependencyDirectories = multi(multiMap, "dependency-directory") |> List.map(line => {
     switch (Str.split(Str.regexp_string(":"), line)) {
     | [cmt, js] => (cmt, js)
@@ -257,9 +282,13 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
         packageName: projectName,
         repo: ParseConfig.getUrl(root),
       },
+      defaultCodeOptions: has("ml", presence) ? Some({
+        ...State.Model.defaultOptions,
+        lang: OCaml
+      }) : None,
       root,
       backend: (packageJson |?> getPackageJsonName |?> packageJsonName => bsRoot |?> bsRoot => refmt |?>> refmt => State.Bucklescript({
-        let version = getBsbVersion(root);
+        let version = getBsbVersion(bsRoot);
         {
           bsRoot,
           packageRoot: root,

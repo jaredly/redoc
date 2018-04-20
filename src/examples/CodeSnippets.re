@@ -364,7 +364,12 @@ let writeDeps = (~output_string, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~bas
     output_string("ocaml.load_module(\"/static/cmis/" ++ name ++ "\", ");
     SerializeBinary.pp_string(output_string, Files.readFile(path) |! "file not readable " ++ path);
     output_string(",\n\"" ++ cmj ++ "\", ");
-    SerializeBinary.pp_string(output_string, Files.readFile(Filename.chop_extension(path) ++ ".cmj") |! "cmj not readable " ++ path);
+    let cmjPath = Filename.chop_extension(path) ++ ".cmj";
+    if (Files.exists(cmjPath)) {
+      SerializeBinary.pp_string(output_string, Files.readFile(cmjPath) |! "cmj not readable " ++ path);
+    } else {
+      output_string({|"<no cmj file>"|});
+    };
     output_string(");\n");
 
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(name)), jsDir /+ js)
@@ -386,10 +391,11 @@ let writeDeps = (~output_string, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~bas
   /* close_out(out); */
 };
 
-let refmtCommand = (base, re, refmt) => {
-  Printf.sprintf({|cat %s | %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
+let refmtCommand = (base, re, refmt, parseAs) => {
+  Printf.sprintf({|cat %s | %s --parse %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
   re,
   refmt,
+  parseAs,
   re,
   base /+ "lib/reactjs_jsx_ppx_2.exe",
   re,
@@ -413,7 +419,7 @@ let processBlock = (bsRoot, tmp, name, refmt, options, reasonContent, dependency
 
   Files.writeFile(re, reasonContent) |> ignore;
 
-  let cmd = refmtCommand(bsRoot, re, refmt);
+  let cmd = refmtCommand(bsRoot, re, refmt, options.State.Model.lang == State.Model.OCaml ? "ml" : "re");
   let (output, err, success) = Commands.execFull(cmd);
   open State.Model;
   if (!success) {
@@ -467,7 +473,12 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
   let blocksByEl = Hashtbl.create(100);
   let blocks = blocks |> List.map(({el, id, fileName, options, content} as block) => {
     let name = blockFileName(id);
-    let reasonContent = removeHashes(content) ++ " /* " ++ fileName ++ " */";
+    switch options.State.Model.lang {
+    | State.Model.OCaml => print_endline("Ocaml")
+    | _ => print_endline("Not ocaml")
+    };
+    let comment = options.State.Model.lang == State.Model.OCaml ? "(* " ++ fileName ++ " *)" : "/* " ++ fileName ++ " */";
+    let reasonContent = removeHashes(content) ++ " " ++ comment;
     let status = processBlock(bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs |> List.map(fst));
     Hashtbl.replace(blocksByEl, el, {status, block});
     {status, block}

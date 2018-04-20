@@ -58,12 +58,12 @@ let cleanOffStars = doc => {
 };
 
 /* TODO should I hang on to location? */
-let rec findDocAttribute = attributes => {
+let rec findDocAttribute = (parseDoc, attributes) => {
   open Parsetree;
   switch attributes {
   | [] => None
-  | [({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}])), ...rest] => Some(cleanOffStars(doc) |> Omd.of_string)
-  | [_, ...rest] => findDocAttribute(rest)
+  | [({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}])), ...rest] => Some(cleanOffStars(doc) |> parseDoc)
+  | [_, ...rest] => findDocAttribute(parseDoc, rest)
   }
 };
 

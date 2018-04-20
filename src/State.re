@@ -119,7 +119,7 @@ module Model = {
 
   /** This represents the final result of a code block, all that's needed to render it */
   type codeBlock = {
-    lang: string,
+    langLine: string,
     raw: string,
     html: string,
     page: string,
@@ -225,6 +225,7 @@ module Input = {
     customFiles: list((string, option(string), string)),
     /* abs path to .cmt(i), relpath to source */
     moduleFiles: list((string, string)),
+    defaultCodeOptions: option(Model.codeOptions)
   };
 
   type target = {

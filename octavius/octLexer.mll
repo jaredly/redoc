@@ -1,7 +1,7 @@
 {
 (** The lexer for string to build text structures. *)
 open Common
-open Types
+open Octavius_types
 open OctParser
 open Errors
 open Lexing

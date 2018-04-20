@@ -22,7 +22,7 @@ let processCmt = (name, cmt) => {
     Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
 
     let stamps = CmtFindStamps.stampsFromTypedtreeImplementation((name, []), str_items);
-    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromStructure(str_items);
+    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromStructure(Omd.of_string, str_items);
     (name, cmt, stamps, topdoc, allDocs)
   }
   | Cmt_format.Interface({sig_items} as s) => {
@@ -31,7 +31,7 @@ let processCmt = (name, cmt) => {
     Files.writeFile("debug_" ++ name ++ ".typ.inft", out) |> ignore; */
 
     let stamps = CmtFindStamps.stampsFromTypedtreeInterface((name, []), sig_items);
-    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromSignature(sig_items);
+    let (topdoc, allDocs) = CmtFindDocItems.docItemsFromSignature(Omd.of_string, sig_items);
     (name, cmt, stamps, topdoc, allDocs)
   }
   | _ => failwith("Not a valid cmt file")

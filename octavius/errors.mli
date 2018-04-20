@@ -22,12 +22,15 @@ type location =
   { start: position;
     finish: position; }
 
-type parser_error =
-  | Unclosed of
-      { opening_loc: location;
+type unclosed =
+{ opening_loc: location;
         opening: string;
         items: string;
         closing: string; }
+
+type parser_error =
+  | Unclosed of
+      unclosed
   | Expecting of string
 
 type lexer_error =

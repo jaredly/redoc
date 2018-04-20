@@ -558,7 +558,7 @@ let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) => 
     ~base,
     allJsFiles
   )) {
-    | _ => "alert('Failed to bundle')"
+    | Failure(message) => "alert('Failed to bundle " ++ message ++ "')"
   };
   Files.writeFile(dest /+ "all-deps.js", bundle ++ ";window.loadedAllDeps = true;") |> ignore;
 

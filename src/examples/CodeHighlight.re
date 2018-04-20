@@ -200,22 +200,26 @@ let codeSections = text => {
 };
 
 let highlight = (text, cmt) => {
-  let {Cmt_format.cmt_annots, cmt_builddir, cmt_sourcefile, cmt_modname, cmt_comments} = Cmt_format.read_cmt(cmt);
-  let base = cmt |> Filename.chop_extension;
-  let partial = switch cmt_annots {
-  | Cmt_format.Partial_implementation(_) | Cmt_format.Partial_interface(_) => true
-  | _ => false
-  };
-  cmt_comments |> List.iter(((text, loc)) => {
-    print_endline("Comment: " ++ text);
-  });
+  if (!Files.exists(cmt)) {
+    ("", text, "unable to process, .cmt missing")
+  } else {
+    let {Cmt_format.cmt_annots, cmt_builddir, cmt_sourcefile, cmt_modname, cmt_comments} = Cmt_format.read_cmt(cmt);
+    let base = cmt |> Filename.chop_extension;
+    let partial = switch cmt_annots {
+    | Cmt_format.Partial_implementation(_) | Cmt_format.Partial_interface(_) => true
+    | _ => false
+    };
+    cmt_comments |> List.iter(((text, loc)) => {
+      print_endline("Comment: " ++ text);
+    });
 
-  let (pre, frontOffset, text, post, backOffset) = codeSections(text);
+    let (pre, frontOffset, text, post, backOffset) = codeSections(text);
 
-  let ranges = collectRanges(cmt_annots);
-  let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {
-    (pos_cnum, cend, attributes)
-  });
-  let inserts = []; /* TODO annotate "open"s? */
-  (pre, annotateText(tags, inserts, text, frontOffset, backOffset), post)
+    let ranges = collectRanges(cmt_annots);
+    let tags = ranges |> List.map((({Location.loc_start: {pos_cnum}, loc_end: {pos_cnum: cend}}, attributes)) => {
+      (pos_cnum, cend, attributes)
+    });
+    let inserts = []; /* TODO annotate "open"s? */
+    (pre, annotateText(tags, inserts, text, frontOffset, backOffset), post)
+  }
 };

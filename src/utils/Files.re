@@ -2,7 +2,7 @@
 let split = (str, string) => Str.split(Str.regexp_string(str), string);
 
 let absify = path => {
-  if (path == "") {
+  if (path == "" || path == ".") {
     Unix.getcwd()
   } else if (path.[0] == '/') {
     path

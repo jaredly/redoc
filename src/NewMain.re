@@ -21,7 +21,7 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
       print_endline("Bundling: " ++ js);
       jsFiles := [js, ...jsFiles^];
       let res = try(pack(~mode=Packre.Types.ExternalEverything, [js])) {
-      | _ => "alert('failed to bundle')"
+      | Failure(message) => "alert('Failed to bundle " ++ message ++ "')"
       };
       print_endline("Finished bundle");
       res
@@ -40,9 +40,9 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
       ~extraRequires=stdlibRequires,
       jsFiles
     )) {
-      | err => {
-        print_endline("Failed to bundle!!! " ++ Printexc.to_string(err));
-        "alert('Failed to bundle')"
+      | Failure(message) => {
+        print_endline("Failed to bundle!!! " ++ message);
+"alert('Failed to bundle " ++ message ++ "')"
       }
     };
     let compilerDeps = browserCompilerPath |?>> browserCompilerPath => {

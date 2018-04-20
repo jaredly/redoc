@@ -11,6 +11,34 @@ let withStyle = (style, contents) => switch style {
 
 let stripLoc = (fn, item) => fn(item.Location_.value);
 
+let whiteLeft = text => {
+  let ln = String.length(text);
+  let rec loop = i => {
+    i >= ln ? i - 1 : (text.[i] == ' ' ? loop(i + 1) : i)
+  };
+  loop(0)
+};
+
+let sliceToEnd = (text, num) => {
+  let ln = String.length(text);
+  if (ln <= num) {
+    ""
+  } else {
+    String.sub(text, num, ln - num)
+  }
+};
+
+let stripLeft = text => {
+  let lines = Str.split(Str.regexp_string("\n"), text);
+  let rec loop = lines => switch lines {
+  | [] => 0
+  | [one] => whiteLeft(one)
+  | [one, ...more] => min(whiteLeft(one), loop(more))
+  };
+  let min = loop(lines |> List.filter(x => String.trim(x) != ""));
+  String.concat("\n", List.map(line => sliceToEnd(line, min), lines))
+};
+
 let convertItem = (currentModule, item) => {
 
   let rec convertItem = item => switch item.Location_.value {
@@ -20,7 +48,7 @@ let convertItem = (currentModule, item) => {
   | #nestable_block_element as item => convertNestable(item)
   } and convertNestable = item => switch item {
   | `Paragraph(inline) => Omd.Paragraph(List.map(convertInline, inline))
-  | `Code_block(text) => Omd.Code_block("ml", "#open " ++ currentModule ++ "\n" ++ text)
+  | `Code_block(text) => Omd.Code_block("ml", "#open " ++ currentModule ++ "\n" ++ stripLeft(text))
   | `Verbatim(text) => Omd.Raw(text) /* TODO */
   | `Modules(modules) => Omd.Raw("!!!! Modules please")
   | `List(`Ordered, children) => Omd.Ol(List.map(List.map(stripLoc(convertNestable)), children))

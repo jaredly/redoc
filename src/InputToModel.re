@@ -16,10 +16,11 @@ let parseSidebar = path => {
 };
 
 let parseCustom = ((absPath, sourcePath)) => {
+  let title = Filename.basename(absPath) |> Filename.chop_extension |> String.capitalize;
   {
-    title: Filename.basename(absPath) |> Filename.chop_extension |> String.capitalize,
+    title,
     sourcePath,
-    /* destPath:  */
+    destPath: title ++ ".html",
     contents: Omd.of_string(Files.readFile(absPath) |! "Unable to read markdown file " ++ absPath)
   }
 };

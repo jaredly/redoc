@@ -158,7 +158,7 @@ module Model = {
     title: string,
     /* Missing if the page was generated. relative to repo root */
     sourcePath: option(string),
-    /* destPath: string, */
+    destPath: string,
     contents: docWithExamples,
   };
 

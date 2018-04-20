@@ -94,6 +94,19 @@ let isSourceFile = name =>
 
 let compiledName = name => Filename.chop_extension(name) ++ (name.[String.length(name) - 1] == 'i' ? ".cmti" : ".cmt");
 
+let getName = x => Filename.basename(x) |> Filename.chop_extension;
+let filterDuplicates = cmts => {
+  /* Remove .cmt's that have .cmti's */
+  let intfs = Hashtbl.create(100);
+  cmts |> List.iter(path => if (Filename.check_suffix(path, ".rei") || Filename.check_suffix(path, ".mli")) {
+    Hashtbl.add(intfs, getName(path), true)
+  });
+  cmts |> List.filter(path => {
+    !((Filename.check_suffix(path, ".re") || Filename.check_suffix(path, ".ml")) && Hashtbl.mem(intfs, getName(path)))
+  });
+};
+
+
 let findProjectFiles = root => {
   let config = Json.parse(Files.readFile(root /+ "bsconfig.json") |! "No bsconfig.json found");
   let isNative = isNative(config);
@@ -102,7 +115,11 @@ let findProjectFiles = root => {
       ? [root /+ "lib/bs/js", root /+ "lib/bs/native"]
       : [root /+ "lib/bs", root /+ "lib/ocaml"]
   );
-  getSourceDirectories(root, config) |> List.map(Infix.fileConcat(root)) |> List.map(name => Files.collect(name, isSourceFile)) |> List.concat
+  getSourceDirectories(root, config)
+  |> List.map(Infix.fileConcat(root))
+  |> List.map(name => Files.collect(name, isSourceFile))
+  |> List.concat
+  |> filterDuplicates
   |> List.map(path => {
     let rel = Files.relpath(root, path);
     (compiledBase /+ compiledName(rel), rel)
@@ -221,7 +238,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
     packageInput: {
       meta: {
         packageName: projectName,
-        repo: None, /* TODO get this */
+        repo: ParseConfig.getUrl(root),
       },
       root,
       backend: (packageJson |?> getPackageJsonName |?> packageJsonName => bsRoot |?> bsRoot => refmt |?>> refmt => State.Bucklescript({

@@ -19,7 +19,7 @@ let block = (
     reasonContent,
     compiledDependencyDirectories |> List.map(fst)
   );
-  let html = CodeSnippets.highlight(
+  let html = options.codeDisplay.hide ? "" : CodeSnippets.highlight(
     ~editingEnabled,
     i, /* TODO stop using this data structure, and pass in the name */
     fullContent,

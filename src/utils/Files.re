@@ -89,6 +89,12 @@ let writeFile = (path, contents) => {
   }
 };
 
+let writeFileExn = (path, contents) => {
+  if (!writeFile(path, contents)) {
+    failwith("Unable to write to file " ++ path)
+  }
+};
+
 let copy = (~source, ~dest) =>
   switch (maybeStat(source)) {
   | None => false
@@ -109,6 +115,10 @@ let copy = (~source, ~dest) =>
     Unix.close(fd);
     true
   };
+
+let copyExn = (~source, ~dest) => if (!copy(~source, ~dest)) {
+  failwith("Unable to copy " ++ source ++ " to " ++ dest);
+};
 
 let exists = (path) =>
   switch (maybeStat(path)) {

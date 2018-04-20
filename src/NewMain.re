@@ -1,16 +1,6 @@
 
-let inputFromArgs = argv => {
-  /* TODO parse */
-  failwith("Not impl")
-};
-
-let packageFromInput = (package, env) => {
-  failwith("nope")
-};
-
 open State;
 open Infix;
-
 
 let startsWith = (prefix, string) => {
   let lp = String.length(prefix);

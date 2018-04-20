@@ -122,6 +122,9 @@ let package = (
   Files.copyExn(static /+ "styles.css", cssLoc);
   Files.copyExn(static /+ "script.js", jsLoc);
 
+  /* Files.mkdirp(directory /+ "fonts"); */
+  Files.copyDeep(~source=static /+ "fonts", ~dest=directory /+ "fonts");
+
   let codeBlocksMap = makeCodeBlocksMap(codeBlocks);
 
   let names = modules |> List.map(({Model.sourcePath, name}) => name);

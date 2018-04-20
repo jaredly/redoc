@@ -91,6 +91,7 @@ module Model = {
     lang,
     expectation,
     codeDisplay,
+    /* openModule: bool, */
     sharedAs: option(string),
     uses: list(string),
   };
@@ -99,6 +100,7 @@ module Model = {
     context: Normal,
     lang: Reason,
     expectation: Succeed,
+    /* openModule: false, */
     codeDisplay: {
       prefix: 0,
       suffix: 0,

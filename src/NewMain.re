@@ -18,8 +18,13 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
   let codeBlocks = ProcessCode.codeFromPackage(package) |> List.mapi(CompileCode.block(
     ~editingEnabled=browserCompilerPath != None,
     ~bundle=js => {
+      print_endline("Bundling: " ++ js);
       jsFiles := [js, ...jsFiles^];
-      pack(~mode=Packre.Types.ExternalEverything, [js])
+      let res = try(pack(~mode=Packre.Types.ExternalEverything, [js])) {
+      | _ => "alert('failed to bundle')"
+      };
+      print_endline("Finished bundle");
+      res
     },
     bucklescript,
     package
@@ -69,8 +74,11 @@ let compilePackage = (package) => {
 
 let main = () => {
   let input = CliToInput.parse(Sys.argv);
+  print_endline("<<< Converting input to model!");
   let package = InputToModel.package(input.Input.packageInput);
+  print_endline("<<< Compiling!");
   let compilationResults = compilePackage(package);
+  print_endline("<<< Compiled!");
   /* outputPackage(package, allCodeBlocks, input.Input.target); */
   ModelToOutput.package(package, compilationResults, input.Input.target, input.Input.env);
 };

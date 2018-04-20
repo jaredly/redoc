@@ -53,6 +53,7 @@ let parseCodeOptions = (lang, defaultOptions) => {
       | "log" => {...options, context: Log}
       | "div" => {...options, context: Div}
 
+      /* | "open-module" => {...options, openModule: true} */
       | "raises" => {...options, expectation: Raise}
       | "parse-fail" => {...options, expectation: ParseFail}
       | "skip" => {...options, expectation: Skip}

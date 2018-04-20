@@ -53,7 +53,7 @@ let parseCustom = (base, (absPath, sourcePath, destPath)) => {
 let processCmt = (name, cmt, isMl) => {
   let annots = Cmt_format.read_cmt(cmt).Cmt_format.cmt_annots;
 
-  let parseDoc = isMl ? MarkdownOfOCamldoc.convert : text => Omd.of_string(text);
+  let parseDoc = isMl ? MarkdownOfOCamldoc.convert(name) : text => Omd.of_string(text);
 
   switch annots {
   | Cmt_format.Implementation({str_items} as s) => {

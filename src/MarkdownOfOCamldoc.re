@@ -1,5 +1,5 @@
 
-/* open Octavius_types; */
+open Comment;
 
 let withStyle = (style, contents) => switch style {
 | `Bold => Omd.Bold(contents)
@@ -9,51 +9,43 @@ let withStyle = (style, contents) => switch style {
 | `Subscript => Omd.Raw("Subscript")
 };
 
-let rec convertItem = item => switch item.Location_.value {
-| `Heading(level, label, content) => Omd.Text("heading")
-| `Tag(tag) => Omd.Text("tag")
+let stripLoc = (fn, item) => fn(item.Location_.value);
 
-/* | Raw(text) => Omd.Raw(text)
-| Code(text) => Omd.Code_block("", text) */
-| _ => {
-  convertNestable(item)
-  /* Octavius_print.pp(Format.str_formatter); */
-  /* Omd.Raw_block(Format.flush_str_formatter()); */
-  /* Omd.Raw_block("Other") */
-}
-} and convertNestable = item => switch item.Location_.value {
-| `Paragraph(inline) => Omd.Paragraph(List.map(convertInline, inline))
-| _ => Omd.Text("wat")
-}
-and convertInline = item => switch item.Location_.value {
-| `Link(href, content) => Omd.Url(href, List.map(convertLink, content), "")
-| _ => Omd.Text("wat")
-}
-and convertLink = item => switch item.Location_.value {
-| `Styled(style, contents) => withStyle(style, List.map(convertLink, contents))
-| `Space => Omd.Text(" ")
-| `Word(text) => Omd.Text(text)
-| `Code_span(text) => Omd.Code("", text)
-/* | _ => convertLeaf(item) */
-}
-and convertLeaf = (item: Comment.with_location(Comment.leaf_inline_element)) => switch item.Location_.value {
-| `Space => Omd.Text(" ")
-| `Word(text) => Omd.Text(text)
-| `Code_span(text) => Omd.Code("", text)
-}
-;
+let convertItem = (currentModule, item) => {
 
-let convert = text => {
-  /* let ocamldoc = Octavius.parse(Lexing.from_string(text));
-  switch ocamldoc {
-  | Octavius.Ok((items, tags)) => {
-    List.map(convertItem, items)
+  let rec convertItem = item => switch item.Location_.value {
+  | `Heading(level, label, content) => Omd.Text("!!!! heading")
+  | `Tag(`Example(contents)) => Omd.Paragraph(List.map(stripLoc(convertNestable), contents))
+  | `Tag(tag) => Omd.Text("!!!! tag")
+  | #nestable_block_element as item => convertNestable(item)
+  } and convertNestable = item => switch item {
+  | `Paragraph(inline) => Omd.Paragraph(List.map(convertInline, inline))
+  | `Code_block(text) => Omd.Code_block("ml", "#open " ++ currentModule ++ "\n" ++ text)
+  | `Verbatim(text) => Omd.Raw(text) /* TODO */
+  | `Modules(modules) => Omd.Raw("!!!! Modules please")
+  | `List(`Ordered, children) => Omd.Ol(List.map(List.map(stripLoc(convertNestable)), children))
+  | `List(`Unordered, children) => Omd.Ul(List.map(List.map(stripLoc(convertNestable)), children))
   }
-  | Error({Errors.error, location}) => {
-    print_endline("Failed to parse ocamldoc " ++ Errors.message(error));
-    [Omd.Text("Failed to parse folks: " ++ text ++ " because " ++ Errors.message(error))]
+  and convertInline = item => switch item.Location_.value {
+  | `Link(href, content) => Omd.Url(href, List.map(convertLink, content), "")
+  | `Styled(style, contents) => withStyle(style, List.map(convertInline, contents))
+  | `Reference(someref, link) => Omd.Url("#TODO-ref", [Omd.Text("REFERENCE"), ...List.map(convertLink, link)], "")
+  | #leaf_inline_element as rest => convertLeaf(rest)
   }
-  } */
+  and convertLink = item => switch item.Location_.value {
+  | `Styled(style, contents) => withStyle(style, List.map(convertLink, contents))
+  | #leaf_inline_element as rest => convertLeaf(rest)
+  }
+  and convertLeaf = (item: Comment.leaf_inline_element) => switch item {
+  | `Space => Omd.Text(" ")
+  | `Word(text) => Omd.Text(text)
+  | `Code_span(text) => Omd.Code("", text)
+  }
+  ;
+  convertItem(item)
+};
+
+let convert = (currentModule, text) => {
   let res = Parser_.parse_comment(
     ~permissive=true,
     ~sections_allowed=`All,
@@ -62,9 +54,7 @@ let convert = text => {
     ~text
   );
   switch res.result {
-  | Error.Ok(docs) => List.map(convertItem, docs)
-  /* | Ok(`Stop) => [Omd.Text("Stop?")] */
-  | Error(message) => [Omd.Text("failed to parse")]
+  | Error.Ok(docs) => List.map(convertItem(currentModule), docs)
+  | Error(message) => [Omd.Text("failed to parse: " ++ Error.to_string(message))]
   }
-  /* [Omd.Text(text)] */
 };

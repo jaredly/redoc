@@ -32,6 +32,7 @@ type nestable_block_element = [
 type tag = [
   | `Author of string
   | `Deprecated of (nestable_block_element with_location) list
+  | `Example of (nestable_block_element with_location) list
   | `Param of string * (nestable_block_element with_location) list
   | `Raise of string * (nestable_block_element with_location) list
   | `Return of (nestable_block_element with_location) list

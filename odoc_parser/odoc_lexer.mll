@@ -289,6 +289,9 @@ rule token input = parse
   | "@deprecated"
     { emit input (`Tag `Deprecated) }
 
+  | "@example"
+    { emit input (`Tag `Example) }
+
   | "@param" horizontal_space+ ((_ # space_char)+ as name)
     { emit input (`Tag (`Param name)) }
 

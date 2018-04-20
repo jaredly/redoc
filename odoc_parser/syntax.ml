@@ -670,12 +670,13 @@ let rec block_element_list
           let tag = Location.at location (`Tag tag) in
           consume_block_elements ~parsed_a_tag:true `After_text (tag::acc)
 
-        | `Deprecated | `Return as tag ->
+        | `Deprecated | `Example | `Return as tag ->
           let content, _stream_head, where_in_line =
             block_element_list In_tag ~parent_markup:token input in
           let tag =
             match tag with
             | `Deprecated -> `Deprecated content
+            | `Example -> `Example content
             | `Return -> `Return content
           in
           let location =

@@ -12,6 +12,7 @@ type tag = [
   | `Tag of [
     | `Author of string
     | `Deprecated
+    | `Example
     | `Param of string
     | `Raise of string
     | `Return
@@ -114,6 +115,8 @@ let print : [< t ] -> string = function
     "'@author'"
   | `Tag `Deprecated ->
     "'@deprecated'"
+  | `Tag `Example ->
+    "'@example'"
   | `Tag (`Param _) ->
     "'@param'"
   | `Tag (`Raise _) ->
@@ -197,6 +200,8 @@ let describe : [< t | `Comment ] -> string = function
     "'@author'"
   | `Tag `Deprecated ->
     "'@deprecated'"
+  | `Tag `Example ->
+    "'@example'"
   | `Tag (`Param _) ->
     "'@param'"
   | `Tag (`Raise _) ->

@@ -136,10 +136,7 @@ let package = (
       | _ => None
       }
     }
-    | {raw, html} => {
-      Some(html)
-    }
-    | _ => None
+    | {raw, html} => Some(html)
     }
   }
   | _ => None

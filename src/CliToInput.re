@@ -20,10 +20,27 @@ let oneShouldExist = (message, items) => {
 let startsWith = (text, prefix) => String.length(prefix) <= String.length(text)
   && String.sub(text, 0, String.length(prefix)) == prefix;
 
-let findMarkdownFiles = (target, base) => {
-  Files.collect(target, name => Filename.check_suffix(name, ".md")) |> List.map(path => {
-    (path, if (startsWith(target, base)) { Some(Files.relpath(base, path)) } else {None})
+let findMarkdownFiles = (projectName, target, base) => {
+  let targetIsInBase = startsWith(target, base);
+  let foundFiles = Files.collect(target, name => Filename.check_suffix(name, ".md"))
+  |> List.map(path => {
+    (path, if (targetIsInBase) { Some(Files.relpath(base, path)) } else {None},
+      Files.relpath(target, String.lowercase(Filename.basename(path)) == "readme.md"
+      ? Filename.dirname(path) /+ "index.html"
+      : Filename.chop_extension(path) ++ ".html")
+    )
   });
+  let isTopLevelReadme = path =>
+    String.lowercase(path) == String.lowercase(target) /+ "readme.md" ||
+    String.lowercase(path) == String.lowercase(target) /+ "index.md";
+  if (!List.exists(((path, _, _)) => isTopLevelReadme(path), foundFiles) && Files.exists(base /+ "Readme.md")) {
+    let readme = base /+ "Readme.md";
+    let readmeName = Files.readDirectory(base) |> List.find(name => String.lowercase(name) == "readme.md");
+    let readme = base /+ readmeName;
+    [(base /+ readmeName, Some(readmeName), "./index.html"), ...foundFiles]
+  } else {
+    foundFiles
+  }
 };
 
 /**
@@ -255,7 +272,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
         }
       })) |? NoBackend,
       sidebarFile: None,
-      customFiles: findMarkdownFiles(target, root),
+      customFiles: findMarkdownFiles(projectName, target, root),
       moduleFiles: projectFiles == [] ? findProjectFiles(root) : projectFiles,
     },
   };

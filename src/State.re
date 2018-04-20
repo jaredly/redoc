@@ -221,8 +221,8 @@ module Input = {
     meta,
     backend,
     sidebarFile: option(string),
-    /* abs path to .md, relpath to source */
-    customFiles: list((string, option(string))),
+    /* abs path to .md, relpath to source, abs path to destination */
+    customFiles: list((string, option(string), string)),
     /* abs path to .cmt(i), relpath to source */
     moduleFiles: list((string, string)),
   };

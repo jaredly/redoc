@@ -1,9 +1,9 @@
 
 let codeBlockPrefix = "DOCRE_CODE_BLOCK_";
 
-let (/+) = Filename.concat;
+open Infix;
 
-type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
+/* type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
 let contextString = c => switch c {
 | Normal => "normal"
 | Log => "log"
@@ -27,7 +27,7 @@ type codeOptions = {
   sharedAs: option(string),
   uses: list(string),
   hide: bool,
-};
+}; */
 
 let matchOption = (text, option) => if (Str.string_match(Str.regexp("^" ++ option ++ "(\\([^)]+\\))$"), text, 0)) {
   Some(Str.matched_group(1, text));
@@ -35,17 +35,17 @@ let matchOption = (text, option) => if (Str.string_match(Str.regexp("^" ++ optio
   None
 };
 
-let parseCodeOptions = lang => {
+let parseCodeOptions = (lang, defaultOptions) => {
+  open State.Model;
   let parts = Str.split(Str.regexp_string(";"), lang);
-  if (List.mem("skip", parts)
-  || List.mem("bash", parts)
+  if (List.mem("bash", parts)
   || List.mem("txt", parts)
   || List.mem("js", parts)
   || List.mem("javascript", parts)
   || List.mem("sh", parts)) {
     None
   } else {
-    Some(List.fold_left((options, item) => {
+    let options = List.fold_left((options, item) => {
       switch item {
       | "window" => {...options, context: Window}
       | "canvas" => {...options, context: Canvas}
@@ -53,26 +53,33 @@ let parseCodeOptions = lang => {
       | "log" => {...options, context: Log}
       | "div" => {...options, context: Div}
 
-      | "raises" => {...options, shouldRaise: true}
-      | "parse-fail" => {...options, shouldParseFail: true}
-      | "type-fail" => {...options, shouldTypeFail: true}
-      | "isolate" => {...options, isolate: true}
-      | "no-run" => {...options, dontRun: true}
-      | "no-edit" => {...options, noEdit: true}
-      | "hide" => {...options, hide: true}
-      | "reason" => options
+      | "raises" => {...options, expectation: Raise}
+      | "parse-fail" => {...options, expectation: ParseFail}
+      | "skip" => {...options, expectation: Skip}
+      | "type-fail" => {...options, expectation: TypeFail}
+      /* | "isolate" => {...options, isolate: true} */
+      | "no-run" => {...options, expectation: DontRun}
+      | "no-edit" => {...options, codeDisplay: {...options.codeDisplay, noEdit: true}}
+      | "hide" => {...options, codeDisplay: {...options.codeDisplay, hide: true}}
+      | "reason" | "re" => {...options, lang: Reason}
+      | "ocaml" | "ml" => {...options, lang: OCaml}
+      | "txt" => {...options, lang: Txt}
       | _ => {
         switch (matchOption(item, "shared")) {
         | Some(name) => {...options, sharedAs: Some(name)}
         | None => switch (matchOption(item, "use")) {
           | Some(name) => {...options, uses: [name, ...options.uses]}
           | None => switch (matchOption(item, "prefix")) {
-            | Some(content) => {...options, prefix: int_of_string(content)}
+            | Some(content) => {...options, codeDisplay: {...options.codeDisplay, prefix: int_of_string(content)}}
             | None => switch (matchOption(item, "suffix")) {
-              | Some(content) => {...options, suffix: int_of_string(content)}
+              | Some(content) => {...options, codeDisplay: {...options.codeDisplay, suffix: int_of_string(content)}}
               | None => {
-                print_endline("Skipping unexpected code option: " ++ item);
-                options
+                if (parts == [item]) {
+                  {...options, lang: OtherLang(item)}
+                } else {
+                  print_endline("Skipping unexpected code option: " ++ item);
+                  options
+                }
               }
             }
 
@@ -81,20 +88,12 @@ let parseCodeOptions = lang => {
         }
       }
       }
-    }, {
-      context: Normal,
-      shouldParseFail: false,
-      shouldTypeFail: false,
-      shouldRaise: false,
-      dontRun: false,
-      noEdit: false,
-      isolate: false,
-      sharedAs: None,
-      prefix: 0,
-      suffix: 0,
-      uses: [],
-      hide: false,
-    }, parts))
+    }, defaultOptions, parts);
+    if (options.lang == Reason || options.lang == OCaml) {
+      Some(options)
+    } else {
+      None
+    }
   }
 };
 
@@ -102,28 +101,26 @@ type codeBlock = {
   el: Omd.element,
   id: int,
   fileName: string,
-  options: codeOptions,
+  options: State.Model.codeOptions,
   content: string,
 };
 
-type compilationStatus =
-  /* | Skipped */
-  | ParseError(string)
-  | TypeError(string, string) /* error & cmt file */
-  | Success(string, string) /* cmt & js files */
-  ; /* TODO maybe do the bundling earlier, so that it can be processed in parallel? */
-
 type compiledBlock = {
   block: codeBlock,
-  status: compilationStatus,
-  /* reasonSource: string, */
+  status: State.Model.compilationResult,
 };
 
 let sprintf = Printf.sprintf;
 let html = Omd_utils.htmlentities;
 let escapeScript = text => Str.global_replace(Str.regexp_string("</script"), "<\\/script", text);
 
-let highlight = (~editingEnabled, {id, content, options}, status, bundle) => {
+let shouldBundle = expectation => switch expectation {
+| State.Model.Succeed | Raise => true
+| _ => false
+};
+
+let highlight = (~editingEnabled, id, content, options, status, bundle) => {
+  open State.Model;
   let cmt = switch status {
   | ParseError(_) => None
   | TypeError(_, cmt) => Some(cmt)
@@ -140,7 +137,7 @@ let highlight = (~editingEnabled, {id, content, options}, status, bundle) => {
   let after = switch status {
   | ParseError(text) => sprintf({|<div class='parse-error'>Parse Error:\n%s</div>|}, html(text))
   | TypeError(text, _) => sprintf({|<div class='type-error'>Type Error:\n%s</div>|}, html(text))
-  | Success(cmt, js) => options.dontRun ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
+  | Success(cmt, js) => !shouldBundle(options.expectation) ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
       switch options.context {
       | Node => ""
       | _ => sprintf({|<div data-block-id='%d' data-context=%S class='block-target'></div>|}, id, contextString(options.context))
@@ -166,7 +163,7 @@ let highlight = (~editingEnabled, {id, content, options}, status, bundle) => {
     id,
     code,
     postCode,
-    (!editingEnabled || options.noEdit) ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
+    (!editingEnabled || options.codeDisplay.noEdit) ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
     after
   )
 };
@@ -175,7 +172,6 @@ let splitLines = text => Str.split(Str.regexp_string("\n"), text);
 
 let sliceToEnd = (s, num) => String.length(s) < num ? s : String.sub(s, num, String.length(s) - num);
 
-/* let removeHashes = text => Str.global_replace(Str.regexp("^#"), " ", text); */
 let removeHashes = text => {
   let rec loop = lines => switch lines {
   | [] => []
@@ -195,43 +191,47 @@ let startsWith = (prefix, string) => {
   lp <= String.length(string) && String.sub(string, 0, lp) == prefix
 };
 
+let fullContent = (getShared, {State.Model.codeDisplay: {prefix, suffix}} as options, content) => {
+  let content = prefix == 0 && suffix == 0 ? content : {
+    let lines = splitLines(content) |> Array.of_list;
+    for (i in 0 to prefix - 1) {
+      lines[i] = "#" ++ lines[i];
+    };
+    let ln = Array.length(lines);
+    for (i in 0 to suffix - 1) {
+      lines[ln - 1 - i] = "#" ++ lines[ln - 1 - i];
+    };
+    String.concat("\n", Array.to_list(lines))
+  };
+
+  List.fold_left((content, name) => {
+    switch (getShared(name)) {
+    | exception Not_found => {
+      print_endline("Unknown shared " ++ name);
+      content ++ " /* unknown shared " ++ name ++ " */"
+    }
+    | text => {
+      let text = text |> hashAll;
+      let rx = Str.regexp_string("#%{code}%");
+      switch (Str.search_forward(rx, text, 0)) {
+      | exception Not_found => text ++ "\n" ++ content
+      | _ => Str.replace_first(rx, content, text)
+      }
+    }
+  }
+  }, content, options.uses);
+
+};
+
 let getCodeBlocks = (markdowns, cmts) => {
   let codeBlocks = ref((0, []));
   let shared = ref([]);
   let addBlock = (el, fileName, lang, content) => {
-    let options = parseCodeOptions(lang);
+    let options = parseCodeOptions(lang, State.Model.defaultOptions);
     switch (options) {
     | None => ()
     | Some(options) => {
-
-      let content = options.prefix == 0 && options.suffix == 0 ? content : {
-        let lines = splitLines(content) |> Array.of_list;
-        for (i in 0 to options.prefix - 1) {
-          lines[i] = "#" ++ lines[i];
-        };
-        let ln = Array.length(lines);
-        for (i in 0 to options.suffix - 1) {
-          lines[ln - 1 - i] = "#" ++ lines[ln - 1 - i];
-        };
-        String.concat("\n", Array.to_list(lines))
-      };
-
-      let content = List.fold_left((content, name) => {
-        switch (List.assoc(name, shared^)) {
-        | exception Not_found => {
-          print_endline("Unknown shared " ++ name);
-          content ++ " /* unknown shared " ++ name ++ " */"
-        }
-        | text => {
-          let text = text |> hashAll;
-          let rx = Str.regexp_string("#%{code}%");
-          switch (Str.search_forward(rx, text, 0)) {
-          | exception Not_found => text ++ "\n" ++ content
-          | _ => Str.replace_first(rx, content, text)
-          }
-        }
-      }
-      }, content, options.uses);
+      let content = fullContent(name => List.assoc(name, shared^), options, content);
 
       switch (options.sharedAs) {
       | None => {
@@ -250,7 +250,6 @@ let getCodeBlocks = (markdowns, cmts) => {
       None
     }
     | Omd.Html_comment(text) => {
-      print_endline("Comment " ++ text);
       None
     }
     | Omd.Code_block(lang, contents) => {
@@ -279,26 +278,6 @@ let getCodeBlocks = (markdowns, cmts) => {
 
 open Infix;
 
-let refmtCommand = (base, re, refmt) => {
-  Printf.sprintf({|cat %s | %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
-  re,
-  refmt,
-  re,
-  base /+ "node_modules/bs-platform/lib/reactjs_jsx_ppx_2.exe",
-  re,
-  re
-  )
-};
-
-let justBscCommand = (base, re, includes) => {
-  Printf.sprintf(
-    {|%s -w -A %s -impl %s|},
-    base /+ "node_modules/.bin/bsc",
-    includes |> List.map(Printf.sprintf("-I %S")) |> String.concat(" "),
-    re
-  )
-};
-
 let snippetLoader = (name, basePath, snippetPath) => Printf.sprintf({|
 var path = require('path');
 var Module = require('module');
@@ -325,7 +304,6 @@ let getSourceDirectories = (base, config) => {
     | Json.Object(_) =>
       let dir = Json.get("dir", item) |?> Json.string |? "Must specify directory";
       let backend = item |> Json.get("backend") |?> Json.array |?>> optMap(Json.string) |? ["js"];
-      /* print_endline("Backend? " ++ String.concat(" & ", backend)); */
       let typ = item |> Json.get("type") |?> Json.string |? "lib";
       if (typ == "dev" || !List.mem("js", backend)) {
         []
@@ -353,10 +331,13 @@ let getDependencyDirs = (base, config) => {
       let inner = Json.parse(text);
       let allowedKinds = inner |> Json.get("allowed-build-kinds") |?> Json.array |?>> List.map(Json.string |.! "allowed-build-kinds must be strings") |? ["js"];
       let isNative = isNative(inner);
-      /* TODO get directories from config */
+
+      let compilationBase = isNative ? "lib/bs/js" : (
+        Files.ifExists(loc /+ "lib/ocaml") |? (loc /+ "lib/bs")
+      );
       if (List.mem("js", allowedKinds)) {
         getSourceDirectories(loc, inner) |> List.map(name => (
-          loc /+ (isNative ? "lib/bs/js" : "lib/ocaml") /+ name,
+          compilationBase /+ name,
           loc /+ "lib/js" /+ name,
         ));
       } else {
@@ -371,47 +352,29 @@ let getDependencyDirs = (base, config) => {
 
 let invert = (f, a) => !f(a);
 
-let compileSnippets = (~bsRoot, base, dest, blocks) => {
-  let blocksByEl = Hashtbl.create(100);
-
-  let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
-  let isNative = isNative(config);
-
-  let mine = getSourceDirectories(base, config) |> List.map(name => (
-    base /+ (isNative ? "lib/bs/js" : "lib/ocaml") /+ name,
-    base /+ "lib/js" /+ name
-  )) |> List.filter(((compiled, sourced)) => Files.exists(compiled));
-  let dependencyDirs = mine @ getDependencyDirs(base, config); /* TODO find dependency build directories */
-  /* print_endline("All deps:"); */
-  /* dependencyDirs |> List.iter(((a, b)) => print_endline("  " ++ a)); */
-  /* failwith("Sadness"); */
-
-  let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat;
-  let out = open_out(dest /+ "bucklescript-deps.js");
-  /* print_endline("Deps : " ++ String.concat(", ", depsToLoad)); */
+let writeDeps = (~output_string, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~base) => {
+  /* let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat; */
+  /* let out = open_out(dest); */
 
   let depsMap = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => {
     let path = dir /+ name;
     let cmj = Filename.chop_extension(name) ++ ".cmj";
     let js = Filename.chop_extension(name) ++ ".js";
 
-    output_string(out, "ocaml.load_module(\"/static/cmis/" ++ name ++ "\", ");
-    SerializeBinary.pp_string(out, Files.readFile(path) |! "file not readable " ++ path);
-    output_string(out, ",\n\"" ++ cmj ++ "\", ");
-    SerializeBinary.pp_string(out, Files.readFile(Filename.chop_extension(path) ++ ".cmj") |! "cmj not readable " ++ path);
-    output_string(out, ");\n");
+    output_string("ocaml.load_module(\"/static/cmis/" ++ name ++ "\", ");
+    SerializeBinary.pp_string(output_string, Files.readFile(path) |! "file not readable " ++ path);
+    output_string(",\n\"" ++ cmj ++ "\", ");
+    SerializeBinary.pp_string(output_string, Files.readFile(Filename.chop_extension(path) ++ ".cmj") |! "cmj not readable " ++ path);
+    output_string(");\n");
 
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(name)), jsDir /+ js)
   })) |> List.concat;
-  let stdlib = bsRoot /+ "lib/js";
-  let stdlibRequires = Files.exists(stdlib) ? (Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name)) : [];
   let depsMap = depsMap @ (stdlibRequires |> List.map(path => {
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(Filename.basename(path))), path)
   }));
-  output_string(out, "window.bsRequirePaths = {\n");
+  output_string("window.bsRequirePaths = {\n");
   depsMap |> List.iter(((bsRequire, path)) => {
     output_string(
-      out,
       Printf.sprintf({|"%s": "%s",
 |},
         bsRequire,
@@ -419,92 +382,98 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
       )
     );
   });
-  output_string(out, "}\n");
-  close_out(out);
+  output_string("}\n");
+  /* close_out(out); */
+};
 
+let refmtCommand = (base, re, refmt) => {
+  Printf.sprintf({|cat %s | %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
+  re,
+  refmt,
+  re,
+  base /+ "lib/reactjs_jsx_ppx_2.exe",
+  re,
+  re
+  )
+};
 
+let justBscCommand = (base, sourceFile, includes) => {
+  Printf.sprintf(
+    {|%s -w -A %s -impl %s|},
+    base /+ "lib/bsc.exe",
+    includes |> List.map(Printf.sprintf("-I %S")) |> String.concat(" "),
+    sourceFile
+  )
+};
+
+let processBlock = (bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs) => {
+  let re = tmp /+ name ++ ".re";
+  let cmt = tmp /+ name ++ ".re_ppx.cmt";
+  let js = tmp /+ name ++ ".re_ppx.js";
+
+  Files.writeFile(re, reasonContent) |> ignore;
+
+  let cmd = refmtCommand(bsRoot, re, refmt);
+  let (output, err, success) = Commands.execFull(cmd);
+  open State.Model;
+  if (!success) {
+    let out = String.concat("\n", output) ++ String.concat("\n", err);
+    if (options.expectation != State.Model.ParseFail) {
+      print_endline("Failed to parse " ++ re);
+      print_endline(out);
+      print_endline(reasonContent);
+      print_newline();
+    };
+    let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
+    ParseError(out);
+  } else {
+    let includes = dependencyDirs;
+    let cmd = justBscCommand(bsRoot, re ++ "_ppx.ast", includes);
+    let (output, err, success) = Commands.execFull(cmd);
+    if (!success) {
+      let out = String.concat("\n", output) ++ String.concat("\n", err);
+      if (options.expectation != State.Model.TypeFail) {
+        print_endline(cmd);
+        print_endline("Failed to compile " ++ re);
+        print_endline(out);
+        print_endline(reasonContent);
+        print_newline();
+      };
+      let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
+      TypeError(out, cmt);
+    } else { Success(cmt, js) };
+  };
+};
+
+let compileSnippets = (~bsRoot, base, dest, blocks) => {
+  let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
+  let compilationBase = isNative(config) ? "lib/bs/js" : (Files.ifExists(base /+ "lib/ocaml") |? (base /+ "lib/bs"));
+
+  let mine = getSourceDirectories(base, config) |> List.map(name => (
+    compilationBase /+ name,
+    base /+ "lib/js" /+ name
+  )) |> List.filter(((compiled, sourced)) => Files.exists(compiled));
+  let dependencyDirs = mine @ getDependencyDirs(base, config);
+
+  let stdlib = bsRoot /+ "lib/js";
+  let stdlibRequires = Files.exists(stdlib) ? (Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name)) : [];
 
   let tmp = base /+ "node_modules/.docre";
   Files.mkdirp(tmp);
 
   let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
+  let refmt = Files.ifExists(bsRoot /+ "lib/refmt3.exe") |? bsRoot /+ "lib/refmt.exe";
 
+  let blocksByEl = Hashtbl.create(100);
   let blocks = blocks |> List.map(({el, id, fileName, options, content} as block) => {
-
     let name = blockFileName(id);
-    let re = tmp /+ name ++ ".re";
-    let cmt = tmp /+ name ++ ".re_ppx.cmt";
-    let js = tmp /+ name ++ ".re_ppx.js";
-
-    /* let cmt = base /+ "lib/bs/src/" ++ name ++ ".cmt";
-    let js = base /+ "lib/js/src/" ++ name ++ ".js"; */
     let reasonContent = removeHashes(content) ++ " /* " ++ fileName ++ " */";
-    /* How do we knock the cache based on dependencies mtimes? */
-    /* Maybe find all the .cmj files in the deps, and find the most recent one? */
-    /* And then it's ok to take a bit of time I guess */
-    /* TODO don't do extra work if nothing has changed. */
-    /* if (Files.readFile(re) == Some(reasonContent)) {
-      /* ok we're done */
-    } else {
-
-    } */
-
-    Files.writeFile(re, reasonContent) |> ignore;
-
-    let refmt = bsRoot /+ "lib/refmt3.exe";
-    let refmt = if (Files.exists(refmt)) {
-      refmt
-    } else {
-      bsRoot /+ "lib/refmt.exe";
-    };
-
-    let cmd = refmtCommand(base, re, refmt);
-    let (output, err, success) = Commands.execFull(cmd);
-    let status = if (!success) {
-      /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
-      let out = String.concat("\n", output) ++ String.concat("\n", err);
-      let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
-      if (!options.shouldParseFail) {
-        print_endline("Failed to parse " ++ re);
-        print_endline(out);
-        print_endline(reasonContent);
-        print_newline();
-      };
-      ParseError(out);
-    } else {
-      let includes = dependencyDirs |> List.map(fst);
-      let cmd = justBscCommand(base, re ++ "_ppx.ast", includes);
-      let (output, err, success) = Commands.execFull(cmd);
-      if (!success) {
-        /* TODO exit hard if it parse fails and you didn't mean to or seomthing. Report this at the end. */
-        let out = String.concat("\n", output) ++ String.concat("\n", err);
-        let out = Str.global_replace(Str.regexp_string(re), "<snippet>", out);
-        if (!options.shouldTypeFail) {
-        print_endline(cmd);
-          print_endline("Failed to compile " ++ re);
-          print_endline(out);
-          print_endline(reasonContent);
-          print_newline();
-        };
-        TypeError(out, cmt);
-      } else { Success(cmt, js) };
-    };
-
+    let status = processBlock(bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs |> List.map(fst));
     Hashtbl.replace(blocksByEl, el, {status, block});
-
     {status, block}
   });
 
-  /* let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world"); */
-  /* let (output, err, success) = Commands.execFull(base /+ "node_modules/.bin/bsb" ++ " -make-world -backend js");
-  if (!success) {
-    print_endline("Bsb output:");
-    print_endline(String.concat("\n", output));
-    print_endline("Error while running bsb on examples");
-  }; */
-      /* Unix.unlink(src /+ name ++ ".re"); */
-
-  (blocksByEl, blocks, stdlibRequires)
+  (blocksByEl, blocks, dependencyDirs, stdlibRequires)
 };
 
 let escape = text => text
@@ -513,44 +482,56 @@ let escape = text => text
 |> Str.global_replace(Str.regexp_string("\""), "\\\"")
 ;
 
-/* TODO allow package-global settings, like "run this in node" */
+let shouldTest = expectation => switch expectation {
+| State.Model.Succeed | Raise => true
+| _ => false
+};
+
+let testBlock = (packageJsonName, ~base, status, options, fileName, id) => {
+  open State.Model;
+  if (shouldTest(options.expectation) && options.context == Normal) {
+    print_endline(string_of_int(id) ++ " - " ++ fileName);
+    switch status {
+    | Success(_, js) =>
+    let cmd = Printf.sprintf("node -e \"%s\"", snippetLoader(packageJsonName, Files.absify(base), js) |> escape);
+    let (output, err, success) = Commands.execFull(cmd);
+    if (options.expectation == State.Model.Raise) {
+      if (success) {
+        print_endline(String.concat("\n", output));
+        print_endline(String.concat("\n", err));
+        print_endline("Expected to fail but didnt " ++ string_of_int(id) ++ " in " ++ fileName);
+      }
+    } else {
+      if (!success) {
+        print_endline(String.concat("\n", output));
+        print_endline(String.concat("\n", err));
+        print_endline("Failed to run " ++ string_of_int(id) ++ " in " ++ fileName);
+      };
+    }
+    | _ => print_endline("Not running because of error")
+    }
+  };
+
+};
+
 let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) =>  {
 
   let blocks = getCodeBlocks(markdowns, cmts);
   let packageJson = Json.parse(Files.readFile(base /+ "package.json") |! "No package.json in " ++ base);
   let packageJsonName = packageJson |> Json.get("name") |?> Json.string |! "Missing name in package.json";
 
-  let (blocksByEl, blocks, stdlibRequires) = compileSnippets(~bsRoot, base, dest, blocks);
+  let (blocksByEl, blocks, dependencyDirs, stdlibRequires) = compileSnippets(~bsRoot, base, dest, blocks);
+
+  let out = open_out(dest /+ "bucklescript-deps.js");
+  writeDeps(~output_string=output_string(out), ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~base);
+  close_out(out);
 
   if (test) {
     print_endline("Running tests");
 
     /* TODO run in parallel - maybe all in the same node process?? */
     blocks |> List.iter(({status, block: {options, fileName, id}}) => {
-      if (test && !options.dontRun && !options.shouldParseFail && !options.shouldTypeFail && options.context == Normal) {
-        print_endline(string_of_int(id) ++ " - " ++ fileName);
-        switch status {
-        | Success(_, js) =>
-        let cmd = Printf.sprintf("node -e \"%s\"", snippetLoader(packageJsonName, Files.absify(base), js) |> escape);
-        let (output, err, success) = Commands.execFull(cmd);
-        /* let (output, err, success) = Commands.execFull("node " ++ js ++ ""); */
-        if (options.shouldRaise) {
-          if (success) {
-            print_endline(String.concat("\n", output));
-            print_endline(String.concat("\n", err));
-            print_endline("Expected to fail but didnt " ++ string_of_int(id) ++ " in " ++ fileName);
-          }
-        } else {
-          if (!success) {
-            print_endline(String.concat("\n", output));
-            print_endline(String.concat("\n", err));
-            print_endline("Failed to run " ++ string_of_int(id) ++ " in " ++ fileName);
-          };
-        }
-        | _ => print_endline("Not running because of error")
-        }
-      };
-      ()
+      testBlock(packageJsonName, ~base, status, options, fileName, id);
     });
   };
 
@@ -573,17 +554,17 @@ let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) => 
   | Omd.Code_block(lang, content) => {
     switch (Hashtbl.find(blocksByEl, element)) {
     | exception Not_found => {
-      let options = parseCodeOptions(lang);
+      let options = parseCodeOptions(lang, State.Model.defaultOptions);
       switch options {
       | Some({sharedAs: Some(_)}) => Some("")
       | _ => None
       }
     }
     | {block, status} => {
-      if (block.options.hide) {
+      if (block.options.State.Model.codeDisplay.hide) {
         Some("")
       } else {
-        Some(highlight(~editingEnabled, block, status, js => Packre.Pack.process(~mode=Packre.Types.ExternalEverything, ~renames=[(packageJsonName, base)], ~base, [js])))
+        Some(highlight(~editingEnabled, block.id, block.content, block.options, status, js => Packre.Pack.process(~mode=Packre.Types.ExternalEverything, ~renames=[(packageJsonName, base)], ~base, [js])))
       }
     }
     }

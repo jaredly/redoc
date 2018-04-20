@@ -43,7 +43,7 @@ let page = (~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=false, na
     </div>
   |}, DocsTemplate.head(~relativeToRoot, ~cssLoc?, ~jsLoc?, name),
   checkHashes ? "<script>window.shouldCheckHashes=true</script>" : "",
-  Sidebar.generate(name, tocs, projectNames, markdowns, Filename.concat(relativeToRoot, "search.html")),
+  Sidebar.generate(name, tocs, projectNames, markdowns, Infix.fileConcat(relativeToRoot, "search.html")),
   sourceUrl |?>> (url => {
     Printf.sprintf({|<a href="%s" class="edit-link">Edit</a>|}, url)
   }) |? "",

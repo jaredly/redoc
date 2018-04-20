@@ -1,8 +1,6 @@
 
 open Infix;
 
-let (/+) = Filename.concat;
-
 let fail = (msg) => {
   print_endline(msg);
   exit(1);
@@ -22,10 +20,27 @@ let oneShouldExist = (message, items) => {
 let startsWith = (text, prefix) => String.length(prefix) <= String.length(text)
   && String.sub(text, 0, String.length(prefix)) == prefix;
 
-let findMarkdownFiles = (base, target) => {
-  Files.collect(target, name => Filename.check_suffix(name, ".md")) |> List.map(path => {
-    (path, if (startsWith(target, base)) { Some(Files.relpath(base, path)) } else {None})
+let findMarkdownFiles = (projectName, target, base) => {
+  let targetIsInBase = startsWith(target, base);
+  let foundFiles = Files.collect(target, name => Filename.check_suffix(name, ".md"))
+  |> List.map(path => {
+    (path, if (targetIsInBase) { Some(Files.relpath(base, path)) } else {None},
+      Files.relpath(target, String.lowercase(Filename.basename(path)) == "readme.md"
+      ? Filename.dirname(path) /+ "index.html"
+      : Filename.chop_extension(path) ++ ".html")
+    )
   });
+  let isTopLevelReadme = path =>
+    String.lowercase(path) == String.lowercase(target) /+ "readme.md" ||
+    String.lowercase(path) == String.lowercase(target) /+ "index.md";
+  if (!List.exists(((path, _, _)) => isTopLevelReadme(path), foundFiles) && Files.exists(base /+ "Readme.md")) {
+    let readme = base /+ "Readme.md";
+    let readmeName = Files.readDirectory(base) |> List.find(name => String.lowercase(name) == "readme.md");
+    let readme = base /+ readmeName;
+    [(base /+ readmeName, Some(readmeName), "./index.html"), ...foundFiles]
+  } else {
+    foundFiles
+  }
 };
 
 /**
@@ -96,6 +111,19 @@ let isSourceFile = name =>
 
 let compiledName = name => Filename.chop_extension(name) ++ (name.[String.length(name) - 1] == 'i' ? ".cmti" : ".cmt");
 
+let getName = x => Filename.basename(x) |> Filename.chop_extension;
+let filterDuplicates = cmts => {
+  /* Remove .cmt's that have .cmti's */
+  let intfs = Hashtbl.create(100);
+  cmts |> List.iter(path => if (Filename.check_suffix(path, ".rei") || Filename.check_suffix(path, ".mli")) {
+    Hashtbl.add(intfs, getName(path), true)
+  });
+  cmts |> List.filter(path => {
+    !((Filename.check_suffix(path, ".re") || Filename.check_suffix(path, ".ml")) && Hashtbl.mem(intfs, getName(path)))
+  });
+};
+
+
 let findProjectFiles = root => {
   let config = Json.parse(Files.readFile(root /+ "bsconfig.json") |! "No bsconfig.json found");
   let isNative = isNative(config);
@@ -104,7 +132,11 @@ let findProjectFiles = root => {
       ? [root /+ "lib/bs/js", root /+ "lib/bs/native"]
       : [root /+ "lib/bs", root /+ "lib/ocaml"]
   );
-  getSourceDirectories(root, config) |> List.map(Filename.concat(root)) |> List.map(name => Files.collect(name, isSourceFile)) |> List.concat
+  getSourceDirectories(root, config)
+  |> List.map(Infix.fileConcat(root))
+  |> List.map(name => Files.collect(name, isSourceFile))
+  |> List.concat
+  |> filterDuplicates
   |> List.map(path => {
     let rel = Files.relpath(root, path);
     (compiledBase /+ compiledName(rel), rel)
@@ -119,8 +151,9 @@ let findDependencyDirectories = root => {
       ? [root /+ "lib/bs/js", root /+ "lib/bs/native"]
       : [root /+ "lib/bs", root /+ "lib/ocaml"]
   );
-  let mine = [compiledBase, ...Files.collectDirs(compiledBase)];
-  mine @ (getDependencyDirs(root, config) |> List.map(fst))
+  let jsBase = Files.ifExists(root /+ "lib/js") |! "lib/js not found";
+  let mine = [compiledBase, ...Files.collectDirs(compiledBase)] |> List.map(path => (path, jsBase /+ Files.relpath(compiledBase, path)));
+  mine @ getDependencyDirs(root, config)
 };
 
 
@@ -174,25 +207,45 @@ let getRefmt = bsRoot => {
   Files.ifExists(bsRoot /+ "lib/refmt3.exe") |?? Files.ifExists(bsRoot /+ "lib/refmt.exe")
 };
 
+let getPackageJsonName = config => {
+  Json.get("name", config) |?>> (Json.string |.! "name must be a string")
+};
+
+let getBsbVersion = base => {
+  let (out, success) = Commands.execSync(base /+ "node_modules/.bin/bsb -version");
+  if (!success) {
+    "2.2.3"
+  } else {
+    let out = String.concat("", out) |> String.trim;
+    out
+  }
+};
+
 let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   open Minimist;
   let root = get(strings, "root") |? Unix.getcwd();
   let bsRoot = get(strings, "bs-root") |?>> shouldExist("provided bs-root doesn't exist") |?? Files.ifExists(root /+ "node_modules/bs-platform");
   let refmt = get(strings, "refmt") |?>> shouldExist("provided refmt doesn't exist") |?? (bsRoot |?> getRefmt);
   let target = get(strings, "target") |? (root /+ "docs");
-  let projectName = get(strings, "name") |? String.capitalize(Filename.dirname(root));
+  let projectName = get(strings, "name") |? String.capitalize(Filename.basename(root));
   let projectFiles = multi(multiMap, "project-file") |> List.map(line => {
     switch (Str.split(Str.regexp_string(":"), line)) {
     | [cmt, relpath] => (cmt, relpath)
     | _ => fail("Invalid project file " ++ line)
     }
   });
-  let dependencyDirectories = multi(multiMap, "dependency-directory");
+  let dependencyDirectories = multi(multiMap, "dependency-directory") |> List.map(line => {
+    switch (Str.split(Str.regexp_string(":"), line)) {
+    | [cmt, js] => (cmt, js)
+    | _ => fail("Invalid dependency directory " ++ line)
+    }
+  });
+
+  let packageJson = Files.ifExists(root /+ "package.json") |?>> (Files.readFile |.! "Unable to read package.json") |?>> Json.parse;
+  let static = Filename.dirname(selfPath) /+ "../../../static";
   {
     env: {
-      static: Filename.dirname(selfPath) /+ "../../../static",
-      bsRoot,
-      refmt,
+      static: static
     },
     target: {
       directory: target,
@@ -202,13 +255,25 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
     packageInput: {
       meta: {
         packageName: projectName,
-        repo: None, /* TODO get this */
+        repo: ParseConfig.getUrl(root),
       },
       root,
+      backend: (packageJson |?> getPackageJsonName |?> packageJsonName => bsRoot |?> bsRoot => refmt |?>> refmt => State.Bucklescript({
+        let version = getBsbVersion(root);
+        {
+          bsRoot,
+          packageRoot: root,
+          refmt,
+          version,
+          browserCompilerPath: Files.ifExists(static /+ "bs-" ++ version ++ ".js"),
+          tmp: root /+ "node_modules/.docre",
+          compiledDependencyDirectories: dependencyDirectories == [] ? findDependencyDirectories(root) : dependencyDirectories,
+          packageJsonName,
+        }
+      })) |? NoBackend,
       sidebarFile: None,
-      customFiles: findMarkdownFiles(target, root),
+      customFiles: findMarkdownFiles(projectName, target, root),
       moduleFiles: projectFiles == [] ? findProjectFiles(root) : projectFiles,
-      compiledDependencyDirectories: dependencyDirectories == [] ? findDependencyDirectories(root) : dependencyDirectories,
     },
   };
 };

@@ -54,6 +54,7 @@ let parseCodeOptions = (lang, defaultOptions) => {
       | "div" => {...options, context: Div}
 
       /* | "open-module" => {...options, openModule: true} */
+      /* | "repl" => {...options, repl: true} */
       | "raises" => {...options, expectation: Raise}
       | "parse-fail" => {...options, expectation: ParseFail}
       | "skip" => {...options, expectation: Skip}
@@ -141,7 +142,7 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
   | Success(cmt, js) => !shouldBundle(options.expectation) ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
       switch options.context {
       | Node => ""
-      | _ => sprintf({|<div data-block-id='%d' data-context=%S class='block-target'></div>|}, id, contextString(options.context))
+      | _ => sprintf({|<div data-block-id='%d' data-context=%S data-block-syntax=%S class='block-target'></div>|}, id, contextString(options.context),     options.lang == State.Model.OCaml ? "ml" : "re")
       },
       id,
       bundle(js)

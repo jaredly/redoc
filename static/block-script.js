@@ -111,6 +111,7 @@ var initBlocks = () => {
     const viewContext = el.getAttribute('data-context');
     const id = el.getAttribute('data-block-id');
     const parent = el.parentNode;
+    const syntax = el.getAttribute('data-block-syntax');
 
     const logs = div({class: 'block-logs'}, []);
 
@@ -185,7 +186,7 @@ var initBlocks = () => {
       return loadAll().then(() => {
         let ocaml
         try {
-          ocaml = window.printML(window.parseRE(code))
+          ocaml = syntax === 'ml' ? code : window.printML(window.parseRE(code))
         } catch (e) {
           if (e.location) {
             showError(e.location.startLine - 1, e.location.startLineStartChar - 1, e.location.endLine - 1, e.location.endLineEndChar - 1)

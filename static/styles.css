@@ -589,6 +589,7 @@ pre.code {
   }
 }
 
+.parse-error,
 .type-error {
   background: #ffd2d2;
   padding: 4px 8px;

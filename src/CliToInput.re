@@ -140,7 +140,7 @@ let findProjectFiles = root => {
   |> List.map(path => {
     let rel = Files.relpath(root, path);
     (compiledBase /+ compiledName(rel), rel)
-  })
+  }) |> List.filter(((full, rel)) => Files.exists(full))
 };
 
 let findDependencyDirectories = root => {

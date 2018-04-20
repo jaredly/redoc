@@ -29,7 +29,7 @@ let formatHref = (name, projectNames, (modName, inner, ptype)) => {
 };
 
 open Infix;
-let page = (~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=false, name, tocs, projectNames, markdowns, contents) => {
+let page = (~sourceUrl, ~relativeToRoot, ~checkHashes=false, name, tocs, projectNames, markdowns, contents) => {
   Printf.sprintf({|
     %s
     %s
@@ -41,7 +41,7 @@ let page = (~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=false, na
     </div>
     <div class='right-blank'></div>
     </div>
-  |}, DocsTemplate.head(~relativeToRoot, ~cssLoc?, ~jsLoc?, name),
+  |}, DocsTemplate.head(~relativeToRoot, name),
   checkHashes ? "<script>window.shouldCheckHashes=true</script>" : "",
   Sidebar.generate(name, tocs, projectNames, markdowns, Infix.fileConcat(relativeToRoot, "search.html")),
   sourceUrl |?>> (url => {
@@ -50,7 +50,7 @@ let page = (~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=false, na
   contents)
 };
 
-let generate = (~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~processDocString, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
+let generate = (~sourceUrl, ~relativeToRoot, ~processDocString, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
   let mainMarkdown = switch (topdoc) {
   | None => Omd.of_string(GenerateDoc.defaultMain(~addHeading=true, name))
   | Some(doc) => doc
@@ -60,5 +60,5 @@ let generate = (~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~processDocString,
   let (html, tocs) = GenerateDoc.docsForModule(printer, processDocString, [], 0, name, mainMarkdown, allDocs);
 
   let projectListing = projectNames |> List.map(name => (name ++ ".html", name));
-  page(~sourceUrl, ~relativeToRoot, ~cssLoc, ~jsLoc, ~checkHashes=true, name, List.rev(tocs), projectListing, markdowns, html)
+  page(~sourceUrl, ~relativeToRoot, ~checkHashes=true, name, List.rev(tocs), projectListing, markdowns, html)
 };

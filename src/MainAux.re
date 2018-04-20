@@ -60,7 +60,7 @@ let startsWith = (prefix, string) => {
 };
 open Infix;
 
-let generateMultiple = (~bsRoot, ~editingEnabled, ~test, base, compiledBase, url, dest, cmts, markdowns: list((string, option(string), Omd.t, string))) => {
+let generateMultiple = (~static, ~bsRoot, ~editingEnabled, ~test, base, compiledBase, url, dest, cmts, markdowns: list((string, option(string), Omd.t, string))) => {
   Files.mkdirp(dest);
 
   let cmts = filterDuplicates(cmts);
@@ -69,8 +69,8 @@ let generateMultiple = (~bsRoot, ~editingEnabled, ~test, base, compiledBase, url
   let jsLoc = Filename.concat(dest, "script.js");
   let allDeps = Filename.concat(dest, "all-deps.js");
 
-  Files.writeFile(cssLoc, DocsTemplate.styles) |> ignore;
-  Files.writeFile(jsLoc, DocsTemplate.script) |> ignore;
+  Files.copyExn(~source=static /+ "styles.css", ~dest=cssLoc) |> ignore;
+  Files.copyExn(~source=static /+ "script.js", ~dest=jsLoc) |> ignore;
 
   let names = List.map(getName, cmts);
 
@@ -113,7 +113,7 @@ let generateMultiple = (~bsRoot, ~editingEnabled, ~test, base, compiledBase, url
         None
       }
     });
-    let text = Docs.generate(~sourceUrl, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), ~processDocString=processDocString(searchPrinter, output, name), name, topdoc, stamps, allDocs, names, markdowns);
+    let text = Docs.generate(~sourceUrl, ~relativeToRoot=rel(dest), ~processDocString=processDocString(searchPrinter, output, name), name, topdoc, stamps, allDocs, names, markdowns);
 
     Files.writeFile(output, text) |> ignore;
   });
@@ -133,7 +133,7 @@ let generateMultiple = (~bsRoot, ~editingEnabled, ~test, base, compiledBase, url
 
     let markdowns = List.map(((path, _source, _contents, name)) => (rel(path), name), markdowns);
     let projectListing = names |> List.map(name => (rel(api /+ name ++ ".html"), name));
-    let html = Docs.page(~sourceUrl, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), name, List.rev(tocItems^), projectListing, markdowns, main);
+    let html = Docs.page(~sourceUrl, ~relativeToRoot=rel(dest), name, List.rev(tocItems^), projectListing, markdowns, main);
 
     Files.writeFile(path, html) |> ignore;
   });
@@ -152,7 +152,7 @@ let generateMultiple = (~bsRoot, ~editingEnabled, ~test, base, compiledBase, url
       <script defer src="elasticlunr.js"></script>
       <script defer src="search.js"></script>
     |}, DocsTemplate.searchStyle);
-    let html = Docs.page(~sourceUrl=None, ~relativeToRoot=rel(dest), ~cssLoc=Some(rel(cssLoc)), ~jsLoc=Some(rel(jsLoc)), "Search", [], projectListing, markdowns, main);
+    let html = Docs.page(~sourceUrl=None, ~relativeToRoot=rel(dest), "Search", [], projectListing, markdowns, main);
     Files.writeFile(path, html) |> ignore;
     Files.writeFile(dest /+ "search.js", SearchScript.js) |> ignore;
     Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
@@ -271,7 +271,7 @@ let generateProject = (~selfPath, ~projectName, ~root, ~target, ~sourceDirectori
     print_endline("No bucklescript file available -- editing will be disabled")
   };
 
-  generateMultiple(~bsRoot, ~editingEnabled, ~test, root, compiledRoot, url, target, found, markdowns);
+  generateMultiple(~static, ~bsRoot, ~editingEnabled, ~test, root, compiledRoot, url, target, found, markdowns);
 
   [
   "block-script.js",

@@ -20,9 +20,7 @@ let isReadme = path => Filename.check_suffix(String.lowercase(path), "/readme.md
 let asHtml = path => Filename.chop_extension(path) ++ ".html";
 
 let htmlName = path => {
-  print_endline("Path for html name " ++ path);
   if (isReadme(path)) {
-    print_endline("Readme folks " ++ path);
     String.sub(path, 0, String.length(path) - String.length("/readme.md")) /+ "index.html"
   } else {
     asHtml(path)
@@ -32,9 +30,7 @@ let htmlName = path => {
 let getTitle = (path, base) => {
   if (isReadme(path)) {
     let dir = Filename.dirname(path);
-    print_endline(path ++ " base " ++ base ++ " dir " ++ dir);
     if (dir == base) {
-      print_endline("Base dir!!!");
       "Home"
     } else {
       Filename.basename(dir)
@@ -46,11 +42,6 @@ let getTitle = (path, base) => {
 
 let parseCustom = (base, (absPath, sourcePath, destPath)) => {
   let title = getTitle(absPath, base);
-  /* let destPath = sourcePath |?>> htmlName |? title ++ ".html"; */
-  if (sourcePath == None) {
-    print_endline("What no source path");
-  };
-  print_endline("absPath " ++ absPath ++ " title " ++ title ++ " dest " ++ destPath);
   {
     title,
     sourcePath,

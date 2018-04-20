@@ -398,7 +398,8 @@ pre.code {
 
 .code .constructor,
 .code .pattern-constructor {
-  color: #0af;
+  color: #025e8c;
+  font-weight: 400;
 }
 
 .code .type-value-identifier,
@@ -441,11 +442,11 @@ pre.code {
 }
 
 .code .string {
-    color: #33a20d;
+    color: #1a6700;
 }
 
 .code .int {
-    color: #5656cc;
+    color: #3030ff;
 }
 
 .code .boolean {
@@ -588,6 +589,10 @@ pre.code {
   }
 }
 
+.type-error {
+  background: #ffd2d2;
+  padding: 4px 8px;
+}
 
 
 @font-face {

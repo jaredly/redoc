@@ -53,6 +53,8 @@ let parseCodeOptions = (lang, defaultOptions) => {
       | "log" => {...options, context: Log}
       | "div" => {...options, context: Div}
 
+      /* | "open-module" => {...options, openModule: true} */
+      /* | "repl" => {...options, repl: true} */
       | "raises" => {...options, expectation: Raise}
       | "parse-fail" => {...options, expectation: ParseFail}
       | "skip" => {...options, expectation: Skip}
@@ -61,8 +63,8 @@ let parseCodeOptions = (lang, defaultOptions) => {
       | "no-run" => {...options, expectation: DontRun}
       | "no-edit" => {...options, codeDisplay: {...options.codeDisplay, noEdit: true}}
       | "hide" => {...options, codeDisplay: {...options.codeDisplay, hide: true}}
-      | "reason" | "re" => {...options, lang: Reason}
-      | "ocaml" | "ml" => {...options, lang: OCaml}
+      | "reason" | "re" => {...options, lang: Reason, inferred: false}
+      | "ocaml" | "ml" => {...options, lang: OCaml, inferred: false}
       | "txt" => {...options, lang: Txt}
       | _ => {
         switch (matchOption(item, "shared")) {
@@ -122,6 +124,7 @@ let shouldBundle = expectation => switch expectation {
 let highlight = (~editingEnabled, id, content, options, status, bundle) => {
   open State.Model;
   let cmt = switch status {
+  | Skipped => None
   | ParseError(_) => None
   | TypeError(_, cmt) => Some(cmt)
   | Success(cmt, _) => Some(cmt)
@@ -135,12 +138,13 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
   };
 
   let after = switch status {
-  | ParseError(text) => sprintf({|<div class='parse-error'>Parse Error:\n%s</div>|}, html(text))
-  | TypeError(text, _) => sprintf({|<div class='type-error'>Type Error:\n%s</div>|}, html(text))
+  | Skipped => ""
+  | ParseError(text) => sprintf("<div class='parse-error'>Parse Error:\n%s</div>", html(text))
+  | TypeError(text, _) => sprintf("<div class='type-error'>Type Error:\n%s</div>", html(text))
   | Success(cmt, js) => !shouldBundle(options.expectation) ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
       switch options.context {
       | Node => ""
-      | _ => sprintf({|<div data-block-id='%d' data-context=%S class='block-target'></div>|}, id, contextString(options.context))
+      | _ => sprintf({|<div data-block-id='%d' data-context=%S data-block-syntax=%S class='block-target'></div>|}, id, contextString(options.context),     options.lang == State.Model.OCaml ? "ml" : "re")
       },
       id,
       bundle(js)
@@ -163,7 +167,7 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
     id,
     code,
     postCode,
-    (!editingEnabled || options.codeDisplay.noEdit) ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
+    (!editingEnabled || options.codeDisplay.noEdit || status == Skipped) ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
     after
   )
 };
@@ -364,7 +368,12 @@ let writeDeps = (~output_string, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~bas
     output_string("ocaml.load_module(\"/static/cmis/" ++ name ++ "\", ");
     SerializeBinary.pp_string(output_string, Files.readFile(path) |! "file not readable " ++ path);
     output_string(",\n\"" ++ cmj ++ "\", ");
-    SerializeBinary.pp_string(output_string, Files.readFile(Filename.chop_extension(path) ++ ".cmj") |! "cmj not readable " ++ path);
+    let cmjPath = Filename.chop_extension(path) ++ ".cmj";
+    if (Files.exists(cmjPath)) {
+      SerializeBinary.pp_string(output_string, Files.readFile(cmjPath) |! "cmj not readable " ++ path);
+    } else {
+      output_string({|"<no cmj file>"|});
+    };
     output_string(");\n");
 
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(name)), jsDir /+ js)
@@ -386,10 +395,11 @@ let writeDeps = (~output_string, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~bas
   /* close_out(out); */
 };
 
-let refmtCommand = (base, re, refmt) => {
-  Printf.sprintf({|cat %s | %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
+let refmtCommand = (base, re, refmt, parseAs) => {
+  Printf.sprintf({|cat %s | %s --parse %s --print binary > %s.ast && %s %s.ast %s_ppx.ast|},
   re,
   refmt,
+  parseAs,
   re,
   base /+ "lib/reactjs_jsx_ppx_2.exe",
   re,
@@ -406,19 +416,23 @@ let justBscCommand = (base, sourceFile, includes) => {
   )
 };
 
-let processBlock = (bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs) => {
+let processBlock = (~silentFailures=false, bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs) => {
   let re = tmp /+ name ++ ".re";
   let cmt = tmp /+ name ++ ".re_ppx.cmt";
   let js = tmp /+ name ++ ".re_ppx.js";
+  open State.Model;
 
   Files.writeFile(re, reasonContent) |> ignore;
 
-  let cmd = refmtCommand(bsRoot, re, refmt);
+  let cmd = refmtCommand(bsRoot, re, refmt, options.lang == OCaml ? "ml" : "re");
   let (output, err, success) = Commands.execFull(cmd);
   open State.Model;
-  if (!success) {
+  if (!success && options.inferred) {
+    /* If we inferred that it was code, but it didn't parse, then assume it wasn't code. */
+    Skipped
+  } else if (!success) {
     let out = String.concat("\n", output) ++ String.concat("\n", err);
-    if (options.expectation != State.Model.ParseFail) {
+    if (options.expectation != State.Model.ParseFail && !silentFailures) {
       print_endline("Failed to parse " ++ re);
       print_endline(out);
       print_endline(reasonContent);
@@ -432,7 +446,7 @@ let processBlock = (bsRoot, tmp, name, refmt, options, reasonContent, dependency
     let (output, err, success) = Commands.execFull(cmd);
     if (!success) {
       let out = String.concat("\n", output) ++ String.concat("\n", err);
-      if (options.expectation != State.Model.TypeFail) {
+      if (options.expectation != State.Model.TypeFail && !silentFailures) {
         print_endline(cmd);
         print_endline("Failed to compile " ++ re);
         print_endline(out);
@@ -467,7 +481,12 @@ let compileSnippets = (~bsRoot, base, dest, blocks) => {
   let blocksByEl = Hashtbl.create(100);
   let blocks = blocks |> List.map(({el, id, fileName, options, content} as block) => {
     let name = blockFileName(id);
-    let reasonContent = removeHashes(content) ++ " /* " ++ fileName ++ " */";
+    switch options.State.Model.lang {
+    | State.Model.OCaml => print_endline("Ocaml")
+    | _ => print_endline("Not ocaml")
+    };
+    let comment = options.State.Model.lang == State.Model.OCaml ? "(* " ++ fileName ++ " *)" : "/* " ++ fileName ++ " */";
+    let reasonContent = removeHashes(content) ++ " " ++ comment;
     let status = processBlock(bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs |> List.map(fst));
     Hashtbl.replace(blocksByEl, el, {status, block});
     {status, block}
@@ -546,7 +565,7 @@ let process = (~bsRoot, ~editingEnabled, ~test, markdowns, cmts, base, dest) => 
     ~base,
     allJsFiles
   )) {
-    | _ => "alert('Failed to bundle')"
+    | Failure(message) => "alert('Failed to bundle " ++ message ++ "')"
   };
   Files.writeFile(dest /+ "all-deps.js", bundle ++ ";window.loadedAllDeps = true;") |> ignore;
 

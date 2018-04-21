@@ -7,11 +7,12 @@ let block = (
   {State.bsRoot, refmt, tmp, compiledDependencyDirectories, browserCompilerPath},
   {State.Model.name},
   i,
-  (page, lang, raw, fullContent, options)
+  (page, langLine, raw, fullContent, options)
 ) => {
   open State.Model;
   let name = sanitize(name) ++ "__" ++ sanitize(page) ++ "_CODE_BLOCK_" ++ string_of_int(i);
-  let reasonContent = CodeSnippets.removeHashes(fullContent) ++ " /* " ++ name ++ " */";
+  let comment = options.State.Model.lang == State.Model.OCaml ? "(* " ++ name ++ " *)" : "/* " ++ name ++ " */";
+  let reasonContent = CodeSnippets.removeHashes(fullContent) ++ " " ++ comment;
   let compilationResult = CodeSnippets.processBlock(
     bsRoot, tmp,
     name, refmt,
@@ -27,5 +28,5 @@ let block = (
     compilationResult,
     bundle
   );
-  {State.Model.lang, html, raw, page, filePath: name, compilationResult}
+  {State.Model.langLine, html, raw, page, filePath: name, compilationResult}
 };

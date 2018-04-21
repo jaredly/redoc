@@ -6,7 +6,7 @@ let makeToc = tocItems => {
 };
 
 let showPackage = projectListing => {
-  "<div class='project-listing'><div class='project-title'>Package modules</div>" ++ {
+  "<div class='project-title'>Package modules</div><div class='project-listing'>" ++ {
     projectListing |> List.map(((htmlName, name)) => Printf.sprintf({|<a href="%s">%s</a>|}, htmlName, name)) |> String.concat("\n")
   } ++ "</div>"
 };
@@ -30,8 +30,8 @@ let generate = (name, tocItems, projectListing, markdowns, searchPath) => {
     <div class='sidebar'>
       <a href="%s" style="display: block; padding: 0 8px;">Search</a>
       %s
-      <div class='table-of-contents'>
       <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
       %s
       </div>
       %s

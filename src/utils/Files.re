@@ -2,7 +2,7 @@
 let split = (str, string) => Str.split(Str.regexp_string(str), string);
 
 let absify = path => {
-  if (path == "") {
+  if (path == "" || path == ".") {
     Unix.getcwd()
   } else if (path.[0] == '/') {
     path
@@ -11,10 +11,12 @@ let absify = path => {
   }
 };
 
-let removeExtraDots = path => Str.global_replace(Str.regexp_string("/./"), "/", path);
+let removeExtraDots = path => Str.global_replace(Str.regexp_string("/./"), "/", path)
+|> Str.global_replace(Str.regexp({|^\./\.\./|}), "../");
 
 let startsWith = (text, prefix) => String.length(prefix) <= String.length(text)
   && String.sub(text, 0, String.length(prefix)) == prefix;
+let sliceToEnd = (str, pos) => String.sub(str, pos, String.length(str) - pos);
 
 [@test [
   (("/a/b/c", "/a/b/d"), "../d"),
@@ -29,7 +31,13 @@ let relpath = (base, path) => {
     if (rest == "") {
       "./"
     } else if (rest.[0] == '/') {
-      "." ++ rest
+      if (String.length(rest) > 1 && rest.[1] == '.') {
+        sliceToEnd(rest, 1)
+      } else {
+        "." ++ rest
+      }
+    } else if (rest.[0] == '.') {
+      rest
     } else {
       "./" ++ rest
     }

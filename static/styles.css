@@ -16,6 +16,10 @@ body {
   letter-spacing: 0.04em;
 }
 
+strong {
+  font-weight: 400;
+}
+
 h4.item {
   font-family: iosevka, sf mono, monospace;
   padding-top: 8px;
@@ -227,31 +231,49 @@ a, a:visited,
   width: 200px;
 }
 
+.sidebar div {
+  flex-shrink: 0;
+}
+
 .sidebar {
   width: 200px;
   position: sticky;
   position: -webkit-sticky;
   top: 0;
-  overflow: auto;
+  /* overflow: auto; */
   max-height: 100vh;
   word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  padding-top: 16px;
 }
 
-.table-of-contents {
+.sidebar .docs-listing {
+  flex-shrink: 0;
+  max-height: 30vh;
+  overflow: auto;
+}
+.sidebar .table-of-contents {
   display: flex;
   flex-direction: column;
   padding: 8px;
+  flex-shrink: 1;
+  overflow: auto;
 }
-.project-listing {
+
+.sidebar .project-listing {
   display: flex;
   flex-direction: column;
   padding: 8px;
   font-size: 14px;
   padding-bottom: 32px;
+  max-height: 30vh;
+  flex-shrink: 0;
+  overflow: auto;
 }
 
-.table-of-contents .toc-header,
-.project-listing .project-title {
+.sidebar .toc-header,
+.sidebar .project-title {
   font-size: 14px;
   font-weight: bold;
   margin: 16px 0 8px;
@@ -589,9 +611,15 @@ pre.code {
   }
 }
 
-.type-error {
+.parse-error {
   background: #ffd2d2;
   padding: 4px 8px;
+  white-space: pre;
+}
+.type-error {
+  background: #ff9a9a;
+  padding: 4px 8px;
+  white-space: pre;
 }
 
 

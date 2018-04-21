@@ -46,6 +46,7 @@ type bucklescriptOptions = {
   refmt: string,
   version: string,
   browserCompilerPath: option(string),
+  silentFailures: bool,
   tmp: string, /* Where to put compilation artifacts */
   /* (cmt directory, js directory) */
   compiledDependencyDirectories: list((string, string)),
@@ -91,6 +92,8 @@ module Model = {
     lang,
     expectation,
     codeDisplay,
+    inferred: bool,
+    /* openModule: bool, */
     sharedAs: option(string),
     uses: list(string),
   };
@@ -98,7 +101,9 @@ module Model = {
   let defaultOptions = {
     context: Normal,
     lang: Reason,
+    inferred: true,
     expectation: Succeed,
+    /* openModule: false, */
     codeDisplay: {
       prefix: 0,
       suffix: 0,
@@ -111,7 +116,7 @@ module Model = {
 
   /* This doesn't apply if I only want to parse */
   type compilationResult =
-    /* | Skipped */
+    | Skipped
     | ParseError(string)
     | TypeError(string, string) /* error & cmt file */
     | Success(string, string); /* cmt, js files */
@@ -119,7 +124,7 @@ module Model = {
 
   /** This represents the final result of a code block, all that's needed to render it */
   type codeBlock = {
-    lang: string,
+    langLine: string,
     raw: string,
     html: string,
     page: string,
@@ -225,6 +230,7 @@ module Input = {
     customFiles: list((string, option(string), string)),
     /* abs path to .cmt(i), relpath to source */
     moduleFiles: list((string, string)),
+    defaultCodeOptions: option(Model.codeOptions)
   };
 
   type target = {

@@ -83,8 +83,8 @@ let outputModule = (dest, codeBlocksMap, markdowns, searchHref, repo, processDoc
 
 let makeCodeBlocksMap = codeBlocks => {
   let map = Hashtbl.create(100);
-  codeBlocks |> List.iter(({State.Model.lang, html, raw, page, filePath: name, compilationResult} as block) => {
-    Hashtbl.replace(map, (lang, raw), block)
+  codeBlocks |> List.iter(({State.Model.langLine, html, raw, page, filePath: name, compilationResult} as block) => {
+    Hashtbl.replace(map, (langLine, raw), block)
   });
   map
 };

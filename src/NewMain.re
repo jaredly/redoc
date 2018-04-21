@@ -19,7 +19,10 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
     ~editingEnabled=browserCompilerPath != None,
     ~bundle=js => {
       jsFiles := [js, ...jsFiles^];
-      pack(~mode=Packre.Types.ExternalEverything, [js])
+      let res = try(pack(~mode=Packre.Types.ExternalEverything, [js])) {
+      | Failure(message) => "alert('Failed to bundle " ++ message ++ "')"
+      };
+      res
     },
     bucklescript,
     package
@@ -35,9 +38,9 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
       ~extraRequires=stdlibRequires,
       jsFiles
     )) {
-      | err => {
-        print_endline("Failed to bundle!!! " ++ Printexc.to_string(err));
-        "alert('Failed to bundle')"
+      | Failure(message) => {
+        print_endline("Failed to bundle!!! " ++ message);
+"alert('Failed to bundle " ++ message ++ "')"
       }
     };
     let compilerDeps = browserCompilerPath |?>> browserCompilerPath => {
@@ -69,8 +72,11 @@ let compilePackage = (package) => {
 
 let main = () => {
   let input = CliToInput.parse(Sys.argv);
+  print_endline("<<< Converting input to model!");
   let package = InputToModel.package(input.Input.packageInput);
+  print_endline("<<< Compiling!");
   let compilationResults = compilePackage(package);
+  print_endline("<<< Compiled!");
   /* outputPackage(package, allCodeBlocks, input.Input.target); */
   ModelToOutput.package(package, compilationResults, input.Input.target, input.Input.env);
 };

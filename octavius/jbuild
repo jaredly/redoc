@@ -1,9 +1,0 @@
-; from https://github.com/ocaml-doc/octavius
-(jbuild_version 1)
-
-(ocamllex  (octLexer))
-(ocamlyacc (octParser))
-
-(library
- ((name octavius)
-  ))

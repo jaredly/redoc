@@ -244,8 +244,8 @@ var initBlocks = () => {
       return loadAll().then(() => {
         const js = syntax == 'ml'
         ? getJs(window.ocaml.compile(code), showError)
-        : (window.ocaml.reason_compile
-          ? getJs(window.ocaml.reason_compile(code), showError)
+        : (window.ocaml.reason_compile_super_errors
+          ? getJs(window.ocaml.reason_compile_super_errors(code), showError)
           : getJs(window.ocaml.complie(preprocessReason(code))))
         if (js) {
           error.style.display = 'none'

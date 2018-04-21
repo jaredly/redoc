@@ -64,7 +64,9 @@ div.compile-error {
 }
 
 .CodeMirror-error-mark {
-  background-color: red;
+  text-decoration-color: red;
+  text-decoration-style: dashed;
+  border-bottom: 1px dashed red;
 }
 
 .code-edit-run,
@@ -88,6 +90,12 @@ div.compile-error {
 
 .code-block:hover .code-edit-button {
   opacity: 1;
+}
+
+.code-block-error {
+  background: #fcc;
+  white-space: pre-wrap;
+  padding: 4px 8px;
 }
 
 .code-post, .code-pre {

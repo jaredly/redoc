@@ -4,7 +4,7 @@ let sanitize = name => Str.global_replace(Str.regexp("[^a-zA-Z0-9_]"), "_", name
 let block = (
   ~editingEnabled,
   ~bundle,
-  {State.bsRoot, refmt, tmp, compiledDependencyDirectories, browserCompilerPath},
+  {State.bsRoot, refmt, tmp, compiledDependencyDirectories, browserCompilerPath, silentFailures},
   {State.Model.name},
   i,
   (page, langLine, raw, fullContent, options)
@@ -14,6 +14,7 @@ let block = (
   let comment = options.State.Model.lang == State.Model.OCaml ? "(* " ++ name ++ " *)" : "/* " ++ name ++ " */";
   let reasonContent = CodeSnippets.removeHashes(fullContent) ++ " " ++ comment;
   let compilationResult = CodeSnippets.processBlock(
+    ~silentFailures=silentFailures,
     bsRoot, tmp,
     name, refmt,
     options,

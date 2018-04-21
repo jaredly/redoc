@@ -75,7 +75,7 @@ const runSandboxed = (script, logs, context) => {
     if (items.length === 1 && typeof items[0] === 'string') {
       text = items[0]
     } else {
-      text = JSON.stringify(items)
+      text = items.map(item => JSON.stringify(item)).join(' ')
     }
     logs.appendChild(div({class: 'block-log level-' + level}, [text]))
   };
@@ -98,7 +98,7 @@ const runSandboxed = (script, logs, context) => {
     eval(script);
   } catch (error) {
     oldConsole.error(error)
-    addLog('error', [error && error.message])
+    addLog('error', [error && error.message || error])
   }
   window.console = oldConsole
   for (let name in context) {

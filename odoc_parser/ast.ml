@@ -22,6 +22,8 @@ type inline_element = [
 type nestable_block_element = [
   | `Paragraph of (inline_element with_location) list
   | `Code_block of string
+  | `Example of string * string
+  | `Doc of string
   | `Verbatim of string
   | `Modules of Reference.module_ list
   | `List of
@@ -32,7 +34,6 @@ type nestable_block_element = [
 type tag = [
   | `Author of string
   | `Deprecated of (nestable_block_element with_location) list
-  | `Example of (nestable_block_element with_location) list
   | `Param of string * (nestable_block_element with_location) list
   | `Raise of string * (nestable_block_element with_location) list
   | `Return of (nestable_block_element with_location) list

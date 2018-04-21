@@ -283,14 +283,17 @@ rule token input = parse
   | '{' (['0'-'9'] as level)
     { emit input (`Begin_section_heading (heading_level level, None)) }
 
+  | "@example" horizontal_space* ([^ '{']* as lang) "{[" (code_block_text as content) "]}"
+    { emit input (`Example (lang, content)) }
+
   | "@author" horizontal_space+ ([^ '\r' '\n']* as author)
     { emit input (`Tag (`Author author)) }
 
   | "@deprecated"
     { emit input (`Tag `Deprecated) }
 
-  | "@example"
-    { emit input (`Tag `Example) }
+  | "@doc" horizontal_space+ ([^ '\r' '\n']* as doc)
+    { emit input (`Doc doc) }
 
   | "@param" horizontal_space+ ((_ # space_char)+ as name)
     { emit input (`Tag (`Param name)) }

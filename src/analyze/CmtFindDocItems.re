@@ -64,7 +64,7 @@ let rec docItemsFromStructure = (parseDoc, structure) => {
       }
     } else {None}
     , bindings, items) |> a => (global, a)
-  | Tstr_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
+  | Tstr_attribute(({Asttypes.txt: "ocaml.doc" | "ocaml.text"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
     let doc = cleanOffStars(doc) |> parseDoc;
     if (items == [] && global == None) {
       (Some(doc), [])
@@ -126,8 +126,8 @@ and docItemsFromSignature = (parseDoc, signature) => {
     if (!hasNoDoc(val_attributes)) {
       (global, [(txt, findDocAttribute(parseDoc, val_attributes), Value(val_val.val_type)), ...items])
     } else {(global, items)}
-  | Tsig_attribute(({Asttypes.txt: "ocaml.doc"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
-    let doc = cleanOffStars(doc) |> Omd.of_string;
+  | Tsig_attribute(({Asttypes.txt: "ocaml.doc" | "ocaml.text"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
+    let doc = cleanOffStars(doc) |> parseDoc;
     if (items == [] && global == None) {
       (Some(doc), [])
     } else {

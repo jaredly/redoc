@@ -18,12 +18,10 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
   let codeBlocks = ProcessCode.codeFromPackage(package) |> List.mapi(CompileCode.block(
     ~editingEnabled=browserCompilerPath != None,
     ~bundle=js => {
-      print_endline("Bundling: " ++ js);
       jsFiles := [js, ...jsFiles^];
       let res = try(pack(~mode=Packre.Types.ExternalEverything, [js])) {
       | Failure(message) => "alert('Failed to bundle " ++ message ++ "')"
       };
-      print_endline("Finished bundle");
       res
     },
     bucklescript,

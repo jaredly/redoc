@@ -12,7 +12,6 @@ type tag = [
   | `Tag of [
     | `Author of string
     | `Deprecated
-    | `Example
     | `Param of string
     | `Raise of string
     | `Return
@@ -68,6 +67,8 @@ type t = [
   | `Code_block of string
   | `Verbatim of string
   | `Modules of string
+  | `Example of (string * string)
+  | `Doc of string
 
   (* List markup. *)
   | `Begin_list of [ `Unordered | `Ordered ]
@@ -115,8 +116,10 @@ let print : [< t ] -> string = function
     "'@author'"
   | `Tag `Deprecated ->
     "'@deprecated'"
-  | `Tag `Example ->
+  | (`Example _) ->
     "'@example'"
+  | (`Doc _) ->
+    "'@doc'"
   | `Tag (`Param _) ->
     "'@param'"
   | `Tag (`Raise _) ->
@@ -200,8 +203,10 @@ let describe : [< t | `Comment ] -> string = function
     "'@author'"
   | `Tag `Deprecated ->
     "'@deprecated'"
-  | `Tag `Example ->
+  | (`Example _) ->
     "'@example'"
+  | (`Doc _) ->
+    "'@doc'"
   | `Tag (`Param _) ->
     "'@param'"
   | `Tag (`Raise _) ->

@@ -670,13 +670,12 @@ let rec block_element_list
           let tag = Location.at location (`Tag tag) in
           consume_block_elements ~parsed_a_tag:true `After_text (tag::acc)
 
-        | `Deprecated | `Example | `Return as tag ->
+        | `Deprecated | `Return as tag ->
           let content, _stream_head, where_in_line =
             block_element_list In_tag ~parent_markup:token input in
           let tag =
             match tag with
             | `Deprecated -> `Deprecated content
-            | `Example -> `Example content
             | `Return -> `Return content
           in
           let location =
@@ -731,7 +730,18 @@ let rec block_element_list
       let acc = block::acc in
       consume_block_elements ~parsed_a_tag `After_text acc
 
-    | {value = `Code_block s | `Verbatim s as token; location} as next_token ->
+    | {value = `Example (lang, content); location} as next_token ->
+      raise_if_after_text next_token;
+      raise_if_after_tags next_token;
+
+      junk input;
+      let block = `Example(lang, content) in
+      let block = accepted_in_all_contexts context block in
+      let block = Location.at location block in
+      let acc = block::acc in
+      consume_block_elements ~parsed_a_tag `After_text acc
+
+    | {value = `Code_block s | `Verbatim s | `Doc s as token; location} as next_token ->
       raise_if_after_text next_token;
       raise_if_after_tags next_token;
       if s = "" then
@@ -742,6 +752,7 @@ let rec block_element_list
       let block =
         match token with
         | `Code_block _ -> `Code_block s
+        | `Doc _ -> `Doc s
         | `Verbatim _ -> `Verbatim s
       in
       let block = accepted_in_all_contexts context block in

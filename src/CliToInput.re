@@ -127,11 +127,11 @@ let getName = x => Filename.basename(x) |> Filename.chop_extension;
 let filterDuplicates = cmts => {
   /* Remove .cmt's that have .cmti's */
   let intfs = Hashtbl.create(100);
-  cmts |> List.iter(path => if (Filename.check_suffix(path, ".rei") || Filename.check_suffix(path, ".mli")) {
+  cmts |> List.iter(path => if (Filename.check_suffix(path, ".rei") || Filename.check_suffix(path, ".mli") || Filename.check_suffix(path, ".cmti")) {
     Hashtbl.add(intfs, getName(path), true)
   });
   cmts |> List.filter(path => {
-    !((Filename.check_suffix(path, ".re") || Filename.check_suffix(path, ".ml")) && Hashtbl.mem(intfs, getName(path)))
+    !((Filename.check_suffix(path, ".re") || Filename.check_suffix(path, ".ml") || Filename.check_suffix(path, ".cmt")) && Hashtbl.mem(intfs, getName(path)))
   });
 };
 
@@ -191,6 +191,8 @@ Usage: docre [options]
       what this project is called
   --project-file
       specified as /abs/path/to/.cmt:rel/path/from/repo/root
+  --ignore-code-errors
+      don't print warnings about parse & type errors in code blocks
   --project-directory
       path/to/cmt/directory:rel/path/from/root
   --dependency-directory
@@ -212,7 +214,7 @@ let fail = (msg) => {
 
 let parse = Minimist.parse(
   ~alias=[("h", "help"), ("test", "doctest")],
-  ~presence=["help", "doctest", "ml"],
+  ~presence=["help", "doctest", "ml", "ignore-code-errors"],
   ~multi=["project-file", "dependency-directory", "project-directory"],
   ~strings=["target", "root", "name", "bs-root"]
 );
@@ -226,6 +228,11 @@ let getRefmt = bsRoot => {
 let getPackageJsonName = config => {
   Json.get("name", config) |?>> (Json.string |.! "name must be a string")
 };
+
+/* let unique = list => {
+  let hash = Hashtbl.create(10);
+  list |> List.filter(item => Hashtbl.mem(hash, item) ? false : {Hashtbl.add(hash, item, true); true})
+}; */
 
 let getBsbVersion = base => {
   let (out, success) = Commands.execSync(base /+ "lib/bsb.exe -version");
@@ -253,7 +260,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
 
   let projectFiles = projectFiles @ (multi(multiMap, "project-directory") |> List.map(line => {
     switch (Str.split(Str.regexp_string(":"), line)) {
-    | [cmt, relpath] => Files.readDirectory(cmt) |> List.filter(isCompiledFile)
+    | [cmt, relpath] => Files.readDirectory(cmt) |> List.filter(isCompiledFile) |> filterDuplicates
     |> List.map(name => (cmt /+ name, relpath /+ Filename.chop_extension(name) ++ ".ml"))
     | _ => fail("Invalid project file " ++ line)
     }
@@ -292,6 +299,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
         {
           bsRoot,
           packageRoot: root,
+          silentFailures: has("ignore-code-errors", presence),
           refmt,
           version,
           browserCompilerPath: Files.ifExists(static /+ "bs-" ++ version ++ ".js"),

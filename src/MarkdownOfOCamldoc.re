@@ -39,37 +39,89 @@ let stripLeft = text => {
   String.concat("\n", List.map(line => sliceToEnd(line, min), lines))
 };
 
+let makeHeader = (level, label, content) => {
+  switch level {
+  | `Title => Omd.H1(content)
+  | `Section => Omd.H2(content)
+  | `Subsection => Omd.H3(content)
+  | `Subsubsection => Omd.H4(content)
+  }
+};
+
+    /* [ `Module | `ModuleType | `Type
+    | `Constructor | `Field | `Extension
+    | `Exception | `Value | `Class | `ClassType
+    | `Method | `InstanceVariable | `Label | `Page ] */
+let handleRef = reference => switch reference {
+| Paths.Reference.Root(name, tag) => name
+| Paths.Reference.Resolved(_) => "resolved..."
+| Paths.Reference.Dot(_, name) => name
+| Paths.Reference.Module(_, name) => name
+| Paths.Reference.ModuleType(_, name) => name
+| Paths.Reference.Type(_, name) => name
+| Paths.Reference.Constructor(_, name) => name
+| Paths.Reference.Field(_, name) => name
+| Paths.Reference.Extension(_, name) => name
+| Paths.Reference.Exception(_, name) => name
+| Paths.Reference.Value(_, name) => name
+| Paths.Reference.Class(_, name) => name
+| Paths.Reference.ClassType(_, name) => name
+| Paths.Reference.Method(_, name) => name
+| _ => "(unhandled reference)"
+};
+
 let convertItem = (currentModule, item) => {
 
   let rec convertItem = item => switch item.Location_.value {
-  | `Heading(level, label, content) => Omd.Text("!!!! heading")
-  | `Tag(`Example(contents)) => Omd.Paragraph(List.map(stripLoc(convertNestable), contents))
-  | `Tag(tag) => Omd.Text("!!!! tag")
+  | `Heading(level, label, content) => makeHeader(level, label, List.map(convertLink, content))
+  | `Tag(`Author(string)) => Omd.Text("Author: " ++ string)
+  | `Tag(`Deprecated(contents)) => Omd.Paragraph([Omd.Text("Deprecated: "), ...List.map(stripLoc(convertNestable), contents)])
+  | `Tag(`Param(name, contents)) => Omd.Paragraph([Omd.Text("Param: " ++ name), ...List.map(stripLoc(convertNestable), contents)])
+  | `Tag(`Raise(name, contents)) => Omd.Paragraph([Omd.Text("Raises: " ++ name), ...List.map(stripLoc(convertNestable), contents)])
+  | `Tag(`Return(contents)) => Omd.Paragraph([Omd.Text("Returns: "), ...List.map(stripLoc(convertNestable), contents)])
+  | `Tag(tag) => {
+    print_endline("Warning: Unhandled tag in ocamldoc (please tell the docre maintainers)");
+    Omd.Text("Unhandled tag")
+  }
   | #nestable_block_element as item => convertNestable(item)
-  } and convertNestable = item => switch item {
+  }
+
+  and convertNestable = item => switch item {
+  | `Example(lang, contents) => Omd.Code_block(lang == "" ? "ml" : lang, "#open " ++ currentModule ++ "\n" ++ stripLeft(contents))
+  | `Doc(contents) => Omd.Paragraph([Omd.Text("@doc " ++ contents)])
   | `Paragraph(inline) => Omd.Paragraph(List.map(convertInline, inline))
   | `Code_block(text) => Omd.Code_block("ml", "#open " ++ currentModule ++ "\n" ++ stripLeft(text))
   | `Verbatim(text) => Omd.Raw(text) /* TODO */
-  | `Modules(modules) => Omd.Raw("!!!! Modules please")
+  | `Modules(modules) => {
+    print_endline("Unhandled modules");
+    Omd.Raw("!!!! Modules please")
+  }
   | `List(`Ordered, children) => Omd.Ol(List.map(List.map(stripLoc(convertNestable)), children))
   | `List(`Unordered, children) => Omd.Ul(List.map(List.map(stripLoc(convertNestable)), children))
   }
+
   and convertInline = item => switch item.Location_.value {
   | `Link(href, content) => Omd.Url(href, List.map(convertLink, content), "")
   | `Styled(style, contents) => withStyle(style, List.map(convertInline, contents))
-  | `Reference(someref, link) => Omd.Url("#TODO-ref", [Omd.Text("REFERENCE"), ...List.map(convertLink, link)], "")
+  | `Reference(someref, link) => {
+    let text = handleRef(someref);
+    Omd.Text(text)
+    /* Omd.Url("#TODO-ref", [Omd.Text("REFERENCE"), ...List.map(convertLink, link)], "") */
+  }
   | #leaf_inline_element as rest => convertLeaf(rest)
   }
+
   and convertLink = item => switch item.Location_.value {
   | `Styled(style, contents) => withStyle(style, List.map(convertLink, contents))
   | #leaf_inline_element as rest => convertLeaf(rest)
   }
+
   and convertLeaf = (item: Comment.leaf_inline_element) => switch item {
   | `Space => Omd.Text(" ")
   | `Word(text) => Omd.Text(text)
   | `Code_span(text) => Omd.Code("", text)
-  }
-  ;
+  };
+
   convertItem(item)
 };
 

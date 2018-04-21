@@ -121,6 +121,8 @@ let rec nestable_block_element
     Location.at location (`Paragraph (inline_elements status content))
 
   | {value = `Code_block _; _}
+  | {value = `Doc _; _}
+  | {value = `Example _; _}
   | {value = `Verbatim _; _}
   | {value = `Modules _; _} as element ->
     element
@@ -147,9 +149,6 @@ let tag : status -> Ast.tag -> Comment.tag = fun status tag ->
 
   | `Deprecated content ->
     `Deprecated (nestable_block_elements status content)
-
-  | `Example content ->
-    `Example (nestable_block_elements status content)
 
   | `Param (name, content) ->
     `Param (name, nestable_block_elements status content)

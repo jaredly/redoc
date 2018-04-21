@@ -246,7 +246,7 @@ var initBlocks = () => {
         ? getJs(window.ocaml.compile(code), showError)
         : (window.ocaml.reason_compile_super_errors
           ? getJs(window.ocaml.reason_compile_super_errors(code), showError)
-          : getJs(window.ocaml.complie(preprocessReason(code))))
+          : getJs(window.ocaml.compile(preprocessReason(code))))
         if (js) {
           error.style.display = 'none'
           runSandboxed(js, logs, Object.assign({}, context))

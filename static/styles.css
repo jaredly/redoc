@@ -93,9 +93,10 @@ div.compile-error {
 }
 
 .code-block-error {
-  background: #fcc;
   white-space: pre-wrap;
   padding: 4px 8px;
+  background: white;
+  border: 4px solid #f77;
 }
 
 .code-post, .code-pre {

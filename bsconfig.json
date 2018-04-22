@@ -10,16 +10,12 @@
     {"dir": "src", "subdirs": true},
     "omd",
     "odoc_parser"
-    // "octavius"
   ],
   "bs-dependencies": ["rex-json", "minimist.re", "pack.re"],
   "ocaml-dependencies": ["compiler-libs", "unix", "bigarray", "str"],
   "entries": [{
     "backend": "native",
     "main-module": "Main"
-  }, {
-    "backend": "native",
-    "main-module": "NewMain"
   }, {
     "backend": "native",
     "main-module": "Descartes"

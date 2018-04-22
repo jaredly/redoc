@@ -1,35 +1,84 @@
 
-open MainAux;
+open State;
 open Infix;
 
-switch (parse(args)) {
-| Minimist.Error(err) => fail(Minimist.report(err))
-| Ok({Minimist.strings, multi: multiMap, presence}) =>
-  open Minimist;
-  if (has("help", presence)) {
-    print_endline(help); exit(0);
+let startsWith = (prefix, string) => {
+  let lp = String.length(prefix);
+  lp <= String.length(string) && String.sub(string, 0, lp) == prefix
+};
+let invert = (f, a) => !f(a);
+
+let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerPath} as bucklescript, package) => {
+  Files.mkdirp(bucklescript.State.tmp);
+  let pack = Packre.Pack.process(
+    ~renames=[(packageJsonName, packageRoot)],
+    ~base=packageRoot
+  );
+  let jsFiles = ref([]);
+  let codeBlocks = ProcessCode.codeFromPackage(package) |> List.mapi(CompileCode.block(
+    ~editingEnabled=browserCompilerPath != None,
+    ~bundle=js => {
+      jsFiles := [js, ...jsFiles^];
+      let res = try(pack(~mode=Packre.Types.ExternalEverything, [js])) {
+      | Failure(message) => "alert('Failed to bundle " ++ message ++ "')"
+      };
+      res
+    },
+    bucklescript,
+    package
+  ));
+  let jsFiles = jsFiles^;
+
+  let stdlib = bucklescript.bsRoot /+ "lib/js";
+  let stdlibRequires = Files.exists(stdlib) ? (Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name)) : [];
+
+  let bundles = if (jsFiles != []) {
+    let runtimeDeps = try (pack(
+      ~mode=Packre.Types.JustExternals,
+      ~extraRequires=stdlibRequires,
+      jsFiles
+    )) {
+      | Failure(message) => {
+        print_endline("Failed to bundle!!! " ++ message);
+"alert('Failed to bundle " ++ message ++ "')"
+      }
+    };
+    let compilerDeps = browserCompilerPath |?>> browserCompilerPath => {
+      let buffer = Buffer.create(10000);
+      /* TODO maybe write directly to the target? This indirection might not be worth it. */
+      CodeSnippets.writeDeps(
+        ~output_string=Buffer.add_string(buffer),
+        ~dependencyDirs=bucklescript.compiledDependencyDirectories,
+        ~stdlibRequires,
+        ~bsRoot=bucklescript.bsRoot,
+        ~base=packageRoot
+      );
+      (browserCompilerPath, buffer)
+    };
+    Some((runtimeDeps, compilerDeps));
   } else {
-    let root = get(strings, "root") |? Unix.getcwd();
-    let bsRoot = get(strings, "bs-root") |? (root /+ "node_modules/bs-platform");
-    let target = get(strings, "target") |? (root /+ "docs");
-    let projectName = get(strings, "name") |? String.capitalize(Filename.dirname(root));
-    let sourceDirectories = multi(multiMap, "cmi-directory");
-    generateProject(~selfPath, ~root, ~target, ~projectName, ~test=has("doctest", presence), ~sourceDirectories, ~bsRoot)
+    None
+  };
+
+  (codeBlocks, bundles)
+};
+
+let compilePackage = (package) => {
+  switch package.Model.backend {
+  | NoBackend => None
+  | Bucklescript(bucklescript) => Some(compileBucklescript(bucklescript, package))
   }
 };
 
-
-/* let main = () => {
-  switch (Sys.argv |> Array.to_list) {
-  | [_] => generateProject(String.capitalize(Filename.dirname(Unix.getcwd())), ".")
-  | [_, "-h"] => print_endline(docs)
-  | [_, thing, ..._] when thing != "" && thing.[0] == '-' => print_endline(docs)
-  | [_, name] => generateProject(name, ".")
-  | [_, name, base] => generateProject(name, base)
-  /* | [_, "cmts", dest, ...rest] => generateMultiple(None, None, dest, rest, []) */
-  | [_, "annotate", source, cmt, mlast, output] => annotateSourceCode(source, cmt, mlast, output)
-  | _ => print_endline(docs)
-  }
+let main = () => {
+  let input = CliToInput.parse(Sys.argv);
+  print_endline("<<< Converting input to model!");
+  let package = InputToModel.package(input.Input.packageInput);
+  print_endline("<<< Compiling!");
+  let compilationResults = compilePackage(package);
+  print_endline("<<< Compiled!");
+  /* outputPackage(package, allCodeBlocks, input.Input.target); */
+  ModelToOutput.package(package, compilationResults, input.Input.target, input.Input.env);
 };
 
-main(); */
+let () = main();

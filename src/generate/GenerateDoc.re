@@ -138,18 +138,6 @@ let trackToc = (~lower=false, tocLevel, override) => {
   (tocItems, fullOverride)
 };
 
-let textForDoc = (path, (name, _, content)) => {
-  let id = makeId(path @ [name]);
-  let printer = PrintType.default;
-  switch content {
-  | Module(items) => Some(("module " ++ name, id(PModule)))
-  | Include(_) => None
-  | Value(typ) => Some((printer.value(printer, name, name, typ) |> prettyString, id(PValue)))
-  | Type(typ) => Some((printer.decl(printer, name, name, typ) |> prettyString, id(PType)))
-  | StandaloneDoc(_) => None
-  };
-};
-
 open Infix;
 
 let div = (cls, body) => "<div class='" ++ cls ++ "'>" ++ body ++ "</div>";

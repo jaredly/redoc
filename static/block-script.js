@@ -529,13 +529,6 @@ var initBlocks = () => {
       var cursor = cm.getCursor()
         , line = cm.getLine(cursor.line)
         , pos = {line: cursor.line, ch: cursor.ch}
-      // if (cursor.ch > 0 && line[cursor.ch - 1] !== ' ') {
-      //   return cm.showHint({
-      //     hint: onInfo,
-      //     completeSingle: false,
-      //     alignWithWord: false,
-      //   })
-      // }
       cm.execCommand('indentLess')
     }
 
@@ -546,9 +539,6 @@ var initBlocks = () => {
       const cursor = cm.getCursor()
       const line = cm.getLine(cursor.line)
       const pos = {line: cursor.line, ch: cursor.ch}
-      // if (cursor.ch > 0 && line[cursor.ch - 1] !== ' ') {
-      //   return cm.showHint({hint: onComplete})
-      // }
       cm.replaceSelection(Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
     }
 
@@ -644,62 +634,6 @@ var initBlocks = () => {
           error.style.display = 'none'
           runSandboxed(js, logs, Object.assign({}, context))
         }
-
-        // let ocaml
-        // try {
-        //   ocaml = syntax === 'ml' ? code : window.printML(window.parseRE(code))
-        // } catch (e) {
-        //   if (e.location) {
-        //     showError(e.location.startLine - 1, e.location.startLineStartChar - 1, e.location.endLine - 1, e.location.endLineEndChar - 1)
-        //   }
-        //   console.error(e)
-        //   error.textContent = e.message
-        //   error.style.display = 'block'
-        //   return
-        // }
-        // let ppxed
-        // try {
-        //   const {ppx_error_msg, js_error_msg, ocaml_code} = window.jsxv2.rewrite(ocaml)
-        //   if (ppx_error_msg || js_error_msg) {
-        //     console.error(ppx_error_msg, js_error_msg)
-        //     error.textContent = (ppx_error_msg || '') + ' ' + (js_error_msg || '')
-        //     error.style.display = 'block'
-        //     return
-        //   }
-        //   ppxed = ocaml_code
-        // } catch (e) {
-        //   console.error(e)
-        //   error.textContent = e.message
-        //   error.style.display = 'block'
-        //   return
-        // }
-
-        // let js
-        // try {
-        //   let result = window.ocaml.compile(ppxed)
-        //   if (typeof result === 'string') {
-        //     // bs 2.2.3
-        //     result = JSON.parse(result)
-        //   }
-        //   const {js_code, js_error_msg, row, column, endRow, endColumn} = result
-        //   if (!js_code && js_error_msg) {
-        //     // TODO: just compile the straight reason, so these numbers mean something
-        //     // showError(row, column, endRow, endColumn)
-        //     error.textContent = js_error_msg
-        //     error.style.display = 'block'
-        //     console.log(result)
-        //     return
-        //   }
-        //   js = js_code
-        // } catch (e) {
-        //   console.error(e)
-        //   error.textContent = e.message
-        //   error.style.display = 'block'
-        //   return
-        // }
-        // error.style.display = 'none'
-        // runSandboxed(js, logs, Object.assign({}, context))
-
       })
     }
 

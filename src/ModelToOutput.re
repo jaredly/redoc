@@ -131,14 +131,20 @@ let package = (
 
   let (searchables, processDocString) = Markdown.makeDocStringProcessor(directory, element => switch element {
   | Omd.Code_block(lang, content) => {
-    switch (Hashtbl.find(codeBlocksMap, (lang, content))) {
-    | exception Not_found => {
-      switch (CodeSnippets.parseCodeOptions(lang, State.Model.defaultOptions)) {
-      | Some({codeDisplay: {hide: true}}) => Some("")
-      | _ => None
+    let lang = String.trim(lang);
+    let parts = Str.split(Str.regexp_string(";"), lang);
+    if (List.mem("alt", parts)) {
+      Some("")
+    } else {
+      switch (Hashtbl.find(codeBlocksMap, (lang, content))) {
+      | exception Not_found => {
+        switch (CodeSnippets.parseCodeOptions(lang, State.Model.defaultOptions)) {
+        | Some({codeDisplay: {hide: true}}) => Some("")
+        | _ => None
+        }
       }
-    }
-    | {raw, html} => Some(html)
+      | {raw, html} => Some(html)
+      }
     }
   }
   | _ => None

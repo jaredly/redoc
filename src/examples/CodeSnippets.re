@@ -3,32 +3,6 @@ let codeBlockPrefix = "DOCRE_CODE_BLOCK_";
 
 open Infix;
 
-/* type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
-let contextString = c => switch c {
-| Normal => "normal"
-| Log => "log"
-| Node => "node"
-| Window => "window"
-| Iframe => "iframe"
-| Canvas => "canvas"
-| Div => "div"
-};
-
-type codeOptions = {
-  context: codeContext,
-  shouldParseFail: bool,
-  shouldTypeFail: bool,
-  shouldRaise: bool,
-  prefix: int,
-  suffix: int,
-  noEdit: bool,
-  dontRun: bool,
-  isolate: bool,
-  sharedAs: option(string),
-  uses: list(string),
-  hide: bool,
-}; */
-
 let matchOption = (text, option) => if (Str.string_match(Str.regexp("^" ++ option ++ "(\\([^)]+\\))$"), text, 0)) {
   Some(Str.matched_group(1, text));
 } else {
@@ -47,12 +21,13 @@ let parseCodeOptions = (lang, defaultOptions) => {
   } else {
     let options = List.fold_left((options, item) => {
       switch item {
+      | "alt" => options /* this option is handled separately */
+
       | "window" => {...options, context: Window}
       | "canvas" => {...options, context: Canvas}
       | "iframe" => {...options, context: Iframe}
       | "log" => {...options, context: Log}
       | "div" => {...options, context: Div}
-
       /* | "open-module" => {...options, openModule: true} */
       /* | "repl" => {...options, repl: true} */
       | "raises" => {...options, expectation: Raise}
@@ -79,7 +54,7 @@ let parseCodeOptions = (lang, defaultOptions) => {
                 if (parts == [item]) {
                   {...options, lang: OtherLang(item)}
                 } else {
-                  print_endline("Skipping unexpected code option: " ++ item);
+                  print_endline(Printf.sprintf("Skipping unexpected code option: %S", item));
                   options
                 }
               }
@@ -231,22 +206,6 @@ let fullContent = (getShared, {State.Model.codeDisplay: {prefix, suffix}} as opt
 };
 
 open Infix;
-
-let snippetLoader = (name, basePath, snippetPath) => Printf.sprintf({|
-var path = require('path');
-var Module = require('module');
-var oldResolveFilename = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, isMain) {
-  var name = '%s/';
-  var base = '%s';
-  if (request.indexOf(name) === 0) {
-    return oldResolveFilename.call(this, path.join(base, request.slice(name.length)), parent, isMain);
-  }
-
-  return oldResolveFilename.call(this, request, parent, isMain);
-};
-require('%s')
-|}, name, basePath, snippetPath);
 
 let optMap = (fn, items) => List.fold_left((result, item) => switch (fn(item)) { | None => result | Some(res) => [res, ...result]}, [], items);
 
@@ -409,42 +368,6 @@ let processBlock = (~silentFailures=false, bsRoot, tmp, name, refmt, options, re
   };
 };
 
-let compileSnippets = (~bsRoot, base, dest, blocks) => {
-  let config = Json.parse(Files.readFile(base /+ "bsconfig.json") |! "No bsconfig.json found");
-  let compilationBase = isNative(config) ? "lib/bs/js" : (Files.ifExists(base /+ "lib/ocaml") |? (base /+ "lib/bs"));
-
-  let mine = getSourceDirectories(base, config) |> List.map(name => (
-    compilationBase /+ name,
-    base /+ "lib/js" /+ name
-  )) |> List.filter(((compiled, sourced)) => Files.exists(compiled));
-  let dependencyDirs = mine @ getDependencyDirs(base, config);
-
-  let stdlib = bsRoot /+ "lib/js";
-  let stdlibRequires = Files.exists(stdlib) ? (Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name)) : [];
-
-  let tmp = base /+ "node_modules/.docre";
-  Files.mkdirp(tmp);
-
-  let blockFileName = id => codeBlockPrefix ++ string_of_int(id);
-  let refmt = Files.ifExists(bsRoot /+ "lib/refmt3.exe") |? bsRoot /+ "lib/refmt.exe";
-
-  let blocksByEl = Hashtbl.create(100);
-  let blocks = blocks |> List.map(({el, id, fileName, options, content} as block) => {
-    let name = blockFileName(id);
-    switch options.State.Model.lang {
-    | State.Model.OCaml => print_endline("Ocaml")
-    | _ => print_endline("Not ocaml")
-    };
-    let comment = options.State.Model.lang == State.Model.OCaml ? "(* " ++ fileName ++ " *)" : "/* " ++ fileName ++ " */";
-    let reasonContent = removeHashes(content) ++ " " ++ comment;
-    let status = processBlock(bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs |> List.map(fst));
-    Hashtbl.replace(blocksByEl, el, {status, block});
-    {status, block}
-  });
-
-  (blocksByEl, blocks, dependencyDirs, stdlibRequires)
-};
-
 let escape = text => text
 |> Str.global_replace(Str.regexp_string("\\"), "\\\\")
 |> Str.global_replace(Str.regexp_string("\n"), " ")
@@ -455,6 +378,22 @@ let shouldTest = expectation => switch expectation {
 | State.Model.Succeed | Raise => true
 | _ => false
 };
+
+let snippetLoader = (name, basePath, snippetPath) => Printf.sprintf({|
+var path = require('path');
+var Module = require('module');
+var oldResolveFilename = Module._resolveFilename;
+Module._resolveFilename = function (request, parent, isMain) {
+  var name = '%s/';
+  var base = '%s';
+  if (request.indexOf(name) === 0) {
+    return oldResolveFilename.call(this, path.join(base, request.slice(name.length)), parent, isMain);
+  }
+
+  return oldResolveFilename.call(this, request, parent, isMain);
+};
+require('%s')
+|}, name, basePath, snippetPath);
 
 let testBlock = (packageJsonName, ~base, status, options, fileName, id) => {
   open State.Model;

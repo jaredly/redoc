@@ -60,7 +60,7 @@ let block = (
   {State.bsRoot, refmt, tmp, compiledDependencyDirectories, browserCompilerPath, silentFailures},
   {name},
   i,
-  (page, langLine, raw, fullContent, options)
+  (page, langLine, raw, fullContent, options, alt)
 ) => {
   open State.Model;
   let name = sanitize(name) ++ "__" ++ sanitize(page) ++ "_CODE_BLOCK_" ++ string_of_int(i);
@@ -75,23 +75,44 @@ let block = (
     compiledDependencyDirectories |> List.map(fst)
   );
 
-  let altOptions = {...options, lang: options.lang == OCaml ? Reason : OCaml};
-  let (altName, altCode, altResult) = switch compilationResult {
-  | Skipped | ParseError(_) => (name ++ "_alt", "Unable to refmt code with a syntax error", Skipped)
-  | TypeError(_, _) | Success(_, _) => {
-      let altContent = options.lang == OCaml ? toReason(refmt, plainContent) : toMl(refmt, bsRoot, tmp, name, plainContent);
-      /* let code = options.lang == OCaml ? toReason(refmt, plainContent) : toMl(refmt, bsRoot, tmp, name, plainContent); */
-      let compilationResult = CodeSnippets.processBlock(
-        ~silentFailures=silentFailures,
-        bsRoot, tmp,
-        name ++ "_alt", refmt,
-        altOptions,
-        altContent,
-        compiledDependencyDirectories |> List.map(fst)
-      );
-      /* print_endline("Processed the other side: " ++ code); */
-      (name ++ "_alt", altContent, compilationResult)
-    }
+  let altName = name ++ "_alt";
+  let altLang = options.lang == OCaml ? Reason : OCaml;
+  let (altCode, altOptions, altResult) = switch alt {
+  | Some((altOptions, fullContent)) => {
+    let altOptions = {...altOptions, lang: altLang, inferred: false};
+    let comment = altOptions.lang == OCaml ? "(* " ++ name ++ " *)" : "/* " ++ name ++ " */";
+    let plainContent = CodeSnippets.removeHashes(fullContent);
+    let compilationResult = CodeSnippets.processBlock(
+      ~silentFailures=false,
+      bsRoot, tmp,
+      altName, refmt,
+      altOptions,
+      plainContent ++ " " ++ comment,
+      compiledDependencyDirectories |> List.map(fst)
+    );
+    (fullContent, altOptions, compilationResult)
+  }
+  | None => {
+    let altOptions = {...options, lang: altLang};
+    let (altCode, altResult) = switch compilationResult {
+    | Skipped | ParseError(_) => ("Unable to refmt code with a syntax error", Skipped)
+    | TypeError(_, _) | Success(_, _) => {
+        let altContent = options.lang == OCaml ? toReason(refmt, plainContent) : toMl(refmt, bsRoot, tmp, name, plainContent);
+        /* let code = options.lang == OCaml ? toReason(refmt, plainContent) : toMl(refmt, bsRoot, tmp, name, plainContent); */
+        let compilationResult = CodeSnippets.processBlock(
+          ~silentFailures=silentFailures,
+          bsRoot, tmp,
+          altName, refmt,
+          altOptions,
+          altContent,
+          compiledDependencyDirectories |> List.map(fst)
+        );
+        /* print_endline("Processed the other side: " ++ code); */
+        (altContent, compilationResult)
+      }
+    };
+    (altCode, altOptions, altResult)
+  }
   };
 
   let html = options.codeDisplay.hide ? "" : CodeSnippets.highlight(

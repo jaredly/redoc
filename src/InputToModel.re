@@ -93,7 +93,7 @@ let processModules = moduleFiles => {
   });
 };
 
-let package = ({State.Input.meta: {packageName, repo}, backend, root, sidebarFile, customFiles, moduleFiles}) => {
+let package = ({State.Input.meta: {packageName, repo}, defaultCodeOptions, backend, root, sidebarFile, customFiles, moduleFiles}) => {
   {
     name: packageName,
     repo,
@@ -101,7 +101,7 @@ let package = ({State.Input.meta: {packageName, repo}, backend, root, sidebarFil
     custom: List.map(parseCustom(root), customFiles),
     namespaced: false, /* TODO */
     backend,
-    defaultCodeOptions: None,
+    defaultCodeOptions,
     modules: processModules(moduleFiles),
   }
 };

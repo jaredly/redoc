@@ -86,6 +86,12 @@ module Model = {
   };
 
   type lang = Reason | OCaml | Txt | OtherLang(string);
+  let showLang = lang => switch lang {
+  | Reason => "re"
+  | OCaml => "ml"
+  | Txt => "txt"
+  | OtherLang(lang) => "lang(" ++ lang ++ ")"
+  };
 
   type codeOptions = {
     context: codeContext,

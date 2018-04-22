@@ -735,7 +735,7 @@ let rec block_element_list
       raise_if_after_tags next_token;
 
       junk input;
-      let block = `Example(lang, content) in
+      let block = `Example(String.trim(lang), content) in
       let block = accepted_in_all_contexts context block in
       let block = Location.at location block in
       let acc = block::acc in

@@ -87,10 +87,20 @@ let convertItem = (currentModule, item) => {
   }
 
   and convertNestable = item => switch item {
-  | `Example(lang, contents) => Omd.Code_block(lang == "" ? "ml" : lang, "#open " ++ currentModule ++ "\n" ++ stripLeft(contents))
+  | `Example(lang, contents) => {
+    let newLang = String.trim(lang) == "" ? "ml" : {
+      let parts = Str.split(Str.regexp_string(";"), String.trim(lang));
+      if (List.mem("ml", parts) || List.mem("ocaml", parts) || List.mem("re", parts) || List.mem("reason", parts)) {
+        lang
+      } else {
+        lang ++ ";ml"
+      }
+    };
+    Omd.Code_block(newLang, stripLeft(contents))
+  }
   | `Doc(contents) => Omd.Paragraph([Omd.Text("@doc " ++ contents)])
   | `Paragraph(inline) => Omd.Paragraph(List.map(convertInline, inline))
-  | `Code_block(text) => Omd.Code_block("ml", "#open " ++ currentModule ++ "\n" ++ stripLeft(text))
+  | `Code_block(text) => Omd.Code_block("ml", stripLeft(text))
   | `Verbatim(text) => Omd.Raw(text) /* TODO */
   | `Modules(modules) => {
     print_endline("Unhandled modules");

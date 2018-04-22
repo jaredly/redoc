@@ -323,6 +323,13 @@ let parse = argv => {
 
   switch (parse(args)) {
   | Minimist.Error(err) => fail(Minimist.report(err))
-  | Ok(opts) => optsToInput(selfPath, opts)
+  | Ok(opts) => {
+    if (Minimist.has("help", opts.presence)) {
+      print_endline(help);
+      exit(0);
+    } else {
+      optsToInput(selfPath, opts)
+    }
+  }
   }
 };

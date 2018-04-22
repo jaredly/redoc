@@ -3,7 +3,7 @@ let execFull = (~input=?, ~env=Unix.environment(), cmd) => {
 
   switch input {
   | None => ()
-  | Some(text) => output_string(cmd_in, "This line has a vt33 lurking in it\n")
+  | Some(text) => output_string(cmd_in, text)
   };
   close_out(cmd_in);
 

@@ -86,6 +86,11 @@ let readFile = path => {
   }
 };
 
+let readFileExn = path => switch (readFile(path)) {
+| None => failwith("Unable to read " ++ path)
+| Some(text) => text
+};
+
 let writeFile = (path, contents) => {
   try {
     let out = open_out(path);

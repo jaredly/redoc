@@ -137,14 +137,16 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
   | Some(cmt) => CodeHighlight.highlight(content, cmt)
   };
 
+  let syntax = options.lang == State.Model.OCaml ? "ml" : "re";
+
   let after = switch status {
   | Skipped => ""
   | ParseError(text) => sprintf("<div class='parse-error'>Parse Error:\n%s</div>", html(text))
   | TypeError(text, _) => sprintf("<div class='type-error'>Type Error:\n%s</div>", html(text))
-  | Success(cmt, js) => !shouldBundle(options.expectation) ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%d'>%s</script>|},
+  | Success(cmt, js) => !shouldBundle(options.expectation) ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%s'>%s</script>|},
       switch options.context {
       | Node => ""
-      | _ => sprintf({|<div data-block-id='%d' data-context=%S data-block-syntax=%S class='block-target'></div>|}, id, contextString(options.context),     options.lang == State.Model.OCaml ? "ml" : "re")
+      | _ => sprintf({|<div data-block-id='%s' data-context=%S data-block-syntax=%S class='block-target'></div>|}, id, contextString(options.context),     syntax)
       },
       id,
       bundle(js)
@@ -155,19 +157,20 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
   let postCode = post == "" ? "" : "<div class='code-post'>" ++ html(post) ++ "</div>";
 
   sprintf(
-    {|<div class='code-block'>
+    {|<div class='code-block' data-block-syntax=%S>
   %s
-  <pre class='code' data-block-id='%d' id='block-%d'><code>%s</code></pre>
+  <pre class='code' data-block-id='%s' id='block-%s'><code>%s</code></pre>
   %s
   %s
   %s
 </div>|},
+    syntax,
     preCode,
     id,
     id,
     code,
     postCode,
-    (!editingEnabled || options.codeDisplay.noEdit || status == Skipped) ? "" : sprintf({|<script type='docre-source' data-block-id="%d">%s</script>|}, id, escapeScript(content)),
+    (!editingEnabled || options.codeDisplay.noEdit || status == Skipped) ? "" : sprintf({|<script type='docre-source' data-block-id="%s">%s</script>|}, id, escapeScript(content)),
     after
   )
 };

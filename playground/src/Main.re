@@ -50,12 +50,6 @@ type syntax =
   | OCaml
   | Reason;
 
-type context =
-  | Window
-  | Div
-  | Canvas
-  | Worker;
-
 type compilationResult = result(string, (string, pos, pos));
 
 let runCode = code => {
@@ -84,6 +78,13 @@ Js.log(x);
 Js.log("hello folks");
 |};
 
+type windowContext = {
+  canvas: bool,
+  div: bool,
+  log: bool,
+};
+type context = Worker | Window(windowContext);
+
 module Main = {
   type state = {
     text: string,
@@ -99,7 +100,18 @@ module Main = {
   let component = ReasonReact.reducerComponent("Main");
   let make = _children => {
     ...component,
-    initialState: () => {text: initialString, autorun: true, context: Div, status: Clean, syntax: Reason, cm: None},
+    initialState: () => {
+      text: initialString,
+      autorun: true,
+      context: Window({
+        canvas: false,
+        div: false,
+        log: false,
+      }),
+      status: Clean,
+      syntax: Reason,
+      cm: None
+    },
     reducer: (action, state) => Update(switch action {
     | Text(text) => {...state, text}
     | SetStatus(status) => {...state, status}

@@ -1,0 +1,27 @@
+<!doctype html>
+<style>
+  #main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+  }
+</style>
+<script src="../static/codemirror-5.36.0/lib/codemirror.js"></script>
+<link rel=stylesheet href="../static/codemirror-5.36.0/lib/codemirror.css">
+<script src="../static/bs-3.0.0.js"></script>
+<script>
+  window.process = {
+    env: {
+      NODE_ENV: 'development'
+    }
+  }
+</script>
+<body>
+  <div id="main">
+
+  </div>
+  <script src="./bundle.js"></script>
+</body>

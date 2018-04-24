@@ -12,6 +12,15 @@ let searchStyle = {|
   font-weight: 400;
 }
 
+.result .breadcrumb{
+  color: #5a5a5a;
+  font-size: .8em;
+}
+
+.result h4.item {
+  border-top: none;
+}
+
 .result {
   padding: 8px;
   border-bottom: 1px solid #eee;

@@ -255,6 +255,8 @@ a, a:visited,
   display: flex;
   flex-direction: column;
   padding-top: 16px;
+  box-sizing: border-box;
+  padding-left: 16px;
 }
 
 .sidebar .docs-listing {
@@ -290,6 +292,7 @@ a, a:visited,
 
 .sidebar-expander {
   display: none;
+  padding: 16px;
 }
 
 .docs-listing {
@@ -303,8 +306,12 @@ a, a:visited,
     position: static;
     width: 800px;
     margin: auto;
+    padding: 0 16px 16px;
     max-height: unset;
     display: none;
+  }
+  .sidebar .project-listing {
+    padding-bottom: 0px;
   }
   .sidebar-expander {
     text-align: center;

@@ -83,10 +83,13 @@ let js = Printf.sprintf({|
     var results = index.search(text, config).slice(0, 30);
     render(document.getElementById('search-results'), div(
       {},
-      results.map(({ref, score, doc: {href, title, contents, rendered}}) => div(
+      results.map(({ref, score, doc: {href, title, contents, rendered, breadcrumb}}) => div(
         {class: 'result'},
         [
-          a({href, class: 'title'}, [title]),
+          div({style: {display: 'flex', justifyContent: 'space-between'}}, [
+            a({href, class: 'title'}, [title]),
+            span({class: 'breadcrumb'}, [breadcrumb])
+          ]),
           div({}, [
             highlightingNode(rendered, text.split(/\s+/g))
             // raw(text.split(/\s+/g).reduce(

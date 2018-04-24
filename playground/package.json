@@ -1,0 +1,14 @@
+{
+  "name": "docre-playground",
+  "private": true,
+  "scripts": {
+    "start": "bsb -make-world -w",
+    "build": "bsb -make-world",
+    "clean": "bsb -clean-world"
+  },
+  "dependencies": {
+    "bs-css": "^6.6.0",
+    "bs-platform": "3",
+    "reason-react": "*"
+  }
+}

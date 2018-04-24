@@ -782,6 +782,21 @@ var initBlocks = () => {
   var show = lang => {
     localStorage.preferredSyntax = lang
     style.innerText = `
+    .syntax-buttons {
+      position: fixed;
+      top: 0;
+      right: 0;
+      padding: 4px 8px;
+      z-index: 1000;
+      background: rgba(255,255,255,0.8);
+      border-bottom-left-radius: 4px;
+    }
+    @media (max-width: 1000px) {
+      .syntax-buttons {
+        position: absolute;
+      }
+    }
+
     .syntax-buttons button {
       background: white;
       border: none;
@@ -818,10 +833,6 @@ var initBlocks = () => {
   let lang = localStorage.preferredSyntax || 're'
   show(lang)
   var buttons = div({class: 'syntax-buttons', style: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    padding: '4px 8px',
   }}, [
     'Syntax: ',
     node('button', {class: 'button-picker-ml', onclick: () => show('ml')}, ['ocaml']),

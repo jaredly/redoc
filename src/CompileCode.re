@@ -38,17 +38,7 @@ let toMl = (refmt, bsRoot, tmp, name, code) => {
   }
 };
 
-/* type pos = Front | Middle | Back */
 let withSections = (transformer, code) => {
-  /* let lines = Str.split(Str.regexp_string("\n"), text);
-  let rec loop = (pos, lines, (prefix, main, post)) => {
-    switch lines {
-    | [] => (prefix, main, post)
-    | [line, ...rest] when CodeHighlight.isHashed(line) => switch pos {
-    | Front => ([CodeHighlight.un])
-    }
-    }
-  }; */
   transformer(code)
 };
 
@@ -83,7 +73,7 @@ let block = (
     let comment = altOptions.lang == OCaml ? "(* " ++ name ++ " *)" : "/* " ++ name ++ " */";
     let plainContent = CodeSnippets.removeHashes(fullContent);
     let compilationResult = CodeSnippets.processBlock(
-      ~silentFailures=false,
+      ~silentFailures,
       bsRoot, tmp,
       altName, refmt,
       altOptions,
@@ -98,16 +88,14 @@ let block = (
     | Skipped | ParseError(_) => ("Unable to refmt code with a syntax error", Skipped)
     | TypeError(_, _) | Success(_, _) => {
         let altContent = options.lang == OCaml ? toReason(refmt, plainContent) : toMl(refmt, bsRoot, tmp, name, plainContent);
-        /* let code = options.lang == OCaml ? toReason(refmt, plainContent) : toMl(refmt, bsRoot, tmp, name, plainContent); */
         let compilationResult = CodeSnippets.processBlock(
-          ~silentFailures=silentFailures,
+          ~silentFailures,
           bsRoot, tmp,
           altName, refmt,
           altOptions,
           altContent,
           compiledDependencyDirectories |> List.map(fst)
         );
-        /* print_endline("Processed the other side: " ++ code); */
         (altContent, compilationResult)
       }
     };
@@ -117,7 +105,7 @@ let block = (
 
   let html = options.codeDisplay.hide ? "" : CodeSnippets.highlight(
     ~editingEnabled,
-    string_of_int(i), /* TODO stop using this data structure, and pass in the name */
+    string_of_int(i),
     fullContent,
     options,
     compilationResult,
@@ -126,7 +114,7 @@ let block = (
 
   let htmlAlt = options.codeDisplay.hide ? "" : CodeSnippets.highlight(
     ~editingEnabled,
-    string_of_int(i) ++ "-alt", /* TODO stop using this data structure, and pass in the name */
+    string_of_int(i) ++ "-alt",
     altCode,
     altOptions,
     altResult,

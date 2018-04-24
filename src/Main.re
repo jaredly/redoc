@@ -40,7 +40,7 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
     )) {
       | Failure(message) => {
         print_endline("Failed to bundle!!! " ++ message);
-"alert('Failed to bundle " ++ message ++ "')"
+        "alert('Failed to bundle " ++ message ++ "')"
       }
     };
     let compilerDeps = browserCompilerPath |?>> browserCompilerPath => {
@@ -64,9 +64,26 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
 };
 
 let compilePackage = (package) => {
-  switch package.Model.backend {
+  open Model;
+  switch package.backend {
   | NoBackend => None
-  | Bucklescript(bucklescript) => Some(compileBucklescript(bucklescript, package))
+  | Bucklescript(bucklescript) => {
+    let (codeBlocks, bundles) = compileBucklescript(bucklescript, package);
+    let (parseFail, typeFail, good, skip) = List.fold_left(
+      (((parse, typ, good, skip), {langLine, raw, page, filePath, compilationResult}) => {
+        switch compilationResult {
+        | Skipped => (parse, typ, good, skip + 1)
+        | ParseError(_) => (parse + 1, typ, good, skip)
+        | TypeError(_, _) => (parse, typ + 1, good, skip)
+        | Success(_, _) => (parse, typ, good + 1, skip)
+        }
+      }),
+      (0, 0, 0, 0),
+      codeBlocks
+    );
+    Printf.printf("Code block results: %d parse failures, %d type failures, %d success, %d skips\n", parseFail, typeFail, good, skip);
+    Some((codeBlocks, bundles))
+  }
   }
 };
 

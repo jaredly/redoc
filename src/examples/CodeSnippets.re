@@ -20,6 +20,7 @@ let parseCodeOptions = (lang, defaultOptions) => {
     None
   } else {
     let options = List.fold_left((options, item) => {
+      let item = String.trim(item);
       switch item {
       | "alt" => options /* this option is handled separately */
 

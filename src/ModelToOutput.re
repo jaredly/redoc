@@ -7,11 +7,21 @@ let writeEditorSupport = (static, directory, (browserCompilerPath, compilerDepsB
   Buffer.output_buffer(out, compilerDepsBuffer);
   close_out(out);
 
+  Files.ifExists(directory /+ "examples") |?< examplesDir => Files.collect(examplesDir, name => Filename.check_suffix(name, ".re")) |> List.map(example => {
+    let title = Filename.basename(example) |> Filename.chop_extension;
+    let contents = Files.readFileExn(example);
+    Json.Object([("title", Json.String(title)), ("code", Json.String(contents))])
+  }) |> examples => Files.writeFileExn(directory /+ "playground-examples.js", "window.examplesData = " ++ Json.stringify(Json.Array(examples)));
+
   ["jsx-ppx.js",
   "refmt.js",
+  "colors.js",
+  "playground.html",
+  "playground.js",
   "codemirror-5.36.0/lib/codemirror.js",
   "codemirror-5.36.0/lib/codemirror.css",
   "codemirror-5.36.0/mode/rust/rust.js",
+  "codemirror-5.36.0/addon/comment/comment.js",
   "codemirror-5.36.0/addon/mode/simple.js"]
   |> List.iter(name => {
     Files.copyExn(~source=static /+ name, ~dest=directory /+ Filename.basename(name));

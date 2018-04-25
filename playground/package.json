@@ -5,7 +5,7 @@
     "start": "bsb -make-world -w",
     "build": "bsb -make-world",
     "clean": "bsb -clean-world",
-    "bundle": "../node_modules/pack.re-bin/pack.re.sh ./lib/js/src/Main.js > bundle.js"
+    "bundle": "../node_modules/pack.re-bin/pack.re.sh ./lib/js/src/Main.js > ../static/playground.js"
   },
   "dependencies": {
     "bs-css": "^6.6.0",

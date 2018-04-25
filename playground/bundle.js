@@ -577,19 +577,19 @@ function make$1() {
                                   className: top
                                 }, ReasonReact.element(/* None */0, /* None */0, ExamplesDropdown.make((function (text) {
                                             return Curry._1(send, /* Reset */Block.__(1, [text]));
-                                          }), /* array */[])), React.createElement("button", {
+                                          }), /* array */[])), React.createElement("div", {
+                                      className: Css.style(/* :: */[
+                                            Css.flex(1),
+                                            /* [] */0
+                                          ])
+                                    }), React.createElement("button", {
                                       className: button,
                                       onClick: (function () {
                                           return Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                                                         return run(cm.getValue());
                                                       }));
                                         })
-                                    }, "Run"), React.createElement("div", {
-                                      className: Css.style(/* :: */[
-                                            Css.flex(1),
-                                            /* [] */0
-                                          ])
-                                    }), "Syntax:", spacer(8), React.createElement("button", {
+                                    }, "Run"), spacer(8), "Syntax:", spacer(8), React.createElement("button", {
                                       className: button,
                                       disabled: state[/* syntax */8] === /* OCaml */0,
                                       onClick: (function () {

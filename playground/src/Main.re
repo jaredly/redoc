@@ -54,7 +54,8 @@ module Styles = {
     right(px(0)),
   ]);
   let codeMirrorMark = style([
-    borderBottom(px(1), `dashed, red)
+    borderBottom(px(1), `dashed, red),
+    backgroundColor(hex("fee")),
   ]);
 
   let top = style([
@@ -352,13 +353,14 @@ module Main = {
             <ExamplesDropdown
               onSelect=(text => send(Reset(text)))
             />
+            <div className=Css.(style([flex(1)]))/>
             <button
               className=Styles.button
               onClick=(evt => state.cm |?< cm => run(getValue(cm)))
             >
               (str("Run"))
             </button>
-            <div className=Css.(style([flex(1)]))/>
+            (spacer(8))
             (str("Syntax:"))
             (spacer(8))
             <button
@@ -481,8 +483,8 @@ module Main = {
             whiteSpace(`preWrap),
             padding(px(8)),
             maxHeight(px(200)),
+            minHeight(px(100)),
             overflow(`auto),
-            backgroundColor(hex("eee"))
           ]))><code>(str(state.resultJs))</code></pre>
           <div className=Styles.line />
           (str("Log output"))

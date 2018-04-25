@@ -45,7 +45,7 @@ let make = (~onSelect, _children) => {
   render: _self => {
     <div className=container>
       <div className=button>
-      (ReasonReact.stringToElement("Examples"))
+      (ReasonReact.stringToElement({j|Examples ▾|j}))
       </div>
       <div className=dropdown>
         {ReasonReact.arrayToElement(examplesData |> Array.mapi((i, item) => (

@@ -110,8 +110,14 @@ var codeMirrorMark = Css.style(/* :: */[
 var top = Css.style(/* :: */[
       Css.display(/* flex */-1010954439),
       /* :: */[
-        Css.flexDirection(/* row */5693978),
-        /* [] */0
+        Css.alignItems(/* center */98248149),
+        /* :: */[
+          Css.flexDirection(/* row */5693978),
+          /* :: */[
+            Css.padding2(Css.px(4), Css.px(8)),
+            /* [] */0
+          ]
+        ]
       ]
     ]);
 
@@ -140,15 +146,24 @@ var line = Css.style(/* :: */[
 var button = Css.style(/* :: */[
       Css.backgroundColor(Css.white),
       /* :: */[
-        Css.padding2(Css.px(8), Css.px(16)),
+        Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
         /* :: */[
-          Css.cursor(/* pointer */-786317123),
+          Css.borderStyle(/* none */-922086728),
           /* :: */[
-            Css.disabled(/* :: */[
-                  Css.backgroundColor(Css.hex("eee")),
-                  /* [] */0
-                ]),
-            /* [] */0
+            Css.padding2(Css.px(8), Css.px(16)),
+            /* :: */[
+              Css.cursor(/* pointer */-786317123),
+              /* :: */[
+                Css.disabled(/* :: */[
+                      Css.backgroundColor(Css.hex("eee")),
+                      /* :: */[
+                        Css.cursor(/* default */465819841),
+                        /* [] */0
+                      ]
+                    ]),
+                /* [] */0
+              ]
+            ]
           ]
         ]
       ]
@@ -166,6 +181,14 @@ var Styles = /* module */[
   /* line */line,
   /* button */button
 ];
+
+function spacer(n) {
+  return React.createElement("div", {
+              style: {
+                flexBasis: String(n) + "px"
+              }
+            });
+}
 
 function runCode(code) {
   var fn = "(function(exports, module, require) {\n    " + (String(code) + "\n  })");
@@ -187,6 +210,10 @@ function runCode(code) {
 }
 
 var initialString = "\nlet x = 10;\nJs.log(x);\nJs.log(\"hello folks\");\n";
+
+function str(prim) {
+  return prim;
+}
 
 var component = ReasonReact.reducerComponent("Main");
 
@@ -263,7 +290,12 @@ function make() {
                                                         return run(cm.getValue());
                                                       }));
                                         })
-                                    }, "Run"), React.createElement("button", {
+                                    }, "Run"), React.createElement("div", {
+                                      className: Css.style(/* :: */[
+                                            Css.flex(1),
+                                            /* [] */0
+                                          ])
+                                    }), "Syntax:", spacer(8), React.createElement("button", {
                                       className: button,
                                       disabled: state[/* syntax */5] === /* OCaml */0,
                                       onClick: (function () {
@@ -460,8 +492,10 @@ var Main = /* module */[
 ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, make(/* array */[])), "main");
 
 exports.Styles = Styles;
+exports.spacer = spacer;
 exports.runCode = runCode;
 exports.initialString = initialString;
+exports.str = str;
 exports.Main = Main;
 /*  Not a pure module */
 //# sourceURL=./lib/js/src/Main.js

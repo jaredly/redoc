@@ -56,7 +56,9 @@ module Styles = {
   ]);
   let top = style([
     display(`flex),
+    alignItems(`center),
     flexDirection(`row),
+    padding2(~v=px(4), ~h=px(8)),
   ]);
   let canvas = style([
     boxShadow(~x=px(0), ~y=px(1), ~blur=px(5), hex("aaa")),
@@ -70,14 +72,19 @@ module Styles = {
   ]);
   let button = style([
     backgroundColor(white),
+    boxShadow(~blur=px(3), hex("aaa")),
+    borderStyle(`none),
     padding2(~v=px(8), ~h=px(16)),
     cursor(`pointer),
     disabled([
-      backgroundColor(hex("eee"))
+      backgroundColor(hex("eee")),
+      cursor(`default),
     ]),
   ]);
 
 };
+
+let spacer = n => <div style=ReactDOMRe.Style.(make(~flexBasis=(string_of_int(n) ++ "px"), ())) />;
 
 open ReasonReact;
 
@@ -120,6 +127,8 @@ type windowContext = {
   log: bool,
 };
 type context = Worker | Window(windowContext);
+
+let str = ReasonReact.stringToElement;
 
 module Main = {
   type state = {
@@ -215,21 +224,24 @@ module Main = {
               className=Styles.button
               onClick=(evt => state.cm |?< cm => run(getValue(cm)))
             >
-              (ReasonReact.stringToElement("Run"))
+              (str("Run"))
             </button>
+            <div className=Css.(style([flex(1)]))/>
+            (str("Syntax:"))
+            (spacer(8))
             <button
               disabled=(state.syntax == OCaml)
               className=Styles.button
               onClick=(evt => send(ToOCaml))
             >
-              (ReasonReact.stringToElement("OCaml"))
+              (str("OCaml"))
             </button>
             <button
               disabled=(state.syntax == Reason)
               className=Styles.button
               onClick=(evt => send(ToReason))
             >
-              (ReasonReact.stringToElement("Reason"))
+              (str("Reason"))
             </button>
           </div>
           <textarea
@@ -246,36 +258,36 @@ module Main = {
             let inner = {"__html": fixEscapes(message) };
             <div className=Styles.error dangerouslySetInnerHTML={inner} />
           }
-          | ParseFailure(message) => <div className=Styles.error>(ReasonReact.stringToElement(message))</div>
+          | ParseFailure(message) => <div className=Styles.error>(str(message))</div>
           | _ => ReasonReact.nullElement
           }}
         </div>
         <div className=Styles.previewPane>
           <div>
-            <h1>(ReasonReact.stringToElement("Welcome to the Playground!"))</h1>
-            (ReasonReact.stringToElement("Press ctrl+enter or cmd+enter to evaluate"))
+            <h1>(str("Welcome to the Playground!"))</h1>
+            (str("Press ctrl+enter or cmd+enter to evaluate"))
           </div>
           <div className=Styles.line />
           <div>
-            (ReasonReact.stringToElement("A 200 x 200 canvas w/ id #canvas"))
+            (str("A 200 x 200 canvas w/ id #canvas"))
           </div>
           <canvas id="canvas" width="200px" height="200px" className=Styles.canvas/>
           <div className=Styles.line />
           <div>
-          (ReasonReact.stringToElement("A div w/ id #target"))
+          (str("A div w/ id #target"))
           </div>
           <div className=Css.(style([padding(px(8))]))>
           <div id="target">
-            (ReasonReact.stringToElement("Render to #target to replace this content"))
+            (str("Render to #target to replace this content"))
           </div>
           </div>
           <div className=Styles.line />
-          (ReasonReact.stringToElement("The Javascript Output"))
+          (str("The Javascript Output"))
           <pre className=Css.(style([
             whiteSpace(`preWrap),
             padding(px(8)),
             backgroundColor(hex("eee"))
-          ]))>(ReasonReact.stringToElement(state.resultJs))</pre>
+          ]))>(str(state.resultJs))</pre>
         </div>
       </div>
     }

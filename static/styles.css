@@ -196,6 +196,11 @@ p code {
   box-shadow: 0 0 1px #aaa;
 }
 
+.block-log {
+  font-family: iosevka, 'sf mono', monospace;
+  white-space: pre-wrap;
+}
+
 a {
   text-decoration: none;
 }
@@ -429,6 +434,7 @@ pre.code {
     color: #000;
     font-weight: 300;
 }
+
 
 .code .module-identifier {
   color: #aa0;

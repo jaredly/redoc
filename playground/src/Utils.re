@@ -1,12 +1,21 @@
 
 [@bs.val] [@bs.scope "ocaml"] external reason_compile : string => 'result = "reason_compile_super_errors";
+[@bs.val] [@bs.scope "ocaml"] external ocaml_compile : string => 'result = "compile_super_errors";
 [@bs.val] [@bs.scope "Colors"] external parseAnsi : string => {. "spans": array({. "text": string, "css": string})} = "parse";
 [@bs.val] external eval: string => 'a = "";
 
 [@bs.val] external bsRequirePaths: Js.Dict.t(string) = "";
 [@bs.val] external packRequire: string => 'package = "";
 
+type ast;
+[@bs.val] external parseML: string => ast = "";
+[@bs.val] external printML: ast => string = "";
+[@bs.val] external parseRE: string => ast = "";
+[@bs.val] external printRE: ast => string = "";
+
 type codemirror;
+[@bs.send] external setValue: (codemirror, string) => unit = "";
+[@bs.send] external getValue: (codemirror) => string = "";
 type textarea = Dom.element;
 
 type jspos = {. "line": int, "ch": int};
@@ -91,6 +100,19 @@ type result('a, 'b) =
 
 let reasonCompile = code => {
   let result = reason_compile(code);
+  switch (Js.Nullable.toOption(result##js_code)) {
+  | Some(js) => Ok(js)
+  | None =>
+    Error((
+      result##js_error_msg,
+      {row: result##row, column: result##column},
+      {row: result##endRow, column: result##endColumn}
+    ))
+  };
+};
+
+let ocamlCompile = code => {
+  let result = ocaml_compile(code);
   switch (Js.Nullable.toOption(result##js_code)) {
   | Some(js) => Ok(js)
   | None =>

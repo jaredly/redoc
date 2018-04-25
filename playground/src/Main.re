@@ -37,7 +37,8 @@ module Styles = {
     display(`flex),
     flexDirection(`column),
     alignItems(`center),
-    width(px(300)),
+    minWidth(px(300)),
+    overflow(`auto),
     zIndex(10),
     boxShadow(~blur=px(3), hex("aaa")),
     padding(px(16)),
@@ -94,6 +95,57 @@ type syntax =
   | OCaml
   | Reason;
 
+let showSyntax = s => switch s {
+| OCaml => "OCaml"
+| Reason => "Reason"
+};
+
+let syntaxFromString = s => switch s {
+| "OCaml" => OCaml
+| _ => Reason
+};
+
+let initialString = {|
+let x = 10;
+Js.log(x);
+Js.log("hello folks");
+|};
+
+let parseUrl = s => {
+  switch (Js.String.split("?", s)) {
+  | [|_|] => (Reason, initialString, 200)
+  | [|_, params|] => {
+    let items = Js.String.split("&", params) |> Array.to_list |> List.map(item => switch (Js.String.split("=", item)) {
+    | [|name|] => (name, "")
+    | [|name, value|] => (name, value)
+    | _ => ("", "")
+    });
+    let syntax = switch (List.assoc("syntax", items)) {
+    | exception Not_found => Reason
+    | name => syntaxFromString(name)
+    };
+    let canvasSize = switch (List.assoc("canvas", items)) {
+    | exception Not_found => 200
+    | text => switch (int_of_string(text)) {
+      | exception _ => 200
+      | num => num
+      }
+    };
+    let code = switch (List.assoc("code", items)) {
+    | exception Not_found => initialString
+    | code => decompress(code)
+    };
+    (syntax, code, canvasSize)
+  }
+  | _ => (Reason, initialString, 200)
+  }
+};
+
+let makeUrl = (code, syntax, canvasSize) => {
+  let data = compress(code);
+  origin ++ pathname ++ "?syntax=" ++ showSyntax(syntax) ++ "&code=" ++ data ++ "&canvas=" ++ string_of_int(canvasSize);
+};
+
 type compilationResult = result(string, (string, pos, pos));
 
 let runCode = code => {
@@ -117,12 +169,6 @@ type status =
   | ParseFailure(string)
   | Dirty;
 
-let initialString = {|
-let x = 10;
-Js.log(x);
-Js.log("hello folks");
-|};
-
 type windowContext = {
   canvas: bool,
   div: bool,
@@ -135,10 +181,12 @@ let str = ReasonReact.stringToElement;
 module Main = {
   type state = {
     text: string,
-    autorun: bool,
+    /* autorun: bool, */
     mutable cm: option(codemirror),
     context,
+    canvasSize: int,
     mutable shareInput: option(Dom.element),
+    logs: list(string),
     resultJs: string,
     syntax,
     status,
@@ -147,16 +195,21 @@ module Main = {
     | Text(string)
     | Reset(string)
     | Js(string)
+    | SetCanvasSize(int)
     | ToOCaml
     | ToReason
     | SetStatus(status);
+
+  let (syntax, text, canvasSize) = parseUrl(href);
 
   let component = ReasonReact.reducerComponent("Main");
   let make = _children => {
     ...component,
     initialState: () => {
-      text: initialString,
-      autorun: true,
+      text,
+      logs: [],
+      canvasSize,
+      /* autorun: true, */
       shareInput: None,
       context: Window({
         canvas: false,
@@ -165,7 +218,7 @@ module Main = {
       }),
       resultJs: "/* Evaluate to see generated js */",
       status: Clean,
-      syntax: Reason,
+      syntax,
       cm: None
     },
 
@@ -176,6 +229,7 @@ module Main = {
       state.cm |?< cm => setValue(cm, text);
       {...state, text}
     }
+    | SetCanvasSize(canvasSize) => {...state, canvasSize}
     | ToOCaml => {
       state.cm |?>> (cm => {
         let text = getValue(cm);
@@ -247,6 +301,24 @@ module Main = {
             >
               (str("Reason"))
             </button>
+            <input
+              ref={r => Js.toOption(r) |?< node => state.shareInput = Some(node)}
+              style=ReactDOMRe.Style.make(~width="0", ~visibility="hidden", ())
+            />
+            <button
+              className=Styles.button
+              onClick=(evt => {
+                state.shareInput |?< input => state.cm |?< cm => {
+                  let url = makeUrl(getValue(cm), state.syntax, state.canvasSize);
+                  setInput(input, url);
+                  select(input);
+                  execCommand("copy");
+                  replaceState(url);
+                }
+              })
+            >
+              (str("Copy permalink"))
+            </button>
           </div>
           <textarea
             value={state.text}
@@ -266,26 +338,8 @@ module Main = {
           | _ => ReasonReact.nullElement
           }}
         </div>
-        <div className=Styles.previewPane>
+        <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(state.canvasSize) ++ "px", ())>
           <div>
-            <input
-              ref={r => Js.toOption(r) |?< node => state.shareInput = Some(node)}
-            />
-            <button
-              className=Styles.button
-              onClick=(evt => {
-                state.shareInput |?< input => state.cm |?< cm => {
-                  setInput(input, compress(getValue(cm)))
-                }
-                /* let input = document.getElementById('shareableUrl');
-      input.select();
-      document.execCommand('copy');
-      const compress = lzString.compressToEncodedURIComponent;
-      const decompress = lzString.decompressFromEncodedURIComponent; */
-              })
-            >
-              (str("Copy link"))
-            </button>
           </div>
           <div>
             <h1>(str("Welcome to the Playground!"))</h1>
@@ -293,9 +347,15 @@ module Main = {
           </div>
           <div className=Styles.line />
           <div>
-            (str("A 200 x 200 canvas w/ id #canvas"))
+            (str("A"))
+            <input
+              onChange=(evt => send(SetCanvasSize(min(800, max(50, int_of_string(getInputValue(evt)))))))
+              value=(string_of_int(state.canvasSize))
+              _type="number"
+            />
+            (str("x " ++ string_of_int(state.canvasSize) ++ " canvas w/ id #canvas"))
           </div>
-          <canvas id="canvas" width="200px" height="200px" className=Styles.canvas/>
+          <canvas id="canvas" width=(string_of_int(state.canvasSize) ++ "px") height=(string_of_int(state.canvasSize) ++ "px") className=Styles.canvas/>
           <div className=Styles.line />
           <div>
           (str("A div w/ id #target"))
@@ -310,8 +370,12 @@ module Main = {
           <pre className=Css.(style([
             whiteSpace(`preWrap),
             padding(px(8)),
+            maxHeight(px(200)),
+            overflow(`auto),
             backgroundColor(hex("eee"))
           ]))>(str(state.resultJs))</pre>
+          <div className=Styles.line />
+          (str("Log output"))
         </div>
       </div>
     }

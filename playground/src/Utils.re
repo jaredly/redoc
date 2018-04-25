@@ -8,9 +8,20 @@
 [@bs.val] external packRequire: string => 'package = "";
 
 [@bs.set "value"] external setInput: Dom.element => string => unit = "";
+[@bs.send] external select: Dom.element => unit = "";
+[@bs.scope "document"] [@bs.val] external execCommand: string => unit = "";
+
+[@bs.val] [@bs.scope "location"] external origin: string = "";
+[@bs.val] [@bs.scope "location"] external pathname: string = "";
+[@bs.val] [@bs.scope "location"] external href: string = "";
 
 [@bs.val] [@bs.module "lz-string"] external compress: string => string = "compressToEncodedURIComponent";
 [@bs.val] [@bs.module "lz-string"] external decompress: string => string = "decompressFromEncodedURIComponent";
+[@bs.val] [@bs.scope "history"] external replaceState: Js.Dict.t('a) => string => string => unit = "";
+
+let replaceState = url => replaceState(Js.Dict.empty(), "", url);
+
+let getInputValue = event => ReactDOMRe.domElementToObj(ReactEventRe.Form.target(event))##value;
 
 type ast;
 [@bs.val] external parseML: string => ast = "";

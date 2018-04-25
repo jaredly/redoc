@@ -6,15 +6,20 @@ let initializers = {
 'use strict';
 
 var Css = require(2);
+var List = require(3);
+var $$Array = require(61);
 var Block = require(8);
 var Curry = require(4);
-var Infix = require(61);
+var Infix = require(63);
 var Utils = require(79);
 var React = require(80);
 var LzString = require(87);
 var ReactDOMRe = require(88);
+var Caml_format = require(13);
 var ReasonReact = require(98);
+var Caml_primitive = require(9);
 var ExamplesDropdown = require(100);
+var Caml_builtin_exceptions = require(6);
 
 Css.$$global(".CodeMirror", /* :: */[
       Css.flex(1),
@@ -61,7 +66,7 @@ var previewPane = Css.style(/* :: */[
         /* :: */[
           Css.alignItems(/* center */98248149),
           /* :: */[
-            Css.width(Css.px(300)),
+            Css.minWidth(Css.px(300)),
             /* :: */[
               Css.zIndex(10),
               /* :: */[
@@ -191,6 +196,149 @@ function spacer(n) {
             });
 }
 
+function showSyntax(s) {
+  if (s) {
+    return "Reason";
+  } else {
+    return "OCaml";
+  }
+}
+
+function syntaxFromString(s) {
+  if (s === "OCaml") {
+    return /* OCaml */0;
+  } else {
+    return /* Reason */1;
+  }
+}
+
+var initialString = "\nlet x = 10;\nJs.log(x);\nJs.log(\"hello folks\");\n";
+
+function parseUrl(s) {
+  var match = s.split("?");
+  var len = match.length;
+  if (len >= 3) {
+    return /* tuple */[
+            /* Reason */1,
+            initialString,
+            200
+          ];
+  } else {
+    switch (len) {
+      case 0 : 
+      case 1 : 
+          return /* tuple */[
+                  /* Reason */1,
+                  initialString,
+                  200
+                ];
+      case 2 : 
+          var params = match[1];
+          var items = List.map((function (item) {
+                  var match = item.split("=");
+                  var len = match.length;
+                  if (len >= 3) {
+                    return /* tuple */[
+                            "",
+                            ""
+                          ];
+                  } else {
+                    switch (len) {
+                      case 0 : 
+                          return /* tuple */[
+                                  "",
+                                  ""
+                                ];
+                      case 1 : 
+                          var name = match[0];
+                          return /* tuple */[
+                                  name,
+                                  ""
+                                ];
+                      case 2 : 
+                          var name$1 = match[0];
+                          var value = match[1];
+                          return /* tuple */[
+                                  name$1,
+                                  value
+                                ];
+                      
+                    }
+                  }
+                }), $$Array.to_list(params.split("&")));
+          var syntax;
+          var exit = 0;
+          var name;
+          try {
+            name = List.assoc("syntax", items);
+            exit = 1;
+          }
+          catch (exn){
+            if (exn === Caml_builtin_exceptions.not_found) {
+              syntax = /* Reason */1;
+            } else {
+              throw exn;
+            }
+          }
+          if (exit === 1) {
+            syntax = syntaxFromString(name);
+          }
+          var canvasSize;
+          var exit$1 = 0;
+          var text;
+          try {
+            text = List.assoc("canvas", items);
+            exit$1 = 1;
+          }
+          catch (exn$1){
+            if (exn$1 === Caml_builtin_exceptions.not_found) {
+              canvasSize = 200;
+            } else {
+              throw exn$1;
+            }
+          }
+          if (exit$1 === 1) {
+            try {
+              canvasSize = Caml_format.caml_int_of_string(text);
+            }
+            catch (exn$2){
+              canvasSize = 200;
+            }
+          }
+          var code;
+          var exit$2 = 0;
+          var code$1;
+          try {
+            code$1 = List.assoc("code", items);
+            exit$2 = 1;
+          }
+          catch (exn$3){
+            if (exn$3 === Caml_builtin_exceptions.not_found) {
+              code = initialString;
+            } else {
+              throw exn$3;
+            }
+          }
+          if (exit$2 === 1) {
+            code = LzString.decompressFromEncodedURIComponent(code$1);
+          }
+          return /* tuple */[
+                  syntax,
+                  code,
+                  canvasSize
+                ];
+      
+    }
+  }
+}
+
+function makeUrl(code, syntax, canvasSize) {
+  var data = LzString.compressToEncodedURIComponent(code);
+  return location.origin + (location.pathname + ("?syntax=" + ((
+                syntax ? "Reason" : "OCaml"
+              ) + ("&code=" + (data + ("&canvas=" + String(canvasSize)))))));
+}
+
 function runCode(code) {
   var fn = "(function(exports, module, require) {\n    " + (String(code) + "\n  })");
   var fn$1 = eval(fn);
@@ -210,11 +358,17 @@ function runCode(code) {
             }, $$require);
 }
 
-var initialString = "\nlet x = 10;\nJs.log(x);\nJs.log(\"hello folks\");\n";
-
 function str(prim) {
   return prim;
 }
+
+var match = parseUrl(location.href);
+
+var canvasSize = match[2];
+
+var text = match[1];
+
+var syntax = match[0];
 
 var component = ReasonReact.reducerComponent("Main");
 
@@ -233,22 +387,22 @@ function make() {
               var send = param[/* send */4];
               var state = param[/* state */2];
               var run = function (text) {
-                Infix.$pipe$unknown$less(state[/* cm */2], (function (cm) {
+                Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                         return Curry._1(Utils.clearMarks, cm);
                       }));
-                var match = state[/* syntax */6] === /* Reason */1;
+                var match = state[/* syntax */7] === /* Reason */1;
                 var match$1 = match ? Utils.reasonCompile(text) : Utils.ocamlCompile(text);
                 if (match$1.tag) {
                   var match$2 = match$1[0];
                   var epos = match$2[2];
                   var spos = match$2[1];
-                  Infix.$pipe$unknown$less(state[/* cm */2], (function (cm) {
+                  Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                           cm.markText(Utils.jsPos(spos), Utils.jsPos(epos), {
                                 className: codeMirrorMark
                               });
                           return /* () */0;
                         }));
-                  return Curry._1(send, /* SetStatus */Block.__(3, [/* Failed */Block.__(0, [
+                  return Curry._1(send, /* SetStatus */Block.__(4, [/* Failed */Block.__(0, [
                                     match$2[0],
                                     spos,
                                     epos
@@ -259,7 +413,7 @@ function make() {
                   return Curry._1(send, /* Js */Block.__(2, [js]));
                 }
               };
-              var match = state[/* status */7];
+              var match = state[/* status */8];
               var tmp;
               if (typeof match === "number") {
                 tmp = null;
@@ -287,7 +441,7 @@ function make() {
                                           }), /* array */[])), React.createElement("button", {
                                       className: button,
                                       onClick: (function () {
-                                          return Infix.$pipe$unknown$less(state[/* cm */2], (function (cm) {
+                                          return Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                                                         return run(cm.getValue());
                                                       }));
                                         })
@@ -298,22 +452,46 @@ function make() {
                                           ])
                                     }), "Syntax:", spacer(8), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */6] === /* OCaml */0,
+                                      disabled: state[/* syntax */7] === /* OCaml */0,
                                       onClick: (function () {
                                           return Curry._1(send, /* ToOCaml */0);
                                         })
                                     }, "OCaml"), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */6] === /* Reason */1,
+                                      disabled: state[/* syntax */7] === /* Reason */1,
                                       onClick: (function () {
                                           return Curry._1(send, /* ToReason */1);
                                         })
-                                    }, "Reason")), React.createElement("textarea", {
+                                    }, "Reason"), React.createElement("input", {
+                                      ref: (function (r) {
+                                          return Infix.$pipe$unknown$less((r == null) ? /* None */0 : [r], (function (node) {
+                                                        state[/* shareInput */4] = /* Some */[node];
+                                                        return /* () */0;
+                                                      }));
+                                        }),
+                                      style: {
+                                        visibility: "hidden",
+                                        width: "0"
+                                      }
+                                    }), React.createElement("button", {
+                                      className: button,
+                                      onClick: (function () {
+                                          return Infix.$pipe$unknown$less(state[/* shareInput */4], (function (input) {
+                                                        return Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
+                                                                      var url = makeUrl(cm.getValue(), state[/* syntax */7], state[/* canvasSize */3]);
+                                                                      input.value = url;
+                                                                      input.select();
+                                                                      document.execCommand("copy");
+                                                                      return Utils.replaceState(url);
+                                                                    }));
+                                                      }));
+                                        })
+                                    }, "Copy permalink")), React.createElement("textarea", {
                                   ref: (function (r) {
                                       return Infix.$pipe$unknown$less((r == null) ? /* None */0 : [r], (function (node) {
-                                                    if (state[/* cm */2] === /* None */0) {
+                                                    if (state[/* cm */1] === /* None */0) {
                                                       var cm = Utils.fromTextArea(node, run);
-                                                      state[/* cm */2] = /* Some */[cm];
+                                                      state[/* cm */1] = /* Some */[cm];
                                                       return /* () */0;
                                                     } else {
                                                       return 0;
@@ -322,31 +500,23 @@ function make() {
                                     }),
                                   value: state[/* text */0]
                                 }), tmp), React.createElement("div", {
-                              className: previewPane
-                            }, React.createElement("div", undefined, React.createElement("input", {
-                                      ref: (function (r) {
-                                          return Infix.$pipe$unknown$less((r == null) ? /* None */0 : [r], (function (node) {
-                                                        state[/* shareInput */4] = /* Some */[node];
-                                                        return /* () */0;
-                                                      }));
-                                        })
-                                    }), React.createElement("button", {
-                                      className: button,
-                                      onClick: (function () {
-                                          return Infix.$pipe$unknown$less(state[/* shareInput */4], (function (input) {
-                                                        return Infix.$pipe$unknown$less(state[/* cm */2], (function (cm) {
-                                                                      input.value = LzString.compressToEncodedURIComponent(cm.getValue());
-                                                                      return /* () */0;
-                                                                    }));
-                                                      }));
-                                        })
-                                    }, "Copy link")), React.createElement("div", undefined, React.createElement("h1", undefined, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
+                              className: previewPane,
+                              style: {
+                                width: String(state[/* canvasSize */3]) + "px"
+                              }
+                            }, React.createElement("div", undefined), React.createElement("div", undefined, React.createElement("h1", undefined, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
                                   className: line
-                                }), React.createElement("div", undefined, "A 200 x 200 canvas w/ id #canvas"), React.createElement("canvas", {
+                                }), React.createElement("div", undefined, "A", React.createElement("input", {
+                                      type: "number",
+                                      value: String(state[/* canvasSize */3]),
+                                      onChange: (function (evt) {
+                                          return Curry._1(send, /* SetCanvasSize */Block.__(3, [Caml_primitive.caml_int_min(800, Caml_primitive.caml_int_max(50, Caml_format.caml_int_of_string(Utils.getInputValue(evt))))]));
+                                        })
+                                    }), "x " + (String(state[/* canvasSize */3]) + " canvas w/ id #canvas")), React.createElement("canvas", {
                                   className: canvas,
                                   id: "canvas",
-                                  height: "200px",
-                                  width: "200px"
+                                  height: String(state[/* canvasSize */3]) + "px",
+                                  width: String(state[/* canvasSize */3]) + "px"
                                 }), React.createElement("div", {
                                   className: line
                                 }), React.createElement("div", undefined, "A div w/ id #target"), React.createElement("div", {
@@ -364,26 +534,35 @@ function make() {
                                         /* :: */[
                                           Css.padding(Css.px(8)),
                                           /* :: */[
-                                            Css.backgroundColor(Css.hex("eee")),
-                                            /* [] */0
+                                            Css.maxHeight(Css.px(200)),
+                                            /* :: */[
+                                              Css.overflow(/* auto */-1065951377),
+                                              /* :: */[
+                                                Css.backgroundColor(Css.hex("eee")),
+                                                /* [] */0
+                                              ]
+                                            ]
                                           ]
                                         ]
                                       ])
-                                }, state[/* resultJs */5])));
+                                }, state[/* resultJs */6]), React.createElement("div", {
+                                  className: line
+                                }), "Log output"));
             }),
           /* initialState */(function () {
               return /* record */[
-                      /* text */initialString,
-                      /* autorun */true,
+                      /* text */text,
                       /* cm : None */0,
                       /* context : Window */[/* record */[
                           /* canvas */false,
                           /* div */false,
                           /* log */false
                         ]],
+                      /* canvasSize */canvasSize,
                       /* shareInput : None */0,
+                      /* logs : [] */0,
                       /* resultJs */"/* Evaluate to see generated js */",
-                      /* syntax : Reason */1,
+                      /* syntax */syntax,
                       /* status : Clean */0
                     ];
             }),
@@ -391,57 +570,61 @@ function make() {
           /* reducer */(function (action, state) {
               var tmp;
               if (typeof action === "number") {
-                tmp = action === 0 ? Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */2], (function (cm) {
+                tmp = action === 0 ? Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
                               var text = cm.getValue();
                               try {
                                 cm.setValue(printML(parseRE(text)));
                                 return /* record */[
                                         /* text */state[/* text */0],
-                                        /* autorun */state[/* autorun */1],
-                                        /* cm */state[/* cm */2],
-                                        /* context */state[/* context */3],
+                                        /* cm */state[/* cm */1],
+                                        /* context */state[/* context */2],
+                                        /* canvasSize */state[/* canvasSize */3],
                                         /* shareInput */state[/* shareInput */4],
-                                        /* resultJs */state[/* resultJs */5],
+                                        /* logs */state[/* logs */5],
+                                        /* resultJs */state[/* resultJs */6],
                                         /* syntax : OCaml */0,
-                                        /* status */state[/* status */7]
+                                        /* status */state[/* status */8]
                                       ];
                               }
                               catch (exn){
                                 return /* record */[
                                         /* text */state[/* text */0],
-                                        /* autorun */state[/* autorun */1],
-                                        /* cm */state[/* cm */2],
-                                        /* context */state[/* context */3],
+                                        /* cm */state[/* cm */1],
+                                        /* context */state[/* context */2],
+                                        /* canvasSize */state[/* canvasSize */3],
                                         /* shareInput */state[/* shareInput */4],
-                                        /* resultJs */state[/* resultJs */5],
-                                        /* syntax */state[/* syntax */6],
+                                        /* logs */state[/* logs */5],
+                                        /* resultJs */state[/* resultJs */6],
+                                        /* syntax */state[/* syntax */7],
                                         /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                       ];
                               }
-                            })), state) : Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */2], (function (cm) {
+                            })), state) : Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
                               var text = cm.getValue();
                               try {
                                 cm.setValue(printRE(parseML(text)));
                                 return /* record */[
                                         /* text */state[/* text */0],
-                                        /* autorun */state[/* autorun */1],
-                                        /* cm */state[/* cm */2],
-                                        /* context */state[/* context */3],
+                                        /* cm */state[/* cm */1],
+                                        /* context */state[/* context */2],
+                                        /* canvasSize */state[/* canvasSize */3],
                                         /* shareInput */state[/* shareInput */4],
-                                        /* resultJs */state[/* resultJs */5],
+                                        /* logs */state[/* logs */5],
+                                        /* resultJs */state[/* resultJs */6],
                                         /* syntax : Reason */1,
-                                        /* status */state[/* status */7]
+                                        /* status */state[/* status */8]
                                       ];
                               }
                               catch (exn){
                                 return /* record */[
                                         /* text */state[/* text */0],
-                                        /* autorun */state[/* autorun */1],
-                                        /* cm */state[/* cm */2],
-                                        /* context */state[/* context */3],
+                                        /* cm */state[/* cm */1],
+                                        /* context */state[/* context */2],
+                                        /* canvasSize */state[/* canvasSize */3],
                                         /* shareInput */state[/* shareInput */4],
-                                        /* resultJs */state[/* resultJs */5],
-                                        /* syntax */state[/* syntax */6],
+                                        /* logs */state[/* logs */5],
+                                        /* resultJs */state[/* resultJs */6],
+                                        /* syntax */state[/* syntax */7],
                                         /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                       ];
                               }
@@ -451,53 +634,70 @@ function make() {
                   case 0 : 
                       tmp = /* record */[
                         /* text */action[0],
-                        /* autorun */state[/* autorun */1],
-                        /* cm */state[/* cm */2],
-                        /* context */state[/* context */3],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
                         /* shareInput */state[/* shareInput */4],
-                        /* resultJs */state[/* resultJs */5],
-                        /* syntax */state[/* syntax */6],
-                        /* status */state[/* status */7]
+                        /* logs */state[/* logs */5],
+                        /* resultJs */state[/* resultJs */6],
+                        /* syntax */state[/* syntax */7],
+                        /* status */state[/* status */8]
                       ];
                       break;
                   case 1 : 
                       var text = action[0];
-                      Infix.$pipe$unknown$less(state[/* cm */2], (function (cm) {
+                      Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                               cm.setValue(text);
                               return /* () */0;
                             }));
                       tmp = /* record */[
                         /* text */text,
-                        /* autorun */state[/* autorun */1],
-                        /* cm */state[/* cm */2],
-                        /* context */state[/* context */3],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
                         /* shareInput */state[/* shareInput */4],
-                        /* resultJs */state[/* resultJs */5],
-                        /* syntax */state[/* syntax */6],
-                        /* status */state[/* status */7]
+                        /* logs */state[/* logs */5],
+                        /* resultJs */state[/* resultJs */6],
+                        /* syntax */state[/* syntax */7],
+                        /* status */state[/* status */8]
                       ];
                       break;
                   case 2 : 
                       tmp = /* record */[
                         /* text */state[/* text */0],
-                        /* autorun */state[/* autorun */1],
-                        /* cm */state[/* cm */2],
-                        /* context */state[/* context */3],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
                         /* shareInput */state[/* shareInput */4],
+                        /* logs */state[/* logs */5],
                         /* resultJs */action[0],
-                        /* syntax */state[/* syntax */6],
+                        /* syntax */state[/* syntax */7],
                         /* status : Clean */0
                       ];
                       break;
                   case 3 : 
                       tmp = /* record */[
                         /* text */state[/* text */0],
-                        /* autorun */state[/* autorun */1],
-                        /* cm */state[/* cm */2],
-                        /* context */state[/* context */3],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */action[0],
                         /* shareInput */state[/* shareInput */4],
-                        /* resultJs */state[/* resultJs */5],
-                        /* syntax */state[/* syntax */6],
+                        /* logs */state[/* logs */5],
+                        /* resultJs */state[/* resultJs */6],
+                        /* syntax */state[/* syntax */7],
+                        /* status */state[/* status */8]
+                      ];
+                      break;
+                  case 4 : 
+                      tmp = /* record */[
+                        /* text */state[/* text */0],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
+                        /* shareInput */state[/* shareInput */4],
+                        /* logs */state[/* logs */5],
+                        /* resultJs */state[/* resultJs */6],
+                        /* syntax */state[/* syntax */7],
                         /* status */action[0]
                       ];
                       break;
@@ -512,6 +712,9 @@ function make() {
 }
 
 var Main = /* module */[
+  /* syntax */syntax,
+  /* text */text,
+  /* canvasSize */canvasSize,
   /* component */component,
   /* make */make
 ];
@@ -520,8 +723,12 @@ ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, m
 
 exports.Styles = Styles;
 exports.spacer = spacer;
-exports.runCode = runCode;
+exports.showSyntax = showSyntax;
+exports.syntaxFromString = syntaxFromString;
 exports.initialString = initialString;
+exports.parseUrl = parseUrl;
+exports.makeUrl = makeUrl;
+exports.runCode = runCode;
 exports.str = str;
 exports.Main = Main;
 /*  Not a pure module */
@@ -531,7 +738,7 @@ exports.Main = Main;
 'use strict';
 
 var Css = require(2);
-var $$Array = require(70);
+var $$Array = require(61);
 var Curry = require(4);
 var React = require(80);
 var ReasonReact = require(98);
@@ -21582,8 +21789,17 @@ module.exports = invariant;
   79: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
 'use strict';
 
-var $$Array = require(70);
+var $$Array = require(61);
 var Block = require(8);
+
+function replaceState(url) {
+  history.replaceState({ }, "", url);
+  return /* () */0;
+}
+
+function getInputValue($$event) {
+  return $$event.target.value;
+}
 
 var clearMarks = (
   (function(cm) {
@@ -21693,6 +21909,8 @@ function ocamlCompile(code) {
   }
 }
 
+exports.replaceState = replaceState;
+exports.getInputValue = getInputValue;
 exports.clearMarks = clearMarks;
 exports.fromTextArea = fromTextArea;
 exports.htmlEscape = htmlEscape;
@@ -21703,12 +21921,12 @@ exports.ocamlCompile = ocamlCompile;
 /* clearMarks Not a pure module */
 //# sourceURL=./lib/js/src/Utils.js
 },
-  61: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
+  63: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
 'use strict';
 
 var Curry = require(4);
 var $$String = require(21);
-var Filename = require(62);
+var Filename = require(64);
 var Pervasives = require(10);
 var Caml_string = require(17);
 var CamlinternalLazy = require(76);
@@ -21828,14 +22046,14 @@ exports.$slash$plus = $slash$plus;
 /* Filename Not a pure module */
 //# sourceURL=./lib/js/src/Infix.js
 },
-  62: function(module, exports, require) {'use strict';
+  64: function(module, exports, require) {'use strict';
 
 var Block = require(8);
 var Curry = require(4);
-var $$Buffer = require(63);
-var Js_exn = require(64);
-var Printf = require(65);
-var Random = require(69);
+var $$Buffer = require(65);
+var Js_exn = require(62);
+var Printf = require(66);
+var Random = require(70);
 var $$String = require(21);
 var Caml_sys = require(12);
 var Pervasives = require(10);
@@ -22481,9 +22699,9 @@ exports.total_size = total_size;
 /* No side effect */
 //# sourceURL=./node_modules/bs-platform/lib/js/marshal.js
 },
-  69: function(module, exports, require) {'use strict';
+  70: function(module, exports, require) {'use strict';
 
-var $$Array = require(70);
+var $$Array = require(61);
 var Curry = require(4);
 var Int32 = require(71);
 var Int64 = require(72);
@@ -23288,434 +23506,12 @@ exports.compare = compare;
 /* No side effect */
 //# sourceURL=./node_modules/bs-platform/lib/js/int32.js
 },
-  70: function(module, exports, require) {'use strict';
+  66: function(module, exports, require) {'use strict';
 
 var Curry = require(4);
-var Js_exn = require(64);
-var Caml_array = require(5);
-var Caml_exceptions = require(18);
-var Caml_builtin_exceptions = require(6);
-
-function init(l, f) {
-  if (l === 0) {
-    return /* array */[];
-  } else if (l < 0) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.init"
-        ];
-  } else {
-    var res = Caml_array.caml_make_vect(l, Curry._1(f, 0));
-    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-      res[i] = Curry._1(f, i);
-    }
-    return res;
-  }
-}
-
-function make_matrix(sx, sy, init) {
-  var res = Caml_array.caml_make_vect(sx, /* array */[]);
-  for(var x = 0 ,x_finish = sx - 1 | 0; x <= x_finish; ++x){
-    res[x] = Caml_array.caml_make_vect(sy, init);
-  }
-  return res;
-}
-
-function copy(a) {
-  var l = a.length;
-  if (l === 0) {
-    return /* array */[];
-  } else {
-    return Caml_array.caml_array_sub(a, 0, l);
-  }
-}
-
-function append(a1, a2) {
-  var l1 = a1.length;
-  if (l1 === 0) {
-    return copy(a2);
-  } else if (a2.length === 0) {
-    return Caml_array.caml_array_sub(a1, 0, l1);
-  } else {
-    return a1.concat(a2);
-  }
-}
-
-function sub(a, ofs, len) {
-  if (len < 0 || ofs > (a.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.sub"
-        ];
-  } else {
-    return Caml_array.caml_array_sub(a, ofs, len);
-  }
-}
-
-function fill(a, ofs, len, v) {
-  if (ofs < 0 || len < 0 || ofs > (a.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.fill"
-        ];
-  } else {
-    for(var i = ofs ,i_finish = (ofs + len | 0) - 1 | 0; i <= i_finish; ++i){
-      a[i] = v;
-    }
-    return /* () */0;
-  }
-}
-
-function blit(a1, ofs1, a2, ofs2, len) {
-  if (len < 0 || ofs1 < 0 || ofs1 > (a1.length - len | 0) || ofs2 < 0 || ofs2 > (a2.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.blit"
-        ];
-  } else {
-    return Caml_array.caml_array_blit(a1, ofs1, a2, ofs2, len);
-  }
-}
-
-function iter(f, a) {
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    Curry._1(f, a[i]);
-  }
-  return /* () */0;
-}
-
-function map(f, a) {
-  var l = a.length;
-  if (l === 0) {
-    return /* array */[];
-  } else {
-    var r = Caml_array.caml_make_vect(l, Curry._1(f, a[0]));
-    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-      r[i] = Curry._1(f, a[i]);
-    }
-    return r;
-  }
-}
-
-function iteri(f, a) {
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    Curry._2(f, i, a[i]);
-  }
-  return /* () */0;
-}
-
-function mapi(f, a) {
-  var l = a.length;
-  if (l === 0) {
-    return /* array */[];
-  } else {
-    var r = Caml_array.caml_make_vect(l, Curry._2(f, 0, a[0]));
-    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-      r[i] = Curry._2(f, i, a[i]);
-    }
-    return r;
-  }
-}
-
-function to_list(a) {
-  var _i = a.length - 1 | 0;
-  var _res = /* [] */0;
-  while(true) {
-    var res = _res;
-    var i = _i;
-    if (i < 0) {
-      return res;
-    } else {
-      _res = /* :: */[
-        a[i],
-        res
-      ];
-      _i = i - 1 | 0;
-      continue ;
-    }
-  };
-}
-
-function list_length(_accu, _param) {
-  while(true) {
-    var param = _param;
-    var accu = _accu;
-    if (param) {
-      _param = param[1];
-      _accu = accu + 1 | 0;
-      continue ;
-    } else {
-      return accu;
-    }
-  };
-}
-
-function of_list(l) {
-  if (l) {
-    var a = Caml_array.caml_make_vect(list_length(0, l), l[0]);
-    var _i = 1;
-    var _param = l[1];
-    while(true) {
-      var param = _param;
-      var i = _i;
-      if (param) {
-        a[i] = param[0];
-        _param = param[1];
-        _i = i + 1 | 0;
-        continue ;
-      } else {
-        return a;
-      }
-    };
-  } else {
-    return /* array */[];
-  }
-}
-
-function fold_left(f, x, a) {
-  var r = x;
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    r = Curry._2(f, r, a[i]);
-  }
-  return r;
-}
-
-function fold_right(f, a, x) {
-  var r = x;
-  for(var i = a.length - 1 | 0; i >= 0; --i){
-    r = Curry._2(f, a[i], r);
-  }
-  return r;
-}
-
-var Bottom = Caml_exceptions.create("Array.Bottom");
-
-function sort(cmp, a) {
-  var maxson = function (l, i) {
-    var i31 = ((i + i | 0) + i | 0) + 1 | 0;
-    var x = i31;
-    if ((i31 + 2 | 0) < l) {
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
-        x = i31 + 1 | 0;
-      }
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, x), Caml_array.caml_array_get(a, i31 + 2 | 0)) < 0) {
-        x = i31 + 2 | 0;
-      }
-      return x;
-    } else if ((i31 + 1 | 0) < l && Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
-      return i31 + 1 | 0;
-    } else if (i31 < l) {
-      return i31;
-    } else {
-      throw [
-            Bottom,
-            i
-          ];
-    }
-  };
-  var trickle = function (l, i, e) {
-    try {
-      var l$1 = l;
-      var _i = i;
-      var e$1 = e;
-      while(true) {
-        var i$1 = _i;
-        var j = maxson(l$1, i$1);
-        if (Curry._2(cmp, Caml_array.caml_array_get(a, j), e$1) > 0) {
-          Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
-          _i = j;
-          continue ;
-        } else {
-          return Caml_array.caml_array_set(a, i$1, e$1);
-        }
-      };
-    }
-    catch (raw_exn){
-      var exn = Js_exn.internalToOCamlException(raw_exn);
-      if (exn[0] === Bottom) {
-        return Caml_array.caml_array_set(a, exn[1], e);
-      } else {
-        throw exn;
-      }
-    }
-  };
-  var bubble = function (l, i) {
-    try {
-      var l$1 = l;
-      var _i = i;
-      while(true) {
-        var i$1 = _i;
-        var j = maxson(l$1, i$1);
-        Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
-        _i = j;
-        continue ;
-      };
-    }
-    catch (raw_exn){
-      var exn = Js_exn.internalToOCamlException(raw_exn);
-      if (exn[0] === Bottom) {
-        return exn[1];
-      } else {
-        throw exn;
-      }
-    }
-  };
-  var trickleup = function (_i, e) {
-    while(true) {
-      var i = _i;
-      var father = (i - 1 | 0) / 3 | 0;
-      if (i === father) {
-        throw [
-              Caml_builtin_exceptions.assert_failure,
-              [
-                "array.ml",
-                173,
-                4
-              ]
-            ];
-      }
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, father), e) < 0) {
-        Caml_array.caml_array_set(a, i, Caml_array.caml_array_get(a, father));
-        if (father > 0) {
-          _i = father;
-          continue ;
-        } else {
-          return Caml_array.caml_array_set(a, 0, e);
-        }
-      } else {
-        return Caml_array.caml_array_set(a, i, e);
-      }
-    };
-  };
-  var l = a.length;
-  for(var i = ((l + 1 | 0) / 3 | 0) - 1 | 0; i >= 0; --i){
-    trickle(l, i, Caml_array.caml_array_get(a, i));
-  }
-  for(var i$1 = l - 1 | 0; i$1 >= 2; --i$1){
-    var e = Caml_array.caml_array_get(a, i$1);
-    Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, 0));
-    trickleup(bubble(i$1, 0), e);
-  }
-  if (l > 1) {
-    var e$1 = Caml_array.caml_array_get(a, 1);
-    Caml_array.caml_array_set(a, 1, Caml_array.caml_array_get(a, 0));
-    return Caml_array.caml_array_set(a, 0, e$1);
-  } else {
-    return 0;
-  }
-}
-
-function stable_sort(cmp, a) {
-  var merge = function (src1ofs, src1len, src2, src2ofs, src2len, dst, dstofs) {
-    var src1r = src1ofs + src1len | 0;
-    var src2r = src2ofs + src2len | 0;
-    var _i1 = src1ofs;
-    var _s1 = Caml_array.caml_array_get(a, src1ofs);
-    var _i2 = src2ofs;
-    var _s2 = Caml_array.caml_array_get(src2, src2ofs);
-    var _d = dstofs;
-    while(true) {
-      var d = _d;
-      var s2 = _s2;
-      var i2 = _i2;
-      var s1 = _s1;
-      var i1 = _i1;
-      if (Curry._2(cmp, s1, s2) <= 0) {
-        Caml_array.caml_array_set(dst, d, s1);
-        var i1$1 = i1 + 1 | 0;
-        if (i1$1 < src1r) {
-          _d = d + 1 | 0;
-          _s1 = Caml_array.caml_array_get(a, i1$1);
-          _i1 = i1$1;
-          continue ;
-        } else {
-          return blit(src2, i2, dst, d + 1 | 0, src2r - i2 | 0);
-        }
-      } else {
-        Caml_array.caml_array_set(dst, d, s2);
-        var i2$1 = i2 + 1 | 0;
-        if (i2$1 < src2r) {
-          _d = d + 1 | 0;
-          _s2 = Caml_array.caml_array_get(src2, i2$1);
-          _i2 = i2$1;
-          continue ;
-        } else {
-          return blit(a, i1, dst, d + 1 | 0, src1r - i1 | 0);
-        }
-      }
-    };
-  };
-  var isortto = function (srcofs, dst, dstofs, len) {
-    for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-      var e = Caml_array.caml_array_get(a, srcofs + i | 0);
-      var j = (dstofs + i | 0) - 1 | 0;
-      while(j >= dstofs && Curry._2(cmp, Caml_array.caml_array_get(dst, j), e) > 0) {
-        Caml_array.caml_array_set(dst, j + 1 | 0, Caml_array.caml_array_get(dst, j));
-        j = j - 1 | 0;
-      };
-      Caml_array.caml_array_set(dst, j + 1 | 0, e);
-    }
-    return /* () */0;
-  };
-  var sortto = function (srcofs, dst, dstofs, len) {
-    if (len <= 5) {
-      return isortto(srcofs, dst, dstofs, len);
-    } else {
-      var l1 = len / 2 | 0;
-      var l2 = len - l1 | 0;
-      sortto(srcofs + l1 | 0, dst, dstofs + l1 | 0, l2);
-      sortto(srcofs, a, srcofs + l2 | 0, l1);
-      return merge(srcofs + l2 | 0, l1, dst, dstofs + l1 | 0, l2, dst, dstofs);
-    }
-  };
-  var l = a.length;
-  if (l <= 5) {
-    return isortto(0, a, 0, l);
-  } else {
-    var l1 = l / 2 | 0;
-    var l2 = l - l1 | 0;
-    var t = Caml_array.caml_make_vect(l2, Caml_array.caml_array_get(a, 0));
-    sortto(l1, t, 0, l2);
-    sortto(0, a, l2, l1);
-    return merge(l2, l1, t, 0, l2, a, 0);
-  }
-}
-
-var create_matrix = make_matrix;
-
-var concat = Caml_array.caml_array_concat;
-
-var fast_sort = stable_sort;
-
-exports.init = init;
-exports.make_matrix = make_matrix;
-exports.create_matrix = create_matrix;
-exports.append = append;
-exports.concat = concat;
-exports.sub = sub;
-exports.copy = copy;
-exports.fill = fill;
-exports.blit = blit;
-exports.to_list = to_list;
-exports.of_list = of_list;
-exports.iter = iter;
-exports.map = map;
-exports.iteri = iteri;
-exports.mapi = mapi;
-exports.fold_left = fold_left;
-exports.fold_right = fold_right;
-exports.sort = sort;
-exports.stable_sort = stable_sort;
-exports.fast_sort = fast_sort;
-/* No side effect */
-//# sourceURL=./node_modules/bs-platform/lib/js/array.js
-},
-  65: function(module, exports, require) {'use strict';
-
-var Curry = require(4);
-var $$Buffer = require(63);
+var $$Buffer = require(65);
 var Pervasives = require(10);
-var CamlinternalFormat = require(66);
+var CamlinternalFormat = require(67);
 
 function kfprintf(k, o, param) {
   return CamlinternalFormat.make_printf((function (o, acc) {
@@ -23794,19 +23590,19 @@ exports.kprintf = kprintf;
 /* No side effect */
 //# sourceURL=./node_modules/bs-platform/lib/js/printf.js
 },
-  66: function(module, exports, require) {'use strict';
+  67: function(module, exports, require) {'use strict';
 
 var Char = require(23);
 var Block = require(8);
 var Bytes = require(22);
 var Curry = require(4);
-var $$Buffer = require(63);
-var Js_exn = require(64);
+var $$Buffer = require(65);
+var Js_exn = require(62);
 var $$String = require(21);
 var Caml_io = require(11);
 var Caml_obj = require(7);
-var Caml_bytes = require(67);
-var Caml_float = require(68);
+var Caml_bytes = require(68);
+var Caml_float = require(69);
 var Caml_int32 = require(14);
 var Pervasives = require(10);
 var Caml_format = require(13);
@@ -30200,7 +29996,7 @@ exports.recast = recast;
 /* No side effect */
 //# sourceURL=./node_modules/bs-platform/lib/js/camlinternalFormat.js
 },
-  68: function(module, exports, require) {'use strict';
+  69: function(module, exports, require) {'use strict';
 
 
 function caml_int32_float_of_bits(x) {
@@ -30352,7 +30148,7 @@ exports.caml_log10_float = caml_log10_float;
 /* No side effect */
 //# sourceURL=./node_modules/bs-platform/lib/js/caml_float.js
 },
-  67: function(module, exports, require) {'use strict';
+  68: function(module, exports, require) {'use strict';
 
 var Caml_builtin_exceptions = require(6);
 
@@ -30371,64 +30167,7 @@ exports.get = get;
 /* No side effect */
 //# sourceURL=./node_modules/bs-platform/lib/js/caml_bytes.js
 },
-  64: function(module, exports, require) {'use strict';
-
-var Caml_exceptions = require(18);
-
-var $$Error = Caml_exceptions.create("Js_exn.Error");
-
-function internalToOCamlException(e) {
-  if (Caml_exceptions.isCamlExceptionOrOpenVariant(e)) {
-    return e;
-  } else {
-    return [
-            $$Error,
-            e
-          ];
-  }
-}
-
-function raiseError(str) {
-  throw new Error(str);
-}
-
-function raiseEvalError(str) {
-  throw new EvalError(str);
-}
-
-function raiseRangeError(str) {
-  throw new RangeError(str);
-}
-
-function raiseReferenceError(str) {
-  throw new ReferenceError(str);
-}
-
-function raiseSyntaxError(str) {
-  throw new SyntaxError(str);
-}
-
-function raiseTypeError(str) {
-  throw new TypeError(str);
-}
-
-function raiseUriError(str) {
-  throw new URIError(str);
-}
-
-exports.$$Error = $$Error;
-exports.internalToOCamlException = internalToOCamlException;
-exports.raiseError = raiseError;
-exports.raiseEvalError = raiseEvalError;
-exports.raiseRangeError = raiseRangeError;
-exports.raiseReferenceError = raiseReferenceError;
-exports.raiseSyntaxError = raiseSyntaxError;
-exports.raiseTypeError = raiseTypeError;
-exports.raiseUriError = raiseUriError;
-/* No side effect */
-//# sourceURL=./node_modules/bs-platform/lib/js/js_exn.js
-},
-  63: function(module, exports, require) {'use strict';
+  65: function(module, exports, require) {'use strict';
 
 var Bytes = require(22);
 var Curry = require(4);
@@ -30769,6 +30508,485 @@ exports.add_channel = add_channel;
 exports.output_buffer = output_buffer;
 /* No side effect */
 //# sourceURL=./node_modules/bs-platform/lib/js/buffer.js
+},
+  61: function(module, exports, require) {'use strict';
+
+var Curry = require(4);
+var Js_exn = require(62);
+var Caml_array = require(5);
+var Caml_exceptions = require(18);
+var Caml_builtin_exceptions = require(6);
+
+function init(l, f) {
+  if (l === 0) {
+    return /* array */[];
+  } else if (l < 0) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.init"
+        ];
+  } else {
+    var res = Caml_array.caml_make_vect(l, Curry._1(f, 0));
+    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+      res[i] = Curry._1(f, i);
+    }
+    return res;
+  }
+}
+
+function make_matrix(sx, sy, init) {
+  var res = Caml_array.caml_make_vect(sx, /* array */[]);
+  for(var x = 0 ,x_finish = sx - 1 | 0; x <= x_finish; ++x){
+    res[x] = Caml_array.caml_make_vect(sy, init);
+  }
+  return res;
+}
+
+function copy(a) {
+  var l = a.length;
+  if (l === 0) {
+    return /* array */[];
+  } else {
+    return Caml_array.caml_array_sub(a, 0, l);
+  }
+}
+
+function append(a1, a2) {
+  var l1 = a1.length;
+  if (l1 === 0) {
+    return copy(a2);
+  } else if (a2.length === 0) {
+    return Caml_array.caml_array_sub(a1, 0, l1);
+  } else {
+    return a1.concat(a2);
+  }
+}
+
+function sub(a, ofs, len) {
+  if (len < 0 || ofs > (a.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.sub"
+        ];
+  } else {
+    return Caml_array.caml_array_sub(a, ofs, len);
+  }
+}
+
+function fill(a, ofs, len, v) {
+  if (ofs < 0 || len < 0 || ofs > (a.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.fill"
+        ];
+  } else {
+    for(var i = ofs ,i_finish = (ofs + len | 0) - 1 | 0; i <= i_finish; ++i){
+      a[i] = v;
+    }
+    return /* () */0;
+  }
+}
+
+function blit(a1, ofs1, a2, ofs2, len) {
+  if (len < 0 || ofs1 < 0 || ofs1 > (a1.length - len | 0) || ofs2 < 0 || ofs2 > (a2.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.blit"
+        ];
+  } else {
+    return Caml_array.caml_array_blit(a1, ofs1, a2, ofs2, len);
+  }
+}
+
+function iter(f, a) {
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    Curry._1(f, a[i]);
+  }
+  return /* () */0;
+}
+
+function map(f, a) {
+  var l = a.length;
+  if (l === 0) {
+    return /* array */[];
+  } else {
+    var r = Caml_array.caml_make_vect(l, Curry._1(f, a[0]));
+    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+      r[i] = Curry._1(f, a[i]);
+    }
+    return r;
+  }
+}
+
+function iteri(f, a) {
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    Curry._2(f, i, a[i]);
+  }
+  return /* () */0;
+}
+
+function mapi(f, a) {
+  var l = a.length;
+  if (l === 0) {
+    return /* array */[];
+  } else {
+    var r = Caml_array.caml_make_vect(l, Curry._2(f, 0, a[0]));
+    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+      r[i] = Curry._2(f, i, a[i]);
+    }
+    return r;
+  }
+}
+
+function to_list(a) {
+  var _i = a.length - 1 | 0;
+  var _res = /* [] */0;
+  while(true) {
+    var res = _res;
+    var i = _i;
+    if (i < 0) {
+      return res;
+    } else {
+      _res = /* :: */[
+        a[i],
+        res
+      ];
+      _i = i - 1 | 0;
+      continue ;
+    }
+  };
+}
+
+function list_length(_accu, _param) {
+  while(true) {
+    var param = _param;
+    var accu = _accu;
+    if (param) {
+      _param = param[1];
+      _accu = accu + 1 | 0;
+      continue ;
+    } else {
+      return accu;
+    }
+  };
+}
+
+function of_list(l) {
+  if (l) {
+    var a = Caml_array.caml_make_vect(list_length(0, l), l[0]);
+    var _i = 1;
+    var _param = l[1];
+    while(true) {
+      var param = _param;
+      var i = _i;
+      if (param) {
+        a[i] = param[0];
+        _param = param[1];
+        _i = i + 1 | 0;
+        continue ;
+      } else {
+        return a;
+      }
+    };
+  } else {
+    return /* array */[];
+  }
+}
+
+function fold_left(f, x, a) {
+  var r = x;
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    r = Curry._2(f, r, a[i]);
+  }
+  return r;
+}
+
+function fold_right(f, a, x) {
+  var r = x;
+  for(var i = a.length - 1 | 0; i >= 0; --i){
+    r = Curry._2(f, a[i], r);
+  }
+  return r;
+}
+
+var Bottom = Caml_exceptions.create("Array.Bottom");
+
+function sort(cmp, a) {
+  var maxson = function (l, i) {
+    var i31 = ((i + i | 0) + i | 0) + 1 | 0;
+    var x = i31;
+    if ((i31 + 2 | 0) < l) {
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
+        x = i31 + 1 | 0;
+      }
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, x), Caml_array.caml_array_get(a, i31 + 2 | 0)) < 0) {
+        x = i31 + 2 | 0;
+      }
+      return x;
+    } else if ((i31 + 1 | 0) < l && Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
+      return i31 + 1 | 0;
+    } else if (i31 < l) {
+      return i31;
+    } else {
+      throw [
+            Bottom,
+            i
+          ];
+    }
+  };
+  var trickle = function (l, i, e) {
+    try {
+      var l$1 = l;
+      var _i = i;
+      var e$1 = e;
+      while(true) {
+        var i$1 = _i;
+        var j = maxson(l$1, i$1);
+        if (Curry._2(cmp, Caml_array.caml_array_get(a, j), e$1) > 0) {
+          Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
+          _i = j;
+          continue ;
+        } else {
+          return Caml_array.caml_array_set(a, i$1, e$1);
+        }
+      };
+    }
+    catch (raw_exn){
+      var exn = Js_exn.internalToOCamlException(raw_exn);
+      if (exn[0] === Bottom) {
+        return Caml_array.caml_array_set(a, exn[1], e);
+      } else {
+        throw exn;
+      }
+    }
+  };
+  var bubble = function (l, i) {
+    try {
+      var l$1 = l;
+      var _i = i;
+      while(true) {
+        var i$1 = _i;
+        var j = maxson(l$1, i$1);
+        Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
+        _i = j;
+        continue ;
+      };
+    }
+    catch (raw_exn){
+      var exn = Js_exn.internalToOCamlException(raw_exn);
+      if (exn[0] === Bottom) {
+        return exn[1];
+      } else {
+        throw exn;
+      }
+    }
+  };
+  var trickleup = function (_i, e) {
+    while(true) {
+      var i = _i;
+      var father = (i - 1 | 0) / 3 | 0;
+      if (i === father) {
+        throw [
+              Caml_builtin_exceptions.assert_failure,
+              [
+                "array.ml",
+                173,
+                4
+              ]
+            ];
+      }
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, father), e) < 0) {
+        Caml_array.caml_array_set(a, i, Caml_array.caml_array_get(a, father));
+        if (father > 0) {
+          _i = father;
+          continue ;
+        } else {
+          return Caml_array.caml_array_set(a, 0, e);
+        }
+      } else {
+        return Caml_array.caml_array_set(a, i, e);
+      }
+    };
+  };
+  var l = a.length;
+  for(var i = ((l + 1 | 0) / 3 | 0) - 1 | 0; i >= 0; --i){
+    trickle(l, i, Caml_array.caml_array_get(a, i));
+  }
+  for(var i$1 = l - 1 | 0; i$1 >= 2; --i$1){
+    var e = Caml_array.caml_array_get(a, i$1);
+    Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, 0));
+    trickleup(bubble(i$1, 0), e);
+  }
+  if (l > 1) {
+    var e$1 = Caml_array.caml_array_get(a, 1);
+    Caml_array.caml_array_set(a, 1, Caml_array.caml_array_get(a, 0));
+    return Caml_array.caml_array_set(a, 0, e$1);
+  } else {
+    return 0;
+  }
+}
+
+function stable_sort(cmp, a) {
+  var merge = function (src1ofs, src1len, src2, src2ofs, src2len, dst, dstofs) {
+    var src1r = src1ofs + src1len | 0;
+    var src2r = src2ofs + src2len | 0;
+    var _i1 = src1ofs;
+    var _s1 = Caml_array.caml_array_get(a, src1ofs);
+    var _i2 = src2ofs;
+    var _s2 = Caml_array.caml_array_get(src2, src2ofs);
+    var _d = dstofs;
+    while(true) {
+      var d = _d;
+      var s2 = _s2;
+      var i2 = _i2;
+      var s1 = _s1;
+      var i1 = _i1;
+      if (Curry._2(cmp, s1, s2) <= 0) {
+        Caml_array.caml_array_set(dst, d, s1);
+        var i1$1 = i1 + 1 | 0;
+        if (i1$1 < src1r) {
+          _d = d + 1 | 0;
+          _s1 = Caml_array.caml_array_get(a, i1$1);
+          _i1 = i1$1;
+          continue ;
+        } else {
+          return blit(src2, i2, dst, d + 1 | 0, src2r - i2 | 0);
+        }
+      } else {
+        Caml_array.caml_array_set(dst, d, s2);
+        var i2$1 = i2 + 1 | 0;
+        if (i2$1 < src2r) {
+          _d = d + 1 | 0;
+          _s2 = Caml_array.caml_array_get(src2, i2$1);
+          _i2 = i2$1;
+          continue ;
+        } else {
+          return blit(a, i1, dst, d + 1 | 0, src1r - i1 | 0);
+        }
+      }
+    };
+  };
+  var isortto = function (srcofs, dst, dstofs, len) {
+    for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+      var e = Caml_array.caml_array_get(a, srcofs + i | 0);
+      var j = (dstofs + i | 0) - 1 | 0;
+      while(j >= dstofs && Curry._2(cmp, Caml_array.caml_array_get(dst, j), e) > 0) {
+        Caml_array.caml_array_set(dst, j + 1 | 0, Caml_array.caml_array_get(dst, j));
+        j = j - 1 | 0;
+      };
+      Caml_array.caml_array_set(dst, j + 1 | 0, e);
+    }
+    return /* () */0;
+  };
+  var sortto = function (srcofs, dst, dstofs, len) {
+    if (len <= 5) {
+      return isortto(srcofs, dst, dstofs, len);
+    } else {
+      var l1 = len / 2 | 0;
+      var l2 = len - l1 | 0;
+      sortto(srcofs + l1 | 0, dst, dstofs + l1 | 0, l2);
+      sortto(srcofs, a, srcofs + l2 | 0, l1);
+      return merge(srcofs + l2 | 0, l1, dst, dstofs + l1 | 0, l2, dst, dstofs);
+    }
+  };
+  var l = a.length;
+  if (l <= 5) {
+    return isortto(0, a, 0, l);
+  } else {
+    var l1 = l / 2 | 0;
+    var l2 = l - l1 | 0;
+    var t = Caml_array.caml_make_vect(l2, Caml_array.caml_array_get(a, 0));
+    sortto(l1, t, 0, l2);
+    sortto(0, a, l2, l1);
+    return merge(l2, l1, t, 0, l2, a, 0);
+  }
+}
+
+var create_matrix = make_matrix;
+
+var concat = Caml_array.caml_array_concat;
+
+var fast_sort = stable_sort;
+
+exports.init = init;
+exports.make_matrix = make_matrix;
+exports.create_matrix = create_matrix;
+exports.append = append;
+exports.concat = concat;
+exports.sub = sub;
+exports.copy = copy;
+exports.fill = fill;
+exports.blit = blit;
+exports.to_list = to_list;
+exports.of_list = of_list;
+exports.iter = iter;
+exports.map = map;
+exports.iteri = iteri;
+exports.mapi = mapi;
+exports.fold_left = fold_left;
+exports.fold_right = fold_right;
+exports.sort = sort;
+exports.stable_sort = stable_sort;
+exports.fast_sort = fast_sort;
+/* No side effect */
+//# sourceURL=./node_modules/bs-platform/lib/js/array.js
+},
+  62: function(module, exports, require) {'use strict';
+
+var Caml_exceptions = require(18);
+
+var $$Error = Caml_exceptions.create("Js_exn.Error");
+
+function internalToOCamlException(e) {
+  if (Caml_exceptions.isCamlExceptionOrOpenVariant(e)) {
+    return e;
+  } else {
+    return [
+            $$Error,
+            e
+          ];
+  }
+}
+
+function raiseError(str) {
+  throw new Error(str);
+}
+
+function raiseEvalError(str) {
+  throw new EvalError(str);
+}
+
+function raiseRangeError(str) {
+  throw new RangeError(str);
+}
+
+function raiseReferenceError(str) {
+  throw new ReferenceError(str);
+}
+
+function raiseSyntaxError(str) {
+  throw new SyntaxError(str);
+}
+
+function raiseTypeError(str) {
+  throw new TypeError(str);
+}
+
+function raiseUriError(str) {
+  throw new URIError(str);
+}
+
+exports.$$Error = $$Error;
+exports.internalToOCamlException = internalToOCamlException;
+exports.raiseError = raiseError;
+exports.raiseEvalError = raiseEvalError;
+exports.raiseRangeError = raiseRangeError;
+exports.raiseReferenceError = raiseReferenceError;
+exports.raiseSyntaxError = raiseSyntaxError;
+exports.raiseTypeError = raiseTypeError;
+exports.raiseUriError = raiseUriError;
+/* No side effect */
+//# sourceURL=./node_modules/bs-platform/lib/js/js_exn.js
 },
   2: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
 'use strict';
@@ -44831,24 +45049,24 @@ let nameMap = {
   "./node_modules/fbjs/lib/emptyObject.js": 83,
   "./node_modules/fbjs/lib/invariant.js": 82,
   "./lib/js/src/Utils.js": 79,
-  "./lib/js/src/Infix.js": 61,
-  "./node_modules/bs-platform/lib/js/filename.js": 62,
+  "./lib/js/src/Infix.js": 63,
+  "./node_modules/bs-platform/lib/js/filename.js": 64,
   "./node_modules/bs-platform/lib/js/camlinternalLazy.js": 76,
   "./node_modules/bs-platform/lib/js/obj.js": 77,
   "./node_modules/bs-platform/lib/js/marshal.js": 78,
-  "./node_modules/bs-platform/lib/js/random.js": 69,
+  "./node_modules/bs-platform/lib/js/random.js": 70,
   "./node_modules/bs-platform/lib/js/nativeint.js": 75,
   "./node_modules/bs-platform/lib/js/digest.js": 73,
   "./node_modules/bs-platform/lib/js/caml_md5.js": 74,
   "./node_modules/bs-platform/lib/js/int64.js": 72,
   "./node_modules/bs-platform/lib/js/int32.js": 71,
-  "./node_modules/bs-platform/lib/js/array.js": 70,
-  "./node_modules/bs-platform/lib/js/printf.js": 65,
-  "./node_modules/bs-platform/lib/js/camlinternalFormat.js": 66,
-  "./node_modules/bs-platform/lib/js/caml_float.js": 68,
-  "./node_modules/bs-platform/lib/js/caml_bytes.js": 67,
-  "./node_modules/bs-platform/lib/js/js_exn.js": 64,
-  "./node_modules/bs-platform/lib/js/buffer.js": 63,
+  "./node_modules/bs-platform/lib/js/printf.js": 66,
+  "./node_modules/bs-platform/lib/js/camlinternalFormat.js": 67,
+  "./node_modules/bs-platform/lib/js/caml_float.js": 69,
+  "./node_modules/bs-platform/lib/js/caml_bytes.js": 68,
+  "./node_modules/bs-platform/lib/js/buffer.js": 65,
+  "./node_modules/bs-platform/lib/js/array.js": 61,
+  "./node_modules/bs-platform/lib/js/js_exn.js": 62,
   "./node_modules/bs-css/lib/js/src/Css.js": 2,
   "./node_modules/bs-platform/lib/js/js_mapperRt.js": 60,
   "./node_modules/bs-platform/lib/js/js_option.js": 59,

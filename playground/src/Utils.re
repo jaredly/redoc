@@ -7,6 +7,11 @@
 [@bs.val] external bsRequirePaths: Js.Dict.t(string) = "";
 [@bs.val] external packRequire: string => 'package = "";
 
+[@bs.set "value"] external setInput: Dom.element => string => unit = "";
+
+[@bs.val] [@bs.module "lz-string"] external compress: string => string = "compressToEncodedURIComponent";
+[@bs.val] [@bs.module "lz-string"] external decompress: string => string = "decompressFromEncodedURIComponent";
+
 type ast;
 [@bs.val] external parseML: string => ast = "";
 [@bs.val] external printML: ast => string = "";

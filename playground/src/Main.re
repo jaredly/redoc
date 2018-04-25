@@ -54,6 +54,7 @@ module Styles = {
   let codeMirrorMark = style([
     borderBottom(px(1), `dashed, red)
   ]);
+
   let top = style([
     display(`flex),
     alignItems(`center),
@@ -70,6 +71,7 @@ module Styles = {
     height(px(1)),
     alignSelf(`stretch)
   ]);
+
   let button = style([
     backgroundColor(white),
     boxShadow(~blur=px(3), hex("aaa")),
@@ -136,6 +138,7 @@ module Main = {
     autorun: bool,
     mutable cm: option(codemirror),
     context,
+    mutable shareInput: option(Dom.element),
     resultJs: string,
     syntax,
     status,
@@ -154,6 +157,7 @@ module Main = {
     initialState: () => {
       text: initialString,
       autorun: true,
+      shareInput: None,
       context: Window({
         canvas: false,
         div: false,
@@ -263,6 +267,26 @@ module Main = {
           }}
         </div>
         <div className=Styles.previewPane>
+          <div>
+            <input
+              ref={r => Js.toOption(r) |?< node => state.shareInput = Some(node)}
+            />
+            <button
+              className=Styles.button
+              onClick=(evt => {
+                state.shareInput |?< input => state.cm |?< cm => {
+                  setInput(input, compress(getValue(cm)))
+                }
+                /* let input = document.getElementById('shareableUrl');
+      input.select();
+      document.execCommand('copy');
+      const compress = lzString.compressToEncodedURIComponent;
+      const decompress = lzString.decompressFromEncodedURIComponent; */
+              })
+            >
+              (str("Copy link"))
+            </button>
+          </div>
           <div>
             <h1>(str("Welcome to the Playground!"))</h1>
             (str("Press ctrl+enter or cmd+enter to evaluate"))

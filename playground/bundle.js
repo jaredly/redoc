@@ -11,9 +11,10 @@ var Curry = require(4);
 var Infix = require(61);
 var Utils = require(79);
 var React = require(80);
-var ReactDOMRe = require(87);
-var ReasonReact = require(97);
-var ExamplesDropdown = require(99);
+var LzString = require(87);
+var ReactDOMRe = require(88);
+var ReasonReact = require(98);
+var ExamplesDropdown = require(100);
 
 Css.$$global(".CodeMirror", /* :: */[
       Css.flex(1),
@@ -235,7 +236,7 @@ function make() {
                 Infix.$pipe$unknown$less(state[/* cm */2], (function (cm) {
                         return Curry._1(Utils.clearMarks, cm);
                       }));
-                var match = state[/* syntax */5] === /* Reason */1;
+                var match = state[/* syntax */6] === /* Reason */1;
                 var match$1 = match ? Utils.reasonCompile(text) : Utils.ocamlCompile(text);
                 if (match$1.tag) {
                   var match$2 = match$1[0];
@@ -258,7 +259,7 @@ function make() {
                   return Curry._1(send, /* Js */Block.__(2, [js]));
                 }
               };
-              var match = state[/* status */6];
+              var match = state[/* status */7];
               var tmp;
               if (typeof match === "number") {
                 tmp = null;
@@ -297,13 +298,13 @@ function make() {
                                           ])
                                     }), "Syntax:", spacer(8), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */5] === /* OCaml */0,
+                                      disabled: state[/* syntax */6] === /* OCaml */0,
                                       onClick: (function () {
                                           return Curry._1(send, /* ToOCaml */0);
                                         })
                                     }, "OCaml"), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */5] === /* Reason */1,
+                                      disabled: state[/* syntax */6] === /* Reason */1,
                                       onClick: (function () {
                                           return Curry._1(send, /* ToReason */1);
                                         })
@@ -322,7 +323,24 @@ function make() {
                                   value: state[/* text */0]
                                 }), tmp), React.createElement("div", {
                               className: previewPane
-                            }, React.createElement("div", undefined, React.createElement("h1", undefined, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
+                            }, React.createElement("div", undefined, React.createElement("input", {
+                                      ref: (function (r) {
+                                          return Infix.$pipe$unknown$less((r == null) ? /* None */0 : [r], (function (node) {
+                                                        state[/* shareInput */4] = /* Some */[node];
+                                                        return /* () */0;
+                                                      }));
+                                        })
+                                    }), React.createElement("button", {
+                                      className: button,
+                                      onClick: (function () {
+                                          return Infix.$pipe$unknown$less(state[/* shareInput */4], (function (input) {
+                                                        return Infix.$pipe$unknown$less(state[/* cm */2], (function (cm) {
+                                                                      input.value = LzString.compressToEncodedURIComponent(cm.getValue());
+                                                                      return /* () */0;
+                                                                    }));
+                                                      }));
+                                        })
+                                    }, "Copy link")), React.createElement("div", undefined, React.createElement("h1", undefined, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
                                   className: line
                                 }), React.createElement("div", undefined, "A 200 x 200 canvas w/ id #canvas"), React.createElement("canvas", {
                                   className: canvas,
@@ -351,7 +369,7 @@ function make() {
                                           ]
                                         ]
                                       ])
-                                }, state[/* resultJs */4])));
+                                }, state[/* resultJs */5])));
             }),
           /* initialState */(function () {
               return /* record */[
@@ -363,6 +381,7 @@ function make() {
                           /* div */false,
                           /* log */false
                         ]],
+                      /* shareInput : None */0,
                       /* resultJs */"/* Evaluate to see generated js */",
                       /* syntax : Reason */1,
                       /* status : Clean */0
@@ -381,9 +400,10 @@ function make() {
                                         /* autorun */state[/* autorun */1],
                                         /* cm */state[/* cm */2],
                                         /* context */state[/* context */3],
-                                        /* resultJs */state[/* resultJs */4],
+                                        /* shareInput */state[/* shareInput */4],
+                                        /* resultJs */state[/* resultJs */5],
                                         /* syntax : OCaml */0,
-                                        /* status */state[/* status */6]
+                                        /* status */state[/* status */7]
                                       ];
                               }
                               catch (exn){
@@ -392,8 +412,9 @@ function make() {
                                         /* autorun */state[/* autorun */1],
                                         /* cm */state[/* cm */2],
                                         /* context */state[/* context */3],
-                                        /* resultJs */state[/* resultJs */4],
-                                        /* syntax */state[/* syntax */5],
+                                        /* shareInput */state[/* shareInput */4],
+                                        /* resultJs */state[/* resultJs */5],
+                                        /* syntax */state[/* syntax */6],
                                         /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                       ];
                               }
@@ -406,9 +427,10 @@ function make() {
                                         /* autorun */state[/* autorun */1],
                                         /* cm */state[/* cm */2],
                                         /* context */state[/* context */3],
-                                        /* resultJs */state[/* resultJs */4],
+                                        /* shareInput */state[/* shareInput */4],
+                                        /* resultJs */state[/* resultJs */5],
                                         /* syntax : Reason */1,
-                                        /* status */state[/* status */6]
+                                        /* status */state[/* status */7]
                                       ];
                               }
                               catch (exn){
@@ -417,8 +439,9 @@ function make() {
                                         /* autorun */state[/* autorun */1],
                                         /* cm */state[/* cm */2],
                                         /* context */state[/* context */3],
-                                        /* resultJs */state[/* resultJs */4],
-                                        /* syntax */state[/* syntax */5],
+                                        /* shareInput */state[/* shareInput */4],
+                                        /* resultJs */state[/* resultJs */5],
+                                        /* syntax */state[/* syntax */6],
                                         /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                       ];
                               }
@@ -431,9 +454,10 @@ function make() {
                         /* autorun */state[/* autorun */1],
                         /* cm */state[/* cm */2],
                         /* context */state[/* context */3],
-                        /* resultJs */state[/* resultJs */4],
-                        /* syntax */state[/* syntax */5],
-                        /* status */state[/* status */6]
+                        /* shareInput */state[/* shareInput */4],
+                        /* resultJs */state[/* resultJs */5],
+                        /* syntax */state[/* syntax */6],
+                        /* status */state[/* status */7]
                       ];
                       break;
                   case 1 : 
@@ -447,9 +471,10 @@ function make() {
                         /* autorun */state[/* autorun */1],
                         /* cm */state[/* cm */2],
                         /* context */state[/* context */3],
-                        /* resultJs */state[/* resultJs */4],
-                        /* syntax */state[/* syntax */5],
-                        /* status */state[/* status */6]
+                        /* shareInput */state[/* shareInput */4],
+                        /* resultJs */state[/* resultJs */5],
+                        /* syntax */state[/* syntax */6],
+                        /* status */state[/* status */7]
                       ];
                       break;
                   case 2 : 
@@ -458,8 +483,9 @@ function make() {
                         /* autorun */state[/* autorun */1],
                         /* cm */state[/* cm */2],
                         /* context */state[/* context */3],
+                        /* shareInput */state[/* shareInput */4],
                         /* resultJs */action[0],
-                        /* syntax */state[/* syntax */5],
+                        /* syntax */state[/* syntax */6],
                         /* status : Clean */0
                       ];
                       break;
@@ -469,8 +495,9 @@ function make() {
                         /* autorun */state[/* autorun */1],
                         /* cm */state[/* cm */2],
                         /* context */state[/* context */3],
-                        /* resultJs */state[/* resultJs */4],
-                        /* syntax */state[/* syntax */5],
+                        /* shareInput */state[/* shareInput */4],
+                        /* resultJs */state[/* resultJs */5],
+                        /* syntax */state[/* syntax */6],
                         /* status */action[0]
                       ];
                       break;
@@ -500,14 +527,14 @@ exports.Main = Main;
 /*  Not a pure module */
 //# sourceURL=./lib/js/src/Main.js
 },
-  99: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
+  100: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
 'use strict';
 
 var Css = require(2);
 var $$Array = require(70);
 var Curry = require(4);
 var React = require(80);
-var ReasonReact = require(97);
+var ReasonReact = require(98);
 
 Css.$$global("body", /* :: */[
       Css.fontFamily("system-ui, sans-serif"),
@@ -626,13 +653,13 @@ exports.make = make;
 /*  Not a pure module */
 //# sourceURL=./lib/js/src/ExamplesDropdown.js
 },
-  97: function(module, exports, require) {'use strict';
+  98: function(module, exports, require) {'use strict';
 
 var List = require(3);
 var Curry = require(4);
 var React = require(80);
 var Caml_builtin_exceptions = require(6);
-var ReasonReactOptimizedCreateClass = require(98);
+var ReasonReactOptimizedCreateClass = require(99);
 
 function createDomElement(s, props, children) {
   var vararg = /* array */[
@@ -1302,7 +1329,7 @@ exports.Router = Router;
 /* dummyInteropComponent Not a pure module */
 //# sourceURL=./node_modules/reason-react/lib/js/src/ReasonReact.js
 },
-  98: function(module, exports, require) {'use strict';
+  99: function(module, exports, require) {'use strict';
 
 var React = require(80);
 
@@ -2200,9 +2227,9 @@ exports.createClass = createClass;
 /*  Not a pure module */
 //# sourceURL=./node_modules/reason-react/lib/js/src/ReasonReactOptimizedCreateClass.js
 },
-  87: function(module, exports, require) {'use strict';
+  88: function(module, exports, require) {'use strict';
 
-var ReactDom = require(88);
+var ReactDom = require(89);
 var Caml_builtin_exceptions = require(6);
 
 function renderToElementWithClassName(reactElement, className) {
@@ -2280,7 +2307,7 @@ exports.Style = Style;
 /* react-dom Not a pure module */
 //# sourceURL=./node_modules/reason-react/lib/js/src/ReactDOMRe.js
 },
-  88: function(module, exports, require) {'use strict';
+  89: function(module, exports, require) {'use strict';
 
 function checkDCE() {
   /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
@@ -2314,13 +2341,13 @@ if (process.env.NODE_ENV === 'production') {
   // DCE check should happen before ReactDOM bundle executes so that
   // DevTools can report bad minification during injection.
   checkDCE();
-  module.exports = require(89);
+  module.exports = require(90);
 } else {
-  module.exports = require(96);
+  module.exports = require(97);
 }
 //# sourceURL=./node_modules/react-dom/index.js
 },
-  96: function(module, exports, require) {/** @license React v16.3.2
+  97: function(module, exports, require) {/** @license React v16.3.2
  * react-dom.development.js
  *
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -2340,13 +2367,13 @@ if (process.env.NODE_ENV !== "production") {
 var invariant = require(82);
 var React = require(80);
 var warning = require(32);
-var ExecutionEnvironment = require(90);
+var ExecutionEnvironment = require(91);
 var _assign = require(25);
 var emptyFunction = require(33);
 var checkPropTypes = require(85);
-var getActiveElement = require(91);
-var shallowEqual = require(92);
-var containsNode = require(93);
+var getActiveElement = require(92);
+var shallowEqual = require(93);
+var containsNode = require(94);
 var emptyObject = require(83);
 var hyphenateStyleName = require(34);
 var camelizeStyleName = require(28);
@@ -18976,7 +19003,7 @@ module.exports = reactDom;
 }
 //# sourceURL=./node_modules/react-dom/cjs/react-dom.development.js
 },
-  89: function(module, exports, require) {/** @license React v16.3.2
+  90: function(module, exports, require) {/** @license React v16.3.2
  * react-dom.production.min.js
  *
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -18988,7 +19015,7 @@ module.exports = reactDom;
 /*
  Modernizr 3.0.0pre (Custom Build) | MIT
 */
-'use strict';var ba=require(82),ea=require(80),m=require(90),A=require(25),C=require(33),fa=require(91),ha=require(92),ja=require(93),ka=require(83);
+'use strict';var ba=require(82),ea=require(80),m=require(91),A=require(25),C=require(33),fa=require(92),ha=require(93),ja=require(94),ka=require(83);
 function D(a){for(var b=arguments.length-1,c="http://reactjs.org/docs/error-decoder.html?invariant\x3d"+a,d=0;d<b;d++)c+="\x26args[]\x3d"+encodeURIComponent(arguments[d+1]);ba(!1,"Minified React error #"+a+"; visit %s for the full message or use the non-minified dev environment for full errors and additional helpful warnings. ",c)}ea?void 0:D("227");
 function ma(a,b,c,d,e,f,h,g,k){this._hasCaughtError=!1;this._caughtError=null;var v=Array.prototype.slice.call(arguments,3);try{b.apply(c,v)}catch(l){this._caughtError=l,this._hasCaughtError=!0}}
 var E={_caughtError:null,_hasCaughtError:!1,_rethrowError:null,_hasRethrowError:!1,invokeGuardedCallback:function(a,b,c,d,e,f,h,g,k){ma.apply(E,arguments)},invokeGuardedCallbackAndCatchFirstError:function(a,b,c,d,e,f,h,g,k){E.invokeGuardedCallback.apply(this,arguments);if(E.hasCaughtError()){var v=E.clearCaughtError();E._hasRethrowError||(E._hasRethrowError=!0,E._rethrowError=v)}},rethrowCaughtError:function(){return na.apply(E,arguments)},hasCaughtError:function(){return E._hasCaughtError},clearCaughtError:function(){if(E._hasCaughtError){var a=
@@ -19224,7 +19251,7 @@ null})}),!0):!1},unstable_createPortal:function(){return Fg.apply(void 0,argumen
 X.injectIntoDevTools({findFiberByHostInstance:Ua,bundleType:0,version:"16.3.2",rendererPackageName:"react-dom"});var Hg=Object.freeze({default:Gg}),Ig=Hg&&Gg||Hg;module.exports=Ig["default"]?Ig["default"]:Ig;
 //# sourceURL=./node_modules/react-dom/cjs/react-dom.production.min.js
 },
-  93: function(module, exports, require) {'use strict';
+  94: function(module, exports, require) {'use strict';
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -19235,7 +19262,7 @@ X.injectIntoDevTools({findFiberByHostInstance:Ua,bundleType:0,version:"16.3.2",r
  * 
  */
 
-var isTextNode = require(94);
+var isTextNode = require(95);
 
 /*eslint-disable no-bitwise */
 
@@ -19263,7 +19290,7 @@ function containsNode(outerNode, innerNode) {
 module.exports = containsNode;
 //# sourceURL=./node_modules/fbjs/lib/containsNode.js
 },
-  94: function(module, exports, require) {'use strict';
+  95: function(module, exports, require) {'use strict';
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -19274,7 +19301,7 @@ module.exports = containsNode;
  * @typechecks
  */
 
-var isNode = require(95);
+var isNode = require(96);
 
 /**
  * @param {*} object The object to check.
@@ -19287,7 +19314,7 @@ function isTextNode(object) {
 module.exports = isTextNode;
 //# sourceURL=./node_modules/fbjs/lib/isTextNode.js
 },
-  95: function(module, exports, require) {'use strict';
+  96: function(module, exports, require) {'use strict';
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -19311,7 +19338,7 @@ function isNode(object) {
 module.exports = isNode;
 //# sourceURL=./node_modules/fbjs/lib/isNode.js
 },
-  92: function(module, exports, require) {/**
+  93: function(module, exports, require) {/**
  * Copyright (c) 2013-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
@@ -19378,7 +19405,7 @@ function shallowEqual(objA, objB) {
 module.exports = shallowEqual;
 //# sourceURL=./node_modules/fbjs/lib/shallowEqual.js
 },
-  91: function(module, exports, require) {'use strict';
+  92: function(module, exports, require) {'use strict';
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -19416,7 +19443,7 @@ function getActiveElement(doc) /*?DOMElement*/{
 module.exports = getActiveElement;
 //# sourceURL=./node_modules/fbjs/lib/getActiveElement.js
 },
-  90: function(module, exports, require) {/**
+  91: function(module, exports, require) {/**
  * Copyright (c) 2013-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
@@ -19450,6 +19477,509 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 //# sourceURL=./node_modules/fbjs/lib/ExecutionEnvironment.js
+},
+  87: function(module, exports, require) {// Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
+// This work is free. You can redistribute it and/or modify it
+// under the terms of the WTFPL, Version 2
+// For more information see LICENSE.txt or http://www.wtfpl.net/
+//
+// For more information, the home page:
+// http://pieroxy.net/blog/pages/lz-string/testing.html
+//
+// LZ-based compression algorithm, version 1.4.4
+var LZString = (function() {
+
+// private property
+var f = String.fromCharCode;
+var keyStrBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+var keyStrUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
+var baseReverseDic = {};
+
+function getBaseValue(alphabet, character) {
+  if (!baseReverseDic[alphabet]) {
+    baseReverseDic[alphabet] = {};
+    for (var i=0 ; i<alphabet.length ; i++) {
+      baseReverseDic[alphabet][alphabet.charAt(i)] = i;
+    }
+  }
+  return baseReverseDic[alphabet][character];
+}
+
+var LZString = {
+  compressToBase64 : function (input) {
+    if (input == null) return "";
+    var res = LZString._compress(input, 6, function(a){return keyStrBase64.charAt(a);});
+    switch (res.length % 4) { // To produce valid Base64
+    default: // When could this happen ?
+    case 0 : return res;
+    case 1 : return res+"===";
+    case 2 : return res+"==";
+    case 3 : return res+"=";
+    }
+  },
+
+  decompressFromBase64 : function (input) {
+    if (input == null) return "";
+    if (input == "") return null;
+    return LZString._decompress(input.length, 32, function(index) { return getBaseValue(keyStrBase64, input.charAt(index)); });
+  },
+
+  compressToUTF16 : function (input) {
+    if (input == null) return "";
+    return LZString._compress(input, 15, function(a){return f(a+32);}) + " ";
+  },
+
+  decompressFromUTF16: function (compressed) {
+    if (compressed == null) return "";
+    if (compressed == "") return null;
+    return LZString._decompress(compressed.length, 16384, function(index) { return compressed.charCodeAt(index) - 32; });
+  },
+
+  //compress into uint8array (UCS-2 big endian format)
+  compressToUint8Array: function (uncompressed) {
+    var compressed = LZString.compress(uncompressed);
+    var buf=new Uint8Array(compressed.length*2); // 2 bytes per character
+
+    for (var i=0, TotalLen=compressed.length; i<TotalLen; i++) {
+      var current_value = compressed.charCodeAt(i);
+      buf[i*2] = current_value >>> 8;
+      buf[i*2+1] = current_value % 256;
+    }
+    return buf;
+  },
+
+  //decompress from uint8array (UCS-2 big endian format)
+  decompressFromUint8Array:function (compressed) {
+    if (compressed===null || compressed===undefined){
+        return LZString.decompress(compressed);
+    } else {
+        var buf=new Array(compressed.length/2); // 2 bytes per character
+        for (var i=0, TotalLen=buf.length; i<TotalLen; i++) {
+          buf[i]=compressed[i*2]*256+compressed[i*2+1];
+        }
+
+        var result = [];
+        buf.forEach(function (c) {
+          result.push(f(c));
+        });
+        return LZString.decompress(result.join(''));
+
+    }
+
+  },
+
+
+  //compress into a string that is already URI encoded
+  compressToEncodedURIComponent: function (input) {
+    if (input == null) return "";
+    return LZString._compress(input, 6, function(a){return keyStrUriSafe.charAt(a);});
+  },
+
+  //decompress from an output of compressToEncodedURIComponent
+  decompressFromEncodedURIComponent:function (input) {
+    if (input == null) return "";
+    if (input == "") return null;
+    input = input.replace(/ /g, "+");
+    return LZString._decompress(input.length, 32, function(index) { return getBaseValue(keyStrUriSafe, input.charAt(index)); });
+  },
+
+  compress: function (uncompressed) {
+    return LZString._compress(uncompressed, 16, function(a){return f(a);});
+  },
+  _compress: function (uncompressed, bitsPerChar, getCharFromInt) {
+    if (uncompressed == null) return "";
+    var i, value,
+        context_dictionary= {},
+        context_dictionaryToCreate= {},
+        context_c="",
+        context_wc="",
+        context_w="",
+        context_enlargeIn= 2, // Compensate for the first entry which should not count
+        context_dictSize= 3,
+        context_numBits= 2,
+        context_data=[],
+        context_data_val=0,
+        context_data_position=0,
+        ii;
+
+    for (ii = 0; ii < uncompressed.length; ii += 1) {
+      context_c = uncompressed.charAt(ii);
+      if (!Object.prototype.hasOwnProperty.call(context_dictionary,context_c)) {
+        context_dictionary[context_c] = context_dictSize++;
+        context_dictionaryToCreate[context_c] = true;
+      }
+
+      context_wc = context_w + context_c;
+      if (Object.prototype.hasOwnProperty.call(context_dictionary,context_wc)) {
+        context_w = context_wc;
+      } else {
+        if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {
+          if (context_w.charCodeAt(0)<256) {
+            for (i=0 ; i<context_numBits ; i++) {
+              context_data_val = (context_data_val << 1);
+              if (context_data_position == bitsPerChar-1) {
+                context_data_position = 0;
+                context_data.push(getCharFromInt(context_data_val));
+                context_data_val = 0;
+              } else {
+                context_data_position++;
+              }
+            }
+            value = context_w.charCodeAt(0);
+            for (i=0 ; i<8 ; i++) {
+              context_data_val = (context_data_val << 1) | (value&1);
+              if (context_data_position == bitsPerChar-1) {
+                context_data_position = 0;
+                context_data.push(getCharFromInt(context_data_val));
+                context_data_val = 0;
+              } else {
+                context_data_position++;
+              }
+              value = value >> 1;
+            }
+          } else {
+            value = 1;
+            for (i=0 ; i<context_numBits ; i++) {
+              context_data_val = (context_data_val << 1) | value;
+              if (context_data_position ==bitsPerChar-1) {
+                context_data_position = 0;
+                context_data.push(getCharFromInt(context_data_val));
+                context_data_val = 0;
+              } else {
+                context_data_position++;
+              }
+              value = 0;
+            }
+            value = context_w.charCodeAt(0);
+            for (i=0 ; i<16 ; i++) {
+              context_data_val = (context_data_val << 1) | (value&1);
+              if (context_data_position == bitsPerChar-1) {
+                context_data_position = 0;
+                context_data.push(getCharFromInt(context_data_val));
+                context_data_val = 0;
+              } else {
+                context_data_position++;
+              }
+              value = value >> 1;
+            }
+          }
+          context_enlargeIn--;
+          if (context_enlargeIn == 0) {
+            context_enlargeIn = Math.pow(2, context_numBits);
+            context_numBits++;
+          }
+          delete context_dictionaryToCreate[context_w];
+        } else {
+          value = context_dictionary[context_w];
+          for (i=0 ; i<context_numBits ; i++) {
+            context_data_val = (context_data_val << 1) | (value&1);
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+            value = value >> 1;
+          }
+
+
+        }
+        context_enlargeIn--;
+        if (context_enlargeIn == 0) {
+          context_enlargeIn = Math.pow(2, context_numBits);
+          context_numBits++;
+        }
+        // Add wc to the dictionary.
+        context_dictionary[context_wc] = context_dictSize++;
+        context_w = String(context_c);
+      }
+    }
+
+    // Output the code for w.
+    if (context_w !== "") {
+      if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {
+        if (context_w.charCodeAt(0)<256) {
+          for (i=0 ; i<context_numBits ; i++) {
+            context_data_val = (context_data_val << 1);
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+          }
+          value = context_w.charCodeAt(0);
+          for (i=0 ; i<8 ; i++) {
+            context_data_val = (context_data_val << 1) | (value&1);
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+            value = value >> 1;
+          }
+        } else {
+          value = 1;
+          for (i=0 ; i<context_numBits ; i++) {
+            context_data_val = (context_data_val << 1) | value;
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+            value = 0;
+          }
+          value = context_w.charCodeAt(0);
+          for (i=0 ; i<16 ; i++) {
+            context_data_val = (context_data_val << 1) | (value&1);
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+            value = value >> 1;
+          }
+        }
+        context_enlargeIn--;
+        if (context_enlargeIn == 0) {
+          context_enlargeIn = Math.pow(2, context_numBits);
+          context_numBits++;
+        }
+        delete context_dictionaryToCreate[context_w];
+      } else {
+        value = context_dictionary[context_w];
+        for (i=0 ; i<context_numBits ; i++) {
+          context_data_val = (context_data_val << 1) | (value&1);
+          if (context_data_position == bitsPerChar-1) {
+            context_data_position = 0;
+            context_data.push(getCharFromInt(context_data_val));
+            context_data_val = 0;
+          } else {
+            context_data_position++;
+          }
+          value = value >> 1;
+        }
+
+
+      }
+      context_enlargeIn--;
+      if (context_enlargeIn == 0) {
+        context_enlargeIn = Math.pow(2, context_numBits);
+        context_numBits++;
+      }
+    }
+
+    // Mark the end of the stream
+    value = 2;
+    for (i=0 ; i<context_numBits ; i++) {
+      context_data_val = (context_data_val << 1) | (value&1);
+      if (context_data_position == bitsPerChar-1) {
+        context_data_position = 0;
+        context_data.push(getCharFromInt(context_data_val));
+        context_data_val = 0;
+      } else {
+        context_data_position++;
+      }
+      value = value >> 1;
+    }
+
+    // Flush the last char
+    while (true) {
+      context_data_val = (context_data_val << 1);
+      if (context_data_position == bitsPerChar-1) {
+        context_data.push(getCharFromInt(context_data_val));
+        break;
+      }
+      else context_data_position++;
+    }
+    return context_data.join('');
+  },
+
+  decompress: function (compressed) {
+    if (compressed == null) return "";
+    if (compressed == "") return null;
+    return LZString._decompress(compressed.length, 32768, function(index) { return compressed.charCodeAt(index); });
+  },
+
+  _decompress: function (length, resetValue, getNextValue) {
+    var dictionary = [],
+        next,
+        enlargeIn = 4,
+        dictSize = 4,
+        numBits = 3,
+        entry = "",
+        result = [],
+        i,
+        w,
+        bits, resb, maxpower, power,
+        c,
+        data = {val:getNextValue(0), position:resetValue, index:1};
+
+    for (i = 0; i < 3; i += 1) {
+      dictionary[i] = i;
+    }
+
+    bits = 0;
+    maxpower = Math.pow(2,2);
+    power=1;
+    while (power!=maxpower) {
+      resb = data.val & data.position;
+      data.position >>= 1;
+      if (data.position == 0) {
+        data.position = resetValue;
+        data.val = getNextValue(data.index++);
+      }
+      bits |= (resb>0 ? 1 : 0) * power;
+      power <<= 1;
+    }
+
+    switch (next = bits) {
+      case 0:
+          bits = 0;
+          maxpower = Math.pow(2,8);
+          power=1;
+          while (power!=maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb>0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+        c = f(bits);
+        break;
+      case 1:
+          bits = 0;
+          maxpower = Math.pow(2,16);
+          power=1;
+          while (power!=maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb>0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+        c = f(bits);
+        break;
+      case 2:
+        return "";
+    }
+    dictionary[3] = c;
+    w = c;
+    result.push(c);
+    while (true) {
+      if (data.index > length) {
+        return "";
+      }
+
+      bits = 0;
+      maxpower = Math.pow(2,numBits);
+      power=1;
+      while (power!=maxpower) {
+        resb = data.val & data.position;
+        data.position >>= 1;
+        if (data.position == 0) {
+          data.position = resetValue;
+          data.val = getNextValue(data.index++);
+        }
+        bits |= (resb>0 ? 1 : 0) * power;
+        power <<= 1;
+      }
+
+      switch (c = bits) {
+        case 0:
+          bits = 0;
+          maxpower = Math.pow(2,8);
+          power=1;
+          while (power!=maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb>0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+
+          dictionary[dictSize++] = f(bits);
+          c = dictSize-1;
+          enlargeIn--;
+          break;
+        case 1:
+          bits = 0;
+          maxpower = Math.pow(2,16);
+          power=1;
+          while (power!=maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb>0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+          dictionary[dictSize++] = f(bits);
+          c = dictSize-1;
+          enlargeIn--;
+          break;
+        case 2:
+          return result.join('');
+      }
+
+      if (enlargeIn == 0) {
+        enlargeIn = Math.pow(2, numBits);
+        numBits++;
+      }
+
+      if (dictionary[c]) {
+        entry = dictionary[c];
+      } else {
+        if (c === dictSize) {
+          entry = w + w.charAt(0);
+        } else {
+          return null;
+        }
+      }
+      result.push(entry);
+
+      // Add w+entry[0] to the dictionary.
+      dictionary[dictSize++] = w + entry.charAt(0);
+      enlargeIn--;
+
+      w = entry;
+
+      if (enlargeIn == 0) {
+        enlargeIn = Math.pow(2, numBits);
+        numBits++;
+      }
+
+    }
+  }
+};
+  return LZString;
+})();
+
+if (typeof define === 'function' && define.amd) {
+  define(function () { return LZString; });
+} else if( typeof module !== 'undefined' && module != null ) {
+  module.exports = LZString
+}
+//# sourceURL=./node_modules/lz-string/libs/lz-string.js
 },
   80: function(module, exports, require) {'use strict';
 
@@ -44279,19 +44809,20 @@ exports.undefined_recursive_module = undefined_recursive_module;
 };
 let nameMap = {
   "./lib/js/src/Main.js": 1,
-  "./lib/js/src/ExamplesDropdown.js": 99,
-  "./node_modules/reason-react/lib/js/src/ReasonReact.js": 97,
-  "./node_modules/reason-react/lib/js/src/ReasonReactOptimizedCreateClass.js": 98,
-  "./node_modules/reason-react/lib/js/src/ReactDOMRe.js": 87,
-  "./node_modules/react-dom/index.js": 88, "react-dom": 88,
-  "./node_modules/react-dom/cjs/react-dom.development.js": 96,
-  "./node_modules/react-dom/cjs/react-dom.production.min.js": 89,
-  "./node_modules/fbjs/lib/containsNode.js": 93,
-  "./node_modules/fbjs/lib/isTextNode.js": 94,
-  "./node_modules/fbjs/lib/isNode.js": 95,
-  "./node_modules/fbjs/lib/shallowEqual.js": 92,
-  "./node_modules/fbjs/lib/getActiveElement.js": 91,
-  "./node_modules/fbjs/lib/ExecutionEnvironment.js": 90,
+  "./lib/js/src/ExamplesDropdown.js": 100,
+  "./node_modules/reason-react/lib/js/src/ReasonReact.js": 98,
+  "./node_modules/reason-react/lib/js/src/ReasonReactOptimizedCreateClass.js": 99,
+  "./node_modules/reason-react/lib/js/src/ReactDOMRe.js": 88,
+  "./node_modules/react-dom/index.js": 89, "react-dom": 89,
+  "./node_modules/react-dom/cjs/react-dom.development.js": 97,
+  "./node_modules/react-dom/cjs/react-dom.production.min.js": 90,
+  "./node_modules/fbjs/lib/containsNode.js": 94,
+  "./node_modules/fbjs/lib/isTextNode.js": 95,
+  "./node_modules/fbjs/lib/isNode.js": 96,
+  "./node_modules/fbjs/lib/shallowEqual.js": 93,
+  "./node_modules/fbjs/lib/getActiveElement.js": 92,
+  "./node_modules/fbjs/lib/ExecutionEnvironment.js": 91,
+  "./node_modules/lz-string/libs/lz-string.js": 87, "lz-string": 87,
   "./node_modules/react/index.js": 80, "react": 80,
   "./node_modules/react/cjs/react.development.js": 84,
   "./node_modules/prop-types/checkPropTypes.js": 85,

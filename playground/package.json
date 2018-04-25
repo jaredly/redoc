@@ -10,6 +10,7 @@
   "dependencies": {
     "bs-css": "^6.6.0",
     "bs-platform": "3",
+    "lz-string": "^1.4.4",
     "reason-react": "*"
   }
 }

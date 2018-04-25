@@ -34,6 +34,7 @@ module Styles = {
     flexDirection(`column),
   ]);
   let previewPane = style([
+    position(`relative),
     display(`flex),
     flexDirection(`column),
     alignItems(`center),
@@ -216,6 +217,27 @@ type context = Worker | Window(windowContext);
 
 let str = ReasonReact.stringToElement;
 
+module HighlightResult = {
+  open ReasonReact;
+  let component = reducerComponent("HighlightResult");
+  let make = (~rendered, ~tokens, _children) => {
+    ...component,
+    initialState: () => ref(None),
+    reducer: ((), _) => NoUpdate,
+    render: ({state}) => {
+      <div
+        dangerouslySetInnerHTML={"__html": rendered}
+        ref={node => Js.toOption(node) |?< node => {
+          if (state^ == None) {
+            state := Some(node);
+            tokens |> Array.iter(token => highlightNode(. node, token))
+          }
+        }}
+      />
+    }
+  };
+};
+
 module Main = {
   type state = {
     text: string,
@@ -226,6 +248,7 @@ module Main = {
     mutable shareInput: option(Dom.element),
     logs: list((string, string)),
     resultJs: string,
+    searching: string,
     syntax,
     status,
   };
@@ -238,6 +261,7 @@ module Main = {
     | ClearLogs
     | ToOCaml
     | ToReason
+    | SetSearch(string)
     | SetStatus(status);
 
   let (syntax, text, canvasSize) = parseUrl(href);
@@ -248,6 +272,7 @@ module Main = {
     initialState: () => {
       text,
       logs: [],
+      searching: "",
       canvasSize,
       /* autorun: true, */
       shareInput: None,
@@ -265,6 +290,7 @@ module Main = {
     reducer: (action, state) => Update(switch action {
     | Text(text) => {...state, text}
     | Js(js) => {...state, status: Clean, resultJs: js}
+    | SetSearch(searching) => {...state, searching}
     | Reset(text) => {
       state.cm |?< cm => setValue(cm, text);
       {...state, text}
@@ -387,10 +413,45 @@ module Main = {
           }}
         </div>
         <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(state.canvasSize) ++ "px", ())>
-          <div>
+          <div className=Css.(style([
+            /* display(`flex), */
+            /* flexDirection(`row), */
+            /* alignItems(`center), */
+            position(`relative),
+            alignSelf(`stretch),
+          ]))>
+          <input
+            className=Css.(style([
+            border(px(1), `solid, hex("ccc")),
+              padding2(~v=px(8), ~h=px(16)),
+              borderStyle(`none),
+              /* flex(1), */
+              width(`percent(100.)),
+              boxSizing(`borderBox),
+            ]))
+            value=state.searching
+            onChange=(evt => send(SetSearch(getInputValue(evt))))
+            placeholder="Search the docs inline"
+          />
+          (state.searching != ""
+          ? <button onClick=(_evt => send(SetSearch(""))) className=Css.(style([
+            position(`absolute),
+            top(px(5)),
+            right(px(5)),
+            fontSize(px(16)),
+            fontWeight(600),
+            borderStyle(`none),
+            cursor(`pointer),
+            zIndex(20),
+          ]))>(str("x"))</button>
+          : ReasonReact.nullElement)
           </div>
           <div>
-            <h1>(str("Welcome to the Playground!"))</h1>
+            <h1 className=Css.(style([
+            fontSize(px(30)),
+            lineHeight(1.1),
+            textAlign(`center),
+            ]))>(str("Welcome to the Playground!"))</h1>
             (str("Press ctrl+enter or cmd+enter to evaluate"))
           </div>
           <div className=Styles.line />
@@ -422,7 +483,7 @@ module Main = {
             maxHeight(px(200)),
             overflow(`auto),
             backgroundColor(hex("eee"))
-          ]))>(str(state.resultJs))</pre>
+          ]))><code>(str(state.resultJs))</code></pre>
           <div className=Styles.line />
           (str("Log output"))
           <div className=Css.(style([
@@ -443,6 +504,42 @@ module Main = {
             ))
           )}
           </div>
+          {state.searching != ""
+          ?
+          <div className=Css.(style([
+            position(`absolute),
+            top(px(50)),
+            bottom(zero),
+            overflow(`auto),
+            left(zero),
+            right(zero),
+            backgroundColor(white),
+          ]))>
+          ({
+            let results = searchIndex(state.searching) |> Js.Array.slice(~start=0, ~end_=20);
+            let results = results |> Array.mapi((i, result) => (
+              <div className="result" key=(string_of_int(i))>
+                <div className=Css.(style([
+                  display(`flex),
+                  justifyContent(`spaceBetween),
+                ]))>
+                  <div className="title">(str(result##doc##title))</div>
+                  <div className="breadcrumb">(str(result##doc##breadcrumb))</div>
+                </div>
+                  <HighlightResult
+                    rendered=(result##doc##rendered)
+                    tokens=(state.searching |> Js.String.splitByRe([%bs.re {|/\s+/g|}]))
+                  />
+              </div>
+            ));
+            if (results == [||]) {
+              str("No results")
+            } else {
+              ReasonReact.arrayToElement(results)
+            }
+          })
+          </div>
+          : ReasonReact.nullElement}
         </div>
       </div>
     }

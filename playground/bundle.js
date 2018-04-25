@@ -14,6 +14,7 @@ var Infix = require(63);
 var Utils = require(79);
 var React = require(80);
 var Js_exn = require(62);
+var Caml_obj = require(7);
 var LzString = require(87);
 var ReactDOMRe = require(88);
 var Caml_format = require(13);
@@ -62,22 +63,25 @@ var editorPane = Css.style(/* :: */[
     ]);
 
 var previewPane = Css.style(/* :: */[
-      Css.display(/* flex */-1010954439),
+      Css.position(/* relative */903134412),
       /* :: */[
-        Css.flexDirection(/* column */-963948842),
+        Css.display(/* flex */-1010954439),
         /* :: */[
-          Css.alignItems(/* center */98248149),
+          Css.flexDirection(/* column */-963948842),
           /* :: */[
-            Css.minWidth(Css.px(300)),
+            Css.alignItems(/* center */98248149),
             /* :: */[
-              Css.overflow(/* auto */-1065951377),
+              Css.minWidth(Css.px(300)),
               /* :: */[
-                Css.zIndex(10),
+                Css.overflow(/* auto */-1065951377),
                 /* :: */[
-                  Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
+                  Css.zIndex(10),
                   /* :: */[
-                    Css.padding(Css.px(16)),
-                    /* [] */0
+                    Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
+                    /* :: */[
+                      Css.padding(Css.px(16)),
+                      /* [] */0
+                    ]
                   ]
                 ]
               ]
@@ -389,17 +393,9 @@ function str(prim) {
   return prim;
 }
 
-var match = parseUrl(location.href);
+var component = ReasonReact.reducerComponent("HighlightResult");
 
-var canvasSize = match[2];
-
-var text = match[1];
-
-var syntax = match[0];
-
-var component = ReasonReact.reducerComponent("Main");
-
-function make() {
+function make(rendered, tokens, _) {
   return /* record */[
           /* debugName */component[/* debugName */0],
           /* reactClassInternal */component[/* reactClassInternal */1],
@@ -411,16 +407,74 @@ function make() {
           /* willUpdate */component[/* willUpdate */7],
           /* shouldUpdate */component[/* shouldUpdate */8],
           /* render */(function (param) {
+              var state = param[/* state */2];
+              return React.createElement("div", {
+                          ref: (function (node) {
+                              return Infix.$pipe$unknown$less((node == null) ? /* None */0 : [node], (function (node) {
+                                            if (state[0] === /* None */0) {
+                                              state[0] = /* Some */[node];
+                                              return $$Array.iter((function (token) {
+                                                            return Utils.highlightNode(node, token);
+                                                          }), tokens);
+                                            } else {
+                                              return 0;
+                                            }
+                                          }));
+                            }),
+                          dangerouslySetInnerHTML: {
+                            __html: rendered
+                          }
+                        });
+            }),
+          /* initialState */(function () {
+              return [/* None */0];
+            }),
+          /* retainedProps */component[/* retainedProps */11],
+          /* reducer */(function (_, _$1) {
+              return /* NoUpdate */0;
+            }),
+          /* subscriptions */component[/* subscriptions */13],
+          /* jsElementWrapped */component[/* jsElementWrapped */14]
+        ];
+}
+
+var HighlightResult = /* module */[
+  /* component */component,
+  /* make */make
+];
+
+var match = parseUrl(location.href);
+
+var canvasSize = match[2];
+
+var text = match[1];
+
+var syntax = match[0];
+
+var component$1 = ReasonReact.reducerComponent("Main");
+
+function make$1() {
+  return /* record */[
+          /* debugName */component$1[/* debugName */0],
+          /* reactClassInternal */component$1[/* reactClassInternal */1],
+          /* handedOffState */component$1[/* handedOffState */2],
+          /* willReceiveProps */component$1[/* willReceiveProps */3],
+          /* didMount */component$1[/* didMount */4],
+          /* didUpdate */component$1[/* didUpdate */5],
+          /* willUnmount */component$1[/* willUnmount */6],
+          /* willUpdate */component$1[/* willUpdate */7],
+          /* shouldUpdate */component$1[/* shouldUpdate */8],
+          /* render */(function (param) {
               var send = param[/* send */4];
               var state = param[/* state */2];
               var run = function (text) {
-                var url = makeUrl(text, state[/* syntax */7], state[/* canvasSize */3]);
+                var url = makeUrl(text, state[/* syntax */8], state[/* canvasSize */3]);
                 Utils.replaceState(url);
                 Curry._1(send, /* ClearLogs */0);
                 Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                         return Curry._1(Utils.clearMarks, cm);
                       }));
-                var match = state[/* syntax */7] === /* Reason */1;
+                var match = state[/* syntax */8] === /* Reason */1;
                 var match$1 = match ? Utils.reasonCompile(text) : Utils.ocamlCompile(text);
                 if (match$1.tag) {
                   var match$2 = match$1[0];
@@ -432,7 +486,7 @@ function make() {
                               });
                           return /* () */0;
                         }));
-                  return Curry._1(send, /* SetStatus */Block.__(5, [/* Failed */Block.__(0, [
+                  return Curry._1(send, /* SetStatus */Block.__(6, [/* Failed */Block.__(0, [
                                     match$2[0],
                                     spos,
                                     epos
@@ -448,7 +502,7 @@ function make() {
                   return Curry._1(send, /* Js */Block.__(2, [js]));
                 }
               };
-              var match = state[/* status */8];
+              var match = state[/* status */9];
               var tmp;
               if (typeof match === "number") {
                 tmp = null;
@@ -464,6 +518,56 @@ function make() {
                       className: error,
                       dangerouslySetInnerHTML: inner
                     });
+              }
+              var match$1 = state[/* searching */7] !== "";
+              var match$2 = state[/* searching */7] !== "";
+              var tmp$1;
+              if (match$2) {
+                var results = Utils.searchIndex(state[/* searching */7]).slice(0, 20);
+                var results$1 = $$Array.mapi((function (i, result) {
+                        return React.createElement("div", {
+                                    key: String(i),
+                                    className: "result"
+                                  }, React.createElement("div", {
+                                        className: Css.style(/* :: */[
+                                              Css.display(/* flex */-1010954439),
+                                              /* :: */[
+                                                Css.justifyContent(/* spaceBetween */516682146),
+                                                /* [] */0
+                                              ]
+                                            ])
+                                      }, React.createElement("div", {
+                                            className: "title"
+                                          }, result.doc.title), React.createElement("div", {
+                                            className: "breadcrumb"
+                                          }, result.doc.breadcrumb)), ReasonReact.element(/* None */0, /* None */0, make(result.doc.rendered, state[/* searching */7].split((/\s+/g)), /* array */[])));
+                      }), results);
+                tmp$1 = React.createElement("div", {
+                      className: Css.style(/* :: */[
+                            Css.position(/* absolute */-1013592457),
+                            /* :: */[
+                              Css.top(Css.px(50)),
+                              /* :: */[
+                                Css.bottom(Css.zero),
+                                /* :: */[
+                                  Css.overflow(/* auto */-1065951377),
+                                  /* :: */[
+                                    Css.left(Css.zero),
+                                    /* :: */[
+                                      Css.right(Css.zero),
+                                      /* :: */[
+                                        Css.backgroundColor(Css.white),
+                                        /* [] */0
+                                      ]
+                                    ]
+                                  ]
+                                ]
+                              ]
+                            ]
+                          ])
+                    }, Caml_obj.caml_equal(results$1, /* array */[]) ? "No results" : results$1);
+              } else {
+                tmp$1 = null;
               }
               return React.createElement("div", {
                           className: container
@@ -487,13 +591,13 @@ function make() {
                                           ])
                                     }), "Syntax:", spacer(8), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */7] === /* OCaml */0,
+                                      disabled: state[/* syntax */8] === /* OCaml */0,
                                       onClick: (function () {
                                           return Curry._1(send, /* ToOCaml */1);
                                         })
                                     }, "OCaml"), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */7] === /* Reason */1,
+                                      disabled: state[/* syntax */8] === /* Reason */1,
                                       onClick: (function () {
                                           return Curry._1(send, /* ToReason */2);
                                         })
@@ -513,7 +617,7 @@ function make() {
                                       onClick: (function () {
                                           return Infix.$pipe$unknown$less(state[/* shareInput */4], (function (input) {
                                                         return Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
-                                                                      var url = makeUrl(cm.getValue(), state[/* syntax */7], state[/* canvasSize */3]);
+                                                                      var url = makeUrl(cm.getValue(), state[/* syntax */8], state[/* canvasSize */3]);
                                                                       input.value = url;
                                                                       input.select();
                                                                       document.execCommand("copy");
@@ -539,7 +643,80 @@ function make() {
                               style: {
                                 width: String(state[/* canvasSize */3]) + "px"
                               }
-                            }, React.createElement("div", undefined), React.createElement("div", undefined, React.createElement("h1", undefined, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
+                            }, React.createElement("div", {
+                                  className: Css.style(/* :: */[
+                                        Css.position(/* relative */903134412),
+                                        /* :: */[
+                                          Css.alignSelf(/* stretch */-162316795),
+                                          /* [] */0
+                                        ]
+                                      ])
+                                }, React.createElement("input", {
+                                      className: Css.style(/* :: */[
+                                            Css.border(Css.px(1), /* solid */12956715, Css.hex("ccc")),
+                                            /* :: */[
+                                              Css.padding2(Css.px(8), Css.px(16)),
+                                              /* :: */[
+                                                Css.borderStyle(/* none */-922086728),
+                                                /* :: */[
+                                                  Css.width(/* `percent */[
+                                                        -119887163,
+                                                        100
+                                                      ]),
+                                                  /* :: */[
+                                                    Css.boxSizing(/* borderBox */9307263),
+                                                    /* [] */0
+                                                  ]
+                                                ]
+                                              ]
+                                            ]
+                                          ]),
+                                      placeholder: "Search the docs inline",
+                                      value: state[/* searching */7],
+                                      onChange: (function (evt) {
+                                          return Curry._1(send, /* SetSearch */Block.__(5, [Utils.getInputValue(evt)]));
+                                        })
+                                    }), match$1 ? React.createElement("button", {
+                                        className: Css.style(/* :: */[
+                                              Css.position(/* absolute */-1013592457),
+                                              /* :: */[
+                                                Css.top(Css.px(5)),
+                                                /* :: */[
+                                                  Css.right(Css.px(5)),
+                                                  /* :: */[
+                                                    Css.fontSize(Css.px(16)),
+                                                    /* :: */[
+                                                      Css.fontWeight(600),
+                                                      /* :: */[
+                                                        Css.borderStyle(/* none */-922086728),
+                                                        /* :: */[
+                                                          Css.cursor(/* pointer */-786317123),
+                                                          /* :: */[
+                                                            Css.zIndex(20),
+                                                            /* [] */0
+                                                          ]
+                                                        ]
+                                                      ]
+                                                    ]
+                                                  ]
+                                                ]
+                                              ]
+                                            ]),
+                                        onClick: (function () {
+                                            return Curry._1(send, /* SetSearch */Block.__(5, [""]));
+                                          })
+                                      }, "x") : null), React.createElement("div", undefined, React.createElement("h1", {
+                                      className: Css.style(/* :: */[
+                                            Css.fontSize(Css.px(30)),
+                                            /* :: */[
+                                              Css.lineHeight(1.1),
+                                              /* :: */[
+                                                Css.textAlign(/* center */98248149),
+                                                /* [] */0
+                                              ]
+                                            ]
+                                          ])
+                                    }, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
                                   className: line
                                 }), React.createElement("div", undefined, "A", React.createElement("input", {
                                       className: Css.style(/* :: */[
@@ -584,7 +761,7 @@ function make() {
                                           ]
                                         ]
                                       ])
-                                }, state[/* resultJs */6]), React.createElement("div", {
+                                }, React.createElement("code", undefined, state[/* resultJs */6])), React.createElement("div", {
                                   className: line
                                 }), "Log output", React.createElement("div", {
                                   className: Css.style(/* :: */[
@@ -617,7 +794,7 @@ function make() {
                                                           ]
                                                         ])
                                                   }, param[1]);
-                                      }), $$Array.of_list(List.rev(state[/* logs */5]))))));
+                                      }), $$Array.of_list(List.rev(state[/* logs */5])))), tmp$1));
             }),
           /* initialState */(function () {
               return /* record */[
@@ -632,11 +809,12 @@ function make() {
                       /* shareInput : None */0,
                       /* logs : [] */0,
                       /* resultJs */"/* Evaluate to see generated js */",
+                      /* searching */"",
                       /* syntax */syntax,
                       /* status : Clean */0
                     ];
             }),
-          /* retainedProps */component[/* retainedProps */11],
+          /* retainedProps */component$1[/* retainedProps */11],
           /* reducer */(function (action, state) {
               var tmp;
               if (typeof action === "number") {
@@ -650,8 +828,9 @@ function make() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs : [] */0,
                         /* resultJs */state[/* resultJs */6],
-                        /* syntax */state[/* syntax */7],
-                        /* status */state[/* status */8]
+                        /* searching */state[/* searching */7],
+                        /* syntax */state[/* syntax */8],
+                        /* status */state[/* status */9]
                       ];
                       break;
                   case 1 : 
@@ -667,8 +846,9 @@ function make() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
+                                            /* searching */state[/* searching */7],
                                             /* syntax : OCaml */0,
-                                            /* status */state[/* status */8]
+                                            /* status */state[/* status */9]
                                           ];
                                   }
                                   catch (exn){
@@ -680,7 +860,8 @@ function make() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
-                                            /* syntax */state[/* syntax */7],
+                                            /* searching */state[/* searching */7],
+                                            /* syntax */state[/* syntax */8],
                                             /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                           ];
                                   }
@@ -699,8 +880,9 @@ function make() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
+                                            /* searching */state[/* searching */7],
                                             /* syntax : Reason */1,
-                                            /* status */state[/* status */8]
+                                            /* status */state[/* status */9]
                                           ];
                                   }
                                   catch (exn){
@@ -712,7 +894,8 @@ function make() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
-                                            /* syntax */state[/* syntax */7],
+                                            /* searching */state[/* searching */7],
+                                            /* syntax */state[/* syntax */8],
                                             /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                           ];
                                   }
@@ -731,8 +914,9 @@ function make() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* syntax */state[/* syntax */7],
-                        /* status */state[/* status */8]
+                        /* searching */state[/* searching */7],
+                        /* syntax */state[/* syntax */8],
+                        /* status */state[/* status */9]
                       ];
                       break;
                   case 1 : 
@@ -749,8 +933,9 @@ function make() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* syntax */state[/* syntax */7],
-                        /* status */state[/* status */8]
+                        /* searching */state[/* searching */7],
+                        /* syntax */state[/* syntax */8],
+                        /* status */state[/* status */9]
                       ];
                       break;
                   case 2 : 
@@ -762,7 +947,8 @@ function make() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */action[0],
-                        /* syntax */state[/* syntax */7],
+                        /* searching */state[/* searching */7],
+                        /* syntax */state[/* syntax */8],
                         /* status : Clean */0
                       ];
                       break;
@@ -775,8 +961,9 @@ function make() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* syntax */state[/* syntax */7],
-                        /* status */state[/* status */8]
+                        /* searching */state[/* searching */7],
+                        /* syntax */state[/* syntax */8],
+                        /* status */state[/* status */9]
                       ];
                       break;
                   case 4 : 
@@ -794,8 +981,9 @@ function make() {
                           state[/* logs */5]
                         ],
                         /* resultJs */state[/* resultJs */6],
-                        /* syntax */state[/* syntax */7],
-                        /* status */state[/* status */8]
+                        /* searching */state[/* searching */7],
+                        /* syntax */state[/* syntax */8],
+                        /* status */state[/* status */9]
                       ];
                       break;
                   case 5 : 
@@ -807,7 +995,22 @@ function make() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* syntax */state[/* syntax */7],
+                        /* searching */action[0],
+                        /* syntax */state[/* syntax */8],
+                        /* status */state[/* status */9]
+                      ];
+                      break;
+                  case 6 : 
+                      tmp = /* record */[
+                        /* text */state[/* text */0],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
+                        /* shareInput */state[/* shareInput */4],
+                        /* logs */state[/* logs */5],
+                        /* resultJs */state[/* resultJs */6],
+                        /* searching */state[/* searching */7],
+                        /* syntax */state[/* syntax */8],
                         /* status */action[0]
                       ];
                       break;
@@ -816,8 +1019,8 @@ function make() {
               }
               return /* Update */Block.__(0, [tmp]);
             }),
-          /* subscriptions */component[/* subscriptions */13],
-          /* jsElementWrapped */component[/* jsElementWrapped */14]
+          /* subscriptions */component$1[/* subscriptions */13],
+          /* jsElementWrapped */component$1[/* jsElementWrapped */14]
         ];
 }
 
@@ -825,11 +1028,11 @@ var Main = /* module */[
   /* syntax */syntax,
   /* text */text,
   /* canvasSize */canvasSize,
-  /* component */component,
-  /* make */make
+  /* component */component$1,
+  /* make */make$1
 ];
 
-ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, make(/* array */[])), "main");
+ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, make$1(/* array */[])), "main");
 
 exports.Styles = Styles;
 exports.spacer = spacer;
@@ -840,6 +1043,7 @@ exports.parseUrl = parseUrl;
 exports.makeUrl = makeUrl;
 exports.runCode = runCode;
 exports.str = str;
+exports.HighlightResult = HighlightResult;
 exports.Main = Main;
 /*  Not a pure module */
 //# sourceURL=./lib/js/src/Main.js
@@ -21972,11 +22176,71 @@ function getInputValue($$event) {
   return $$event.target.value;
 }
 
+var index = elasticlunr.Index.load(searchindex);
+
+var config = {
+  bool: "AND",
+  fields: {
+    title: {
+      boost: 2
+    },
+    contents: {
+      boost: 1
+    }
+  },
+  expand: true
+};
+
+function searchIndex(text) {
+  return index.search(text, config);
+}
+
 var clearMarks = (
   (function(cm) {
     cm.getAllMarks().forEach(mark => {
       cm.removeLineWidget(mark)
     })
+  })
+);
+
+var highlightNode = (
+  (function(node, token) {
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    }
+
+    var walk = (node, fn) => {
+      var nodes = [].slice.call(node.childNodes)
+      nodes.forEach(child => {
+        if (false === fn(child)) return;
+        if (child.parentNode === node) {
+          walk(child, fn)
+        }
+      })
+    }
+
+    walk(node, node => {
+      if (node.nodeName === '#text') {
+        let at = 0;
+        let pieces = [];
+        node.textContent.replace(new RegExp(escapeRegExp(token), 'gi'), (matched, pos, full) => {
+          pieces.push(document.createTextNode(full.slice(at, pos)))
+          var span = document.createElement('span')
+          span.textContent = matched
+          span.className='result-highlighted'
+          pieces.push(span)
+          at = pos + matched.length
+        })
+        if (pieces.length === 0) {
+          return
+        }
+        if (at < node.textContent.length) {
+          pieces.push(document.createTextNode(node.textContent.slice(at)))
+        }
+        node.replaceWith(...pieces)
+      }
+    })
+
   })
 );
 
@@ -22003,32 +22267,33 @@ var fromTextArea = (
       onRun(cm.getValue())
     }
 
+    var toggleComment = cm => {
+      var options = {indent: true}
+      var minLine = Infinity, ranges = cm.listSelections(), mode = null;
+      for (var i = ranges.length - 1; i >= 0; i--) {
+        var from = ranges[i].from(), to = ranges[i].to();
+        if (from.line >= minLine) continue;
+        if (to.line >= minLine) to = Pos(minLine, 0);
+        minLine = from.line;
+        if (mode == null) {
+          if (cm.uncomment(from, to, options)) mode = "un";
+          else { cm.blockComment(from, to, options); mode = "line"; }
+        } else if (mode == "un") {
+          cm.uncomment(from, to, options);
+        } else {
+          cm.blockComment(from, to, options);
+        }
+      }
+    };
+
     var cm = CodeMirror.fromTextArea(textarea, {
       lineNumbers: true,
       lineWrapping: true,
-      /* keyMap: 'sublime', */
       viewportMargin: Infinity,
       extraKeys: {
         'Cmd-Enter': (cm) => onRun(cm.getValue()),
         'Ctrl-Enter': (cm) => onRun(cm.getValue()),
-        "Cmd-/": cm => {
-          var options = {indent: true}
-          var minLine = Infinity, ranges = cm.listSelections(), mode = null;
-          for (var i = ranges.length - 1; i >= 0; i--) {
-            var from = ranges[i].from(), to = ranges[i].to();
-            if (from.line >= minLine) continue;
-            if (to.line >= minLine) to = Pos(minLine, 0);
-            minLine = from.line;
-            if (mode == null) {
-              if (cm.uncomment(from, to, options)) mode = "un";
-              else { cm.blockComment(from, to, options); mode = "line"; }
-            } else if (mode == "un") {
-              cm.uncomment(from, to, options);
-            } else {
-              cm.blockComment(from, to, options);
-            }
-          }
-        },
+        "Cmd-/": toggleComment,
         Tab: betterTab,
         'Shift-Tab': betterShiftTab,
       },
@@ -22101,14 +22366,18 @@ function ocamlCompile(code) {
 
 exports.replaceState = replaceState;
 exports.getInputValue = getInputValue;
+exports.index = index;
+exports.config = config;
+exports.searchIndex = searchIndex;
 exports.clearMarks = clearMarks;
+exports.highlightNode = highlightNode;
 exports.fromTextArea = fromTextArea;
 exports.htmlEscape = htmlEscape;
 exports.fixEscapes = fixEscapes;
 exports.jsPos = jsPos;
 exports.reasonCompile = reasonCompile;
 exports.ocamlCompile = ocamlCompile;
-/* clearMarks Not a pure module */
+/* index Not a pure module */
 //# sourceURL=./lib/js/src/Utils.js
 },
   63: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE

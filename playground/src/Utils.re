@@ -37,11 +37,73 @@ type textarea = Dom.element;
 type jspos = {. "line": int, "ch": int};
 [@bs.send] external markText: (codemirror, jspos, jspos, {. "className": string}) => unit = "";
 
+type indexData;
+type index;
+[@bs.val] external indexData: indexData = "searchindex";
+[@bs.val] [@bs.scope "elasticlunr.Index"] external load: indexData => index = "";
+let index = load(indexData);
+let config = {"bool": "AND", "fields": {"title": {"boost": 2}, "contents": {"boost": 1}}, "expand": true};
+type searchResult = {.
+  "score": float,
+  "doc": {.
+    "href": string,
+    "title": string,
+    "contents": string,
+    "rendered": string,
+    "breadcrumb": string
+  }
+};
+[@bs.send] external searchIndex: (index, string, 'config) => array(searchResult) = "search";
+let searchIndex = text => searchIndex(index, text, config);
+/* var index = elasticlunr.Index.load(window.searchindex); */
+/* var config = {bool: 'AND', fields: {title: {boost: 2}, contents: {boost: 1}}, expand: true}; */
+
 let clearMarks: codemirror => unit = [%bs.raw {|
   (function(cm) {
     cm.getAllMarks().forEach(mark => {
       cm.removeLineWidget(mark)
     })
+  })
+|}];
+
+let highlightNode: (. Dom.element, string) => unit = [%bs.raw {|
+  (function(node, token) {
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    }
+
+    var walk = (node, fn) => {
+      var nodes = [].slice.call(node.childNodes)
+      nodes.forEach(child => {
+        if (false === fn(child)) return;
+        if (child.parentNode === node) {
+          walk(child, fn)
+        }
+      })
+    }
+
+    walk(node, node => {
+      if (node.nodeName === '#text') {
+        let at = 0;
+        let pieces = [];
+        node.textContent.replace(new RegExp(escapeRegExp(token), 'gi'), (matched, pos, full) => {
+          pieces.push(document.createTextNode(full.slice(at, pos)))
+          var span = document.createElement('span')
+          span.textContent = matched
+          span.className='result-highlighted'
+          pieces.push(span)
+          at = pos + matched.length
+        })
+        if (pieces.length === 0) {
+          return
+        }
+        if (at < node.textContent.length) {
+          pieces.push(document.createTextNode(node.textContent.slice(at)))
+        }
+        node.replaceWith(...pieces)
+      }
+    })
+
   })
 |}];
 
@@ -85,6 +147,7 @@ let fromTextArea: (. textarea, string => unit) => codemirror = [%bs.raw {|
           cm.blockComment(from, to, options);
         }
       }
+    };
 
     var cm = CodeMirror.fromTextArea(textarea, {
       lineNumbers: true,
@@ -93,8 +156,7 @@ let fromTextArea: (. textarea, string => unit) => codemirror = [%bs.raw {|
       extraKeys: {
         'Cmd-Enter': (cm) => onRun(cm.getValue()),
         'Ctrl-Enter': (cm) => onRun(cm.getValue()),
-        "Cmd-/": toggleComment
-        },
+        "Cmd-/": toggleComment,
         Tab: betterTab,
         'Shift-Tab': betterShiftTab,
       },

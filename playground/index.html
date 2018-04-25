@@ -11,6 +11,24 @@
     bottom: 0;
     display: flex;
   }
+  .result .result-highlighted {
+  color: #9e009e!important;
+  font-weight: 400;
+}
+
+.result .breadcrumb{
+  color: #5a5a5a;
+  font-size: .8em;
+}
+
+.result h4.item {
+  border-top: none;
+}
+
+.result {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
 </style>
 <script>
   let examplesData = [
@@ -27,6 +45,9 @@
 <script src="../static/refmt.js"></script>
 <script src="colors.js"></script>
 <script src="../../../fork/bucklescript/docs/bucklescript-deps.js"></script>
+<script src="../../../fork/bucklescript/docs/searchables.json.index.js"></script>
+<script src="../static/elasticlunr.js"></script>
+<link href="../static/styles.css" rel=stylesheet>
 <script>
   window.process = {
     env: {

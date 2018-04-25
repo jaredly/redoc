@@ -13,12 +13,14 @@ var Curry = require(4);
 var Infix = require(63);
 var Utils = require(79);
 var React = require(80);
+var Js_exn = require(62);
 var LzString = require(87);
 var ReactDOMRe = require(88);
 var Caml_format = require(13);
 var ReasonReact = require(98);
+var Js_primitive = require(100);
 var Caml_primitive = require(9);
-var ExamplesDropdown = require(100);
+var ExamplesDropdown = require(101);
 var Caml_builtin_exceptions = require(6);
 
 Css.$$global(".CodeMirror", /* :: */[
@@ -68,12 +70,15 @@ var previewPane = Css.style(/* :: */[
           /* :: */[
             Css.minWidth(Css.px(300)),
             /* :: */[
-              Css.zIndex(10),
+              Css.overflow(/* auto */-1065951377),
               /* :: */[
-                Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
+                Css.zIndex(10),
                 /* :: */[
-                  Css.padding(Css.px(16)),
-                  /* [] */0
+                  Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
+                  /* :: */[
+                    Css.padding(Css.px(16)),
+                    /* [] */0
+                  ]
                 ]
               ]
             ]
@@ -339,8 +344,8 @@ function makeUrl(code, syntax, canvasSize) {
               ) + ("&code=" + (data + ("&canvas=" + String(canvasSize)))))));
 }
 
-function runCode(code) {
-  var fn = "(function(exports, module, require) {\n    " + (String(code) + "\n  })");
+function runCode(code, addLog) {
+  var fn = "(function(exports, module, require, addLog) {\n    var oldConsole = window.console;\n    var console = Object.assign({}, window.console, {\n      log: (...items) => {oldConsole.log(...items); addLog(\'log\', items)},\n      warn: (...items) => {\n        oldConsole.warn(...items); addLog(\'warn\', items)\n      },\n      error: (...items) => {\n        oldConsole.error(...items); addLog(\'error\', items)\n      },\n    });\n    /* try { */\n    " + (String(code) + "\n    /* } catch(e) { */\n      /* window.console = oldConsole; */\n      /* throw e */\n    /* } */\n  })");
   var fn$1 = eval(fn);
   var $$exports = function () {
     return { };
@@ -353,9 +358,31 @@ function runCode(code) {
       return packRequire(path);
     }
   };
-  return Curry._3(fn$1, $$exports, {
-              exports: $$exports
-            }, $$require);
+  try {
+    return Curry._4(fn$1, $$exports, {
+                exports: $$exports
+              }, $$require, addLog);
+  }
+  catch (raw_exn){
+    var exn = Js_exn.internalToOCamlException(raw_exn);
+    console.log(exn);
+    var match = exn.message;
+    var match$1 = exn.stack;
+    var exit = 0;
+    if (match !== undefined && match$1 !== undefined) {
+      return addLog("error", match + ("\n" + match$1));
+    } else {
+      exit = 1;
+    }
+    if (exit === 1) {
+      if (exn[0] === Caml_builtin_exceptions.failure) {
+        return addLog("error", "Failure(" + (exn[1] + ")"));
+      } else {
+        return addLog("error", Infix.$pipe$unknown(Js_primitive.undefined_to_opt(JSON.stringify(exn)), "Unknown error"));
+      }
+    }
+    
+  }
 }
 
 function str(prim) {
@@ -387,6 +414,9 @@ function make() {
               var send = param[/* send */4];
               var state = param[/* state */2];
               var run = function (text) {
+                var url = makeUrl(text, state[/* syntax */7], state[/* canvasSize */3]);
+                Utils.replaceState(url);
+                Curry._1(send, /* ClearLogs */0);
                 Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                         return Curry._1(Utils.clearMarks, cm);
                       }));
@@ -402,14 +432,19 @@ function make() {
                               });
                           return /* () */0;
                         }));
-                  return Curry._1(send, /* SetStatus */Block.__(4, [/* Failed */Block.__(0, [
+                  return Curry._1(send, /* SetStatus */Block.__(5, [/* Failed */Block.__(0, [
                                     match$2[0],
                                     spos,
                                     epos
                                   ])]));
                 } else {
                   var js = match$1[0];
-                  runCode(js);
+                  runCode(js, (function (typ, text) {
+                          return Curry._1(send, /* AddLog */Block.__(4, [
+                                        typ,
+                                        text
+                                      ]));
+                        }));
                   return Curry._1(send, /* Js */Block.__(2, [js]));
                 }
               };
@@ -454,13 +489,13 @@ function make() {
                                       className: button,
                                       disabled: state[/* syntax */7] === /* OCaml */0,
                                       onClick: (function () {
-                                          return Curry._1(send, /* ToOCaml */0);
+                                          return Curry._1(send, /* ToOCaml */1);
                                         })
                                     }, "OCaml"), React.createElement("button", {
                                       className: button,
                                       disabled: state[/* syntax */7] === /* Reason */1,
                                       onClick: (function () {
-                                          return Curry._1(send, /* ToReason */1);
+                                          return Curry._1(send, /* ToReason */2);
                                         })
                                     }, "Reason"), React.createElement("input", {
                                       ref: (function (r) {
@@ -507,6 +542,10 @@ function make() {
                             }, React.createElement("div", undefined), React.createElement("div", undefined, React.createElement("h1", undefined, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
                                   className: line
                                 }), React.createElement("div", undefined, "A", React.createElement("input", {
+                                      className: Css.style(/* :: */[
+                                            Css.width(Css.px(40)),
+                                            /* [] */0
+                                          ]),
                                       type: "number",
                                       value: String(state[/* canvasSize */3]),
                                       onChange: (function (evt) {
@@ -547,7 +586,38 @@ function make() {
                                       ])
                                 }, state[/* resultJs */6]), React.createElement("div", {
                                   className: line
-                                }), "Log output"));
+                                }), "Log output", React.createElement("div", {
+                                  className: Css.style(/* :: */[
+                                        Css.alignSelf(/* stretch */-162316795),
+                                        /* :: */[
+                                          Css.marginTop(Css.px(16)),
+                                          /* [] */0
+                                        ]
+                                      ])
+                                }, $$Array.mapi((function (i, param) {
+                                        var typ = param[0];
+                                        var match = typ === "warn";
+                                        var tmp;
+                                        if (match) {
+                                          tmp = Css.hex("faf");
+                                        } else {
+                                          var match$1 = typ === "error";
+                                          tmp = match$1 ? Css.hex("faa") : Css.white;
+                                        }
+                                        return React.createElement("div", {
+                                                    key: String(i),
+                                                    className: Css.style(/* :: */[
+                                                          Css.backgroundColor(tmp),
+                                                          /* :: */[
+                                                            Css.borderTop(Css.px(1), /* solid */12956715, Css.hex("eee")),
+                                                            /* :: */[
+                                                              Css.padding(Css.px(4)),
+                                                              /* [] */0
+                                                            ]
+                                                          ]
+                                                        ])
+                                                  }, param[1]);
+                                      }), $$Array.of_list(List.rev(state[/* logs */5]))))));
             }),
           /* initialState */(function () {
               return /* record */[
@@ -570,65 +640,86 @@ function make() {
           /* reducer */(function (action, state) {
               var tmp;
               if (typeof action === "number") {
-                tmp = action === 0 ? Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
-                              var text = cm.getValue();
-                              try {
-                                cm.setValue(printML(parseRE(text)));
-                                return /* record */[
-                                        /* text */state[/* text */0],
-                                        /* cm */state[/* cm */1],
-                                        /* context */state[/* context */2],
-                                        /* canvasSize */state[/* canvasSize */3],
-                                        /* shareInput */state[/* shareInput */4],
-                                        /* logs */state[/* logs */5],
-                                        /* resultJs */state[/* resultJs */6],
-                                        /* syntax : OCaml */0,
-                                        /* status */state[/* status */8]
-                                      ];
-                              }
-                              catch (exn){
-                                return /* record */[
-                                        /* text */state[/* text */0],
-                                        /* cm */state[/* cm */1],
-                                        /* context */state[/* context */2],
-                                        /* canvasSize */state[/* canvasSize */3],
-                                        /* shareInput */state[/* shareInput */4],
-                                        /* logs */state[/* logs */5],
-                                        /* resultJs */state[/* resultJs */6],
-                                        /* syntax */state[/* syntax */7],
-                                        /* status : ParseFailure */Block.__(1, ["Syntax error"])
-                                      ];
-                              }
-                            })), state) : Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
-                              var text = cm.getValue();
-                              try {
-                                cm.setValue(printRE(parseML(text)));
-                                return /* record */[
-                                        /* text */state[/* text */0],
-                                        /* cm */state[/* cm */1],
-                                        /* context */state[/* context */2],
-                                        /* canvasSize */state[/* canvasSize */3],
-                                        /* shareInput */state[/* shareInput */4],
-                                        /* logs */state[/* logs */5],
-                                        /* resultJs */state[/* resultJs */6],
-                                        /* syntax : Reason */1,
-                                        /* status */state[/* status */8]
-                                      ];
-                              }
-                              catch (exn){
-                                return /* record */[
-                                        /* text */state[/* text */0],
-                                        /* cm */state[/* cm */1],
-                                        /* context */state[/* context */2],
-                                        /* canvasSize */state[/* canvasSize */3],
-                                        /* shareInput */state[/* shareInput */4],
-                                        /* logs */state[/* logs */5],
-                                        /* resultJs */state[/* resultJs */6],
-                                        /* syntax */state[/* syntax */7],
-                                        /* status : ParseFailure */Block.__(1, ["Syntax error"])
-                                      ];
-                              }
-                            })), state);
+                switch (action) {
+                  case 0 : 
+                      tmp = /* record */[
+                        /* text */state[/* text */0],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
+                        /* shareInput */state[/* shareInput */4],
+                        /* logs : [] */0,
+                        /* resultJs */state[/* resultJs */6],
+                        /* syntax */state[/* syntax */7],
+                        /* status */state[/* status */8]
+                      ];
+                      break;
+                  case 1 : 
+                      tmp = Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
+                                  var text = cm.getValue();
+                                  try {
+                                    cm.setValue(printML(parseRE(text)));
+                                    return /* record */[
+                                            /* text */state[/* text */0],
+                                            /* cm */state[/* cm */1],
+                                            /* context */state[/* context */2],
+                                            /* canvasSize */state[/* canvasSize */3],
+                                            /* shareInput */state[/* shareInput */4],
+                                            /* logs */state[/* logs */5],
+                                            /* resultJs */state[/* resultJs */6],
+                                            /* syntax : OCaml */0,
+                                            /* status */state[/* status */8]
+                                          ];
+                                  }
+                                  catch (exn){
+                                    return /* record */[
+                                            /* text */state[/* text */0],
+                                            /* cm */state[/* cm */1],
+                                            /* context */state[/* context */2],
+                                            /* canvasSize */state[/* canvasSize */3],
+                                            /* shareInput */state[/* shareInput */4],
+                                            /* logs */state[/* logs */5],
+                                            /* resultJs */state[/* resultJs */6],
+                                            /* syntax */state[/* syntax */7],
+                                            /* status : ParseFailure */Block.__(1, ["Syntax error"])
+                                          ];
+                                  }
+                                })), state);
+                      break;
+                  case 2 : 
+                      tmp = Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
+                                  var text = cm.getValue();
+                                  try {
+                                    cm.setValue(printRE(parseML(text)));
+                                    return /* record */[
+                                            /* text */state[/* text */0],
+                                            /* cm */state[/* cm */1],
+                                            /* context */state[/* context */2],
+                                            /* canvasSize */state[/* canvasSize */3],
+                                            /* shareInput */state[/* shareInput */4],
+                                            /* logs */state[/* logs */5],
+                                            /* resultJs */state[/* resultJs */6],
+                                            /* syntax : Reason */1,
+                                            /* status */state[/* status */8]
+                                          ];
+                                  }
+                                  catch (exn){
+                                    return /* record */[
+                                            /* text */state[/* text */0],
+                                            /* cm */state[/* cm */1],
+                                            /* context */state[/* context */2],
+                                            /* canvasSize */state[/* canvasSize */3],
+                                            /* shareInput */state[/* shareInput */4],
+                                            /* logs */state[/* logs */5],
+                                            /* resultJs */state[/* resultJs */6],
+                                            /* syntax */state[/* syntax */7],
+                                            /* status : ParseFailure */Block.__(1, ["Syntax error"])
+                                          ];
+                                  }
+                                })), state);
+                      break;
+                  
+                }
               } else {
                 switch (action.tag | 0) {
                   case 0 : 
@@ -695,6 +786,25 @@ function make() {
                         /* context */state[/* context */2],
                         /* canvasSize */state[/* canvasSize */3],
                         /* shareInput */state[/* shareInput */4],
+                        /* logs : :: */[
+                          /* tuple */[
+                            action[0],
+                            action[1]
+                          ],
+                          state[/* logs */5]
+                        ],
+                        /* resultJs */state[/* resultJs */6],
+                        /* syntax */state[/* syntax */7],
+                        /* status */state[/* status */8]
+                      ];
+                      break;
+                  case 5 : 
+                      tmp = /* record */[
+                        /* text */state[/* text */0],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
+                        /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
                         /* syntax */state[/* syntax */7],
@@ -734,7 +844,7 @@ exports.Main = Main;
 /*  Not a pure module */
 //# sourceURL=./lib/js/src/Main.js
 },
-  100: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
+  101: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
 'use strict';
 
 var Css = require(2);
@@ -837,8 +947,9 @@ function make(onSelect, _) {
                               className: button
                             }, "Examples"), React.createElement("div", {
                               className: dropdown
-                            }, $$Array.map((function (item) {
+                            }, $$Array.mapi((function (i, item) {
                                     return React.createElement("div", {
+                                                key: String(i),
                                                 className: title,
                                                 onClick: (function () {
                                                     return Curry._1(onSelect, item.code);
@@ -859,6 +970,66 @@ exports.component = component;
 exports.make = make;
 /*  Not a pure module */
 //# sourceURL=./lib/js/src/ExamplesDropdown.js
+},
+  100: function(module, exports, require) {'use strict';
+
+
+function is_nil_undef(x) {
+  if (x === null) {
+    return true;
+  } else {
+    return x === undefined;
+  }
+}
+
+function null_undefined_to_opt(x) {
+  if (x === null || x === undefined) {
+    return /* None */0;
+  } else {
+    return /* Some */[x];
+  }
+}
+
+function undefined_to_opt(x) {
+  if (x === undefined) {
+    return /* None */0;
+  } else {
+    return /* Some */[x];
+  }
+}
+
+function null_to_opt(x) {
+  if (x === null) {
+    return /* None */0;
+  } else {
+    return /* Some */[x];
+  }
+}
+
+function option_get(x) {
+  if (x) {
+    return x[0];
+  } else {
+    return undefined;
+  }
+}
+
+function option_get_unwrap(x) {
+  if (x) {
+    return x[0][1];
+  } else {
+    return undefined;
+  }
+}
+
+exports.is_nil_undef = is_nil_undef;
+exports.null_undefined_to_opt = null_undefined_to_opt;
+exports.undefined_to_opt = undefined_to_opt;
+exports.null_to_opt = null_to_opt;
+exports.option_get = option_get;
+exports.option_get_unwrap = option_get_unwrap;
+/* No side effect */
+//# sourceURL=./node_modules/bs-platform/lib/js/js_primitive.js
 },
   98: function(module, exports, require) {'use strict';
 
@@ -45027,7 +45198,8 @@ exports.undefined_recursive_module = undefined_recursive_module;
 };
 let nameMap = {
   "./lib/js/src/Main.js": 1,
-  "./lib/js/src/ExamplesDropdown.js": 100,
+  "./lib/js/src/ExamplesDropdown.js": 101,
+  "./node_modules/bs-platform/lib/js/js_primitive.js": 100,
   "./node_modules/reason-react/lib/js/src/ReasonReact.js": 98,
   "./node_modules/reason-react/lib/js/src/ReasonReactOptimizedCreateClass.js": 99,
   "./node_modules/reason-react/lib/js/src/ReactDOMRe.js": 88,

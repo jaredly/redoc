@@ -148,11 +148,33 @@ let makeUrl = (code, syntax, canvasSize) => {
 
 type compilationResult = result(string, (string, pos, pos));
 
-let runCode = code => {
-  let fn = {j|(function(exports, module, require) {
+type window;
+[@bs.val] external window: window = "";
+type console;
+[@bs.get] external console: window => console = "";
+[@bs.set] external setConsole: window => console => unit = "console";
+
+let runCode = (code, addLog) => {
+  /* let oldConsole = console(window); */
+  let fn = {j|(function(exports, module, require, addLog) {
+    var oldConsole = window.console;
+    var console = Object.assign({}, window.console, {
+      log: (...items) => {oldConsole.log(...items); addLog('log', items)},
+      warn: (...items) => {
+        oldConsole.warn(...items); addLog('warn', items)
+      },
+      error: (...items) => {
+        oldConsole.error(...items); addLog('error', items)
+      },
+    });
+    /* try { */
     $code
+    /* } catch(e) { */
+      /* window.console = oldConsole; */
+      /* throw e */
+    /* } */
   })|j};
-  let fn: 'obj => 'module_ => (string => 'package) => unit = eval(fn);
+  let fn: 'obj => 'module_ => (string => 'package) => ((. string, string) => unit) => unit = eval(fn);
   let exports = Js.Obj.empty;
   let require = path => {
     switch (Js.Dict.get(bsRequirePaths, path)) {
@@ -160,7 +182,23 @@ let runCode = code => {
     | None => packRequire(path)
     }
   };
-  fn(exports, {"exports": exports}, require);
+  try {
+    fn(exports, {"exports": exports}, require, addLog);
+  } {
+    | exn => {
+      Js.log(exn);
+      let e: Js.Exn.t = Obj.magic(exn);
+      switch (Js.Exn.message(e), Js.Exn.stack(e)) {
+      | (Some(message), Some(stack)) => addLog(. "error", message ++ "\n" ++ stack)
+      | _ => {
+        switch exn {
+        | Failure(message) => addLog(. "error", "Failure(" ++ message ++ ")")
+        | _ => addLog(. "error", Js.Json.stringifyAny(e) |? "Unknown error")
+        }
+      }
+      }
+    }
+  };
 };
 
 type status =
@@ -186,7 +224,7 @@ module Main = {
     context,
     canvasSize: int,
     mutable shareInput: option(Dom.element),
-    logs: list(string),
+    logs: list((string, string)),
     resultJs: string,
     syntax,
     status,
@@ -196,6 +234,8 @@ module Main = {
     | Reset(string)
     | Js(string)
     | SetCanvasSize(int)
+    | AddLog(string, string)
+    | ClearLogs
     | ToOCaml
     | ToReason
     | SetStatus(status);
@@ -229,6 +269,8 @@ module Main = {
       state.cm |?< cm => setValue(cm, text);
       {...state, text}
     }
+    | AddLog(typ, text) => {...state, logs: [(typ, text), ...state.logs]}
+    | ClearLogs => {...state, logs: []}
     | SetCanvasSize(canvasSize) => {...state, canvasSize}
     | ToOCaml => {
       state.cm |?>> (cm => {
@@ -259,10 +301,16 @@ module Main = {
 
     render: ({state, send}) => {
       let run = text => {
+        let url = makeUrl(text, state.syntax, state.canvasSize);
+        replaceState(url);
+        send(ClearLogs);
         state.cm |?< cm => clearMarks(cm);
         switch (state.syntax == Reason ? reasonCompile(text) : ocamlCompile(text)) {
         | Ok(js) => {
-          runCode(js);
+          runCode(js, (. typ, text) => {
+            /* Js.log2(typ, text); */
+            send(AddLog(typ, text))
+          });
           send(Js(js))
         }
         | Error((text, spos, epos)) => {
@@ -350,6 +398,7 @@ module Main = {
             (str("A"))
             <input
               onChange=(evt => send(SetCanvasSize(min(800, max(50, int_of_string(getInputValue(evt)))))))
+              className=Css.(style([width(px(40))]))
               value=(string_of_int(state.canvasSize))
               _type="number"
             />
@@ -376,6 +425,24 @@ module Main = {
           ]))>(str(state.resultJs))</pre>
           <div className=Styles.line />
           (str("Log output"))
+          <div className=Css.(style([
+          alignSelf(`stretch),
+          marginTop(px(16))
+          ]))>
+          {ReasonReact.arrayToElement(
+            List.rev(state.logs)
+            |> Array.of_list
+            |> Array.mapi((i, (typ, item)) => (
+              <div key=(string_of_int(i)) className=Css.(style([
+                backgroundColor(typ == "warn" ? hex("faf") : (typ == "error" ? hex("faa") : white)),
+                borderTop(px(1), `solid, hex("eee")),
+                padding(px(4))
+              ]))>
+                (str(item))
+              </div>
+            ))
+          )}
+          </div>
         </div>
       </div>
     }

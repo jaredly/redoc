@@ -48,8 +48,8 @@ let make = (~onSelect, _children) => {
       (ReasonReact.stringToElement("Examples"))
       </div>
       <div className=dropdown>
-        {ReasonReact.arrayToElement(examplesData |> Array.map(item => (
-          <div className=title onClick=(_evt => onSelect(item##code))>
+        {ReasonReact.arrayToElement(examplesData |> Array.mapi((i, item) => (
+          <div className=title onClick=(_evt => onSelect(item##code)) key=(string_of_int(i))>
             (ReasonReact.stringToElement(item##title))
           </div>
         )))}

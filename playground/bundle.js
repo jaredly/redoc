@@ -22006,10 +22006,29 @@ var fromTextArea = (
     var cm = CodeMirror.fromTextArea(textarea, {
       lineNumbers: true,
       lineWrapping: true,
+      /* keyMap: 'sublime', */
       viewportMargin: Infinity,
       extraKeys: {
         'Cmd-Enter': (cm) => onRun(cm.getValue()),
         'Ctrl-Enter': (cm) => onRun(cm.getValue()),
+        "Cmd-/": cm => {
+          var options = {indent: true}
+          var minLine = Infinity, ranges = cm.listSelections(), mode = null;
+          for (var i = ranges.length - 1; i >= 0; i--) {
+            var from = ranges[i].from(), to = ranges[i].to();
+            if (from.line >= minLine) continue;
+            if (to.line >= minLine) to = Pos(minLine, 0);
+            minLine = from.line;
+            if (mode == null) {
+              if (cm.uncomment(from, to, options)) mode = "un";
+              else { cm.blockComment(from, to, options); mode = "line"; }
+            } else if (mode == "un") {
+              cm.uncomment(from, to, options);
+            } else {
+              cm.blockComment(from, to, options);
+            }
+          }
+        },
         Tab: betterTab,
         'Shift-Tab': betterShiftTab,
       },

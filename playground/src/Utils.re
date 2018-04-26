@@ -70,8 +70,16 @@ let clearMarks: codemirror => unit = [%bs.raw {|
   })
 |}];
 
-let autoComplete: codemirror => unit = [%bs.raw {|
-  (function(cm) {
+type completionItem = {.
+  "docs": Js.nullable(string),
+  "kind": string,
+  "name": string,
+  "path": string,
+  "_type": string,
+};
+
+let autoComplete: (codemirror, completionItem => unit, unit => unit) => unit = [%bs.raw {|
+  (function(cm, onSelect, onClose) {
     var cur = cm.getCursor();
     var t = cm.getTokenTypeAt(cur);
     if (t == 'string' || t == 'number' || t == 'comment') {
@@ -114,6 +122,25 @@ let autoComplete: codemirror => unit = [%bs.raw {|
       return true
     })
 
+    var node = (tag, attrs, children) => {
+      var node = document.createElement(tag)
+      for (var attr in attrs) {
+        if (attr === 'style') {
+          Object.assign(node.style, attrs[attr])
+        } else {
+          node.setAttribute(attr, attrs[attr])
+        }
+      }
+      children && children.forEach(child => node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
+      return node
+    }
+  var raw = text => {
+    var node = document.createElement('div')
+    node.innerHTML = text
+    return node
+  };
+
+
     if (!matching.length) return
     const data = {
         from: {line: cur.line, ch: cur.ch - name.length},
@@ -122,18 +149,25 @@ let autoComplete: codemirror => unit = [%bs.raw {|
           text: item.name,
           displayText: item.name,
           item,
-          // render()
+          render: (elem, _, __) => {
+            var container = //node('div', {}, [
+              raw(item.type)
+            //])
+            elem.appendChild(container)
+          }
         }))
     }
     cm.showHint({
       completeSingle: false,
       hint: () => (data)
     });
-    console.log('first', data.list[0])
+    onSelect(data.list[0].item)
     /* var completion = cm.state.completionActive.data; */
     CodeMirror.on(data, 'select', function(completion, element) {
-      console.log('completing with', completion);
+      onSelect(completion.item)
+      /* console.log('completing with', completion); */
     })
+    CodeMirror.on(data, 'close', () => onClose())
   })
 |}];
 

@@ -4,8 +4,8 @@ open Infix;
 let showItemType = (name, item) => {
   open State.Model.Docs;
   switch item {
-  | Value(v) => PrintType.default.value(PrintType.default, name, name, v) |> GenerateDoc.prettyString(~width=200)
-  | Type(t) => PrintType.default.decl(PrintType.default, name, name, t) |> GenerateDoc.prettyString(~width=200)
+  | Value(v) => PrintType.default.value(PrintType.default, name, name, v) |> GenerateDoc.prettyString(~width=40)
+  | Type(t) => PrintType.default.decl(PrintType.default, name, name, t) |> GenerateDoc.prettyString(~width=40)
   | Module(_) => "module " ++ name
   | _ => ""
   }
@@ -15,7 +15,7 @@ let getCompletionData = modules => {
   let items = ref([]);
   let add = i => items := [i, ...items^];
   modules |> List.iter(({State.Model.name, items}) => {
-    add(([], name, "", None, "module"));
+    add(([], name, "module " ++ name, None, "module"));
     items |> List.iter(State.Model.Docs.iterWithPath([name], (path, (name, docString, item)) => {
       switch item {
       | Value(_) | Type(_) | Module(_) => add((List.rev(path), name, showItemType(name, item), docString |?>> Omd.to_html, State.Model.Docs.itemName(item)))

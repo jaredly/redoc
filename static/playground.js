@@ -477,13 +477,13 @@ function make$1() {
               var send = param[/* send */4];
               var state = param[/* state */2];
               var run = function (text) {
-                var url = makeUrl(text, state[/* syntax */8], state[/* canvasSize */3]);
+                var url = makeUrl(text, state[/* syntax */9], state[/* canvasSize */3]);
                 Utils.replaceState(url);
                 Curry._1(send, /* ClearLogs */0);
                 Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                         return Curry._1(Utils.clearMarks, cm);
                       }));
-                var match = state[/* syntax */8] === /* Reason */1;
+                var match = state[/* syntax */9] === /* Reason */1;
                 var match$1 = match ? Utils.reasonCompile(text) : Utils.ocamlCompile(text);
                 if (match$1.tag) {
                   var match$2 = match$1[0];
@@ -495,7 +495,7 @@ function make$1() {
                               });
                           return /* () */0;
                         }));
-                  return Curry._1(send, /* SetStatus */Block.__(6, [/* Failed */Block.__(0, [
+                  return Curry._1(send, /* SetStatus */Block.__(7, [/* Failed */Block.__(0, [
                                     match$2[0],
                                     spos,
                                     epos
@@ -511,7 +511,7 @@ function make$1() {
                   return Curry._1(send, /* Js */Block.__(2, [js]));
                 }
               };
-              var match = state[/* status */9];
+              var match = state[/* status */10];
               var tmp;
               if (typeof match === "number") {
                 tmp = null;
@@ -600,19 +600,19 @@ function make$1() {
                                         })
                                     }, "Run"), spacer(8), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */8] === /* OCaml */0,
+                                      disabled: state[/* syntax */9] === /* OCaml */0,
                                       onClick: (function () {
                                           return Curry._1(send, /* AutoFormat */3);
                                         })
                                     }, "Auto Format"), spacer(8), "Syntax:", spacer(8), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */8] === /* OCaml */0,
+                                      disabled: state[/* syntax */9] === /* OCaml */0,
                                       onClick: (function () {
                                           return Curry._1(send, /* ToOCaml */1);
                                         })
                                     }, "OCaml"), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */8] === /* Reason */1,
+                                      disabled: state[/* syntax */9] === /* Reason */1,
                                       onClick: (function () {
                                           return Curry._1(send, /* ToReason */2);
                                         })
@@ -632,7 +632,7 @@ function make$1() {
                                       onClick: (function () {
                                           return Infix.$pipe$unknown$less(state[/* shareInput */4], (function (input) {
                                                         return Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
-                                                                      var url = makeUrl(cm.getValue(), state[/* syntax */8], state[/* canvasSize */3]);
+                                                                      var url = makeUrl(cm.getValue(), state[/* syntax */9], state[/* canvasSize */3]);
                                                                       input.value = url;
                                                                       input.select();
                                                                       document.execCommand("copy");
@@ -647,14 +647,60 @@ function make$1() {
                                                       var cm = Utils.fromTextArea(node, run);
                                                       state[/* cm */1] = /* Some */[cm];
                                                       window.cm = cm;
-                                                      return Curry._2(Utils.registerComplete, cm, Utils.autoComplete);
+                                                      var onSelect = function (item) {
+                                                        return Curry._1(send, /* CompletionSelected */Block.__(5, [item]));
+                                                      };
+                                                      var onClose = function () {
+                                                        return Curry._1(send, /* CompletionCleared */4);
+                                                      };
+                                                      return Curry._2(Utils.registerComplete, cm, (function (cm) {
+                                                                    return Curry._3(Utils.autoComplete, cm, onSelect, onClose);
+                                                                  }));
                                                     } else {
                                                       return 0;
                                                     }
                                                   }));
                                     }),
                                   value: state[/* text */0]
-                                }), tmp), React.createElement("div", {
+                                }), tmp, Infix.$pipe$unknown(Infix.$pipe$unknown$great(state[/* currentCompletion */8], (function (item) {
+                                        return Infix.$pipe$unknown$great$great(Js_primitive.null_undefined_to_opt(item.docs), (function (docs) {
+                                                      return React.createElement("div", {
+                                                                  className: Css.style(/* :: */[
+                                                                        Css.position(/* absolute */-1013592457),
+                                                                        /* :: */[
+                                                                          Css.maxHeight(Css.px(400)),
+                                                                          /* :: */[
+                                                                            Css.overflow(/* auto */-1065951377),
+                                                                            /* :: */[
+                                                                              Css.bottom(Css.zero),
+                                                                              /* :: */[
+                                                                                Css.left(Css.zero),
+                                                                                /* :: */[
+                                                                                  Css.right(Css.zero),
+                                                                                  /* :: */[
+                                                                                    Css.padding2(Css.px(8), Css.px(16)),
+                                                                                    /* :: */[
+                                                                                      Css.backgroundColor(Css.white),
+                                                                                      /* :: */[
+                                                                                        Css.zIndex(1000),
+                                                                                        /* [] */0
+                                                                                      ]
+                                                                                    ]
+                                                                                  ]
+                                                                                ]
+                                                                              ]
+                                                                            ]
+                                                                          ]
+                                                                        ]
+                                                                      ])
+                                                                }, React.createElement("div", {
+                                                                      className: Css.style(/* [] */0),
+                                                                      dangerouslySetInnerHTML: {
+                                                                        __html: docs
+                                                                      }
+                                                                    }));
+                                                    }));
+                                      })), null)), React.createElement("div", {
                               className: previewPane,
                               style: {
                                 width: String(state[/* canvasSize */3]) + "px"
@@ -690,7 +736,7 @@ function make$1() {
                                       placeholder: "Search the docs inline",
                                       value: state[/* searching */7],
                                       onChange: (function (evt) {
-                                          return Curry._1(send, /* SetSearch */Block.__(5, [Utils.getInputValue(evt)]));
+                                          return Curry._1(send, /* SetSearch */Block.__(6, [Utils.getInputValue(evt)]));
                                         })
                                     }), match$1 ? React.createElement("button", {
                                         className: Css.style(/* :: */[
@@ -719,7 +765,7 @@ function make$1() {
                                               ]
                                             ]),
                                         onClick: (function () {
-                                            return Curry._1(send, /* SetSearch */Block.__(5, [""]));
+                                            return Curry._1(send, /* SetSearch */Block.__(6, [""]));
                                           })
                                       }, "x") : null), React.createElement("div", undefined, React.createElement("h1", {
                                       className: Css.style(/* :: */[
@@ -832,6 +878,7 @@ function make$1() {
                       /* logs : [] */0,
                       /* resultJs */"/* Evaluate to see generated js */",
                       /* searching */"",
+                      /* currentCompletion : None */0,
                       /* syntax */syntax,
                       /* status : Clean */0
                     ];
@@ -851,8 +898,9 @@ function make$1() {
                         /* logs : [] */0,
                         /* resultJs */state[/* resultJs */6],
                         /* searching */state[/* searching */7],
-                        /* syntax */state[/* syntax */8],
-                        /* status */state[/* status */9]
+                        /* currentCompletion */state[/* currentCompletion */8],
+                        /* syntax */state[/* syntax */9],
+                        /* status */state[/* status */10]
                       ];
                       break;
                   case 1 : 
@@ -869,8 +917,9 @@ function make$1() {
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
                                             /* searching */state[/* searching */7],
+                                            /* currentCompletion */state[/* currentCompletion */8],
                                             /* syntax : OCaml */0,
-                                            /* status */state[/* status */9]
+                                            /* status */state[/* status */10]
                                           ];
                                   }
                                   catch (exn){
@@ -883,7 +932,8 @@ function make$1() {
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
                                             /* searching */state[/* searching */7],
-                                            /* syntax */state[/* syntax */8],
+                                            /* currentCompletion */state[/* currentCompletion */8],
+                                            /* syntax */state[/* syntax */9],
                                             /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                           ];
                                   }
@@ -903,8 +953,9 @@ function make$1() {
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
                                             /* searching */state[/* searching */7],
+                                            /* currentCompletion */state[/* currentCompletion */8],
                                             /* syntax : Reason */1,
-                                            /* status */state[/* status */9]
+                                            /* status */state[/* status */10]
                                           ];
                                   }
                                   catch (exn){
@@ -917,7 +968,8 @@ function make$1() {
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
                                             /* searching */state[/* searching */7],
-                                            /* syntax */state[/* syntax */8],
+                                            /* currentCompletion */state[/* currentCompletion */8],
+                                            /* syntax */state[/* syntax */9],
                                             /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                           ];
                                   }
@@ -940,11 +992,27 @@ function make$1() {
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
                                             /* searching */state[/* searching */7],
-                                            /* syntax */state[/* syntax */8],
+                                            /* currentCompletion */state[/* currentCompletion */8],
+                                            /* syntax */state[/* syntax */9],
                                             /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                           ];
                                   }
                                 })), state);
+                      break;
+                  case 4 : 
+                      tmp = /* record */[
+                        /* text */state[/* text */0],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
+                        /* shareInput */state[/* shareInput */4],
+                        /* logs */state[/* logs */5],
+                        /* resultJs */state[/* resultJs */6],
+                        /* searching */state[/* searching */7],
+                        /* currentCompletion : None */0,
+                        /* syntax */state[/* syntax */9],
+                        /* status */state[/* status */10]
+                      ];
                       break;
                   
                 }
@@ -960,8 +1028,9 @@ function make$1() {
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
                         /* searching */state[/* searching */7],
-                        /* syntax */state[/* syntax */8],
-                        /* status */state[/* status */9]
+                        /* currentCompletion */state[/* currentCompletion */8],
+                        /* syntax */state[/* syntax */9],
+                        /* status */state[/* status */10]
                       ];
                       break;
                   case 1 : 
@@ -979,8 +1048,9 @@ function make$1() {
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
                         /* searching */state[/* searching */7],
-                        /* syntax */state[/* syntax */8],
-                        /* status */state[/* status */9]
+                        /* currentCompletion */state[/* currentCompletion */8],
+                        /* syntax */state[/* syntax */9],
+                        /* status */state[/* status */10]
                       ];
                       break;
                   case 2 : 
@@ -993,7 +1063,8 @@ function make$1() {
                         /* logs */state[/* logs */5],
                         /* resultJs */action[0],
                         /* searching */state[/* searching */7],
-                        /* syntax */state[/* syntax */8],
+                        /* currentCompletion */state[/* currentCompletion */8],
+                        /* syntax */state[/* syntax */9],
                         /* status : Clean */0
                       ];
                       break;
@@ -1007,8 +1078,9 @@ function make$1() {
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
                         /* searching */state[/* searching */7],
-                        /* syntax */state[/* syntax */8],
-                        /* status */state[/* status */9]
+                        /* currentCompletion */state[/* currentCompletion */8],
+                        /* syntax */state[/* syntax */9],
+                        /* status */state[/* status */10]
                       ];
                       break;
                   case 4 : 
@@ -1027,8 +1099,9 @@ function make$1() {
                         ],
                         /* resultJs */state[/* resultJs */6],
                         /* searching */state[/* searching */7],
-                        /* syntax */state[/* syntax */8],
-                        /* status */state[/* status */9]
+                        /* currentCompletion */state[/* currentCompletion */8],
+                        /* syntax */state[/* syntax */9],
+                        /* status */state[/* status */10]
                       ];
                       break;
                   case 5 : 
@@ -1040,9 +1113,10 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */action[0],
-                        /* syntax */state[/* syntax */8],
-                        /* status */state[/* status */9]
+                        /* searching */state[/* searching */7],
+                        /* currentCompletion : Some */[action[0]],
+                        /* syntax */state[/* syntax */9],
+                        /* status */state[/* status */10]
                       ];
                       break;
                   case 6 : 
@@ -1054,8 +1128,24 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
+                        /* searching */action[0],
+                        /* currentCompletion */state[/* currentCompletion */8],
+                        /* syntax */state[/* syntax */9],
+                        /* status */state[/* status */10]
+                      ];
+                      break;
+                  case 7 : 
+                      tmp = /* record */[
+                        /* text */state[/* text */0],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
+                        /* shareInput */state[/* shareInput */4],
+                        /* logs */state[/* logs */5],
+                        /* resultJs */state[/* resultJs */6],
                         /* searching */state[/* searching */7],
-                        /* syntax */state[/* syntax */8],
+                        /* currentCompletion */state[/* currentCompletion */8],
+                        /* syntax */state[/* syntax */9],
                         /* status */action[0]
                       ];
                       break;
@@ -22249,7 +22339,7 @@ var clearMarks = (
 );
 
 var autoComplete = (
-  (function(cm) {
+  (function(cm, onSelect, onClose) {
     var cur = cm.getCursor();
     var t = cm.getTokenTypeAt(cur);
     if (t == 'string' || t == 'number' || t == 'comment') {
@@ -22292,6 +22382,25 @@ var autoComplete = (
       return true
     })
 
+    var node = (tag, attrs, children) => {
+      var node = document.createElement(tag)
+      for (var attr in attrs) {
+        if (attr === 'style') {
+          Object.assign(node.style, attrs[attr])
+        } else {
+          node.setAttribute(attr, attrs[attr])
+        }
+      }
+      children && children.forEach(child => node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
+      return node
+    }
+  var raw = text => {
+    var node = document.createElement('div')
+    node.innerHTML = text
+    return node
+  };
+
+
     if (!matching.length) return
     const data = {
         from: {line: cur.line, ch: cur.ch - name.length},
@@ -22300,18 +22409,25 @@ var autoComplete = (
           text: item.name,
           displayText: item.name,
           item,
-          // render()
+          render: (elem, _, __) => {
+            var container = //node('div', {}, [
+              raw(item.type)
+            //])
+            elem.appendChild(container)
+          }
         }))
     }
     cm.showHint({
       completeSingle: false,
       hint: () => (data)
     });
-    console.log('first', data.list[0])
+    onSelect(data.list[0].item)
     /* var completion = cm.state.completionActive.data; */
     CodeMirror.on(data, 'select', function(completion, element) {
-      console.log('completing with', completion);
+      onSelect(completion.item)
+      /* console.log('completing with', completion); */
     })
+    CodeMirror.on(data, 'close', () => onClose())
   })
 );
 

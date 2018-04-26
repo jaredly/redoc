@@ -252,6 +252,7 @@ module Main = {
     logs: list((string, string)),
     resultJs: string,
     searching: string,
+    currentCompletion: option(completionItem),
     syntax,
     status,
   };
@@ -265,6 +266,8 @@ module Main = {
     | ToOCaml
     | ToReason
     | AutoFormat
+    | CompletionSelected(Utils.completionItem)
+    | CompletionCleared
     | SetSearch(string)
     | SetStatus(status);
 
@@ -278,6 +281,7 @@ module Main = {
       logs: [],
       searching: "",
       canvasSize,
+      currentCompletion: None,
       /* autorun: true, */
       shareInput: None,
       context: Window({
@@ -299,6 +303,8 @@ module Main = {
       state.cm |?< cm => setValue(cm, text);
       {...state, text}
     }
+    | CompletionCleared => {...state, currentCompletion: None}
+    | CompletionSelected(item) => {...state, currentCompletion: Some(item)}
     | AddLog(typ, text) => {...state, logs: [(typ, text), ...state.logs]}
     | ClearLogs => {...state, logs: []}
     | SetCanvasSize(canvasSize) => {...state, canvasSize}
@@ -427,7 +433,9 @@ module Main = {
                 let cm = fromTextArea(. node, run);
                 state.cm = Some(cm);
                 setCm(Utils.window, cm);
-                registerComplete(cm, autoComplete);
+                let onSelect = item => send(CompletionSelected(item));
+                let onClose = () => send(CompletionCleared);
+                registerComplete(cm, cm => autoComplete(cm, onSelect, onClose));
               }
             }}
           />
@@ -439,7 +447,33 @@ module Main = {
           | ParseFailure(message) => <div className=Styles.error>(str(message))</div>
           | _ => ReasonReact.nullElement
           }}
+          {state.currentCompletion |?> (item => Js.toOption(item##docs) |?>> (docs => {
+
+            <div
+              className=Css.(style([
+                position(`absolute),
+                maxHeight(px(400)),
+                overflow(`auto),
+                bottom(zero),
+                left(zero),
+                right(zero),
+                padding2(~v=px(8), ~h=px(16)),
+                backgroundColor(white),
+                zIndex(1000),
+              ]))
+            >
+              <div
+                className=Css.(style([
+                  /* whiteSpace(`preWrap), */
+                ]))
+                dangerouslySetInnerHTML={"__html": docs}
+              />
+            </div>
+          })) |? ReasonReact.nullElement}
         </div>
+
+
+
         <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(state.canvasSize) ++ "px", ())>
           <div className=Css.(style([
             /* display(`flex), */

@@ -119,35 +119,51 @@ let rec startOfLident = (text, i) => if (i < 0) { 0 } else {
   }
 };
 
+let rec findArgLabel = (text, i) => if (i < 0) { None } else {
+  switch (text.[i]) {
+  | 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => findArgLabel(text, i - 1)
+  /* TODO support ?punning and ~punning */
+  | '~' => Some(i)
+  | _ => None
+  }
+};
+
+open Infix;
+
+/* TODO track which arg labels have been used */
 let findFunctionCall = text => {
-  let rec loop = (commas, i) => {
+  let rec loop = (commas, labels, i) => {
     if (i > 0) {
       switch (text.[i]) {
-      | '}' => loop(commas, findBackSkippingCommentsAndStrings(text, '{', i - 1))
-      | ']' => loop(commas, findBackSkippingCommentsAndStrings(text, '[', i - 1))
-      | ')' => loop(commas, findBackSkippingCommentsAndStrings(text, '(', i - 1))
-      | '"' => loop(commas, findBack(text, '"', i - 1))
+      | '}' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '{', i - 1))
+      | ']' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '[', i - 1))
+      | ')' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '(', i - 1))
+      | '"' => loop(commas, labels, findBack(text, '"', i - 1))
+      | '=' => switch (findArgLabel(text, i - 1)) {
+        | None => loop(commas, labels, i - 1)
+        | Some(i0) => loop(commas, [String.sub(text, i0 + 1, i - i0 - 1), ...labels], i0 - 1)
+        }
       /* Not 100% this makes sense, but I think so? */
       | '{' | '[' => None
       | '(' => switch (text.[i - 1]) {
         | 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => {
           let i0 = startOfLident(text, i - 2);
-          Some((commas, String.sub(text, i0, i - i0)))
+          Some((commas, labels, String.sub(text, i0, i - i0)))
         }
-        | _ => loop(commas, i - 1)
+        | _ => loop(commas, labels, i - 1)
       }
-      | ',' => loop(commas + 1, i - 1)
+      | ',' => loop(commas + 1, labels, i - 1)
       | _ => if (i >= 1 && text.[i] == '/' && text.[i - 1] == '*') {
-          loop(commas, findOpenComment(text, i - 2))
+          loop(commas, labels, findOpenComment(text, i - 2))
         } else {
-          loop(commas, i - 1)
+          loop(commas, labels, i - 1)
         }
       }
     } else {
       None;
     }
   };
-  loop(0, String.length(text) - 1);
+  loop(0, [], String.length(text) - 1) |?>> ((commas, labels, lident)) => (commas, Array.of_list(labels), lident);
 };
 
 let findOpens = text => {
@@ -226,8 +242,8 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       match = prev.match(/[^a-zA-Z0-9\._)\]}"](~[a-zA-Z0-9\._]*)$/)
       if (!match) return
       name = match[1]
-      const [[commas, lident]=[]] = findFunctionCall(prev)
-      console.log('looking for fn', commas, lident)
+      const [[commas, labels, lident]=[]] = findFunctionCall(prev)
+      console.log('looking for fn', commas, lident, labels)
       if (!lident) return
       const parts = lident.split('.')
       const last = parts.pop()
@@ -254,7 +270,7 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       console.log('found!', matching)
 
 
-      results = matching[0].args.filter(([label, typ]) => label.length && label.startsWith(name.slice(1))).map(([name, typ]) => ({
+      results = matching[0].args.filter(([label, typ]) => label.length && !labels.includes(label) && label.startsWith(name.slice(1))).map(([name, typ]) => ({
         name: '~' + name,
         type: typ,
         kind: 'arg',

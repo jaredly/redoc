@@ -22304,6 +22304,7 @@ module.exports = invariant;
 
 var $$Array = require(61);
 var Block = require(8);
+var Infix = require(63);
 var $$String = require(21);
 var Caml_string = require(17);
 
@@ -22464,70 +22465,125 @@ function startOfLident(text, _i) {
   };
 }
 
-function findFunctionCall(text) {
-  var _commas = 0;
-  var _i = text.length - 1 | 0;
+function findArgLabel(text, _i) {
   while(true) {
     var i = _i;
-    var commas = _commas;
-    if (i > 0) {
+    if (i < 0) {
+      return /* None */0;
+    } else {
       var match = Caml_string.get(text, i);
       var exit = 0;
-      if (match >= 91) {
-        if (match >= 123) {
-          if (match >= 126) {
-            exit = 1;
+      if (match < 95) {
+        if (match >= 58) {
+          if (match > 90 || match < 65) {
+            return /* None */0;
           } else {
-            switch (match - 123 | 0) {
+            exit = 1;
+          }
+        } else if (match >= 48) {
+          exit = 1;
+        } else {
+          return /* None */0;
+        }
+      } else if (match >= 123) {
+        if (match !== 126) {
+          return /* None */0;
+        } else {
+          return /* Some */[i];
+        }
+      } else if (match !== 96) {
+        exit = 1;
+      } else {
+        return /* None */0;
+      }
+      if (exit === 1) {
+        _i = i - 1 | 0;
+        continue ;
+      }
+      
+    }
+  };
+}
+
+function findFunctionCall(text) {
+  var loop = function (_commas, _labels, _i) {
+    while(true) {
+      var i = _i;
+      var labels = _labels;
+      var commas = _commas;
+      if (i > 0) {
+        var match = Caml_string.get(text, i);
+        var exit = 0;
+        if (match >= 62) {
+          if (match >= 94) {
+            var switcher = match - 123 | 0;
+            if (switcher > 2 || switcher < 0) {
+              exit = 1;
+            } else {
+              switch (switcher) {
+                case 0 : 
+                    return /* None */0;
+                case 1 : 
+                    exit = 1;
+                    break;
+                case 2 : 
+                    _i = findBackSkippingCommentsAndStrings(text, /* "{" */123, i - 1 | 0);
+                    continue ;
+                
+              }
+            }
+          } else if (match >= 91) {
+            switch (match - 91 | 0) {
               case 0 : 
                   return /* None */0;
               case 1 : 
                   exit = 1;
                   break;
               case 2 : 
-                  _i = findBackSkippingCommentsAndStrings(text, /* "{" */123, i - 1 | 0);
+                  _i = findBackSkippingCommentsAndStrings(text, /* "[" */91, i - 1 | 0);
                   continue ;
               
             }
+          } else {
+            exit = 1;
           }
-        } else if (match >= 94) {
-          exit = 1;
-        } else {
-          switch (match - 91 | 0) {
-            case 0 : 
-                return /* None */0;
-            case 1 : 
-                exit = 1;
-                break;
-            case 2 : 
-                _i = findBackSkippingCommentsAndStrings(text, /* "[" */91, i - 1 | 0);
-                continue ;
-            
+        } else if (match >= 45) {
+          if (match >= 61) {
+            var match$1 = findArgLabel(text, i - 1 | 0);
+            if (match$1) {
+              var i0 = match$1[0];
+              _i = i0 - 1 | 0;
+              _labels = /* :: */[
+                $$String.sub(text, i0 + 1 | 0, (i - i0 | 0) - 1 | 0),
+                labels
+              ];
+              continue ;
+            } else {
+              _i = i - 1 | 0;
+              continue ;
+            }
+          } else {
+            exit = 1;
           }
-        }
-      } else {
-        var switcher = match - 34 | 0;
-        if (switcher > 10 || switcher < 0) {
-          exit = 1;
-        } else {
-          switch (switcher) {
+        } else if (match >= 34) {
+          switch (match - 34 | 0) {
             case 0 : 
                 _i = findBack(text, /* "\"" */34, i - 1 | 0);
                 continue ;
             case 6 : 
-                var match$1 = Caml_string.get(text, i - 1 | 0);
+                var match$2 = Caml_string.get(text, i - 1 | 0);
                 var exit$1 = 0;
-                exit$1 = match$1 >= 91 ? (
-                    match$1 >= 97 ? (
-                        match$1 >= 123 ? 2 : 3
+                exit$1 = match$2 >= 91 ? (
+                    match$2 >= 97 ? (
+                        match$2 >= 123 ? 2 : 3
                       ) : (
-                        match$1 !== 95 ? 2 : 3
+                        match$2 !== 95 ? 2 : 3
                       )
                   ) : (
-                    match$1 >= 58 ? (
-                        match$1 >= 65 ? 3 : 2
+                    match$2 >= 58 ? (
+                        match$2 >= 65 ? 3 : 2
                       ) : (
-                        match$1 >= 48 ? 3 : 2
+                        match$2 >= 48 ? 3 : 2
                       )
                   );
                 switch (exit$1) {
@@ -22535,10 +22591,11 @@ function findFunctionCall(text) {
                       _i = i - 1 | 0;
                       continue ;
                   case 3 : 
-                      var i0 = startOfLident(text, i - 2 | 0);
+                      var i0$1 = startOfLident(text, i - 2 | 0);
                       return /* Some */[/* tuple */[
                                 commas,
-                                $$String.sub(text, i0, i - i0 | 0)
+                                labels,
+                                $$String.sub(text, i0$1, i - i0$1 | 0)
                               ]];
                   
                 }
@@ -22561,22 +22618,31 @@ function findFunctionCall(text) {
                 continue ;
             
           }
-        }
-      }
-      if (exit === 1) {
-        if (i >= 1 && Caml_string.get(text, i) === /* "/" */47 && Caml_string.get(text, i - 1 | 0) === /* "*" */42) {
-          _i = findOpenComment(text, i - 2 | 0);
-          continue ;
         } else {
-          _i = i - 1 | 0;
-          continue ;
+          exit = 1;
         }
+        if (exit === 1) {
+          if (i >= 1 && Caml_string.get(text, i) === /* "/" */47 && Caml_string.get(text, i - 1 | 0) === /* "*" */42) {
+            _i = findOpenComment(text, i - 2 | 0);
+            continue ;
+          } else {
+            _i = i - 1 | 0;
+            continue ;
+          }
+        }
+        
+      } else {
+        return /* None */0;
       }
-      
-    } else {
-      return /* None */0;
-    }
+    };
   };
+  return Infix.$pipe$unknown$great$great(loop(0, /* [] */0, text.length - 1 | 0), (function (param) {
+                return /* tuple */[
+                        param[0],
+                        $$Array.of_list(param[1]),
+                        param[2]
+                      ];
+              }));
 }
 
 function findOpens(text) {
@@ -22705,8 +22771,8 @@ var autoComplete = (
       match = prev.match(/[^a-zA-Z0-9\._)\]}"](~[a-zA-Z0-9\._]*)$/)
       if (!match) return
       name = match[1]
-      const [[commas, lident]=[]] = findFunctionCall(prev)
-      console.log('looking for fn', commas, lident)
+      const [[commas, labels, lident]=[]] = findFunctionCall(prev)
+      console.log('looking for fn', commas, lident, labels)
       if (!lident) return
       const parts = lident.split('.')
       const last = parts.pop()
@@ -22733,7 +22799,7 @@ var autoComplete = (
       console.log('found!', matching)
 
 
-      results = matching[0].args.filter(([label, typ]) => label.length && label.startsWith(name.slice(1))).map(([name, typ]) => ({
+      results = matching[0].args.filter(([label, typ]) => label.length && !labels.includes(label) && label.startsWith(name.slice(1))).map(([name, typ]) => ({
         name: '~' + name,
         type: typ,
         kind: 'arg',
@@ -23100,6 +23166,7 @@ exports.findOpenComment = findOpenComment;
 exports.findBackSkippingCommentsAndStrings = findBackSkippingCommentsAndStrings;
 exports.skipWhite = skipWhite;
 exports.startOfLident = startOfLident;
+exports.findArgLabel = findArgLabel;
 exports.findFunctionCall = findFunctionCall;
 exports.findOpens = findOpens;
 exports.autoComplete = autoComplete;

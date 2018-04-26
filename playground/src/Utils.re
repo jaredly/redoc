@@ -92,15 +92,21 @@ let rec findOpenComment = (text, i) => {
   }
 };
 
-let rec findBackSkippingCommentsAndStrings = (text, char, i) => {
-  let loop = findBackSkippingCommentsAndStrings(text, char);
+let rec findBackSkippingCommentsAndStrings = (text, char, pair, i, level) => {
+  let loop = findBackSkippingCommentsAndStrings(text, char, pair);
   if (i < 0) { 0 } else if (text.[i] == char) {
-    i - 1
+    if (level == 0) {
+      i - 1
+    } else {
+      loop(i - 1, level - 1);
+    }
+  } else if (text.[i] == pair) {
+    loop(i - 1, level + 1)
   } else {
     switch (text.[i]) {
-    | '"' => loop(findBack(text, '"', i - 1))
-    | '/' when (i >= 1 && text.[i - 1] == '*') => loop(findOpenComment(text, i - 2))
-    | _ => loop(i - 1)
+    | '"' => loop(findBack(text, '"', i - 1), level)
+    | '/' when (i >= 1 && text.[i - 1] == '*') => loop(findOpenComment(text, i - 2), level)
+    | _ => loop(i - 1, level)
     }
   }
 };
@@ -135,9 +141,9 @@ let findFunctionCall = text => {
   let rec loop = (commas, labels, i) => {
     if (i > 0) {
       switch (text.[i]) {
-      | '}' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '{', i - 1))
-      | ']' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '[', i - 1))
-      | ')' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '(', i - 1))
+      | '}' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '{', '}', i - 1, 0))
+      | ']' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '[', ']', i - 1, 0))
+      | ')' => loop(commas, labels, findBackSkippingCommentsAndStrings(text, '(', ')', i - 1, 0))
       | '"' => loop(commas, labels, findBack(text, '"', i - 1))
       | '=' => switch (findArgLabel(text, i - 1)) {
         | None => loop(commas, labels, i - 1)
@@ -243,7 +249,6 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       if (!match) return
       name = match[1]
       const [[commas, labels, lident]=[]] = findFunctionCall(prev)
-      console.log('looking for fn', commas, lident, labels)
       if (!lident) return
       const parts = lident.split('.')
       const last = parts.pop()
@@ -267,16 +272,15 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
         return true
       })
       if (!matching.length) return
-      console.log('found!', matching)
 
 
       results = matching[0].args.filter(([label, typ]) => label.length && !labels.includes(label) && label.startsWith(name.slice(1))).map(([name, typ]) => ({
-        name: '~' + name,
+        name: '~' + name + '=',
+        display: name,
         type: typ,
         kind: 'arg',
       }))
     } else {
-
       var parts = match[1].split('.')
       name = parts.pop()
       var prefix = parts.join('.')
@@ -287,7 +291,6 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
         Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
         openPrefixes[name] = true
       });
-      console.log('pr', openPrefixes)
 
       results = window.complationData.filter(item => {
         // TODO be case agnostic?
@@ -334,28 +337,29 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
     }
 
     const data = {
-        from: {line: cur.line, ch: cur.ch - name.length},
-        to: cur,
-        list: results.map(item => ({
-          text: item.name,
-          displayText: item.name,
-          item,
-          render: (elem, _, __) => {
-            var container = node('span', {}, [
-              node('span', {style: {
-                backgroundColor: colors[item.kind] || '#eee',
-                borderRadius: '50%',
-                marginRight: '4px',
-                padding: '0 2px',
-                color: 'black',
-              }}, [item.kind[0] || '']),
-              item.name
-            ])
-            container.style.lineHeight = 1;
-            elem.appendChild(container)
-          }
-        })).sort((a, b) => a.text.length - b.text.length)
+      from: {line: cur.line, ch: cur.ch - name.length},
+      to: cur,
+      list: results.map(item => ({
+        text: item.name,
+        displayText: item.display || item.name,
+        item,
+        render: (elem, _, __) => {
+          var container = node('span', {}, [
+            node('span', {style: {
+              backgroundColor: colors[item.kind] || '#eee',
+              borderRadius: '50%',
+              marginRight: '4px',
+              padding: '0 2px',
+              color: 'black',
+            }}, [item.kind[0] || '']),
+            item.display || item.name
+          ])
+          container.style.lineHeight = 1;
+          elem.appendChild(container)
+        }
+      })).sort((a, b) => a.text.length - b.text.length)
     }
+
     var contents = raw('')
     var helper = node('div', {
       style: {
@@ -373,6 +377,7 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
         boxShadow: '0 0 2px #aaa',
       }
     }, [contents])
+
     CodeMirror.on(data, 'select', function(completion, element) {
       onSelect(completion.item)
       contents.innerHTML = completion.item.type
@@ -387,7 +392,6 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       completeSingle: false,
       hint: () => (data)
     });
-    /* onSelect(data.list[0].item) */
     CodeMirror.on(data, 'close', () => {
       helper.parentNode && helper.parentNode.removeChild(helper)
       onClose()
@@ -398,69 +402,132 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
 
 let registerComplete: (codemirror, codemirror => bool) => unit = [%bs.raw{|
   (function(cm, onHint) {
-    var ExcludedIntelliSenseTriggerKeys =
-{
-    "8": "backspace",
-    "9": "tab",
-    "13": "enter",
-    "16": "shift",
-    "17": "ctrl",
-    "18": "alt",
-    "19": "pause",
-    "20": "capslock",
-    "27": "escape",
-    "33": "pageup",
-    "34": "pagedown",
-    "35": "end",
-    "36": "home",
-    "37": "left",
-    "38": "up",
-    "39": "right",
-    "40": "down",
-    "45": "insert",
-    "46": "delete",
-    "91": "left window key",
-    "92": "right window key",
-    "93": "select",
-    "107": "add",
-    "109": "subtract",
-    "110": "decimal point",
-    "111": "divide",
-    "112": "f1",
-    "113": "f2",
-    "114": "f3",
-    "115": "f4",
-    "116": "f5",
-    "117": "f6",
-    "118": "f7",
-    "119": "f8",
-    "120": "f9",
-    "121": "f10",
-    "122": "f11",
-    "123": "f12",
-    "144": "numlock",
-    "145": "scrolllock",
-    "186": "semicolon",
-    "187": "equalsign",
-    "188": "comma",
-    "189": "dash",
-    "191": "slash",
-    "220": "backslash",
-    "222": "quote"
-}
+    var ExcludedIntelliSenseTriggerKeys = {
+      "8": "backspace",
+      "9": "tab",
+      "13": "enter",
+      "16": "shift",
+      "17": "ctrl",
+      "18": "alt",
+      "19": "pause",
+      "20": "capslock",
+      "27": "escape",
+      "33": "pageup",
+      "34": "pagedown",
+      "35": "end",
+      "36": "home",
+      "37": "left",
+      "38": "up",
+      "39": "right",
+      "40": "down",
+      "45": "insert",
+      "46": "delete",
+      "91": "left window key",
+      "92": "right window key",
+      "93": "select",
+      "107": "add",
+      "109": "subtract",
+      "110": "decimal point",
+      "111": "divide",
+      "112": "f1",
+      "113": "f2",
+      "114": "f3",
+      "115": "f4",
+      "116": "f5",
+      "117": "f6",
+      "118": "f7",
+      "119": "f8",
+      "120": "f9",
+      "121": "f10",
+      "122": "f11",
+      "123": "f12",
+      "144": "numlock",
+      "145": "scrolllock",
+      "186": "semicolon",
+      "187": "equalsign",
+      "188": "comma",
+      "189": "dash",
+      "191": "slash",
+      "220": "backslash",
+      "222": "quote"
+    }
 
-cm.on("keyup", function(editor, event)
-{
-    if (!ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()]) {
-      /* if (    cm.state.completionActive && event.key != ".") return */
+    var functionHelper = document.createElement('div')
+    Object.assign(functionHelper.style, {
+      position: 'absolute',
+      display: 'none',
+      left: 0,
+      top: 0,
+      marginLeft: 4,
+      fontFamily: 'iosevka, "sf pro mono", monospace',
+      whiteSpace: 'pre-wrap',
+      fontSize: '12px',
+      lineHeight: 1.2,
+      padding: '4px 8px',
+      zIndex: 1000,
+      backgroundColor: 'white',
+      boxShadow: '0 0 2px #aaa',
+    })
+    document.body.appendChild(functionHelper)
+
+    var showFunctionHint = () => {
+      var cur = cm.getCursor();
+      var prev = cm.getRange({line:0,ch:0}, cur)
+
+      const [[commas, labels, lident]=[]] = findFunctionCall(prev) || []
+      if (!lident) return
+      const parts = lident.split('.')
+      const last = parts.pop()
+      const prefix = parts.join('.')
+
+      const opens  = findOpens(prev).reverse()
+      const openPrefixes = {}
+      opens.forEach((name, i) => {
+        Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+        openPrefixes[name] = true
+      });
+
+      var matching = window.complationData.filter(item => {
+        if (!item.args) return
+        // TODO be case agnostic?
+        if (item.name !== last) return false
+        if (!item.path.endsWith(prefix)) return false
+        var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+        if (left[left.length - 1] == '.') left = left.slice(0, -1)
+        if (left && !openPrefixes[left]) return false
+        return true
+      })
+      if (!matching.length) return
+
+      var text = matching[0].type
+      var {top, left, bottom} = cm.cursorCoords(true, 'window')
+
+      functionHelper.style.top = bottom + 'px';
+      functionHelper.style.left = left + 'px';
+      functionHelper.style.display = 'block'
+      functionHelper.innerHTML = text
+
+      return true
+    }
+
+    cm.on("keyup", function(editor, event) {
+      if (!ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()]) {
         if (!onHint(cm) && cm.state.completionActive) {
           cm.state.completionActive.close()
+        } else if (cm.state.completionActive) {
+          functionHelper.style.display = 'none'
         }
-    }
-    if (!cm.state.completionActive) {
-      // check for function call hover
-    }
-});
+      }
+    });
+
+    cm.on('cursorActivity', () => {
+      if (!cm.state.completionActive) {
+        // check for function call hover
+        if (!showFunctionHint()) {
+          functionHelper.style.display = 'none'
+        }
+      }
+    })
   })
 |}];
 

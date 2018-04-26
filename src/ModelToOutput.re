@@ -39,17 +39,38 @@ let firstFewItems = items => {
   ++ name) |> String.concat("\n")
 };
 
+let showType = typ => GenerateDoc.prettyString(~width=100, PrintType.default.expr(PrintType.default, typ));
+
+let getFunctionArgs = t => switch (PrintType.collectArgs([], t)) {
+| ([], _) => None
+| (args, _) => Some(args |> List.rev |> List.map(((label, typ)) => {
+  if (label != "" && label.[0] == '?') {
+    let label = String.sub(label, 1, String.length(label) - 1);
+    open Types;
+    switch (typ.desc) {
+    | Tconstr(Path.Pident({stamp, name: "option"}), [arg], _) => (label, showType(arg) ++ " (optional)")
+    | _ => ("?" ++ label, showType(typ))
+    }
+  } else {
+    (label, showType(typ))
+  }
+}))
+};
+
 let showItemType = (name, item, modulesAtPath) => {
   open State.Model.Docs;
   switch item {
-  | Value(v) => PrintType.default.value(PrintType.default, name, name, v) |> GenerateDoc.prettyString(~width=100)
-  | Type(t) => PrintType.default.decl(PrintType.default, name, name, t) |> GenerateDoc.prettyString(~width=100)
-  | Module(Items(items)) => firstFewItems(items)
-  | Module(Alias(aliasPath)) => switch (Hashtbl.find(modulesAtPath, Path.name(aliasPath))) {
+  | Value(v) => {
+    let t = PrintType.default.value(PrintType.default, name, name, v) |> GenerateDoc.prettyString(~width=100);
+    (getFunctionArgs(v) |?>> (args => args |> List.map(arg => Json.Array([Json.String(fst(arg)), Json.String(snd(arg))])) |> items => Json.Array(items) ), Json.String(t));
+  }
+  | Type(t) => (None, Json.String(PrintType.default.decl(PrintType.default, name, name, t) |> GenerateDoc.prettyString(~width=100)))
+  | Module(Items(items)) => (None, Json.String(firstFewItems(items)))
+  | Module(Alias(aliasPath)) => (None, Json.String(switch (Hashtbl.find(modulesAtPath, Path.name(aliasPath))) {
     | exception Not_found => ""
     | children => firstFewItems(children)
-    }
-  | _ => ""
+    }))
+  | _ => (None, Json.String(""))
   }
 };
 
@@ -69,7 +90,7 @@ let getCompletionData = modules => {
   });
 
   modules |> List.iter(({State.Model.name, items}) => {
-    add(([], name, firstFewItems(items), None, "module"));
+    add(([], name, (None, Json.String(firstFewItems(items))), None, "module"));
     items |> List.iter(State.Model.Docs.iterWithPath(~modulesAtPath, [name], (path, (name, docString, item)) => {
       switch item {
       | Value(_) | Type(_) | Module(_) => add((List.rev(path), name, showItemType(name, item, modulesAtPath), docString |?>> Omd.to_html, State.Model.Docs.itemName(item)))
@@ -86,12 +107,13 @@ let writeEditorSupport = (static, directory, modules, (browserCompilerPath, comp
   Buffer.output_buffer(out, compilerDepsBuffer);
   close_out(out);
 
-  let completionData = Json.stringify(Json.Array(getCompletionData(modules) |> List.map(((path, name, typ, docs, kind)) => Json.Object([
+  let completionData = Json.stringify(Json.Array(getCompletionData(modules) |> List.map(((path, name, (args, typ), docs, kind)) => Json.Object([
     ("path", Json.String(String.concat(".", path))),
     ("name", Json.String(name)),
-    ("type", Json.String(typ)),
+    ("type", typ),
     ("docs", docs |?>> (docs => Json.String(docs)) |? Json.Null),
     ("kind", Json.String(kind)),
+    ...(args |?>> (args => [("args", args)]) |? [])
   ]))));
   Files.writeFileExn(directory /+ "completion-data.js", "window.complationData = " ++ completionData);
 

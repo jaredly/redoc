@@ -59,8 +59,6 @@ type searchResult = {.
 };
 [@bs.send] external searchIndex: (index, string, 'config) => array(searchResult) = "search";
 let searchIndex = text => searchIndex(index, text, config);
-/* var index = elasticlunr.Index.load(window.searchindex); */
-/* var config = {bool: 'AND', fields: {title: {boost: 2}, contents: {boost: 1}}, expand: true}; */
 
 let clearMarks: codemirror => unit = [%bs.raw {|
   (function(cm) {
@@ -78,31 +76,82 @@ type completionItem = {.
   "_type": string,
 };
 
+let rec findBack = (text, char, i) => {
+  if (i < 0) { 0 } else if (text.[i] == char) {
+    i - 1
+  } else {
+    findBack(text, char, i - 1)
+  }
+};
+
+let rec findOpenComment = (text, i) => {
+  if (i < 1) { 0 } else if (text.[i] == '*' && text.[i - 1] == '/') {
+    i - 2
+  } else {
+    findOpenComment(text, i - 1)
+  }
+};
+
+let rec findBackSkippingCommentsAndStrings = (text, char, i) => {
+  let loop = findBackSkippingCommentsAndStrings(text, char);
+  if (i < 0) { 0 } else if (text.[i] == char) {
+    i - 1
+  } else {
+    switch (text.[i]) {
+    | '"' => loop(findBack(text, '"', i - 1))
+    | '/' when (i >= 1 && text.[i - 1] == '*') => loop(findOpenComment(text, i - 2))
+    | _ => loop(i - 1)
+    }
+  }
+};
+
+let rec skipWhite = (text, i) => if (i < 0) { 0 } else {
+  switch (text.[i]) {
+  | ' ' | '\n' | '\t' => skipWhite(text, i - 1)
+  | _ => i
+  }
+};
+
+let rec startOfLident = (text, i) => if (i < 0) { 0 } else {
+  switch (text.[i]) {
+  | 'a'..'z' | 'A'..'Z' | '.' | '_' | '0'..'9' => startOfLident(text, i - 1)
+  | _ => i + 1
+  }
+};
+
+let findFunctionCall = text => {
+  let rec loop = (commas, i) => {
+    if (i > 0) {
+      switch (text.[i]) {
+      | '}' => loop(commas, findBackSkippingCommentsAndStrings(text, '{', i - 1))
+      | ']' => loop(commas, findBackSkippingCommentsAndStrings(text, '[', i - 1))
+      | ')' => loop(commas, findBackSkippingCommentsAndStrings(text, '(', i - 1))
+      | '"' => loop(commas, findBack(text, '"', i - 1))
+      /* Not 100% this makes sense, but I think so? */
+      | '{' | '[' => None
+      | '(' => switch (text.[i - 1]) {
+        | 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => {
+          let i0 = startOfLident(text, i - 2);
+          Some((commas, String.sub(text, i0, i - i0)))
+        }
+        | _ => loop(commas, i - 1)
+      }
+      | ',' => loop(commas + 1, i - 1)
+      | _ => if (i >= 1 && text.[i] == '/' && text.[i - 1] == '*') {
+          loop(commas, findOpenComment(text, i - 2))
+        } else {
+          loop(commas, i - 1)
+        }
+      }
+    } else {
+      None;
+    }
+  };
+  loop(0, String.length(text) - 1);
+};
+
 let findOpens = text => {
   let opens = [||];
-
-  let rec findBack = (char, i) => {
-    if (i < 0) { 0 } else if (text.[i] == char) {
-      i - 1
-    } else {
-      findBack(char, i - 1)
-    }
-  };
-
-  let rec findOpenComment = (i) => {
-    if (i < 1) { 0 } else if (text.[i] == '*' && text.[i - 1] == '/') {
-      i - 2
-    } else {
-      findOpenComment(i - 1)
-    }
-  };
-
-  let rec skipWhite = i => if (i < 0) { 0 } else {
-    switch (text.[i]) {
-    | ' ' | '\n' | '\t' => skipWhite(i - 1)
-    | _ => i
-    }
-  };
 
   let maybeOpen = i0 => {
     let rec loop = i => {
@@ -112,7 +161,7 @@ let findOpens = text => {
         switch (text.[i]) {
         | 'a'..'z' | 'A'..'Z' | '.' | '_' | '0'..'9' => loop(i - 1)
         | ' ' => {
-          let at = skipWhite(i - 1);
+          let at = skipWhite(text, i - 1);
           if (at >= 3 &&
             text.[at - 3] == 'o' &&
             text.[at - 2] == 'p' &&
@@ -135,11 +184,11 @@ let findOpens = text => {
   let rec loop = i => {
     if (i > 0) {
       switch (text.[i]) {
-      | '}' => loop(findBack('{', i - 1))
-      | '"' => loop(findBack('"', i - 1))
+      | '}' => loop(findBack(text, '{', i - 1))
+      | '"' => loop(findBack(text, '"', i - 1))
       | 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => loop(maybeOpen(i))
       | _ => if (i > 1 && text.[i] == '/' && text.[i - 1] == '*') {
-          loop(findOpenComment(i - 2))
+          loop(findOpenComment(text, i - 2))
         } else {
           loop(i - 1)
         }
@@ -168,56 +217,73 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       return recursiveRemove(res, re)
     }
 
-      /* // multi-line comments
-    let oprev = recursiveRemove(prev, /\/*(\*[^\/]|\/[^*]|[^/*])*\*\//g, '')
-      // strings
-      .replace(/"[^"]*"/g, '')
-      // curlys
-    oprev = recursiveRemove(oprev, /{[^}]*}/g)
-      // brackets
-    oprev = recursiveRemove(oprev, /[[^\]]*]/g)
-      // parens
-    oprev = recursiveRemove(oprev, /\([^)]*\)/g) */
+    var match = prev.match(/[^~a-zA-Z0-9\._)\]}"]([a-zA-Z0-9\._]+)$/)
 
-    var match = prev.match(/[^a-zA-Z0-9\._)\]}"](~?[a-zA-Z0-9\._]+)$/)
+    var results = [];
+    var name;
+
     if (!match) {
-      /* var openFnCall = oprev.match(/([a-zA-Z0-9\._]+)\([^()]+$/) */
-      /* console.log(openFnCall, oprev) */
-      return
-    }
-    if (match[1][0] == '~') {
-      return // TODO
-    }
-    var parts = match[1].split('.')
-    var name = parts.pop()
-    var prefix = parts.join('.')
+      match = prev.match(/[^a-zA-Z0-9\._)\]}"](~[a-zA-Z0-9\._]*)$/)
+      if (!match) return
+      name = match[1]
+      const [[commas, lident]=[]] = findFunctionCall(prev)
+      console.log('looking for fn', commas, lident)
+      if (!lident) return
+      const parts = lident.split('.')
+      const last = parts.pop()
+      const prefix = parts.join('.')
 
-    const opens  = findOpens(prev).reverse()
-    /* oprev.replace(/\bopen\s+([A-Z][\w_]*)/g, (a, b) => opens.push(b)) */
-    const openPrefixes = {}
-    opens.forEach((name, i) => {
-      Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
-      openPrefixes[name] = true
-    });
-    console.log('pr', openPrefixes)
+      const opens  = findOpens(prev).reverse()
+      const openPrefixes = {}
+      opens.forEach((name, i) => {
+        Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+        openPrefixes[name] = true
+      });
 
-    var matching = window.complationData.filter(item => {
-      // TODO be case agnostic?
-      if (!item.name.startsWith(name)) return false
-      if (!item.path.endsWith(prefix)) {
-        /* console.log('prefix', item.path, prefix) */
-        return false
-      }
-      var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
-      if (left[left.length - 1] == '.') {
-        left = left.slice(0, -1)
-      }
-      if (left && !openPrefixes[left]) {
-        /* console.log('left', left, item.path, prefix) */
-        return false
-      }
-      return true
-    })
+      var matching = window.complationData.filter(item => {
+        if (!item.args) return
+        // TODO be case agnostic?
+        if (item.name !== last) return false
+        if (!item.path.endsWith(prefix)) return false
+        var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+        if (left[left.length - 1] == '.') left = left.slice(0, -1)
+        if (left && !openPrefixes[left]) return false
+        return true
+      })
+      if (!matching.length) return
+      console.log('found!', matching)
+
+
+      results = matching[0].args.filter(([label, typ]) => label.length && label.startsWith(name.slice(1))).map(([name, typ]) => ({
+        name: '~' + name,
+        type: typ,
+        kind: 'arg',
+      }))
+    } else {
+
+      var parts = match[1].split('.')
+      name = parts.pop()
+      var prefix = parts.join('.')
+
+      const opens  = findOpens(prev).reverse()
+      const openPrefixes = {}
+      opens.forEach((name, i) => {
+        Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+        openPrefixes[name] = true
+      });
+      console.log('pr', openPrefixes)
+
+      results = window.complationData.filter(item => {
+        // TODO be case agnostic?
+        if (!item.name.startsWith(name)) return false
+        if (!item.path.endsWith(prefix)) return false
+        var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+        if (left[left.length - 1] == '.') left = left.slice(0, -1)
+        if (left && !openPrefixes[left]) return false
+        return true
+      })
+      if (!results.length) return
+    }
 
     var node = (tag, attrs, children) => {
       var node = document.createElement(tag)
@@ -231,14 +297,13 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       children && children.forEach(child => node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
       return node
     }
-  var raw = text => {
-    var node = document.createElement('div')
-    node.innerHTML = text
-    return node
-  };
+    var raw = text => {
+      var node = document.createElement('div')
+      node.innerHTML = text
+      return node
+    };
 
 
-    if (!matching.length) return
     // TODO TODO
     // this isn't resolving:
     // open Reprocessing;
@@ -255,7 +320,7 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
     const data = {
         from: {line: cur.line, ch: cur.ch - name.length},
         to: cur,
-        list: matching.map(item => ({
+        list: results.map(item => ({
           text: item.name,
           displayText: item.name,
           item,
@@ -364,7 +429,6 @@ let registerComplete: (codemirror, codemirror => bool) => unit = [%bs.raw{|
     "188": "comma",
     "189": "dash",
     "191": "slash",
-    "192": "graveaccent",
     "220": "backslash",
     "222": "quote"
 }
@@ -376,6 +440,9 @@ cm.on("keyup", function(editor, event)
         if (!onHint(cm) && cm.state.completionActive) {
           cm.state.completionActive.close()
         }
+    }
+    if (!cm.state.completionActive) {
+      // check for function call hover
     }
 });
   })

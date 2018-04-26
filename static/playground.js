@@ -22304,6 +22304,7 @@ module.exports = invariant;
 
 var $$Array = require(61);
 var Block = require(8);
+var $$String = require(21);
 var Caml_string = require(17);
 
 function replaceState(url) {
@@ -22342,57 +22343,244 @@ var clearMarks = (
   })
 );
 
-function findOpens(text) {
-  var opens = /* array */[];
-  var findBack = function ($$char, _i) {
-    while(true) {
-      var i = _i;
-      if (i < 0) {
-        return 0;
-      } else if (Caml_string.get(text, i) === $$char) {
-        return i - 1 | 0;
-      } else {
-        _i = i - 1 | 0;
-        continue ;
-      }
-    };
+function findBack(text, $$char, _i) {
+  while(true) {
+    var i = _i;
+    if (i < 0) {
+      return 0;
+    } else if (Caml_string.get(text, i) === $$char) {
+      return i - 1 | 0;
+    } else {
+      _i = i - 1 | 0;
+      continue ;
+    }
   };
-  var findOpenComment = function (_i) {
-    while(true) {
-      var i = _i;
-      if (i < 1) {
-        return 0;
-      } else if (Caml_string.get(text, i) === /* "*" */42 && Caml_string.get(text, i - 1 | 0) === /* "/" */47) {
-        return i - 2 | 0;
-      } else {
-        _i = i - 1 | 0;
-        continue ;
-      }
-    };
+}
+
+function findOpenComment(text, _i) {
+  while(true) {
+    var i = _i;
+    if (i < 1) {
+      return 0;
+    } else if (Caml_string.get(text, i) === /* "*" */42 && Caml_string.get(text, i - 1 | 0) === /* "/" */47) {
+      return i - 2 | 0;
+    } else {
+      _i = i - 1 | 0;
+      continue ;
+    }
   };
-  var skipWhite = function (_i) {
-    while(true) {
-      var i = _i;
-      if (i < 0) {
-        return 0;
-      } else {
-        var match = Caml_string.get(text, i);
-        if (match >= 11) {
-          if (match !== 32) {
-            return i;
-          } else {
-            _i = i - 1 | 0;
-            continue ;
-          }
-        } else if (match >= 9) {
+}
+
+function findBackSkippingCommentsAndStrings(text, $$char, _i) {
+  while(true) {
+    var i = _i;
+    if (i < 0) {
+      return 0;
+    } else if (Caml_string.get(text, i) === $$char) {
+      return i - 1 | 0;
+    } else {
+      var match = Caml_string.get(text, i);
+      if (match !== 34) {
+        if (match !== 47) {
           _i = i - 1 | 0;
           continue ;
+        } else if (i >= 1 && Caml_string.get(text, i - 1 | 0) === /* "*" */42) {
+          _i = findOpenComment(text, i - 2 | 0);
+          continue ;
         } else {
+          _i = i - 1 | 0;
+          continue ;
+        }
+      } else {
+        _i = findBack(text, /* "\"" */34, i - 1 | 0);
+        continue ;
+      }
+    }
+  };
+}
+
+function skipWhite(text, _i) {
+  while(true) {
+    var i = _i;
+    if (i < 0) {
+      return 0;
+    } else {
+      var match = Caml_string.get(text, i);
+      if (match >= 11) {
+        if (match !== 32) {
           return i;
+        } else {
+          _i = i - 1 | 0;
+          continue ;
+        }
+      } else if (match >= 9) {
+        _i = i - 1 | 0;
+        continue ;
+      } else {
+        return i;
+      }
+    }
+  };
+}
+
+function startOfLident(text, _i) {
+  while(true) {
+    var i = _i;
+    if (i < 0) {
+      return 0;
+    } else {
+      var match = Caml_string.get(text, i);
+      var exit = 0;
+      if (match >= 65) {
+        var switcher = match - 91 | 0;
+        if (switcher > 5 || switcher < 0) {
+          if (switcher >= 32) {
+            return i + 1 | 0;
+          } else {
+            exit = 1;
+          }
+        } else if (switcher !== 4) {
+          return i + 1 | 0;
+        } else {
+          exit = 1;
+        }
+      } else if (match >= 48) {
+        if (match >= 58) {
+          return i + 1 | 0;
+        } else {
+          exit = 1;
+        }
+      } else if (match !== 46) {
+        return i + 1 | 0;
+      } else {
+        exit = 1;
+      }
+      if (exit === 1) {
+        _i = i - 1 | 0;
+        continue ;
+      }
+      
+    }
+  };
+}
+
+function findFunctionCall(text) {
+  var _commas = 0;
+  var _i = text.length - 1 | 0;
+  while(true) {
+    var i = _i;
+    var commas = _commas;
+    if (i > 0) {
+      var match = Caml_string.get(text, i);
+      var exit = 0;
+      if (match >= 91) {
+        if (match >= 123) {
+          if (match >= 126) {
+            exit = 1;
+          } else {
+            switch (match - 123 | 0) {
+              case 0 : 
+                  return /* None */0;
+              case 1 : 
+                  exit = 1;
+                  break;
+              case 2 : 
+                  _i = findBackSkippingCommentsAndStrings(text, /* "{" */123, i - 1 | 0);
+                  continue ;
+              
+            }
+          }
+        } else if (match >= 94) {
+          exit = 1;
+        } else {
+          switch (match - 91 | 0) {
+            case 0 : 
+                return /* None */0;
+            case 1 : 
+                exit = 1;
+                break;
+            case 2 : 
+                _i = findBackSkippingCommentsAndStrings(text, /* "[" */91, i - 1 | 0);
+                continue ;
+            
+          }
+        }
+      } else {
+        var switcher = match - 34 | 0;
+        if (switcher > 10 || switcher < 0) {
+          exit = 1;
+        } else {
+          switch (switcher) {
+            case 0 : 
+                _i = findBack(text, /* "\"" */34, i - 1 | 0);
+                continue ;
+            case 6 : 
+                var match$1 = Caml_string.get(text, i - 1 | 0);
+                var exit$1 = 0;
+                exit$1 = match$1 >= 91 ? (
+                    match$1 >= 97 ? (
+                        match$1 >= 123 ? 2 : 3
+                      ) : (
+                        match$1 !== 95 ? 2 : 3
+                      )
+                  ) : (
+                    match$1 >= 58 ? (
+                        match$1 >= 65 ? 3 : 2
+                      ) : (
+                        match$1 >= 48 ? 3 : 2
+                      )
+                  );
+                switch (exit$1) {
+                  case 2 : 
+                      _i = i - 1 | 0;
+                      continue ;
+                  case 3 : 
+                      var i0 = startOfLident(text, i - 2 | 0);
+                      return /* Some */[/* tuple */[
+                                commas,
+                                $$String.sub(text, i0, i - i0 | 0)
+                              ]];
+                  
+                }
+                break;
+            case 7 : 
+                _i = findBackSkippingCommentsAndStrings(text, /* "(" */40, i - 1 | 0);
+                continue ;
+            case 1 : 
+            case 2 : 
+            case 3 : 
+            case 4 : 
+            case 5 : 
+            case 8 : 
+            case 9 : 
+                exit = 1;
+                break;
+            case 10 : 
+                _i = i - 1 | 0;
+                _commas = commas + 1 | 0;
+                continue ;
+            
+          }
         }
       }
-    };
+      if (exit === 1) {
+        if (i >= 1 && Caml_string.get(text, i) === /* "/" */47 && Caml_string.get(text, i - 1 | 0) === /* "*" */42) {
+          _i = findOpenComment(text, i - 2 | 0);
+          continue ;
+        } else {
+          _i = i - 1 | 0;
+          continue ;
+        }
+      }
+      
+    } else {
+      return /* None */0;
+    }
   };
+}
+
+function findOpens(text) {
+  var opens = /* array */[];
   var maybeOpen = function (i0) {
     var _i = i0 - 1 | 0;
     while(true) {
@@ -22426,7 +22614,7 @@ function findOpens(text) {
         } else if (match !== 32) {
           return i;
         } else {
-          var at = skipWhite(i - 1 | 0);
+          var at = skipWhite(text, i - 1 | 0);
           if (at >= 3 && Caml_string.get(text, at - 3 | 0) === /* "o" */111 && Caml_string.get(text, at - 2 | 0) === /* "p" */112 && Caml_string.get(text, at - 1 | 0) === /* "e" */101 && Caml_string.get(text, at) === /* "n" */110) {
             opens.push(text.slice(i + 1 | 0, i0 + 1 | 0));
             return at - 4 | 0;
@@ -22449,7 +22637,7 @@ function findOpens(text) {
             if (switcher !== 30) {
               exit = 1;
             } else {
-              _i = findBack(/* "{" */123, i - 1 | 0);
+              _i = findBack(text, /* "{" */123, i - 1 | 0);
               continue ;
             }
           } else if (switcher !== 1) {
@@ -22468,12 +22656,12 @@ function findOpens(text) {
         } else if (match !== 34) {
           exit = 1;
         } else {
-          _i = findBack(/* "\"" */34, i - 1 | 0);
+          _i = findBack(text, /* "\"" */34, i - 1 | 0);
           continue ;
         }
         if (exit === 1) {
           if (i > 1 && Caml_string.get(text, i) === /* "/" */47 && Caml_string.get(text, i - 1 | 0) === /* "*" */42) {
-            _i = findOpenComment(i - 2 | 0);
+            _i = findOpenComment(text, i - 2 | 0);
             continue ;
           } else {
             _i = i - 1 | 0;
@@ -22508,56 +22696,73 @@ var autoComplete = (
       return recursiveRemove(res, re)
     }
 
-      /* // multi-line comments
-    let oprev = recursiveRemove(prev, /\/*(\*[^\/]|\/[^*]|[^/*])*\*\//g, '')
-      // strings
-      .replace(/"[^"]*"/g, '')
-      // curlys
-    oprev = recursiveRemove(oprev, /{[^}]*}/g)
-      // brackets
-    oprev = recursiveRemove(oprev, /[[^\]]*]/g)
-      // parens
-    oprev = recursiveRemove(oprev, /\([^)]*\)/g) */
+    var match = prev.match(/[^~a-zA-Z0-9\._)\]}"]([a-zA-Z0-9\._]+)$/)
 
-    var match = prev.match(/[^a-zA-Z0-9\._)\]}"](~?[a-zA-Z0-9\._]+)$/)
+    var results = [];
+    var name;
+
     if (!match) {
-      /* var openFnCall = oprev.match(/([a-zA-Z0-9\._]+)\([^()]+$/) */
-      /* console.log(openFnCall, oprev) */
-      return
-    }
-    if (match[1][0] == '~') {
-      return // TODO
-    }
-    var parts = match[1].split('.')
-    var name = parts.pop()
-    var prefix = parts.join('.')
+      match = prev.match(/[^a-zA-Z0-9\._)\]}"](~[a-zA-Z0-9\._]*)$/)
+      if (!match) return
+      name = match[1]
+      const [[commas, lident]=[]] = findFunctionCall(prev)
+      console.log('looking for fn', commas, lident)
+      if (!lident) return
+      const parts = lident.split('.')
+      const last = parts.pop()
+      const prefix = parts.join('.')
 
-    const opens  = findOpens(prev).reverse()
-    /* oprev.replace(/\bopen\s+([A-Z][\w_]*)/g, (a, b) => opens.push(b)) */
-    const openPrefixes = {}
-    opens.forEach((name, i) => {
-      Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
-      openPrefixes[name] = true
-    });
-    console.log('pr', openPrefixes)
+      const opens  = findOpens(prev).reverse()
+      const openPrefixes = {}
+      opens.forEach((name, i) => {
+        Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+        openPrefixes[name] = true
+      });
 
-    var matching = window.complationData.filter(item => {
-      // TODO be case agnostic?
-      if (!item.name.startsWith(name)) return false
-      if (!item.path.endsWith(prefix)) {
-        /* console.log('prefix', item.path, prefix) */
-        return false
-      }
-      var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
-      if (left[left.length - 1] == '.') {
-        left = left.slice(0, -1)
-      }
-      if (left && !openPrefixes[left]) {
-        /* console.log('left', left, item.path, prefix) */
-        return false
-      }
-      return true
-    })
+      var matching = window.complationData.filter(item => {
+        if (!item.args) return
+        // TODO be case agnostic?
+        if (item.name !== last) return false
+        if (!item.path.endsWith(prefix)) return false
+        var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+        if (left[left.length - 1] == '.') left = left.slice(0, -1)
+        if (left && !openPrefixes[left]) return false
+        return true
+      })
+      if (!matching.length) return
+      console.log('found!', matching)
+
+
+      results = matching[0].args.filter(([label, typ]) => label.length && label.startsWith(name.slice(1))).map(([name, typ]) => ({
+        name: '~' + name,
+        type: typ,
+        kind: 'arg',
+      }))
+    } else {
+
+      var parts = match[1].split('.')
+      name = parts.pop()
+      var prefix = parts.join('.')
+
+      const opens  = findOpens(prev).reverse()
+      const openPrefixes = {}
+      opens.forEach((name, i) => {
+        Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+        openPrefixes[name] = true
+      });
+      console.log('pr', openPrefixes)
+
+      results = window.complationData.filter(item => {
+        // TODO be case agnostic?
+        if (!item.name.startsWith(name)) return false
+        if (!item.path.endsWith(prefix)) return false
+        var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+        if (left[left.length - 1] == '.') left = left.slice(0, -1)
+        if (left && !openPrefixes[left]) return false
+        return true
+      })
+      if (!results.length) return
+    }
 
     var node = (tag, attrs, children) => {
       var node = document.createElement(tag)
@@ -22571,14 +22776,13 @@ var autoComplete = (
       children && children.forEach(child => node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child))
       return node
     }
-  var raw = text => {
-    var node = document.createElement('div')
-    node.innerHTML = text
-    return node
-  };
+    var raw = text => {
+      var node = document.createElement('div')
+      node.innerHTML = text
+      return node
+    };
 
 
-    if (!matching.length) return
     // TODO TODO
     // this isn't resolving:
     // open Reprocessing;
@@ -22595,7 +22799,7 @@ var autoComplete = (
     const data = {
         from: {line: cur.line, ch: cur.ch - name.length},
         to: cur,
-        list: matching.map(item => ({
+        list: results.map(item => ({
           text: item.name,
           displayText: item.name,
           item,
@@ -22704,7 +22908,6 @@ var registerComplete = (
     "188": "comma",
     "189": "dash",
     "191": "slash",
-    "192": "graveaccent",
     "220": "backslash",
     "222": "quote"
 }
@@ -22716,6 +22919,9 @@ cm.on("keyup", function(editor, event)
         if (!onHint(cm) && cm.state.completionActive) {
           cm.state.completionActive.close()
         }
+    }
+    if (!cm.state.completionActive) {
+      // check for function call hover
     }
 });
   })
@@ -22889,6 +23095,12 @@ exports.index = index;
 exports.config = config;
 exports.searchIndex = searchIndex;
 exports.clearMarks = clearMarks;
+exports.findBack = findBack;
+exports.findOpenComment = findOpenComment;
+exports.findBackSkippingCommentsAndStrings = findBackSkippingCommentsAndStrings;
+exports.skipWhite = skipWhite;
+exports.startOfLident = startOfLident;
+exports.findFunctionCall = findFunctionCall;
 exports.findOpens = findOpens;
 exports.autoComplete = autoComplete;
 exports.registerComplete = registerComplete;

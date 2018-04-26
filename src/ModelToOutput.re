@@ -14,9 +14,22 @@ let showItemType = (name, item) => {
 let getCompletionData = modules => {
   let items = ref([]);
   let add = i => items := [i, ...items^];
+
+  let modulesAtPath = Hashtbl.create(10);
+  modules |> List.iter(({State.Model.name, items}) => {
+    Hashtbl.replace(modulesAtPath, name, items);
+    items |> List.iter(State.Model.Docs.iterWithPath(~modulesAtPath, [name], (path, (name, _, item)) => {
+      switch item {
+      | Module(Items(items)) => Hashtbl.replace(modulesAtPath, List.rev([name, ...path]) |> String.concat("."), items)
+      | _ => ()
+      }
+    }))
+  });
+  /* Hashtbl.iter((k, v) => print_endline(k), modulesAtPath); */
+
   modules |> List.iter(({State.Model.name, items}) => {
     add(([], name, "module " ++ name, None, "module"));
-    items |> List.iter(State.Model.Docs.iterWithPath([name], (path, (name, docString, item)) => {
+    items |> List.iter(State.Model.Docs.iterWithPath(~modulesAtPath, [name], (path, (name, docString, item)) => {
       switch item {
       | Value(_) | Type(_) | Module(_) => add((List.rev(path), name, showItemType(name, item), docString |?>> Omd.to_html, State.Model.Docs.itemName(item)))
       | _ => ()

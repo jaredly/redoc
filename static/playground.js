@@ -682,8 +682,11 @@ function make$1() {
                                                                                     /* :: */[
                                                                                       Css.backgroundColor(Css.white),
                                                                                       /* :: */[
-                                                                                        Css.zIndex(1000),
-                                                                                        /* [] */0
+                                                                                        Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
+                                                                                        /* :: */[
+                                                                                          Css.zIndex(1000),
+                                                                                          /* [] */0
+                                                                                        ]
                                                                                       ]
                                                                                     ]
                                                                                   ]
@@ -22347,6 +22350,9 @@ var autoComplete = (
     }
     var prev = cm.getRange({line:0,ch:0}, cur)
 
+    // TODO TODO if this is a label, then stop
+    // ~pos=px(10)
+
     var match = prev.match(/[^a-zA-Z0-9\._)\]}"]([a-zA-Z0-9\._]+)$/)
     if (!match) {
       return
@@ -22371,14 +22377,22 @@ var autoComplete = (
         openPrefixes[opens.slice(i, x).join('.')] = true
       }
     });
-    // TODO find `open`s in `prev`
 
     var matching = window.complationData.filter(item => {
       // TODO be case agnostic?
       if (!item.name.startsWith(name)) return false
-      if (!item.path.endsWith(prefix)) return false
+      if (!item.path.endsWith(prefix)) {
+        /* console.log('prefix', item.path, prefix) */
+        return false
+      }
       var left = item.path.slice(0, -prefix.length)
-      if (left && !openPrefixes[left]) return false
+      if (left[left.length - 1] == '.') {
+        left = left.slice(0, -1)
+      }
+      if (left && !openPrefixes[left]) {
+        /* console.log('left', left, item.path, prefix) */
+        return false
+      }
       return true
     })
 
@@ -22402,6 +22416,12 @@ var autoComplete = (
 
 
     if (!matching.length) return
+    // TODO TODO
+    // this isn't resolving:
+    // open Reprocessing;
+    // Draw.<complete please>
+    // BUT it does get
+    // Reprocessing.Draw.rectf
     const data = {
         from: {line: cur.line, ch: cur.ch - name.length},
         to: cur,
@@ -22413,19 +22433,18 @@ var autoComplete = (
             var container = //node('div', {}, [
               raw(item.type)
             //])
+            container.style.lineHeight = 1;
             elem.appendChild(container)
           }
-        }))
+        })).sort((a, b) => a.text.length - b.text.length)
     }
     cm.showHint({
       completeSingle: false,
       hint: () => (data)
     });
     onSelect(data.list[0].item)
-    /* var completion = cm.state.completionActive.data; */
     CodeMirror.on(data, 'select', function(completion, element) {
       onSelect(completion.item)
-      /* console.log('completing with', completion); */
     })
     CodeMirror.on(data, 'close', () => onClose())
   })

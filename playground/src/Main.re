@@ -459,6 +459,7 @@ module Main = {
                 right(zero),
                 padding2(~v=px(8), ~h=px(16)),
                 backgroundColor(white),
+                boxShadow(~blur=px(3), hex("aaa")),
                 zIndex(1000),
               ]))
             >

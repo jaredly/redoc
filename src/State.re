@@ -172,11 +172,15 @@ module Model = {
       }
     };
 
-    let rec iterWithPath = (path, fn, (name, docString, item) as doc) => {
+    let rec iterWithPath = (~modulesAtPath, path, fn, (name, docString, item) as doc) => {
       fn(path, doc);
       switch item {
-      | Include(_, children) => List.iter(iterWithPath(path, fn), children)
-      | Module(Items(children)) => List.iter(iterWithPath([name, ...path], fn), children)
+      | Include(_, children) => List.iter(iterWithPath(~modulesAtPath, path, fn), children)
+      | Module(Items(children)) => List.iter(iterWithPath(~modulesAtPath, [name, ...path], fn), children)
+      | Module(Alias(aliasPath)) => switch (Hashtbl.find(modulesAtPath, Path.name(aliasPath))) {
+      | exception Not_found => print_endline("Unable to resolve module alias: " ++ Path.name(aliasPath))
+      | children => List.iter(iterWithPath(~modulesAtPath, [name, ...path], fn), children)
+      }
       | _ => ()
       }
     };

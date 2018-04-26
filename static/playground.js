@@ -108,7 +108,13 @@ var error = Css.style(/* :: */[
                 Css.bottom(Css.px(0)),
                 /* :: */[
                   Css.right(Css.px(0)),
-                  /* [] */0
+                  /* :: */[
+                    Css.zIndex(10),
+                    /* :: */[
+                      Css.backgroundColor(Css.white),
+                      /* [] */0
+                    ]
+                  ]
                 ]
               ]
             ]
@@ -592,7 +598,13 @@ function make$1() {
                                                         return run(cm.getValue());
                                                       }));
                                         })
-                                    }, "Run"), spacer(8), "Syntax:", spacer(8), React.createElement("button", {
+                                    }, "Run"), spacer(8), React.createElement("button", {
+                                      className: button,
+                                      disabled: state[/* syntax */8] === /* OCaml */0,
+                                      onClick: (function () {
+                                          return Curry._1(send, /* AutoFormat */3);
+                                        })
+                                    }, "Auto Format"), spacer(8), "Syntax:", spacer(8), React.createElement("button", {
                                       className: button,
                                       disabled: state[/* syntax */8] === /* OCaml */0,
                                       onClick: (function () {
@@ -634,7 +646,8 @@ function make$1() {
                                                     if (state[/* cm */1] === /* None */0) {
                                                       var cm = Utils.fromTextArea(node, run);
                                                       state[/* cm */1] = /* Some */[cm];
-                                                      return /* () */0;
+                                                      window.cm = cm;
+                                                      return Curry._2(Utils.registerComplete, cm, Utils.autoComplete);
                                                     } else {
                                                       return 0;
                                                     }
@@ -740,8 +753,14 @@ function make$1() {
                                   className: line
                                 }), React.createElement("div", undefined, "A div w/ id #target"), React.createElement("div", {
                                   className: Css.style(/* :: */[
-                                        Css.padding(Css.px(8)),
-                                        /* [] */0
+                                        Css.padding2(Css.px(4), Css.px(8)),
+                                        /* :: */[
+                                          Css.margin2(Css.px(8), Css.zero),
+                                          /* :: */[
+                                            Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
+                                            /* [] */0
+                                          ]
+                                        ]
                                       ])
                                 }, React.createElement("div", {
                                       id: "target"
@@ -887,6 +906,29 @@ function make$1() {
                                             /* syntax : Reason */1,
                                             /* status */state[/* status */9]
                                           ];
+                                  }
+                                  catch (exn){
+                                    return /* record */[
+                                            /* text */state[/* text */0],
+                                            /* cm */state[/* cm */1],
+                                            /* context */state[/* context */2],
+                                            /* canvasSize */state[/* canvasSize */3],
+                                            /* shareInput */state[/* shareInput */4],
+                                            /* logs */state[/* logs */5],
+                                            /* resultJs */state[/* resultJs */6],
+                                            /* searching */state[/* searching */7],
+                                            /* syntax */state[/* syntax */8],
+                                            /* status : ParseFailure */Block.__(1, ["Syntax error"])
+                                          ];
+                                  }
+                                })), state);
+                      break;
+                  case 3 : 
+                      tmp = Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
+                                  var text = cm.getValue();
+                                  try {
+                                    cm.setValue(printRE(parseRE(text)));
+                                    return state;
                                   }
                                   catch (exn){
                                     return /* record */[
@@ -22206,6 +22248,137 @@ var clearMarks = (
   })
 );
 
+var autoComplete = (
+  (function(cm) {
+    var cur = cm.getCursor();
+    var t = cm.getTokenTypeAt(cur);
+    if (t == 'string' || t == 'number' || t == 'comment') {
+      return
+    }
+    var prev = cm.getRange({line:0,ch:0}, cur)
+
+    var match = prev.match(/[^a-zA-Z0-9\._)\]}"]([a-zA-Z0-9\._]+)$/)
+    if (!match) {
+      return
+    }
+    var parts = match[1].split('.')
+    var name = parts.pop()
+    var prefix = parts.join('.')
+
+    var recursiveRemove = (text, re) => {
+      var res = text.replace(re, '');
+      if (res == text) return res
+      return recursiveRemove(res, re)
+    }
+    let oprev = recursiveRemove(prev, /\/*(\*[^\/]|\/[^*]|[^/*])*\*\//g, '')
+    .replace(/"[^"]*"/g, '')
+    oprev = recursiveRemove(oprev, /{[^}]*}/g)
+    const opens  = []
+    oprev.replace(/\bopen\s+([A-Z][\w_]*)/g, (a, b) => opens.push(b))
+    const openPrefixes = {}
+    opens.forEach((name, i) => {
+      for (let x = i + 1; x <= opens.length; x++) {
+        openPrefixes[opens.slice(i, x).join('.')] = true
+      }
+    });
+    // TODO find `open`s in `prev`
+
+    var matching = window.complationData.filter(item => {
+      // TODO be case agnostic?
+      if (!item.name.startsWith(name)) return false
+      if (!item.path.endsWith(prefix)) return false
+      var left = item.path.slice(0, -prefix.length)
+      if (left && !openPrefixes[left]) return false
+      return true
+    })
+
+    if (!matching.length) return
+    const data = {
+        from: {line: cur.line, ch: cur.ch - name.length},
+        to: cur,
+        list: matching.map(item => ({
+          text: item.name,
+          displayText: item.name,
+          item,
+          // render()
+        }))
+    }
+    cm.showHint({
+      completeSingle: false,
+      hint: () => (data)
+    });
+    console.log('first', data.list[0])
+    /* var completion = cm.state.completionActive.data; */
+    CodeMirror.on(data, 'select', function(completion, element) {
+      console.log('completing with', completion);
+    })
+  })
+);
+
+var registerComplete = (
+  (function(cm, onHint) {
+    var ExcludedIntelliSenseTriggerKeys =
+{
+    "8": "backspace",
+    "9": "tab",
+    "13": "enter",
+    "16": "shift",
+    "17": "ctrl",
+    "18": "alt",
+    "19": "pause",
+    "20": "capslock",
+    "27": "escape",
+    "33": "pageup",
+    "34": "pagedown",
+    "35": "end",
+    "36": "home",
+    "37": "left",
+    "38": "up",
+    "39": "right",
+    "40": "down",
+    "45": "insert",
+    "46": "delete",
+    "91": "left window key",
+    "92": "right window key",
+    "93": "select",
+    "107": "add",
+    "109": "subtract",
+    "110": "decimal point",
+    "111": "divide",
+    "112": "f1",
+    "113": "f2",
+    "114": "f3",
+    "115": "f4",
+    "116": "f5",
+    "117": "f6",
+    "118": "f7",
+    "119": "f8",
+    "120": "f9",
+    "121": "f10",
+    "122": "f11",
+    "123": "f12",
+    "144": "numlock",
+    "145": "scrolllock",
+    "186": "semicolon",
+    "187": "equalsign",
+    "188": "comma",
+    "189": "dash",
+    "191": "slash",
+    "192": "graveaccent",
+    "220": "backslash",
+    "222": "quote"
+}
+
+cm.on("keyup", function(editor, event)
+{
+    if (!ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()]) {
+      /* if (    cm.state.completionActive && event.key != ".") return */
+        onHint(cm)
+    }
+});
+  })
+);
+
 var highlightNode = (
   (function(node, token) {
     function escapeRegExp(string) {
@@ -22294,6 +22467,7 @@ var fromTextArea = (
       lineWrapping: true,
       viewportMargin: Infinity,
       extraKeys: {
+        /* extraKeys: {"Ctrl-Space": "autocomplete"}, */
         'Cmd-Enter': (cm) => onRun(cm.getValue()),
         'Ctrl-Enter': (cm) => onRun(cm.getValue()),
         "Cmd-/": toggleComment,
@@ -22373,6 +22547,8 @@ exports.index = index;
 exports.config = config;
 exports.searchIndex = searchIndex;
 exports.clearMarks = clearMarks;
+exports.autoComplete = autoComplete;
+exports.registerComplete = registerComplete;
 exports.highlightNode = highlightNode;
 exports.fromTextArea = fromTextArea;
 exports.htmlEscape = htmlEscape;

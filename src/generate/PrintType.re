@@ -133,7 +133,7 @@ let print_attr = (printer, {Types.ld_id, ld_mutable, ld_type}) => {
 let print_value = (stringifier, realName, name, decl) => {
   str("let ") @!
   str(~len=String.length(realName), name) @!
-  str(" = ") @! stringifier.expr(stringifier, decl)
+  str(": ") @! stringifier.expr(stringifier, decl)
 };
 
 let print_decl = (stringifier, realName, name, decl) => {

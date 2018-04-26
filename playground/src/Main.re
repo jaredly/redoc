@@ -52,6 +52,8 @@ module Styles = {
     position(`absolute),
     bottom(px(0)),
     right(px(0)),
+    zIndex(10),
+    backgroundColor(white),
   ]);
   let codeMirrorMark = style([
     borderBottom(px(1), `dashed, red),
@@ -262,6 +264,7 @@ module Main = {
     | ClearLogs
     | ToOCaml
     | ToReason
+    | AutoFormat
     | SetSearch(string)
     | SetStatus(status);
 
@@ -305,6 +308,18 @@ module Main = {
         try {
           setValue(cm, printML(parseRE(text)));
           {...state, syntax: OCaml}
+        } {
+          /* show an error */
+          | _ => {...state, status: ParseFailure("Syntax error")}
+        }
+      }) |? state;
+    }
+    | AutoFormat => {
+      state.cm |?>> (cm => {
+        let text = getValue(cm);
+        try {
+          setValue(cm, printRE(parseRE(text)));
+          state
         } {
           /* show an error */
           | _ => {...state, status: ParseFailure("Syntax error")}
@@ -361,6 +376,15 @@ module Main = {
               (str("Run"))
             </button>
             (spacer(8))
+            <button
+              disabled=(state.syntax == OCaml)
+              className=Styles.button
+              onClick=(evt => send(AutoFormat))
+              /* title="Cmd+f / Ctrl+f" */
+            >
+              (str("Auto Format"))
+            </button>
+            (spacer(8))
             (str("Syntax:"))
             (spacer(8))
             <button
@@ -401,7 +425,9 @@ module Main = {
             ref={r => Js.toOption(r) |?< node => {
               if (state.cm == None) {
                 let cm = fromTextArea(. node, run);
-                state.cm = Some(cm)
+                state.cm = Some(cm);
+                setCm(Utils.window, cm);
+                registerComplete(cm, autoComplete);
               }
             }}
           />
@@ -472,7 +498,11 @@ module Main = {
           <div>
           (str("A div w/ id #target"))
           </div>
-          <div className=Css.(style([padding(px(8))]))>
+          <div className=Css.(style([
+            padding2(~v=px(4), ~h=px(8)),
+            margin2(~v=px(8), ~h=zero),
+            boxShadow(~blur=px(3), hex("aaa")),
+            ]))>
           <div id="target">
             (str("Render to #target to replace this content"))
           </div>

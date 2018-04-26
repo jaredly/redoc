@@ -1,11 +1,45 @@
 
 open Infix;
 
-let writeEditorSupport = (static, directory, (browserCompilerPath, compilerDepsBuffer)) => {
+let showItemType = (name, item) => {
+  open State.Model.Docs;
+  switch item {
+  | Value(v) => PrintType.default.value(PrintType.default, name, name, v) |> GenerateDoc.prettyString(~width=200)
+  | Type(t) => PrintType.default.decl(PrintType.default, name, name, t) |> GenerateDoc.prettyString(~width=200)
+  | Module(_) => "module " ++ name
+  | _ => ""
+  }
+};
+
+let getCompletionData = modules => {
+  let items = ref([]);
+  let add = i => items := [i, ...items^];
+  modules |> List.iter(({State.Model.name, items}) => {
+    add(([], name, "", None, "module"));
+    items |> List.iter(State.Model.Docs.iterWithPath([name], (path, (name, docString, item)) => {
+      switch item {
+      | Value(_) | Type(_) | Module(_) => add((List.rev(path), name, showItemType(name, item), docString |?>> Omd.to_html, State.Model.Docs.itemName(item)))
+      | _ => ()
+      }
+    }));
+  });
+  items^
+};
+
+let writeEditorSupport = (static, directory, modules, (browserCompilerPath, compilerDepsBuffer)) => {
   Files.copyExn(~source=browserCompilerPath, ~dest=directory /+ "bucklescript.js");
   let out = open_out(directory /+ "bucklescript-deps.js");
   Buffer.output_buffer(out, compilerDepsBuffer);
   close_out(out);
+
+  let completionData = Json.stringify(Json.Array(getCompletionData(modules) |> List.map(((path, name, typ, docs, kind)) => Json.Object([
+    ("path", Json.String(String.concat(".", path))),
+    ("name", Json.String(name)),
+    ("type", Json.String(typ)),
+    ("docs", docs |?>> (docs => Json.String(docs)) |? Json.Null),
+    ("kind", Json.String(kind)),
+  ]))));
+  Files.writeFileExn(directory /+ "completion-data.js", "window.complationData = " ++ completionData);
 
   Files.ifExists(directory /+ "examples") |?< examplesDir => Files.collect(examplesDir, name => Filename.check_suffix(name, ".re")) |> List.map(example => {
     let title = Filename.basename(example) |> Filename.chop_extension;
@@ -22,13 +56,15 @@ let writeEditorSupport = (static, directory, (browserCompilerPath, compilerDepsB
   "codemirror-5.36.0/lib/codemirror.css",
   "codemirror-5.36.0/mode/rust/rust.js",
   "codemirror-5.36.0/addon/comment/comment.js",
+  "codemirror-5.36.0/addon/hint/show-hint.js",
+  "codemirror-5.36.0/addon/hint/show-hint.css",
   "codemirror-5.36.0/addon/mode/simple.js"]
   |> List.iter(name => {
     Files.copyExn(~source=static /+ name, ~dest=directory /+ Filename.basename(name));
   });
 };
 
-let makeSearchPage = (~markdowns, ~names, dest, searchables) => {
+let makeSearchPage = (~playgroundEnabled, ~markdowns, ~names, dest, searchables) => {
   let path = dest /+ "search.html";
   let rel = Files.relpath(Filename.dirname(path));
   let markdowns = List.map(({State.Model.title, destPath, contents}) => (destPath, title), markdowns);
@@ -42,7 +78,7 @@ let makeSearchPage = (~markdowns, ~names, dest, searchables) => {
     <script defer src="elasticlunr.js"></script>
     <script defer src="search.js"></script>
   |}, DocsTemplate.searchStyle);
-  let html = Docs.page(~sourceUrl=None, ~relativeToRoot=rel(dest), "Search", [], projectListing, markdowns, main);
+  let html = Docs.page(~playgroundEnabled, ~sourceUrl=None, ~relativeToRoot=rel(dest), "Search", [], projectListing, markdowns, main);
   Files.writeFile(path, html) |> ignore;
   Files.writeFile(dest /+ "search.js", SearchScript.js) |> ignore;
   Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
@@ -50,7 +86,7 @@ let makeSearchPage = (~markdowns, ~names, dest, searchables) => {
   MakeIndex.run(dest /+ "elasticlunr.js", dest /+ "searchables.json")
 };
 
-let outputCustom = (dest, markdowns, searchHref, repo, processDocString, names, {State.Model.title, destPath, sourcePath, contents}) => {
+let outputCustom = (~playgroundEnabled, dest, markdowns, searchHref, repo, processDocString, names, {State.Model.title, destPath, sourcePath, contents}) => {
   let path = dest /+ destPath;
 
   let rel = Files.relpath(Filename.dirname(path));
@@ -63,12 +99,12 @@ let outputCustom = (dest, markdowns, searchHref, repo, processDocString, names, 
 
   let markdowns = List.map(({State.Model.title, destPath}) => (rel(dest /+ destPath), title), markdowns);
   let projectListing = names |> List.map(name => (rel(dest /+ "api" /+ name ++ ".html"), name));
-  let html = Docs.page(~sourceUrl, ~relativeToRoot=rel(dest), title, List.rev(tocItems^), projectListing, markdowns, main);
+  let html = Docs.page(~playgroundEnabled, ~sourceUrl, ~relativeToRoot=rel(dest), title, List.rev(tocItems^), projectListing, markdowns, main);
 
   Files.writeFile(path, html) |> ignore;
 };
 
-let outputModule = (dest, codeBlocksMap, markdowns, searchHref, repo, processDocString, names, {State.Model.name, sourcePath, docs, items, stamps}) => {
+let outputModule = (~playgroundEnabled, dest, codeBlocksMap, markdowns, searchHref, repo, processDocString, names, {State.Model.name, sourcePath, docs, items, stamps}) => {
   let output = dest /+ "api" /+ name ++ ".html";
   let rel = Files.relpath(Filename.dirname(output));
 
@@ -77,6 +113,7 @@ let outputModule = (dest, codeBlocksMap, markdowns, searchHref, repo, processDoc
   let searchPrinter = GenerateDoc.printer(searchHref, stamps);
   let sourceUrl = repo |?>> (url => url /+ sourcePath);
   let text = Docs.generate(
+    ~playgroundEnabled,
     ~sourceUrl,
     ~relativeToRoot=rel(dest),
     ~processDocString=processDocString(searchPrinter, output, name),
@@ -116,15 +153,16 @@ let package = (
 ) => {
   Files.mkdirp(directory);
 
-  let codeBlocks = compilationResults |?>> (((codeBlocks, bundles)) => {
+  let (codeBlocks, playgroundEnabled) = compilationResults |?>> (((codeBlocks, bundles)) => {
     Files.copyExn(~source=static /+ "block-script.js", ~dest=directory /+ "block-script.js");
-    bundles |?< ((runtimeDeps, compilerDeps)) => {
+    let playgroundEnabled = bundles |?>> (((runtimeDeps, compilerDeps)) => {
       Files.writeFileExn(directory /+ "all-deps.js", runtimeDeps ++ ";window.loadedAllDeps = true;");
       /* This is where we handle stuff for the editor. should be named "editorArtifacts" or something */
-      compilerDeps |?< writeEditorSupport(static, directory);
-    };
-    codeBlocks;
-  }) |? [];
+      compilerDeps |?< writeEditorSupport(static, directory, modules);
+      true
+    }) |? false;
+    (codeBlocks, playgroundEnabled);
+  }) |? ([], false);
 
   let cssLoc = Filename.concat(directory, "styles.css");
   let jsLoc = Filename.concat(directory, "script.js");
@@ -162,11 +200,11 @@ let package = (
 
   Files.mkdirp(directory /+ "api");
 
-  modules |> List.iter(outputModule(directory, codeBlocks, custom, searchHref(names), repo, processDocString, names));
+  modules |> List.iter(outputModule(~playgroundEnabled, directory, codeBlocks, custom, searchHref(names), repo, processDocString, names));
 
-  custom |> List.iter(outputCustom(directory, custom, searchHref(names), repo, processDocString, names));
+  custom |> List.iter(outputCustom(~playgroundEnabled, directory, custom, searchHref(names), repo, processDocString, names));
 
-  makeSearchPage(~markdowns=custom, ~names, directory, searchables);
+  makeSearchPage(~playgroundEnabled, ~markdowns=custom, ~names, directory, searchables);
 
   print_endline("Ok packaged folks " ++ directory);
 

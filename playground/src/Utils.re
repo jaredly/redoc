@@ -34,6 +34,10 @@ type codemirror;
 [@bs.send] external getValue: (codemirror) => string = "";
 type textarea = Dom.element;
 
+type window;
+[@bs.val] external window: window = "";
+[@bs.set] external setCm: (window, codemirror) => unit = "cm";
+
 type jspos = {. "line": int, "ch": int};
 [@bs.send] external markText: (codemirror, jspos, jspos, {. "className": string}) => unit = "";
 
@@ -63,6 +67,137 @@ let clearMarks: codemirror => unit = [%bs.raw {|
     cm.getAllMarks().forEach(mark => {
       cm.removeLineWidget(mark)
     })
+  })
+|}];
+
+let autoComplete: codemirror => unit = [%bs.raw {|
+  (function(cm) {
+    var cur = cm.getCursor();
+    var t = cm.getTokenTypeAt(cur);
+    if (t == 'string' || t == 'number' || t == 'comment') {
+      return
+    }
+    var prev = cm.getRange({line:0,ch:0}, cur)
+
+    var match = prev.match(/[^a-zA-Z0-9\._)\]}"]([a-zA-Z0-9\._]+)$/)
+    if (!match) {
+      return
+    }
+    var parts = match[1].split('.')
+    var name = parts.pop()
+    var prefix = parts.join('.')
+
+    var recursiveRemove = (text, re) => {
+      var res = text.replace(re, '');
+      if (res == text) return res
+      return recursiveRemove(res, re)
+    }
+    let oprev = recursiveRemove(prev, /\/*(\*[^\/]|\/[^*]|[^/*])*\*\//g, '')
+    .replace(/"[^"]*"/g, '')
+    oprev = recursiveRemove(oprev, /{[^}]*}/g)
+    const opens  = []
+    oprev.replace(/\bopen\s+([A-Z][\w_]*)/g, (a, b) => opens.push(b))
+    const openPrefixes = {}
+    opens.forEach((name, i) => {
+      for (let x = i + 1; x <= opens.length; x++) {
+        openPrefixes[opens.slice(i, x).join('.')] = true
+      }
+    });
+    // TODO find `open`s in `prev`
+
+    var matching = window.complationData.filter(item => {
+      // TODO be case agnostic?
+      if (!item.name.startsWith(name)) return false
+      if (!item.path.endsWith(prefix)) return false
+      var left = item.path.slice(0, -prefix.length)
+      if (left && !openPrefixes[left]) return false
+      return true
+    })
+
+    if (!matching.length) return
+    const data = {
+        from: {line: cur.line, ch: cur.ch - name.length},
+        to: cur,
+        list: matching.map(item => ({
+          text: item.name,
+          displayText: item.name,
+          item,
+          // render()
+        }))
+    }
+    cm.showHint({
+      completeSingle: false,
+      hint: () => (data)
+    });
+    console.log('first', data.list[0])
+    /* var completion = cm.state.completionActive.data; */
+    CodeMirror.on(data, 'select', function(completion, element) {
+      console.log('completing with', completion);
+    })
+  })
+|}];
+
+let registerComplete: (codemirror, codemirror => unit) => unit = [%bs.raw{|
+  (function(cm, onHint) {
+    var ExcludedIntelliSenseTriggerKeys =
+{
+    "8": "backspace",
+    "9": "tab",
+    "13": "enter",
+    "16": "shift",
+    "17": "ctrl",
+    "18": "alt",
+    "19": "pause",
+    "20": "capslock",
+    "27": "escape",
+    "33": "pageup",
+    "34": "pagedown",
+    "35": "end",
+    "36": "home",
+    "37": "left",
+    "38": "up",
+    "39": "right",
+    "40": "down",
+    "45": "insert",
+    "46": "delete",
+    "91": "left window key",
+    "92": "right window key",
+    "93": "select",
+    "107": "add",
+    "109": "subtract",
+    "110": "decimal point",
+    "111": "divide",
+    "112": "f1",
+    "113": "f2",
+    "114": "f3",
+    "115": "f4",
+    "116": "f5",
+    "117": "f6",
+    "118": "f7",
+    "119": "f8",
+    "120": "f9",
+    "121": "f10",
+    "122": "f11",
+    "123": "f12",
+    "144": "numlock",
+    "145": "scrolllock",
+    "186": "semicolon",
+    "187": "equalsign",
+    "188": "comma",
+    "189": "dash",
+    "191": "slash",
+    "192": "graveaccent",
+    "220": "backslash",
+    "222": "quote"
+}
+
+cm.on("keyup", function(editor, event)
+{
+    if (!ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()]) {
+      /* if (    cm.state.completionActive && event.key != ".") return */
+        onHint(cm)
+    }
+});
   })
 |}];
 
@@ -154,6 +289,7 @@ let fromTextArea: (. textarea, string => unit) => codemirror = [%bs.raw {|
       lineWrapping: true,
       viewportMargin: Infinity,
       extraKeys: {
+        /* extraKeys: {"Ctrl-Space": "autocomplete"}, */
         'Cmd-Enter': (cm) => onRun(cm.getValue()),
         'Ctrl-Enter': (cm) => onRun(cm.getValue()),
         "Cmd-/": toggleComment,

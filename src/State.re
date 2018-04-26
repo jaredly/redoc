@@ -156,10 +156,27 @@ module Model = {
       | Alias(Path.t)
     and doc = (string, option(Omd.t), docItem);
 
+    let itemName = item => switch item {
+    | Value(_) => "value"
+    | Type(_) => "type"
+    | Module(_) => "module"
+    | Include(_) => "include"
+    | StandaloneDoc(_) => "doc"
+    };
+
     let rec iter = (fn, (name, docString, item) as doc) => {
       fn(doc);
       switch item {
       | Include(_, children) | Module(Items(children)) => List.iter(iter(fn), children)
+      | _ => ()
+      }
+    };
+
+    let rec iterWithPath = (path, fn, (name, docString, item) as doc) => {
+      fn(path, doc);
+      switch item {
+      | Include(_, children) => List.iter(iterWithPath(path, fn), children)
+      | Module(Items(children)) => List.iter(iterWithPath([name, ...path], fn), children)
       | _ => ()
       }
     };

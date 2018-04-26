@@ -1,12 +1,54 @@
 
 open Infix;
 
-let showItemType = (name, item) => {
+let rec takeN = (items, i) => i <= 0 ? [] : switch items {
+| [] => []
+| [one, ...rest] => [one, ...takeN(rest, i - 1)]
+};
+
+let itemColor = item => switch item {
+| State.Model.Docs.Type(_) => "#faa"
+| Value(_) => "#afa"
+| Module(_) => "#aaf"
+| _ => "#eee"
+};
+
+let prefix = item => String.sub(State.Model.Docs.itemName(item), 0, 1);
+
+let firstFewItems = items => {
+  open State.Model.Docs;
+  items
+  |> List.filter(((_, _, i)) => switch i {
+  /* TODO handle includes */
+  | Value(_) | Type(_) | Module(_) => true
+  | _ => false
+  })
+  |> List.sort(((n1, _, i1), (n2, _, i2)) => {
+    switch (i1, i2) {
+    | (Value(_), Value(_)) => compare(n1, n2)
+    | (Value(_), _) => -1
+    | (_, Value(_)) => 1
+    | (Type(_), Type(_)) => compare(n1, n2)
+    | (Type(_), _) => -1
+    | (_, Type(_)) => 1
+    | _ => compare(n1, n2)
+    }
+  })
+  |> List.map(((name, _, item)) =>
+  "<span style='background-color:" ++ itemColor(item) ++ ";border-radius:50%;padding:0 2px;margin-right: 4px'>" ++ prefix(item) ++ "</span>"
+  ++ name) |> String.concat("\n")
+};
+
+let showItemType = (name, item, modulesAtPath) => {
   open State.Model.Docs;
   switch item {
-  | Value(v) => PrintType.default.value(PrintType.default, name, name, v) |> GenerateDoc.prettyString(~width=40)
-  | Type(t) => PrintType.default.decl(PrintType.default, name, name, t) |> GenerateDoc.prettyString(~width=40)
-  | Module(_) => "module " ++ name
+  | Value(v) => PrintType.default.value(PrintType.default, name, name, v) |> GenerateDoc.prettyString(~width=100)
+  | Type(t) => PrintType.default.decl(PrintType.default, name, name, t) |> GenerateDoc.prettyString(~width=100)
+  | Module(Items(items)) => firstFewItems(items)
+  | Module(Alias(aliasPath)) => switch (Hashtbl.find(modulesAtPath, Path.name(aliasPath))) {
+    | exception Not_found => ""
+    | children => firstFewItems(children)
+    }
   | _ => ""
   }
 };
@@ -25,13 +67,12 @@ let getCompletionData = modules => {
       }
     }))
   });
-  /* Hashtbl.iter((k, v) => print_endline(k), modulesAtPath); */
 
   modules |> List.iter(({State.Model.name, items}) => {
-    add(([], name, "module " ++ name, None, "module"));
+    add(([], name, firstFewItems(items), None, "module"));
     items |> List.iter(State.Model.Docs.iterWithPath(~modulesAtPath, [name], (path, (name, docString, item)) => {
       switch item {
-      | Value(_) | Type(_) | Module(_) => add((List.rev(path), name, showItemType(name, item), docString |?>> Omd.to_html, State.Model.Docs.itemName(item)))
+      | Value(_) | Type(_) | Module(_) => add((List.rev(path), name, showItemType(name, item, modulesAtPath), docString |?>> Omd.to_html, State.Model.Docs.itemName(item)))
       | _ => ()
       }
     }));

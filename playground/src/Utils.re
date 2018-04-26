@@ -78,7 +78,79 @@ type completionItem = {.
   "_type": string,
 };
 
-let autoComplete: (codemirror, completionItem => unit, unit => unit) => unit = [%bs.raw {|
+let findOpens = text => {
+  let opens = [||];
+
+  let rec findBack = (char, i) => {
+    if (i < 0) { 0 } else if (text.[i] == char) {
+      i - 1
+    } else {
+      findBack(char, i - 1)
+    }
+  };
+
+  let rec findOpenComment = (i) => {
+    if (i < 1) { 0 } else if (text.[i] == '*' && text.[i - 1] == '/') {
+      i - 2
+    } else {
+      findOpenComment(i - 1)
+    }
+  };
+
+  let rec skipWhite = i => if (i < 0) { 0 } else {
+    switch (text.[i]) {
+    | ' ' | '\n' | '\t' => skipWhite(i - 1)
+    | _ => i
+    }
+  };
+
+  let maybeOpen = i0 => {
+    let rec loop = i => {
+      if (i < 5) {
+        0
+      } else {
+        switch (text.[i]) {
+        | 'a'..'z' | 'A'..'Z' | '.' | '_' | '0'..'9' => loop(i - 1)
+        | ' ' => {
+          let at = skipWhite(i - 1);
+          if (at >= 3 &&
+            text.[at - 3] == 'o' &&
+            text.[at - 2] == 'p' &&
+            text.[at - 1] == 'e' &&
+            text.[at] == 'n'
+            ) {
+            Js.Array.push(Js.String.slice(~from=i + 1, ~to_=i0 + 1, text), opens) |> ignore;
+            at - 4
+          } else {
+            at
+          }
+        }
+        | _ => i
+        }
+      }
+    };
+    loop(i0 - 1)
+  };
+
+  let rec loop = i => {
+    if (i > 0) {
+      switch (text.[i]) {
+      | '}' => loop(findBack('{', i - 1))
+      | '"' => loop(findBack('"', i - 1))
+      | 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => loop(maybeOpen(i))
+      | _ => if (i > 1 && text.[i] == '/' && text.[i - 1] == '*') {
+          loop(findOpenComment(i - 2))
+        } else {
+          loop(i - 1)
+        }
+      }
+    }
+  };
+  loop(String.length(text) - 1) |> ignore;
+  opens;
+};
+
+let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [%bs.raw {|
   (function(cm, onSelect, onClose) {
     var cur = cm.getCursor();
     var t = cm.getTokenTypeAt(cur);
@@ -90,30 +162,44 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => unit = [
     // TODO TODO if this is a label, then stop
     // ~pos=px(10)
 
-    var match = prev.match(/[^a-zA-Z0-9\._)\]}"]([a-zA-Z0-9\._]+)$/)
-    if (!match) {
-      return
-    }
-    var parts = match[1].split('.')
-    var name = parts.pop()
-    var prefix = parts.join('.')
-
     var recursiveRemove = (text, re) => {
       var res = text.replace(re, '');
       if (res == text) return res
       return recursiveRemove(res, re)
     }
+
+      /* // multi-line comments
     let oprev = recursiveRemove(prev, /\/*(\*[^\/]|\/[^*]|[^/*])*\*\//g, '')
-    .replace(/"[^"]*"/g, '')
+      // strings
+      .replace(/"[^"]*"/g, '')
+      // curlys
     oprev = recursiveRemove(oprev, /{[^}]*}/g)
-    const opens  = []
-    oprev.replace(/\bopen\s+([A-Z][\w_]*)/g, (a, b) => opens.push(b))
+      // brackets
+    oprev = recursiveRemove(oprev, /[[^\]]*]/g)
+      // parens
+    oprev = recursiveRemove(oprev, /\([^)]*\)/g) */
+
+    var match = prev.match(/[^a-zA-Z0-9\._)\]}"](~?[a-zA-Z0-9\._]+)$/)
+    if (!match) {
+      /* var openFnCall = oprev.match(/([a-zA-Z0-9\._]+)\([^()]+$/) */
+      /* console.log(openFnCall, oprev) */
+      return
+    }
+    if (match[1][0] == '~') {
+      return // TODO
+    }
+    var parts = match[1].split('.')
+    var name = parts.pop()
+    var prefix = parts.join('.')
+
+    const opens  = findOpens(prev).reverse()
+    /* oprev.replace(/\bopen\s+([A-Z][\w_]*)/g, (a, b) => opens.push(b)) */
     const openPrefixes = {}
     opens.forEach((name, i) => {
-      for (let x = i + 1; x <= opens.length; x++) {
-        openPrefixes[opens.slice(i, x).join('.')] = true
-      }
+      Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+      openPrefixes[name] = true
     });
+    console.log('pr', openPrefixes)
 
     var matching = window.complationData.filter(item => {
       // TODO be case agnostic?
@@ -122,7 +208,7 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => unit = [
         /* console.log('prefix', item.path, prefix) */
         return false
       }
-      var left = item.path.slice(0, -prefix.length)
+      var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
       if (left[left.length - 1] == '.') {
         left = left.slice(0, -1)
       }
@@ -159,6 +245,13 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => unit = [
     // Draw.<complete please>
     // BUT it does get
     // Reprocessing.Draw.rectf
+
+    var colors = {
+      'type': '#faa',
+      'value': '#afa',
+      'module': '#aaf',
+    }
+
     const data = {
         from: {line: cur.line, ch: cur.ch - name.length},
         to: cur,
@@ -167,27 +260,62 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => unit = [
           displayText: item.name,
           item,
           render: (elem, _, __) => {
-            var container = //node('div', {}, [
-              raw(item.type)
-            //])
+            var container = node('span', {}, [
+              node('span', {style: {
+                backgroundColor: colors[item.kind] || '#eee',
+                borderRadius: '50%',
+                marginRight: '4px',
+                padding: '0 2px',
+                color: 'black',
+              }}, [item.kind[0] || '']),
+              item.name
+            ])
             container.style.lineHeight = 1;
             elem.appendChild(container)
           }
         })).sort((a, b) => a.text.length - b.text.length)
     }
+    var contents = raw('')
+    var helper = node('div', {
+      style: {
+        position: 'absolute',
+        left: '100%',
+        top: 0,
+        marginLeft: 4,
+        fontFamily: 'iosevka, "sf pro mono", monospace',
+        whiteSpace: 'pre-wrap',
+        fontSize: '12px',
+        lineHeight: 1.2,
+        padding: '4px 8px',
+        zIndex: 1000,
+        backgroundColor: 'white',
+        boxShadow: '0 0 2px #aaa',
+      }
+    }, [contents])
+    CodeMirror.on(data, 'select', function(completion, element) {
+      onSelect(completion.item)
+      contents.innerHTML = completion.item.type
+      var list = element.parentNode;
+      var box = list.getBoundingClientRect()
+      helper.style.left = list.style.left
+      helper.style.top = list.style.top
+      helper.style.marginLeft = box.width + 'px'
+      element.parentNode.parentNode.appendChild(helper)
+    })
     cm.showHint({
       completeSingle: false,
       hint: () => (data)
     });
-    onSelect(data.list[0].item)
-    CodeMirror.on(data, 'select', function(completion, element) {
-      onSelect(completion.item)
+    /* onSelect(data.list[0].item) */
+    CodeMirror.on(data, 'close', () => {
+      helper.parentNode && helper.parentNode.removeChild(helper)
+      onClose()
     })
-    CodeMirror.on(data, 'close', () => onClose())
+    return true
   })
 |}];
 
-let registerComplete: (codemirror, codemirror => unit) => unit = [%bs.raw{|
+let registerComplete: (codemirror, codemirror => bool) => unit = [%bs.raw{|
   (function(cm, onHint) {
     var ExcludedIntelliSenseTriggerKeys =
 {
@@ -245,7 +373,9 @@ cm.on("keyup", function(editor, event)
 {
     if (!ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()]) {
       /* if (    cm.state.completionActive && event.key != ".") return */
-        onHint(cm)
+        if (!onHint(cm) && cm.state.completionActive) {
+          cm.state.completionActive.close()
+        }
     }
 });
   })

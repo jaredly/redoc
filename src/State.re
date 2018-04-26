@@ -178,9 +178,9 @@ module Model = {
       | Include(_, children) => List.iter(iterWithPath(~modulesAtPath, path, fn), children)
       | Module(Items(children)) => List.iter(iterWithPath(~modulesAtPath, [name, ...path], fn), children)
       | Module(Alias(aliasPath)) => switch (Hashtbl.find(modulesAtPath, Path.name(aliasPath))) {
-      | exception Not_found => print_endline("Unable to resolve module alias: " ++ Path.name(aliasPath))
-      | children => List.iter(iterWithPath(~modulesAtPath, [name, ...path], fn), children)
-      }
+        | exception Not_found => print_endline("Unable to resolve module alias: " ++ Path.name(aliasPath))
+        | children => List.iter(iterWithPath(~modulesAtPath, [name, ...path], fn), children)
+        }
       | _ => ()
       }
     };

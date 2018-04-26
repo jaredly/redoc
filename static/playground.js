@@ -22304,6 +22304,7 @@ module.exports = invariant;
 
 var $$Array = require(61);
 var Block = require(8);
+var Caml_string = require(17);
 
 function replaceState(url) {
   history.replaceState({ }, "", url);
@@ -22341,6 +22342,154 @@ var clearMarks = (
   })
 );
 
+function findOpens(text) {
+  var opens = /* array */[];
+  var findBack = function ($$char, _i) {
+    while(true) {
+      var i = _i;
+      if (i < 0) {
+        return 0;
+      } else if (Caml_string.get(text, i) === $$char) {
+        return i - 1 | 0;
+      } else {
+        _i = i - 1 | 0;
+        continue ;
+      }
+    };
+  };
+  var findOpenComment = function (_i) {
+    while(true) {
+      var i = _i;
+      if (i < 1) {
+        return 0;
+      } else if (Caml_string.get(text, i) === /* "*" */42 && Caml_string.get(text, i - 1 | 0) === /* "/" */47) {
+        return i - 2 | 0;
+      } else {
+        _i = i - 1 | 0;
+        continue ;
+      }
+    };
+  };
+  var skipWhite = function (_i) {
+    while(true) {
+      var i = _i;
+      if (i < 0) {
+        return 0;
+      } else {
+        var match = Caml_string.get(text, i);
+        if (match >= 11) {
+          if (match !== 32) {
+            return i;
+          } else {
+            _i = i - 1 | 0;
+            continue ;
+          }
+        } else if (match >= 9) {
+          _i = i - 1 | 0;
+          continue ;
+        } else {
+          return i;
+        }
+      }
+    };
+  };
+  var maybeOpen = function (i0) {
+    var _i = i0 - 1 | 0;
+    while(true) {
+      var i = _i;
+      if (i < 5) {
+        return 0;
+      } else {
+        var match = Caml_string.get(text, i);
+        if (match >= 58) {
+          var switcher = match - 91 | 0;
+          if (switcher > 5 || switcher < 0) {
+            if ((switcher + 26 >>> 0) > 57) {
+              return i;
+            } else {
+              _i = i - 1 | 0;
+              continue ;
+            }
+          } else if (switcher !== 4) {
+            return i;
+          } else {
+            _i = i - 1 | 0;
+            continue ;
+          }
+        } else if (match >= 46) {
+          if (match !== 47) {
+            _i = i - 1 | 0;
+            continue ;
+          } else {
+            return i;
+          }
+        } else if (match !== 32) {
+          return i;
+        } else {
+          var at = skipWhite(i - 1 | 0);
+          if (at >= 3 && Caml_string.get(text, at - 3 | 0) === /* "o" */111 && Caml_string.get(text, at - 2 | 0) === /* "p" */112 && Caml_string.get(text, at - 1 | 0) === /* "e" */101 && Caml_string.get(text, at) === /* "n" */110) {
+            opens.push(text.slice(i + 1 | 0, i0 + 1 | 0));
+            return at - 4 | 0;
+          } else {
+            return at;
+          }
+        }
+      }
+    };
+  };
+  var loop = function (_i) {
+    while(true) {
+      var i = _i;
+      if (i > 0) {
+        var match = Caml_string.get(text, i);
+        var exit = 0;
+        if (match >= 91) {
+          var switcher = match - 95 | 0;
+          if (switcher > 27 || switcher < 0) {
+            if (switcher !== 30) {
+              exit = 1;
+            } else {
+              _i = findBack(/* "{" */123, i - 1 | 0);
+              continue ;
+            }
+          } else if (switcher !== 1) {
+            _i = maybeOpen(i);
+            continue ;
+          } else {
+            exit = 1;
+          }
+        } else if (match >= 48) {
+          if (match > 64 || match < 58) {
+            _i = maybeOpen(i);
+            continue ;
+          } else {
+            exit = 1;
+          }
+        } else if (match !== 34) {
+          exit = 1;
+        } else {
+          _i = findBack(/* "\"" */34, i - 1 | 0);
+          continue ;
+        }
+        if (exit === 1) {
+          if (i > 1 && Caml_string.get(text, i) === /* "/" */47 && Caml_string.get(text, i - 1 | 0) === /* "*" */42) {
+            _i = findOpenComment(i - 2 | 0);
+            continue ;
+          } else {
+            _i = i - 1 | 0;
+            continue ;
+          }
+        }
+        
+      } else {
+        return 0;
+      }
+    };
+  };
+  loop(text.length - 1 | 0);
+  return opens;
+}
+
 var autoComplete = (
   (function(cm, onSelect, onClose) {
     var cur = cm.getCursor();
@@ -22353,30 +22502,44 @@ var autoComplete = (
     // TODO TODO if this is a label, then stop
     // ~pos=px(10)
 
-    var match = prev.match(/[^a-zA-Z0-9\._)\]}"]([a-zA-Z0-9\._]+)$/)
-    if (!match) {
-      return
-    }
-    var parts = match[1].split('.')
-    var name = parts.pop()
-    var prefix = parts.join('.')
-
     var recursiveRemove = (text, re) => {
       var res = text.replace(re, '');
       if (res == text) return res
       return recursiveRemove(res, re)
     }
+
+      /* // multi-line comments
     let oprev = recursiveRemove(prev, /\/*(\*[^\/]|\/[^*]|[^/*])*\*\//g, '')
-    .replace(/"[^"]*"/g, '')
+      // strings
+      .replace(/"[^"]*"/g, '')
+      // curlys
     oprev = recursiveRemove(oprev, /{[^}]*}/g)
-    const opens  = []
-    oprev.replace(/\bopen\s+([A-Z][\w_]*)/g, (a, b) => opens.push(b))
+      // brackets
+    oprev = recursiveRemove(oprev, /[[^\]]*]/g)
+      // parens
+    oprev = recursiveRemove(oprev, /\([^)]*\)/g) */
+
+    var match = prev.match(/[^a-zA-Z0-9\._)\]}"](~?[a-zA-Z0-9\._]+)$/)
+    if (!match) {
+      /* var openFnCall = oprev.match(/([a-zA-Z0-9\._]+)\([^()]+$/) */
+      /* console.log(openFnCall, oprev) */
+      return
+    }
+    if (match[1][0] == '~') {
+      return // TODO
+    }
+    var parts = match[1].split('.')
+    var name = parts.pop()
+    var prefix = parts.join('.')
+
+    const opens  = findOpens(prev).reverse()
+    /* oprev.replace(/\bopen\s+([A-Z][\w_]*)/g, (a, b) => opens.push(b)) */
     const openPrefixes = {}
     opens.forEach((name, i) => {
-      for (let x = i + 1; x <= opens.length; x++) {
-        openPrefixes[opens.slice(i, x).join('.')] = true
-      }
+      Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+      openPrefixes[name] = true
     });
+    console.log('pr', openPrefixes)
 
     var matching = window.complationData.filter(item => {
       // TODO be case agnostic?
@@ -22385,7 +22548,7 @@ var autoComplete = (
         /* console.log('prefix', item.path, prefix) */
         return false
       }
-      var left = item.path.slice(0, -prefix.length)
+      var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
       if (left[left.length - 1] == '.') {
         left = left.slice(0, -1)
       }
@@ -22422,6 +22585,13 @@ var autoComplete = (
     // Draw.<complete please>
     // BUT it does get
     // Reprocessing.Draw.rectf
+
+    var colors = {
+      'type': '#faa',
+      'value': '#afa',
+      'module': '#aaf',
+    }
+
     const data = {
         from: {line: cur.line, ch: cur.ch - name.length},
         to: cur,
@@ -22430,23 +22600,58 @@ var autoComplete = (
           displayText: item.name,
           item,
           render: (elem, _, __) => {
-            var container = //node('div', {}, [
-              raw(item.type)
-            //])
+            var container = node('span', {}, [
+              node('span', {style: {
+                backgroundColor: colors[item.kind] || '#eee',
+                borderRadius: '50%',
+                marginRight: '4px',
+                padding: '0 2px',
+                color: 'black',
+              }}, [item.kind[0] || '']),
+              item.name
+            ])
             container.style.lineHeight = 1;
             elem.appendChild(container)
           }
         })).sort((a, b) => a.text.length - b.text.length)
     }
+    var contents = raw('')
+    var helper = node('div', {
+      style: {
+        position: 'absolute',
+        left: '100%',
+        top: 0,
+        marginLeft: 4,
+        fontFamily: 'iosevka, "sf pro mono", monospace',
+        whiteSpace: 'pre-wrap',
+        fontSize: '12px',
+        lineHeight: 1.2,
+        padding: '4px 8px',
+        zIndex: 1000,
+        backgroundColor: 'white',
+        boxShadow: '0 0 2px #aaa',
+      }
+    }, [contents])
+    CodeMirror.on(data, 'select', function(completion, element) {
+      onSelect(completion.item)
+      contents.innerHTML = completion.item.type
+      var list = element.parentNode;
+      var box = list.getBoundingClientRect()
+      helper.style.left = list.style.left
+      helper.style.top = list.style.top
+      helper.style.marginLeft = box.width + 'px'
+      element.parentNode.parentNode.appendChild(helper)
+    })
     cm.showHint({
       completeSingle: false,
       hint: () => (data)
     });
-    onSelect(data.list[0].item)
-    CodeMirror.on(data, 'select', function(completion, element) {
-      onSelect(completion.item)
+    /* onSelect(data.list[0].item) */
+    CodeMirror.on(data, 'close', () => {
+      helper.parentNode && helper.parentNode.removeChild(helper)
+      onClose()
     })
-    CodeMirror.on(data, 'close', () => onClose())
+    return true
   })
 );
 
@@ -22508,7 +22713,9 @@ cm.on("keyup", function(editor, event)
 {
     if (!ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()]) {
       /* if (    cm.state.completionActive && event.key != ".") return */
-        onHint(cm)
+        if (!onHint(cm) && cm.state.completionActive) {
+          cm.state.completionActive.close()
+        }
     }
 });
   })
@@ -22682,6 +22889,7 @@ exports.index = index;
 exports.config = config;
 exports.searchIndex = searchIndex;
 exports.clearMarks = clearMarks;
+exports.findOpens = findOpens;
 exports.autoComplete = autoComplete;
 exports.registerComplete = registerComplete;
 exports.highlightNode = highlightNode;

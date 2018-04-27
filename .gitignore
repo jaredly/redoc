@@ -2,8 +2,8 @@
 .merlin
 .bsb.lock
 npm-debug.log
-/lib/
-/node_modules/
+lib/
+node_modules/
 .vscode
 log_types.txt
 *.install

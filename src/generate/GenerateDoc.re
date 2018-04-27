@@ -91,9 +91,9 @@ let defaultMain = (~addHeading=false, name) => {
   "<span class='missing'>This module does not have a toplevel documentation block.</span>\n\n@all";
 };
 
-let prettyString = doc => {
+let prettyString = (~width=60, doc) => {
   let buffer = Buffer.create(100);
-  Pretty.print(~width=60, ~output=(text => Buffer.add_string(buffer, text)), ~indent=(num => {
+  Pretty.print(~width, ~output=(text => Buffer.add_string(buffer, text)), ~indent=(num => {
     Buffer.add_string(buffer, "\n");
     for (i in 1 to num) { Buffer.add_string(buffer, " ") }
   }), doc);

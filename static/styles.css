@@ -196,6 +196,11 @@ p code {
   box-shadow: 0 0 1px #aaa;
 }
 
+.block-log {
+  font-family: iosevka, 'sf mono', monospace;
+  white-space: pre-wrap;
+}
+
 a {
   text-decoration: none;
 }
@@ -255,6 +260,8 @@ a, a:visited,
   display: flex;
   flex-direction: column;
   padding-top: 16px;
+  box-sizing: border-box;
+  padding-left: 16px;
 }
 
 .sidebar .docs-listing {
@@ -290,6 +297,7 @@ a, a:visited,
 
 .sidebar-expander {
   display: none;
+  padding: 16px;
 }
 
 .docs-listing {
@@ -303,8 +311,12 @@ a, a:visited,
     position: static;
     width: 800px;
     margin: auto;
+    padding: 0 16px 16px;
     max-height: unset;
     display: none;
+  }
+  .sidebar .project-listing {
+    padding-bottom: 0px;
   }
   .sidebar-expander {
     text-align: center;
@@ -422,6 +434,7 @@ pre.code {
     color: #000;
     font-weight: 300;
 }
+
 
 .code .module-identifier {
   color: #aa0;

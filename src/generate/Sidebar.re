@@ -23,12 +23,15 @@ let makeMarkdowns = markdowns => {
   }
 };
 
-let generate = (name, tocItems, projectListing, markdowns, searchPath) => {
+open Infix;
+
+let generate = (name, tocItems, projectListing, markdowns, searchPath, ~playgroundPath) => {
   Printf.sprintf({|
     <div class='sidebar-wrapper'>
     <div class='sidebar-expander'>Show navigation</div>
     <div class='sidebar'>
       <a href="%s" style="display: block; padding: 0 8px;">Search</a>
+      %s
       %s
       <div class='toc-header'>Page Contents</div>
       <div class='table-of-contents'>
@@ -39,6 +42,7 @@ let generate = (name, tocItems, projectListing, markdowns, searchPath) => {
     </div>
   |},
   searchPath,
+  playgroundPath |?>> Printf.sprintf({|<a href="%s" style="display: block; padding: 0 8px;">Playground</a>|}) |? "",
   makeMarkdowns(markdowns),
   makeToc(tocItems),
   projectListing == [] ? "" : showPackage(projectListing)

@@ -4,9 +4,11 @@ docs/descartes/index.html -binary
 docs/descartes/graph.html -binary
 package-lock.json binary
 odoc_parser/odoc_lexer.ml binary
+playground/bundle.js binary
 static/bs-*.js binary
 static/jsx-ppx.js binary
 static/refmt.js binary
+static/playground.js binary
 static/codemirror/lib/* binary
 docs/descartes/descartes.js binary
 docs/descartes/d3.v4.min.js binary

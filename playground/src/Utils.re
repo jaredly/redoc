@@ -19,7 +19,7 @@
 [@bs.val] [@bs.module "lz-string"] external decompress: string => string = "decompressFromEncodedURIComponent";
 [@bs.val] [@bs.scope "history"] external replaceState: Js.Dict.t('a) => string => string => unit = "";
 
-let replaceState = url => replaceState(Js.Dict.empty(), "", url);
+let replaceState = url => try (replaceState(Js.Dict.empty(), "", url)) { | _ => () };
 
 let getInputValue = event => ReactDOMRe.domElementToObj(ReactEventRe.Form.target(event))##value;
 
@@ -618,6 +618,8 @@ let fromTextArea: (. textarea, string => unit) => codemirror = [%bs.raw {|
       lineNumbers: true,
       lineWrapping: true,
       viewportMargin: Infinity,
+      autoCloseBrackets: true,
+      matchBrackets: true,
       extraKeys: {
         /* extraKeys: {"Ctrl-Space": "autocomplete"}, */
         'Cmd-Enter': (cm) => onRun(cm.getValue()),

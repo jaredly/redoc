@@ -109,11 +109,7 @@ let syntaxFromString = s => switch s {
 | _ => Reason
 };
 
-let initialString = {|
-let x = 10;
-Js.log(x);
-Js.log("hello folks");
-|};
+let initialString = ExamplesDropdown.examplesData[0]##code;
 
 let parseUrl = s => {
   switch (Js.String.split("?", s)) {
@@ -200,7 +196,11 @@ let runCode = (code, addLog) => {
         | _ => addLog(. "error", Js.Json.stringifyAny(e) |? "Unknown error")
         }
       }
-      }
+      };
+      Js.Global.setTimeout(() => {
+        Js.log("Running again so you can catch it");
+        fn(exports, {"exports": exports}, require, addLog);
+      }, 10) |> ignore
     }
   };
 };
@@ -546,6 +546,8 @@ module Main = {
           (str("The Javascript Output"))
           <pre className=Css.(style([
             whiteSpace(`preWrap),
+            width(`percent(100.)),
+            wordBreak(`breakAll),
             padding(px(8)),
             maxHeight(px(200)),
             minHeight(px(100)),
@@ -555,6 +557,7 @@ module Main = {
           (str("Log output"))
           <div className=Css.(style([
           alignSelf(`stretch),
+          width(`percent(100.)),
           marginTop(px(16))
           ]))>
           {ReasonReact.arrayToElement(
@@ -563,6 +566,8 @@ module Main = {
             |> Array.mapi((i, (typ, item)) => (
               <div key=(string_of_int(i)) className=Css.(style([
                 backgroundColor(typ == "warn" ? hex("faf") : (typ == "error" ? hex("faa") : white)),
+                wordBreak(`breakAll),
+                overflow(`auto),
                 borderTop(px(1), `solid, hex("eee")),
                 padding(px(4))
               ]))>

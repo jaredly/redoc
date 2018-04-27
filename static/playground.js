@@ -16,6 +16,7 @@ var React = require(80);
 var Js_exn = require(62);
 var Caml_obj = require(7);
 var LzString = require(87);
+var Caml_array = require(5);
 var ReactDOMRe = require(88);
 var Caml_format = require(13);
 var ReasonReact = require(98);
@@ -230,7 +231,7 @@ function syntaxFromString(s) {
   }
 }
 
-var initialString = "\nlet x = 10;\nJs.log(x);\nJs.log(\"hello folks\");\n";
+var initialString = Caml_array.caml_array_get(examplesData, 0).code;
 
 function parseUrl(s) {
   var match = s.split("?");
@@ -383,18 +384,24 @@ function runCode(code, addLog) {
     var match$1 = exn.stack;
     var exit = 0;
     if (match !== undefined && match$1 !== undefined) {
-      return addLog("error", match + ("\n" + match$1));
+      addLog("error", match + ("\n" + match$1));
     } else {
       exit = 1;
     }
     if (exit === 1) {
       if (exn[0] === Caml_builtin_exceptions.failure) {
-        return addLog("error", "Failure(" + (exn[1] + ")"));
+        addLog("error", "Failure(" + (exn[1] + ")"));
       } else {
-        return addLog("error", Infix.$pipe$unknown(Js_primitive.undefined_to_opt(JSON.stringify(exn)), "Unknown error"));
+        addLog("error", Infix.$pipe$unknown(Js_primitive.undefined_to_opt(JSON.stringify(exn)), "Unknown error"));
       }
     }
-    
+    setTimeout((function () {
+            console.log("Running again so you can catch it");
+            return Curry._4(fn$1, $$exports, {
+                        exports: $$exports
+                      }, $$require, addLog);
+          }), 10);
+    return /* () */0;
   }
 }
 
@@ -819,14 +826,23 @@ function make$1() {
                                   className: Css.style(/* :: */[
                                         Css.whiteSpace(/* preWrap */660870029),
                                         /* :: */[
-                                          Css.padding(Css.px(8)),
+                                          Css.width(/* `percent */[
+                                                -119887163,
+                                                100
+                                              ]),
                                           /* :: */[
-                                            Css.maxHeight(Css.px(200)),
+                                            Css.wordBreak(/* breakAll */-323760734),
                                             /* :: */[
-                                              Css.minHeight(Css.px(100)),
+                                              Css.padding(Css.px(8)),
                                               /* :: */[
-                                                Css.overflow(/* auto */-1065951377),
-                                                /* [] */0
+                                                Css.maxHeight(Css.px(200)),
+                                                /* :: */[
+                                                  Css.minHeight(Css.px(100)),
+                                                  /* :: */[
+                                                    Css.overflow(/* auto */-1065951377),
+                                                    /* [] */0
+                                                  ]
+                                                ]
                                               ]
                                             ]
                                           ]
@@ -838,8 +854,14 @@ function make$1() {
                                   className: Css.style(/* :: */[
                                         Css.alignSelf(/* stretch */-162316795),
                                         /* :: */[
-                                          Css.marginTop(Css.px(16)),
-                                          /* [] */0
+                                          Css.width(/* `percent */[
+                                                -119887163,
+                                                100
+                                              ]),
+                                          /* :: */[
+                                            Css.marginTop(Css.px(16)),
+                                            /* [] */0
+                                          ]
                                         ]
                                       ])
                                 }, $$Array.mapi((function (i, param) {
@@ -857,10 +879,16 @@ function make$1() {
                                                     className: Css.style(/* :: */[
                                                           Css.backgroundColor(tmp),
                                                           /* :: */[
-                                                            Css.borderTop(Css.px(1), /* solid */12956715, Css.hex("eee")),
+                                                            Css.wordBreak(/* breakAll */-323760734),
                                                             /* :: */[
-                                                              Css.padding(Css.px(4)),
-                                                              /* [] */0
+                                                              Css.overflow(/* auto */-1065951377),
+                                                              /* :: */[
+                                                                Css.borderTop(Css.px(1), /* solid */12956715, Css.hex("eee")),
+                                                                /* :: */[
+                                                                  Css.padding(Css.px(4)),
+                                                                  /* [] */0
+                                                                ]
+                                                              ]
                                                             ]
                                                           ]
                                                         ])
@@ -22309,8 +22337,13 @@ var $$String = require(21);
 var Caml_string = require(17);
 
 function replaceState(url) {
-  history.replaceState({ }, "", url);
-  return /* () */0;
+  try {
+    history.replaceState({ }, "", url);
+    return /* () */0;
+  }
+  catch (exn){
+    return /* () */0;
+  }
 }
 
 function getInputValue($$event) {
@@ -23141,6 +23174,8 @@ var fromTextArea = (
       lineNumbers: true,
       lineWrapping: true,
       viewportMargin: Infinity,
+      autoCloseBrackets: true,
+      matchBrackets: true,
       extraKeys: {
         /* extraKeys: {"Ctrl-Space": "autocomplete"}, */
         'Cmd-Enter': (cm) => onRun(cm.getValue()),

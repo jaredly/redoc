@@ -266,14 +266,24 @@ let getDependencyDirs = (base, config) => {
 
 let invert = (f, a) => !f(a);
 
+let unique = list => {
+  let hash = Hashtbl.create(10);
+  list |> List.filter(item => Hashtbl.mem(hash, item) ? false : {Hashtbl.add(hash, item, true); true})
+};
+
 let writeDeps = (~output_string, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~base) => {
   /* let depsToLoad = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => dir /+ name)) |> List.concat; */
   /* let out = open_out(dest); */
 
-  let depsMap = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => {
-    let path = dir /+ name;
+  let depsToWrite = dependencyDirs |> List.map(((dir, jsDir)) => Files.readDirectory(dir) |> List.filter(name => Filename.check_suffix(name, ".cmi")) |> List.map(name => {
+    (name, dir /+ name, Filename.chop_extension(name) ++ ".cmj", Filename.chop_extension(name) ++ ".js", jsDir)
+  })) |> List.concat |> unique;
+
+  let depsMap = depsToWrite |> List.map(((name, path, cmj, js, jsDir)) => {
+
+    /* let path = dir /+ name;
     let cmj = Filename.chop_extension(name) ++ ".cmj";
-    let js = Filename.chop_extension(name) ++ ".js";
+    let js = Filename.chop_extension(name) ++ ".js"; */
 
     output_string("ocaml.load_module(\"/static/cmis/" ++ name ++ "\", ");
     SerializeBinary.pp_string(output_string, Files.readFile(path) |! "file not readable " ++ path);
@@ -287,7 +297,7 @@ let writeDeps = (~output_string, ~dependencyDirs, ~stdlibRequires, ~bsRoot, ~bas
     output_string(");\n");
 
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(name)), jsDir /+ js)
-  })) |> List.concat;
+  });
   let depsMap = depsMap @ (stdlibRequires |> List.map(path => {
     ("stdlib" /+ String.uncapitalize(Filename.chop_extension(Filename.basename(path))), path)
   }));

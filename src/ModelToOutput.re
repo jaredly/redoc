@@ -90,18 +90,20 @@ let getCompletionData = modules => {
   });
 
   modules |> List.iter(({State.Model.name, items}) => {
-    add(([], name, (None, Json.String(firstFewItems(items))), None, "module"));
-    items |> List.iter(State.Model.Docs.iterWithPath(~modulesAtPath, [name], (path, (name, docString, item)) => {
-      switch item {
-      | Value(_) | Type(_) | Module(_) => add((List.rev(path), name, showItemType(name, item, modulesAtPath), docString |?>> Omd.to_html, State.Model.Docs.itemName(item)))
-      | _ => ()
-      }
-    }));
+    if (!String.contains(name, '-')) {
+      add(([], name, (None, Json.String(firstFewItems(items))), None, "module"));
+      items |> List.iter(State.Model.Docs.iterWithPath(~modulesAtPath, [name], (path, (name, docString, item)) => {
+        switch item {
+        | Value(_) | Type(_) | Module(_) => add((List.rev(path), name, showItemType(name, item, modulesAtPath), docString |?>> Omd.to_html, State.Model.Docs.itemName(item)))
+        | _ => ()
+        }
+      }));
+    }
   });
   items^
 };
 
-let writeEditorSupport = (static, directory, modules, (browserCompilerPath, compilerDepsBuffer)) => {
+let writeEditorSupport = (~skipStdlibCompletions, static, directory, modules, (browserCompilerPath, compilerDepsBuffer)) => {
   Files.copyExn(~source=browserCompilerPath, ~dest=directory /+ "bucklescript.js");
   let out = open_out(directory /+ "bucklescript-deps.js");
   Buffer.output_buffer(out, compilerDepsBuffer);
@@ -116,7 +118,9 @@ let writeEditorSupport = (static, directory, modules, (browserCompilerPath, comp
     ...(args |?>> (args => [("args", args)]) |? [])
   ]))));
   Files.writeFileExn(directory /+ "completion-data.js", "[].push.apply(window.complationData, " ++ completionData ++ ")");
-  Files.copyExn(~source=static /+ "bs-3.0.0-completion.js", ~dest=directory /+ "bucklescript-stdlib-completion.js");
+  if (!skipStdlibCompletions) {
+    Files.copyExn(~source=static /+ "bs-3.0.0-completion.js", ~dest=directory /+ "bucklescript-stdlib-completion.js");
+  };
 
   Files.ifExists(directory /+ "examples") |?< examplesDir => Files.collect(examplesDir, name => Filename.check_suffix(name, ".re")) |> List.map(example => {
     let title = Filename.basename(example) |> Filename.chop_extension;
@@ -227,7 +231,7 @@ open State;
 let package = (
   {State.Model.name, repo, custom, sidebar, modules},
   compilationResults,
-  {State.Input.directory, template, search},
+  {State.Input.directory, template, search, skipStdlibCompletions},
   {State.Input.static}
 ) => {
   Files.mkdirp(directory);
@@ -237,7 +241,7 @@ let package = (
     let playgroundEnabled = bundles |?>> (((runtimeDeps, compilerDeps)) => {
       Files.writeFileExn(directory /+ "all-deps.js", runtimeDeps ++ ";window.loadedAllDeps = true;");
       /* This is where we handle stuff for the editor. should be named "editorArtifacts" or something */
-      compilerDeps |?< writeEditorSupport(static, directory, modules);
+      compilerDeps |?< writeEditorSupport(~skipStdlibCompletions, static, directory, modules);
       true
     }) |? false;
     (codeBlocks, playgroundEnabled);

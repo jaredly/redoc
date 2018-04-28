@@ -191,6 +191,8 @@ Usage: docre [options]
       what this project is called
   --project-file
       specified as /abs/path/to/.cmt:rel/path/from/repo/root
+  --skip-stdlib-completions
+      don't include completions for the stdlib in the playground
   --ignore-code-errors
       don't print warnings about parse & type errors in code blocks
   --project-directory
@@ -214,7 +216,7 @@ let fail = (msg) => {
 
 let parse = Minimist.parse(
   ~alias=[("h", "help"), ("test", "doctest")],
-  ~presence=["help", "doctest", "ml", "ignore-code-errors"],
+  ~presence=["help", "doctest", "ml", "ignore-code-errors", "skip-stdlib-completions"],
   ~multi=["project-file", "dependency-directory", "project-directory"],
   ~strings=["target", "root", "name", "bs-root"]
 );
@@ -281,6 +283,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
     },
     target: {
       directory: target,
+      skipStdlibCompletions: has("skip-stdlib-completions", presence),
       search: true,
       template: None,
     },
@@ -294,6 +297,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
         lang: OCaml
       }) : None,
       root,
+      namespaced: Files.readFile(root /+ "bsconfig.json") |?> (contents => Json.parse(contents) |> Json.get("namespace") |?> Json.bool) |? false,
       backend: (packageJson |?> getPackageJsonName |?> packageJsonName => bsRoot |?> bsRoot => refmt |?>> refmt => State.Bucklescript({
         let version = getBsbVersion(bsRoot);
         {

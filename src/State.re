@@ -257,13 +257,15 @@ module Input = {
     customFiles: list((string, option(string), string)),
     /* abs path to .cmt(i), relpath to source */
     moduleFiles: list((string, string)),
-    defaultCodeOptions: option(Model.codeOptions)
+    defaultCodeOptions: option(Model.codeOptions),
+    namespaced: bool,
   };
 
   type target = {
     directory: string,
     /* TODO maybe use mustache? https://github.com/rgrinberg/ocaml-mustache */
     template: option(string),
+    skipStdlibCompletions: bool,
     search: bool,
   };
 

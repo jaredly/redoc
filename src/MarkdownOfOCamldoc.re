@@ -79,6 +79,8 @@ let convertItem = (currentModule, item) => {
   | `Tag(`Param(name, contents)) => Omd.Paragraph([Omd.Text("Param: " ++ name), ...List.map(stripLoc(convertNestable), contents)])
   | `Tag(`Raise(name, contents)) => Omd.Paragraph([Omd.Text("Raises: " ++ name), ...List.map(stripLoc(convertNestable), contents)])
   | `Tag(`Return(contents)) => Omd.Paragraph([Omd.Text("Returns: "), ...List.map(stripLoc(convertNestable), contents)])
+  | `Tag(`See(_, link, contents)) => Omd.Paragraph([Omd.Text("See: "), Omd.Url(link, List.map(stripLoc(convertNestable), contents), "")])
+  | `Tag(`Since(versionString)) => Omd.Text("Since: " ++ versionString)
   | `Tag(tag) => {
     print_endline("Warning: Unhandled tag in ocamldoc (please tell the docre maintainers)");
     Omd.Text("Unhandled tag")

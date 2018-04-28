@@ -177,7 +177,7 @@ let findOpens = text => {
 
   let maybeOpen = i0 => {
     let rec loop = i => {
-      if (i < 5) {
+      if (i < 4) {
         0
       } else {
         switch (text.[i]) {
@@ -239,15 +239,15 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       return recursiveRemove(res, re)
     }
 
-    var match = prev.match(/[^~a-zA-Z0-9\._)\]}"]([a-zA-Z0-9\._]+)$/)
+    var match = prev.match(/(^|[^~a-zA-Z0-9\._)\]}"])([a-zA-Z0-9\._]+)$/)
 
     var results = [];
     var name;
 
     if (!match) {
-      match = prev.match(/[^a-zA-Z0-9\._)\]}"](~[a-zA-Z0-9\._]*)$/)
+      match = prev.match(/(^|[^a-zA-Z0-9\._)\]}"])(~[a-zA-Z0-9\._]*)$/)
       if (!match) return
-      name = match[1]
+      name = match[2]
       const [[commas, labels, lident]=[]] = findFunctionCall(prev)
       if (!lident) return
       const parts = lident.split('.')
@@ -260,6 +260,7 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
         Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
         openPrefixes[name] = true
       });
+      openPrefixes['Pervasives'] = true
 
       var matching = window.complationData.filter(item => {
         if (!item.args) return
@@ -281,7 +282,7 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
         kind: 'arg',
       }))
     } else {
-      var parts = match[1].split('.')
+      var parts = match[2].split('.')
       name = parts.pop()
       var prefix = parts.join('.')
 
@@ -291,6 +292,7 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
         Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
         openPrefixes[name] = true
       });
+      openPrefixes['Pervasives'] = true
 
       results = window.complationData.filter(item => {
         // TODO be case agnostic?

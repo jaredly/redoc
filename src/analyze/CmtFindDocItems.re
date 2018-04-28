@@ -64,6 +64,11 @@ let rec docItemsFromStructure = (parseDoc, structure) => {
       }
     } else {None}
     , bindings, items) |> a => (global, a)
+  | Tstr_primitive({val_name: {txt, loc}, val_val, val_attributes, val_loc}) => {
+    if (!hasNoDoc(val_attributes)) {
+      (global, [(txt, findDocAttribute(parseDoc, val_attributes), Value(val_val.val_type)), ...items])
+    } else {(global, items)}
+  }
   | Tstr_attribute(({Asttypes.txt: "ocaml.doc" | "ocaml.text"}, PStr([{pstr_desc: Pstr_eval({pexp_desc: Pexp_constant(Const_string(doc, _))}, _)}]))) => {
     let doc = cleanOffStars(doc) |> parseDoc;
     if (items == [] && global == None) {

@@ -115,7 +115,8 @@ let writeEditorSupport = (static, directory, modules, (browserCompilerPath, comp
     ("kind", Json.String(kind)),
     ...(args |?>> (args => [("args", args)]) |? [])
   ]))));
-  Files.writeFileExn(directory /+ "completion-data.js", "window.complationData = " ++ completionData);
+  Files.writeFileExn(directory /+ "completion-data.js", "[].push.apply(window.complationData, " ++ completionData ++ ")");
+  Files.copyExn(~source=static /+ "bs-3.0.0-completion.js", ~dest=directory /+ "bucklescript-stdlib-completion.js");
 
   Files.ifExists(directory /+ "examples") |?< examplesDir => Files.collect(examplesDir, name => Filename.check_suffix(name, ".re")) |> List.map(example => {
     let title = Filename.basename(example) |> Filename.chop_extension;

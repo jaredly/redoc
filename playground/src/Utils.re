@@ -136,7 +136,6 @@ let rec findArgLabel = (text, i) => if (i < 0) { None } else {
 
 open Infix;
 
-/* TODO track which arg labels have been used */
 let findFunctionCall = text => {
   let rec loop = (commas, labels, i) => {
     if (i > 0) {
@@ -172,6 +171,50 @@ let findFunctionCall = text => {
   loop(0, [], String.length(text) - 1) |?>> ((commas, labels, lident)) => (commas, Array.of_list(labels), lident);
 };
 
+
+
+let findJsxTag = text => {
+  let rec loop = (labels, i) => {
+    if (i > 0) {
+      switch (text.[i]) {
+      | '}' => loop(labels, findBackSkippingCommentsAndStrings(text, '{', '}', i - 1, 0))
+      | ']' => loop(labels, findBackSkippingCommentsAndStrings(text, '[', ']', i - 1, 0))
+      | ')' => loop(labels, findBackSkippingCommentsAndStrings(text, '(', ')', i - 1, 0))
+      | '"' => loop(labels, findBack(text, '"', i - 1))
+      | '=' => switch (text.[i - 1]) {
+        | 'a'..'z' | 'A'..'Z' | '_' => {
+          let i0 = startOfLident(text, i - 1);
+          /* TODO support punning */
+          loop([String.sub(text, i0, i - i0), ...labels], i0 - 1)
+        }
+        | _ => loop(labels, i - 1)
+        }
+      | '{' | '[' | '(' | '>' | ';' => None
+      | ' ' | '\n' => switch (text.[i - 1]) {
+        | 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => {
+          let i0 = startOfLident(text, i - 3);
+          if (i0 > 0 && text.[i0 - 1] == '<') {
+            Some((labels, String.sub(text, i0, i - i0)))
+          } else { loop(labels, i - 1) }
+        }
+        | _ => loop(labels, i - 1)
+      }
+      | _ => if (i >= 1 && text.[i] == '/' && text.[i - 1] == '*') {
+          loop(labels, findOpenComment(text, i - 2))
+        } else {
+          loop(labels, i - 1)
+        }
+      }
+    } else {
+      None;
+    }
+  };
+  loop([], String.length(text) - 1) |?>> ((labels, lident)) => (Array.of_list(labels), lident);
+};
+
+
+
+
 let findOpens = text => {
   let opens = [||];
 
@@ -204,11 +247,20 @@ let findOpens = text => {
   };
 
   let rec loop = i => {
-    if (i > 0) {
+    if (i > 1) {
       switch (text.[i]) {
-      | '}' => loop(findBack(text, '{', i - 1))
+      | '}' => loop(findBackSkippingCommentsAndStrings(text, '{', '}', i - 1, 0))
+      | ']' => loop(findBackSkippingCommentsAndStrings(text, '[', ']', i - 1, 0))
+      | ')' => loop(findBackSkippingCommentsAndStrings(text, '(', ')', i - 1, 0))
       | '"' => loop(findBack(text, '"', i - 1))
       | 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => loop(maybeOpen(i))
+      | '(' when text.[i - 1] == '.' => switch (text.[i - 2]) {
+        | 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' => {
+          let i0 = startOfLident(text, i - 3);
+          Js.Array.push(String.sub(text, i0, i - i0 - 1), opens) |> ignore;
+        }
+        | _ => loop(i - 1)
+      }
       | _ => if (i > 1 && text.[i] == '/' && text.[i - 1] == '*') {
           loop(findOpenComment(text, i - 2))
         } else {
@@ -230,20 +282,12 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
     }
     var prev = cm.getRange({line:0,ch:0}, cur)
 
-    // TODO TODO if this is a label, then stop
-    // ~pos=px(10)
-
-    var recursiveRemove = (text, re) => {
-      var res = text.replace(re, '');
-      if (res == text) return res
-      return recursiveRemove(res, re)
-    }
-
     var match = prev.match(/(^|[^~a-zA-Z0-9\._)\]}"])([a-zA-Z0-9\._]+)$/)
 
     var results = [];
     var name;
 
+    // labeled arg
     if (!match) {
       match = prev.match(/(^|[^a-zA-Z0-9\._)\]}"])(~[a-zA-Z0-9\._]*)$/)
       if (!match) return
@@ -281,29 +325,69 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
         type: typ,
         kind: 'arg',
       }))
+
     } else {
-      var parts = match[2].split('.')
-      name = parts.pop()
-      var prefix = parts.join('.')
 
-      const opens  = findOpens(prev).reverse()
-      const openPrefixes = {}
-      opens.forEach((name, i) => {
-        Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
-        openPrefixes[name] = true
-      });
-      openPrefixes['Pervasives'] = true
+      var [[labels, lident]=[]] = findJsxTag(prev) || [];
+      if (lident) {
+        /* const parts = lident.split('.') */
+        const last = 'make'
+        const prefix = lident
+        name = match[2]
+        console.log('JSX', lident, labels, match, name)
 
-      results = window.complationData.filter(item => {
-        // TODO be case agnostic?
-        if (!item.name.startsWith(name)) return false
-        if (!item.path.endsWith(prefix)) return false
-        var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
-        if (left[left.length - 1] == '.') left = left.slice(0, -1)
-        if (left && !openPrefixes[left]) return false
-        return true
-      })
-      if (!results.length) return
+        const opens  = findOpens(prev).reverse()
+        const openPrefixes = {}
+        opens.forEach((name, i) => {
+          Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+          openPrefixes[name] = true
+        });
+        openPrefixes['Pervasives'] = true
+
+        var matching = window.complationData.filter(item => {
+          if (!item.args) return
+          // TODO be case agnostic?
+          if (item.name !== last) return false
+          if (!item.path.endsWith(prefix)) return false
+          var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+          if (left[left.length - 1] == '.') left = left.slice(0, -1)
+          if (left && !openPrefixes[left]) return false
+          return true
+        })
+        if (matching.length) {
+          results = matching[0].args.filter(([label, typ]) => label.length && !labels.includes(label) && label.startsWith(name)).map(([name, typ]) => ({
+            name: name + '=',
+            display: name,
+            type: typ,
+            kind: 'arg',
+          }))
+        }
+
+      }
+      if (!results.length) {
+        var parts = match[2].split('.')
+        name = parts.pop()
+        var prefix = parts.join('.')
+
+        const opens  = findOpens(prev).reverse()
+        const openPrefixes = {}
+        opens.forEach((name, i) => {
+          Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+          openPrefixes[name] = true
+        });
+        openPrefixes['Pervasives'] = true
+
+        results = window.complationData.filter(item => {
+          // TODO be case agnostic?
+          if (!item.name.startsWith(name)) return false
+          if (!item.path.endsWith(prefix)) return false
+          var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+          if (left[left.length - 1] == '.') left = left.slice(0, -1)
+          if (left && !openPrefixes[left]) return false
+          return true
+        })
+        if (!results.length) return
+      }
     }
 
     var node = (tag, attrs, children) => {
@@ -323,14 +407,6 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       node.innerHTML = text
       return node
     };
-
-
-    // TODO TODO
-    // this isn't resolving:
-    // open Reprocessing;
-    // Draw.<complete please>
-    // BUT it does get
-    // Reprocessing.Draw.rectf
 
     var colors = {
       'type': '#faa',

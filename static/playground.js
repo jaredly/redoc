@@ -22678,6 +22678,182 @@ function findFunctionCall(text) {
               }));
 }
 
+function findJsxTag(text) {
+  var loop = function (_labels, _i) {
+    while(true) {
+      var i = _i;
+      var labels = _labels;
+      if (i > 0) {
+        var match = Caml_string.get(text, i);
+        var exit = 0;
+        if (match >= 63) {
+          if (match >= 94) {
+            var switcher = match - 123 | 0;
+            if (switcher > 2 || switcher < 0) {
+              exit = 1;
+            } else {
+              switch (switcher) {
+                case 0 : 
+                    return /* None */0;
+                case 1 : 
+                    exit = 1;
+                    break;
+                case 2 : 
+                    _i = findBackSkippingCommentsAndStrings(text, /* "{" */123, /* "}" */125, i - 1 | 0, 0);
+                    continue ;
+                
+              }
+            }
+          } else if (match >= 91) {
+            switch (match - 91 | 0) {
+              case 0 : 
+                  return /* None */0;
+              case 1 : 
+                  exit = 1;
+                  break;
+              case 2 : 
+                  _i = findBackSkippingCommentsAndStrings(text, /* "[" */91, /* "]" */93, i - 1 | 0, 0);
+                  continue ;
+              
+            }
+          } else {
+            exit = 1;
+          }
+        } else if (match !== 10) {
+          if (match >= 32) {
+            switch (match - 32 | 0) {
+              case 0 : 
+                  exit = 2;
+                  break;
+              case 2 : 
+                  _i = findBack(text, /* "\"" */34, i - 1 | 0);
+                  continue ;
+              case 9 : 
+                  _i = findBackSkippingCommentsAndStrings(text, /* "(" */40, /* ")" */41, i - 1 | 0, 0);
+                  continue ;
+              case 1 : 
+              case 3 : 
+              case 4 : 
+              case 5 : 
+              case 6 : 
+              case 7 : 
+              case 10 : 
+              case 11 : 
+              case 12 : 
+              case 13 : 
+              case 14 : 
+              case 15 : 
+              case 16 : 
+              case 17 : 
+              case 18 : 
+              case 19 : 
+              case 20 : 
+              case 21 : 
+              case 22 : 
+              case 23 : 
+              case 24 : 
+              case 25 : 
+              case 26 : 
+              case 28 : 
+                  exit = 1;
+                  break;
+              case 29 : 
+                  var match$1 = Caml_string.get(text, i - 1 | 0);
+                  var exit$1 = 0;
+                  var switcher$1 = match$1 - 91 | 0;
+                  if (switcher$1 > 5 || switcher$1 < 0) {
+                    if ((switcher$1 + 26 >>> 0) > 57) {
+                      _i = i - 1 | 0;
+                      continue ;
+                    } else {
+                      exit$1 = 3;
+                    }
+                  } else if (switcher$1 !== 4) {
+                    _i = i - 1 | 0;
+                    continue ;
+                  } else {
+                    exit$1 = 3;
+                  }
+                  if (exit$1 === 3) {
+                    var i0 = startOfLident(text, i - 1 | 0);
+                    _i = i0 - 1 | 0;
+                    _labels = /* :: */[
+                      $$String.sub(text, i0, i - i0 | 0),
+                      labels
+                    ];
+                    continue ;
+                  }
+                  break;
+              case 8 : 
+              case 27 : 
+              case 30 : 
+                  return /* None */0;
+              
+            }
+          } else {
+            exit = 1;
+          }
+        } else {
+          exit = 2;
+        }
+        switch (exit) {
+          case 1 : 
+              if (i >= 1 && Caml_string.get(text, i) === /* "/" */47 && Caml_string.get(text, i - 1 | 0) === /* "*" */42) {
+                _i = findOpenComment(text, i - 2 | 0);
+                continue ;
+              } else {
+                _i = i - 1 | 0;
+                continue ;
+              }
+          case 2 : 
+              var match$2 = Caml_string.get(text, i - 1 | 0);
+              var exit$2 = 0;
+              exit$2 = match$2 >= 91 ? (
+                  match$2 >= 97 ? (
+                      match$2 >= 123 ? 3 : 4
+                    ) : (
+                      match$2 !== 95 ? 3 : 4
+                    )
+                ) : (
+                  match$2 >= 58 ? (
+                      match$2 >= 65 ? 4 : 3
+                    ) : (
+                      match$2 >= 48 ? 4 : 3
+                    )
+                );
+              switch (exit$2) {
+                case 3 : 
+                    _i = i - 1 | 0;
+                    continue ;
+                case 4 : 
+                    var i0$1 = startOfLident(text, i - 3 | 0);
+                    if (i0$1 > 0 && Caml_string.get(text, i0$1 - 1 | 0) === /* "<" */60) {
+                      return /* Some */[/* tuple */[
+                                labels,
+                                $$String.sub(text, i0$1, i - i0$1 | 0)
+                              ]];
+                    } else {
+                      _i = i - 1 | 0;
+                      continue ;
+                    }
+                
+              }
+              break;
+          
+        }
+      } else {
+        return /* None */0;
+      }
+    };
+  };
+  return Infix.$pipe$unknown$great$great(loop(/* [] */0, text.length - 1 | 0), (function (param) {
+                return /* tuple */[
+                        $$Array.of_list(param[0]),
+                        param[1]
+                      ];
+              }));
+}
+
 function findOpens(text) {
   var opens = /* array */[];
   var maybeOpen = function (i0) {
@@ -22727,23 +22903,40 @@ function findOpens(text) {
   var loop = function (_i) {
     while(true) {
       var i = _i;
-      if (i > 0) {
+      if (i > 1) {
         var match = Caml_string.get(text, i);
         var exit = 0;
         if (match >= 91) {
-          var switcher = match - 95 | 0;
-          if (switcher > 27 || switcher < 0) {
-            if (switcher !== 30) {
-              exit = 1;
+          if (match >= 97) {
+            if (match !== 125) {
+              if (match >= 123) {
+                exit = 1;
+              } else {
+                _i = maybeOpen(i);
+                continue ;
+              }
             } else {
-              _i = findBack(text, /* "{" */123, i - 1 | 0);
+              _i = findBackSkippingCommentsAndStrings(text, /* "{" */123, /* "}" */125, i - 1 | 0, 0);
               continue ;
             }
-          } else if (switcher !== 1) {
-            _i = maybeOpen(i);
-            continue ;
           } else {
-            exit = 1;
+            var switcher = match - 93 | 0;
+            if (switcher > 2 || switcher < 0) {
+              exit = 1;
+            } else {
+              switch (switcher) {
+                case 0 : 
+                    _i = findBackSkippingCommentsAndStrings(text, /* "[" */91, /* "]" */93, i - 1 | 0, 0);
+                    continue ;
+                case 1 : 
+                    exit = 1;
+                    break;
+                case 2 : 
+                    _i = maybeOpen(i);
+                    continue ;
+                
+              }
+            }
           }
         } else if (match >= 48) {
           if (match > 64 || match < 58) {
@@ -22752,11 +22945,69 @@ function findOpens(text) {
           } else {
             exit = 1;
           }
-        } else if (match !== 34) {
-          exit = 1;
         } else {
-          _i = findBack(text, /* "\"" */34, i - 1 | 0);
-          continue ;
+          var switcher$1 = match - 34 | 0;
+          if (switcher$1 > 7 || switcher$1 < 0) {
+            exit = 1;
+          } else {
+            switch (switcher$1) {
+              case 0 : 
+                  _i = findBack(text, /* "\"" */34, i - 1 | 0);
+                  continue ;
+              case 1 : 
+              case 2 : 
+              case 3 : 
+              case 4 : 
+              case 5 : 
+                  exit = 1;
+                  break;
+              case 6 : 
+                  if (Caml_string.get(text, i - 1 | 0) === /* "." */46) {
+                    var match$1 = Caml_string.get(text, i - 2 | 0);
+                    var exit$1 = 0;
+                    if (match$1 >= 91) {
+                      if (match$1 >= 97) {
+                        if (match$1 >= 123) {
+                          _i = i - 1 | 0;
+                          continue ;
+                        } else {
+                          exit$1 = 2;
+                        }
+                      } else if (match$1 !== 95) {
+                        _i = i - 1 | 0;
+                        continue ;
+                      } else {
+                        exit$1 = 2;
+                      }
+                    } else if (match$1 >= 58) {
+                      if (match$1 >= 65) {
+                        exit$1 = 2;
+                      } else {
+                        _i = i - 1 | 0;
+                        continue ;
+                      }
+                    } else if (match$1 >= 48) {
+                      exit$1 = 2;
+                    } else {
+                      _i = i - 1 | 0;
+                      continue ;
+                    }
+                    if (exit$1 === 2) {
+                      var i0 = startOfLident(text, i - 3 | 0);
+                      opens.push($$String.sub(text, i0, (i - i0 | 0) - 1 | 0));
+                      return /* () */0;
+                    }
+                    
+                  } else {
+                    exit = 1;
+                  }
+                  break;
+              case 7 : 
+                  _i = findBackSkippingCommentsAndStrings(text, /* "(" */40, /* ")" */41, i - 1 | 0, 0);
+                  continue ;
+              
+            }
+          }
         }
         if (exit === 1) {
           if (i > 1 && Caml_string.get(text, i) === /* "/" */47 && Caml_string.get(text, i - 1 | 0) === /* "*" */42) {
@@ -22786,20 +23037,12 @@ var autoComplete = (
     }
     var prev = cm.getRange({line:0,ch:0}, cur)
 
-    // TODO TODO if this is a label, then stop
-    // ~pos=px(10)
-
-    var recursiveRemove = (text, re) => {
-      var res = text.replace(re, '');
-      if (res == text) return res
-      return recursiveRemove(res, re)
-    }
-
     var match = prev.match(/(^|[^~a-zA-Z0-9\._)\]}"])([a-zA-Z0-9\._]+)$/)
 
     var results = [];
     var name;
 
+    // labeled arg
     if (!match) {
       match = prev.match(/(^|[^a-zA-Z0-9\._)\]}"])(~[a-zA-Z0-9\._]*)$/)
       if (!match) return
@@ -22837,29 +23080,69 @@ var autoComplete = (
         type: typ,
         kind: 'arg',
       }))
+
     } else {
-      var parts = match[2].split('.')
-      name = parts.pop()
-      var prefix = parts.join('.')
 
-      const opens  = findOpens(prev).reverse()
-      const openPrefixes = {}
-      opens.forEach((name, i) => {
-        Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
-        openPrefixes[name] = true
-      });
-      openPrefixes['Pervasives'] = true
+      var [[labels, lident]=[]] = findJsxTag(prev) || [];
+      if (lident) {
+        /* const parts = lident.split('.') */
+        const last = 'make'
+        const prefix = lident
+        name = match[2]
+        console.log('JSX', lident, labels, match, name)
 
-      results = window.complationData.filter(item => {
-        // TODO be case agnostic?
-        if (!item.name.startsWith(name)) return false
-        if (!item.path.endsWith(prefix)) return false
-        var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
-        if (left[left.length - 1] == '.') left = left.slice(0, -1)
-        if (left && !openPrefixes[left]) return false
-        return true
-      })
-      if (!results.length) return
+        const opens  = findOpens(prev).reverse()
+        const openPrefixes = {}
+        opens.forEach((name, i) => {
+          Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+          openPrefixes[name] = true
+        });
+        openPrefixes['Pervasives'] = true
+
+        var matching = window.complationData.filter(item => {
+          if (!item.args) return
+          // TODO be case agnostic?
+          if (item.name !== last) return false
+          if (!item.path.endsWith(prefix)) return false
+          var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+          if (left[left.length - 1] == '.') left = left.slice(0, -1)
+          if (left && !openPrefixes[left]) return false
+          return true
+        })
+        if (matching.length) {
+          results = matching[0].args.filter(([label, typ]) => label.length && !labels.includes(label) && label.startsWith(name)).map(([name, typ]) => ({
+            name: name + '=',
+            display: name,
+            type: typ,
+            kind: 'arg',
+          }))
+        }
+
+      }
+      if (!results.length) {
+        var parts = match[2].split('.')
+        name = parts.pop()
+        var prefix = parts.join('.')
+
+        const opens  = findOpens(prev).reverse()
+        const openPrefixes = {}
+        opens.forEach((name, i) => {
+          Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+          openPrefixes[name] = true
+        });
+        openPrefixes['Pervasives'] = true
+
+        results = window.complationData.filter(item => {
+          // TODO be case agnostic?
+          if (!item.name.startsWith(name)) return false
+          if (!item.path.endsWith(prefix)) return false
+          var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+          if (left[left.length - 1] == '.') left = left.slice(0, -1)
+          if (left && !openPrefixes[left]) return false
+          return true
+        })
+        if (!results.length) return
+      }
     }
 
     var node = (tag, attrs, children) => {
@@ -22879,14 +23162,6 @@ var autoComplete = (
       node.innerHTML = text
       return node
     };
-
-
-    // TODO TODO
-    // this isn't resolving:
-    // open Reprocessing;
-    // Draw.<complete please>
-    // BUT it does get
-    // Reprocessing.Draw.rectf
 
     var colors = {
       'type': '#faa',
@@ -23266,6 +23541,7 @@ exports.skipWhite = skipWhite;
 exports.startOfLident = startOfLident;
 exports.findArgLabel = findArgLabel;
 exports.findFunctionCall = findFunctionCall;
+exports.findJsxTag = findJsxTag;
 exports.findOpens = findOpens;
 exports.autoComplete = autoComplete;
 exports.registerComplete = registerComplete;

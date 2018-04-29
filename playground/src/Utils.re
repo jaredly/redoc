@@ -331,10 +331,12 @@ let autoComplete: (codemirror, completionItem => unit, unit => unit) => bool = [
       var [[labels, lident]=[]] = findJsxTag(prev) || [];
       if (lident) {
         /* const parts = lident.split('.') */
-        const last = 'make'
-        const prefix = lident
+        const builtin = lident.toLowerCase() === lident;
+        const last = builtin ? 'props' : 'make'
+        const prefix = builtin ? 'ReactDOMRe' : lident
+        /* const last = 'make'
+        const prefix = lident */
         name = match[2]
-        console.log('JSX', lident, labels, match, name)
 
         const opens  = findOpens(prev).reverse()
         const openPrefixes = {}
@@ -551,30 +553,59 @@ let registerComplete: (codemirror, codemirror => bool) => unit = [%bs.raw{|
     var showFunctionHint = () => {
       var cur = cm.getCursor();
       var prev = cm.getRange({line:0,ch:0}, cur)
+      var matching = []
 
       const [[commas, labels, lident]=[]] = findFunctionCall(prev) || []
-      if (!lident) return
-      const parts = lident.split('.')
-      const last = parts.pop()
-      const prefix = parts.join('.')
+      if (lident) {
+        const parts = lident.split('.')
+        const last = parts.pop()
+        const prefix = parts.join('.')
 
-      const opens  = findOpens(prev).reverse()
-      const openPrefixes = {}
-      opens.forEach((name, i) => {
-        Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
-        openPrefixes[name] = true
-      });
+        const opens  = findOpens(prev).reverse()
+        const openPrefixes = {}
+        opens.forEach((name, i) => {
+          Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+          openPrefixes[name] = true
+        });
 
-      var matching = window.complationData.filter(item => {
-        if (!item.args) return
-        // TODO be case agnostic?
-        if (item.name !== last) return false
-        if (!item.path.endsWith(prefix)) return false
-        var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
-        if (left[left.length - 1] == '.') left = left.slice(0, -1)
-        if (left && !openPrefixes[left]) return false
-        return true
-      })
+        matching = window.complationData.filter(item => {
+          if (!item.args) return
+          // TODO be case agnostic?
+          if (item.name !== last) return false
+          if (!item.path.endsWith(prefix)) return false
+          var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+          if (left[left.length - 1] == '.') left = left.slice(0, -1)
+          if (left && !openPrefixes[left]) return false
+          return true
+        })
+
+      } else {
+        const [[labels, lident]=[]] = findJsxTag(prev) || [];
+        if (lident) {
+          const builtin = lident.toLowerCase() === lident;
+          const last = builtin ? 'props' : 'make'
+          const prefix = builtin ? 'ReactDOMRe' : lident
+
+          const opens  = findOpens(prev).reverse()
+          const openPrefixes = {}
+          opens.forEach((name, i) => {
+            Object.keys(openPrefixes).forEach(k => openPrefixes[k + '.' + name] = true)
+            openPrefixes[name] = true
+          });
+          openPrefixes['Pervasives'] = true
+
+          matching = window.complationData.filter(item => {
+            if (!item.args) return
+            // TODO be case agnostic?
+            if (item.name !== last) return false
+            if (!item.path.endsWith(prefix)) return false
+            var left = prefix.length ? item.path.slice(0, -prefix.length) : item.path
+            if (left[left.length - 1] == '.') left = left.slice(0, -1)
+            if (left && !openPrefixes[left]) return false
+            return true
+          })
+        }
+      }
       if (!matching.length) return
 
       var text = matching[0].type

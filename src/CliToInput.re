@@ -250,6 +250,9 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   open Minimist;
   let root = get(strings, "root") |?>> Files.absify |? Unix.getcwd();
   let bsRoot = get(strings, "bs-root") |?>> Files.absify |?>> shouldExist("provided bs-root doesn't exist") |?? Files.ifExists(root /+ "node_modules/bs-platform");
+  if (bsRoot == None) {
+    print_endline("⚠️ Warning! No bs-root provided, and " ++ root ++ "/node_modules/bs-platform doesn't exist. Code blocks will not be processed, but everything else will work.");
+  };
   let refmt = get(strings, "refmt") |?>> shouldExist("provided refmt doesn't exist") |?? (bsRoot |?> getRefmt);
   let target = get(strings, "target") |? (root /+ "docs");
   let projectName = get(strings, "name") |? String.capitalize(Filename.basename(root));

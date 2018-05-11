@@ -159,12 +159,12 @@ let runCode = (code, addLog) => {
   let fn = {j|(function(exports, module, require, addLog) {
     var oldConsole = window.console;
     var console = Object.assign({}, window.console, {
-      log: (...items) => {oldConsole.log(...items); addLog('log', items)},
+      log: (...items) => {oldConsole.log(...items); addLog('log', items.map(i => JSON.stringify(i)).join(' '))},
       warn: (...items) => {
-        oldConsole.warn(...items); addLog('warn', items)
+        oldConsole.warn(...items); addLog('warn', JSON.stringify(items))
       },
       error: (...items) => {
-        oldConsole.error(...items); addLog('error', items)
+        oldConsole.error(...items); addLog('error', JSON.stringify(items))
       },
     });
     /* try { */
@@ -251,6 +251,7 @@ module Main = {
     mutable shareInput: option(Dom.element),
     logs: list((string, string)),
     resultJs: string,
+    expandJs: bool,
     searching: string,
     currentCompletion: option(completionItem),
     syntax,
@@ -262,6 +263,7 @@ module Main = {
     | Js(string)
     | SetCanvasSize(int)
     | AddLog(string, string)
+    | ToggleJsExpand
     | ClearLogs
     | ToOCaml
     | ToReason
@@ -281,6 +283,7 @@ module Main = {
       logs: [],
       searching: "",
       canvasSize,
+      expandJs: false,
       currentCompletion: None,
       /* autorun: true, */
       shareInput: None,
@@ -303,6 +306,7 @@ module Main = {
       state.cm |?< cm => setValue(cm, text);
       {...state, text}
     }
+    | ToggleJsExpand => {...state, expandJs: !state.expandJs}
     | CompletionCleared => {...state, currentCompletion: None}
     | CompletionSelected(item) => {...state, currentCompletion: Some(item)}
     | AddLog(typ, text) => {...state, logs: [(typ, text), ...state.logs]}
@@ -546,13 +550,34 @@ module Main = {
           (str("The Javascript Output"))
           <pre className=Css.(style([
             whiteSpace(`preWrap),
-            width(`percent(100.)),
             wordBreak(`breakAll),
             padding(px(8)),
-            maxHeight(px(200)),
             minHeight(px(100)),
             overflow(`auto),
-          ]))><code>(str(state.resultJs))</code></pre>
+            ...(state.expandJs ? [
+              position(`absolute),
+              top(px(50)),
+              bottom(px(10)),
+              height(`auto),
+              left(px(5)),
+              right(px(5)),
+              width(`auto)
+            ] : [
+              maxHeight(px(200)),
+              position(`relative),
+              width(`percent(100.)),
+            ])
+          ]))>
+          <div className=Css.(style([
+            position(`absolute),
+            top(px(5)),
+            zIndex(100),
+            cursor(`pointer),
+            right(px(10)),
+          ])) onClick=(_evt => send(ToggleJsExpand))>
+            (str({j|⇱|j}))
+          </div>
+          <code>(str(state.resultJs))</code></pre>
           <div className=Styles.line />
           (str("Log output"))
           <div className=Css.(style([

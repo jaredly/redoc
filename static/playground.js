@@ -359,7 +359,7 @@ function makeUrl(code, syntax, canvasSize) {
 }
 
 function runCode(code, addLog) {
-  var fn = "(function(exports, module, require, addLog) {\n    var oldConsole = window.console;\n    var console = Object.assign({}, window.console, {\n      log: (...items) => {oldConsole.log(...items); addLog(\'log\', items)},\n      warn: (...items) => {\n        oldConsole.warn(...items); addLog(\'warn\', items)\n      },\n      error: (...items) => {\n        oldConsole.error(...items); addLog(\'error\', items)\n      },\n    });\n    /* try { */\n    " + (String(code) + "\n    /* } catch(e) { */\n      /* window.console = oldConsole; */\n      /* throw e */\n    /* } */\n  })");
+  var fn = "(function(exports, module, require, addLog) {\n    var oldConsole = window.console;\n    var console = Object.assign({}, window.console, {\n      log: (...items) => {oldConsole.log(...items); addLog(\'log\', items.map(i => JSON.stringify(i)).join(\' \'))},\n      warn: (...items) => {\n        oldConsole.warn(...items); addLog(\'warn\', JSON.stringify(items))\n      },\n      error: (...items) => {\n        oldConsole.error(...items); addLog(\'error\', JSON.stringify(items))\n      },\n    });\n    /* try { */\n    " + (String(code) + "\n    /* } catch(e) { */\n      /* window.console = oldConsole; */\n      /* throw e */\n    /* } */\n  })");
   var fn$1 = eval(fn);
   var $$exports = function () {
     return { };
@@ -484,13 +484,13 @@ function make$1() {
               var send = param[/* send */4];
               var state = param[/* state */2];
               var run = function (text) {
-                var url = makeUrl(text, state[/* syntax */9], state[/* canvasSize */3]);
+                var url = makeUrl(text, state[/* syntax */10], state[/* canvasSize */3]);
                 Utils.replaceState(url);
-                Curry._1(send, /* ClearLogs */0);
+                Curry._1(send, /* ClearLogs */1);
                 Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
                         return Curry._1(Utils.clearMarks, cm);
                       }));
-                var match = state[/* syntax */9] === /* Reason */1;
+                var match = state[/* syntax */10] === /* Reason */1;
                 var match$1 = match ? Utils.reasonCompile(text) : Utils.ocamlCompile(text);
                 if (match$1.tag) {
                   var match$2 = match$1[0];
@@ -518,7 +518,7 @@ function make$1() {
                   return Curry._1(send, /* Js */Block.__(2, [js]));
                 }
               };
-              var match = state[/* status */10];
+              var match = state[/* status */11];
               var tmp;
               if (typeof match === "number") {
                 tmp = null;
@@ -535,11 +535,12 @@ function make$1() {
                       dangerouslySetInnerHTML: inner
                     });
               }
-              var match$1 = state[/* searching */7] !== "";
-              var match$2 = state[/* searching */7] !== "";
+              var match$1 = state[/* searching */8] !== "";
+              var match$2 = state[/* expandJs */7];
+              var match$3 = state[/* searching */8] !== "";
               var tmp$1;
-              if (match$2) {
-                var results = Utils.searchIndex(state[/* searching */7]).slice(0, 20);
+              if (match$3) {
+                var results = Utils.searchIndex(state[/* searching */8]).slice(0, 20);
                 var results$1 = $$Array.mapi((function (i, result) {
                         return React.createElement("div", {
                                     key: String(i),
@@ -556,7 +557,7 @@ function make$1() {
                                             className: "title"
                                           }, result.doc.title), React.createElement("div", {
                                             className: "breadcrumb"
-                                          }, result.doc.breadcrumb)), ReasonReact.element(/* None */0, /* None */0, make(result.doc.rendered, state[/* searching */7].split((/\s+/g)), /* array */[])));
+                                          }, result.doc.breadcrumb)), ReasonReact.element(/* None */0, /* None */0, make(result.doc.rendered, state[/* searching */8].split((/\s+/g)), /* array */[])));
                       }), results);
                 tmp$1 = React.createElement("div", {
                       className: Css.style(/* :: */[
@@ -607,21 +608,21 @@ function make$1() {
                                         })
                                     }, "Run"), spacer(8), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */9] === /* OCaml */0,
+                                      disabled: state[/* syntax */10] === /* OCaml */0,
                                       onClick: (function () {
-                                          return Curry._1(send, /* AutoFormat */3);
+                                          return Curry._1(send, /* AutoFormat */4);
                                         })
                                     }, "Auto Format"), spacer(8), "Syntax:", spacer(8), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */9] === /* OCaml */0,
+                                      disabled: state[/* syntax */10] === /* OCaml */0,
                                       onClick: (function () {
-                                          return Curry._1(send, /* ToOCaml */1);
+                                          return Curry._1(send, /* ToOCaml */2);
                                         })
                                     }, "OCaml"), React.createElement("button", {
                                       className: button,
-                                      disabled: state[/* syntax */9] === /* Reason */1,
+                                      disabled: state[/* syntax */10] === /* Reason */1,
                                       onClick: (function () {
-                                          return Curry._1(send, /* ToReason */2);
+                                          return Curry._1(send, /* ToReason */3);
                                         })
                                     }, "Reason"), React.createElement("input", {
                                       ref: (function (r) {
@@ -639,7 +640,7 @@ function make$1() {
                                       onClick: (function () {
                                           return Infix.$pipe$unknown$less(state[/* shareInput */4], (function (input) {
                                                         return Infix.$pipe$unknown$less(state[/* cm */1], (function (cm) {
-                                                                      var url = makeUrl(cm.getValue(), state[/* syntax */9], state[/* canvasSize */3]);
+                                                                      var url = makeUrl(cm.getValue(), state[/* syntax */10], state[/* canvasSize */3]);
                                                                       input.value = url;
                                                                       input.select();
                                                                       document.execCommand("copy");
@@ -658,7 +659,7 @@ function make$1() {
                                                         return Curry._1(send, /* CompletionSelected */Block.__(5, [item]));
                                                       };
                                                       var onClose = function () {
-                                                        return Curry._1(send, /* CompletionCleared */4);
+                                                        return Curry._1(send, /* CompletionCleared */5);
                                                       };
                                                       return Curry._2(Utils.registerComplete, cm, (function (cm) {
                                                                     return Curry._3(Utils.autoComplete, cm, onSelect, onClose);
@@ -669,7 +670,7 @@ function make$1() {
                                                   }));
                                     }),
                                   value: state[/* text */0]
-                                }), tmp, Infix.$pipe$unknown(Infix.$pipe$unknown$great(state[/* currentCompletion */8], (function (item) {
+                                }), tmp, Infix.$pipe$unknown(Infix.$pipe$unknown$great(state[/* currentCompletion */9], (function (item) {
                                         return Infix.$pipe$unknown$great$great(Js_primitive.null_undefined_to_opt(item.docs), (function (docs) {
                                                       return React.createElement("div", {
                                                                   className: Css.style(/* :: */[
@@ -744,7 +745,7 @@ function make$1() {
                                             ]
                                           ]),
                                       placeholder: "Search the docs inline",
-                                      value: state[/* searching */7],
+                                      value: state[/* searching */8],
                                       onChange: (function (evt) {
                                           return Curry._1(send, /* SetSearch */Block.__(6, [Utils.getInputValue(evt)]));
                                         })
@@ -826,29 +827,73 @@ function make$1() {
                                   className: Css.style(/* :: */[
                                         Css.whiteSpace(/* preWrap */660870029),
                                         /* :: */[
-                                          Css.width(/* `percent */[
-                                                -119887163,
-                                                100
-                                              ]),
+                                          Css.wordBreak(/* breakAll */-323760734),
                                           /* :: */[
-                                            Css.wordBreak(/* breakAll */-323760734),
+                                            Css.padding(Css.px(8)),
                                             /* :: */[
-                                              Css.padding(Css.px(8)),
+                                              Css.minHeight(Css.px(100)),
                                               /* :: */[
-                                                Css.maxHeight(Css.px(200)),
-                                                /* :: */[
-                                                  Css.minHeight(Css.px(100)),
-                                                  /* :: */[
-                                                    Css.overflow(/* auto */-1065951377),
-                                                    /* [] */0
+                                                Css.overflow(/* auto */-1065951377),
+                                                match$2 ? /* :: */[
+                                                    Css.position(/* absolute */-1013592457),
+                                                    /* :: */[
+                                                      Css.top(Css.px(50)),
+                                                      /* :: */[
+                                                        Css.bottom(Css.px(10)),
+                                                        /* :: */[
+                                                          Css.height(/* auto */-1065951377),
+                                                          /* :: */[
+                                                            Css.left(Css.px(5)),
+                                                            /* :: */[
+                                                              Css.right(Css.px(5)),
+                                                              /* :: */[
+                                                                Css.width(/* auto */-1065951377),
+                                                                /* [] */0
+                                                              ]
+                                                            ]
+                                                          ]
+                                                        ]
+                                                      ]
+                                                    ]
+                                                  ] : /* :: */[
+                                                    Css.maxHeight(Css.px(200)),
+                                                    /* :: */[
+                                                      Css.position(/* relative */903134412),
+                                                      /* :: */[
+                                                        Css.width(/* `percent */[
+                                                              -119887163,
+                                                              100
+                                                            ]),
+                                                        /* [] */0
+                                                      ]
+                                                    ]
                                                   ]
-                                                ]
                                               ]
                                             ]
                                           ]
                                         ]
                                       ])
-                                }, React.createElement("code", undefined, state[/* resultJs */6])), React.createElement("div", {
+                                }, React.createElement("div", {
+                                      className: Css.style(/* :: */[
+                                            Css.position(/* absolute */-1013592457),
+                                            /* :: */[
+                                              Css.top(Css.px(5)),
+                                              /* :: */[
+                                                Css.zIndex(100),
+                                                /* :: */[
+                                                  Css.cursor(/* pointer */-786317123),
+                                                  /* :: */[
+                                                    Css.right(Css.px(10)),
+                                                    /* [] */0
+                                                  ]
+                                                ]
+                                              ]
+                                            ]
+                                          ]),
+                                      onClick: (function () {
+                                          return Curry._1(send, /* ToggleJsExpand */0);
+                                        })
+                                    }, "⇱"), React.createElement("code", undefined, state[/* resultJs */6])), React.createElement("div", {
                                   className: line
                                 }), "Log output", React.createElement("div", {
                                   className: Css.style(/* :: */[
@@ -908,6 +953,7 @@ function make$1() {
                       /* shareInput : None */0,
                       /* logs : [] */0,
                       /* resultJs */"/* Evaluate to see generated js */",
+                      /* expandJs */false,
                       /* searching */"",
                       /* currentCompletion : None */0,
                       /* syntax */syntax,
@@ -926,15 +972,32 @@ function make$1() {
                         /* context */state[/* context */2],
                         /* canvasSize */state[/* canvasSize */3],
                         /* shareInput */state[/* shareInput */4],
-                        /* logs : [] */0,
+                        /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */state[/* searching */7],
-                        /* currentCompletion */state[/* currentCompletion */8],
-                        /* syntax */state[/* syntax */9],
-                        /* status */state[/* status */10]
+                        /* expandJs */!state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
                       ];
                       break;
                   case 1 : 
+                      tmp = /* record */[
+                        /* text */state[/* text */0],
+                        /* cm */state[/* cm */1],
+                        /* context */state[/* context */2],
+                        /* canvasSize */state[/* canvasSize */3],
+                        /* shareInput */state[/* shareInput */4],
+                        /* logs : [] */0,
+                        /* resultJs */state[/* resultJs */6],
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
+                      ];
+                      break;
+                  case 2 : 
                       tmp = Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
                                   var text = cm.getValue();
                                   try {
@@ -947,10 +1010,11 @@ function make$1() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
-                                            /* searching */state[/* searching */7],
-                                            /* currentCompletion */state[/* currentCompletion */8],
+                                            /* expandJs */state[/* expandJs */7],
+                                            /* searching */state[/* searching */8],
+                                            /* currentCompletion */state[/* currentCompletion */9],
                                             /* syntax : OCaml */0,
-                                            /* status */state[/* status */10]
+                                            /* status */state[/* status */11]
                                           ];
                                   }
                                   catch (exn){
@@ -962,15 +1026,16 @@ function make$1() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
-                                            /* searching */state[/* searching */7],
-                                            /* currentCompletion */state[/* currentCompletion */8],
-                                            /* syntax */state[/* syntax */9],
+                                            /* expandJs */state[/* expandJs */7],
+                                            /* searching */state[/* searching */8],
+                                            /* currentCompletion */state[/* currentCompletion */9],
+                                            /* syntax */state[/* syntax */10],
                                             /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                           ];
                                   }
                                 })), state);
                       break;
-                  case 2 : 
+                  case 3 : 
                       tmp = Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
                                   var text = cm.getValue();
                                   try {
@@ -983,10 +1048,11 @@ function make$1() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
-                                            /* searching */state[/* searching */7],
-                                            /* currentCompletion */state[/* currentCompletion */8],
+                                            /* expandJs */state[/* expandJs */7],
+                                            /* searching */state[/* searching */8],
+                                            /* currentCompletion */state[/* currentCompletion */9],
                                             /* syntax : Reason */1,
-                                            /* status */state[/* status */10]
+                                            /* status */state[/* status */11]
                                           ];
                                   }
                                   catch (exn){
@@ -998,15 +1064,16 @@ function make$1() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
-                                            /* searching */state[/* searching */7],
-                                            /* currentCompletion */state[/* currentCompletion */8],
-                                            /* syntax */state[/* syntax */9],
+                                            /* expandJs */state[/* expandJs */7],
+                                            /* searching */state[/* searching */8],
+                                            /* currentCompletion */state[/* currentCompletion */9],
+                                            /* syntax */state[/* syntax */10],
                                             /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                           ];
                                   }
                                 })), state);
                       break;
-                  case 3 : 
+                  case 4 : 
                       tmp = Infix.$pipe$unknown(Infix.$pipe$unknown$great$great(state[/* cm */1], (function (cm) {
                                   var text = cm.getValue();
                                   try {
@@ -1022,15 +1089,16 @@ function make$1() {
                                             /* shareInput */state[/* shareInput */4],
                                             /* logs */state[/* logs */5],
                                             /* resultJs */state[/* resultJs */6],
-                                            /* searching */state[/* searching */7],
-                                            /* currentCompletion */state[/* currentCompletion */8],
-                                            /* syntax */state[/* syntax */9],
+                                            /* expandJs */state[/* expandJs */7],
+                                            /* searching */state[/* searching */8],
+                                            /* currentCompletion */state[/* currentCompletion */9],
+                                            /* syntax */state[/* syntax */10],
                                             /* status : ParseFailure */Block.__(1, ["Syntax error"])
                                           ];
                                   }
                                 })), state);
                       break;
-                  case 4 : 
+                  case 5 : 
                       tmp = /* record */[
                         /* text */state[/* text */0],
                         /* cm */state[/* cm */1],
@@ -1039,10 +1107,11 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */state[/* searching */7],
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
                         /* currentCompletion : None */0,
-                        /* syntax */state[/* syntax */9],
-                        /* status */state[/* status */10]
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
                       ];
                       break;
                   
@@ -1058,10 +1127,11 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */state[/* searching */7],
-                        /* currentCompletion */state[/* currentCompletion */8],
-                        /* syntax */state[/* syntax */9],
-                        /* status */state[/* status */10]
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
                       ];
                       break;
                   case 1 : 
@@ -1078,10 +1148,11 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */state[/* searching */7],
-                        /* currentCompletion */state[/* currentCompletion */8],
-                        /* syntax */state[/* syntax */9],
-                        /* status */state[/* status */10]
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
                       ];
                       break;
                   case 2 : 
@@ -1093,9 +1164,10 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */action[0],
-                        /* searching */state[/* searching */7],
-                        /* currentCompletion */state[/* currentCompletion */8],
-                        /* syntax */state[/* syntax */9],
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
                         /* status : Clean */0
                       ];
                       break;
@@ -1108,10 +1180,11 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */state[/* searching */7],
-                        /* currentCompletion */state[/* currentCompletion */8],
-                        /* syntax */state[/* syntax */9],
-                        /* status */state[/* status */10]
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
                       ];
                       break;
                   case 4 : 
@@ -1129,10 +1202,11 @@ function make$1() {
                           state[/* logs */5]
                         ],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */state[/* searching */7],
-                        /* currentCompletion */state[/* currentCompletion */8],
-                        /* syntax */state[/* syntax */9],
-                        /* status */state[/* status */10]
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
                       ];
                       break;
                   case 5 : 
@@ -1144,10 +1218,11 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */state[/* searching */7],
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
                         /* currentCompletion : Some */[action[0]],
-                        /* syntax */state[/* syntax */9],
-                        /* status */state[/* status */10]
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
                       ];
                       break;
                   case 6 : 
@@ -1159,10 +1234,11 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
+                        /* expandJs */state[/* expandJs */7],
                         /* searching */action[0],
-                        /* currentCompletion */state[/* currentCompletion */8],
-                        /* syntax */state[/* syntax */9],
-                        /* status */state[/* status */10]
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
+                        /* status */state[/* status */11]
                       ];
                       break;
                   case 7 : 
@@ -1174,9 +1250,10 @@ function make$1() {
                         /* shareInput */state[/* shareInput */4],
                         /* logs */state[/* logs */5],
                         /* resultJs */state[/* resultJs */6],
-                        /* searching */state[/* searching */7],
-                        /* currentCompletion */state[/* currentCompletion */8],
-                        /* syntax */state[/* syntax */9],
+                        /* expandJs */state[/* expandJs */7],
+                        /* searching */state[/* searching */8],
+                        /* currentCompletion */state[/* currentCompletion */9],
+                        /* syntax */state[/* syntax */10],
                         /* status */action[0]
                       ];
                       break;
@@ -23092,7 +23169,6 @@ var autoComplete = (
         /* const last = 'make'
         const prefix = lident */
         name = match[2]
-        console.log('JSX', lident, labels, match, name)
 
         const opens  = findOpens(prev).reverse()
         const openPrefixes = {}
@@ -23341,7 +23417,6 @@ var registerComplete = (
           const builtin = lident.toLowerCase() === lident;
           const last = builtin ? 'props' : 'make'
           const prefix = builtin ? 'ReactDOMRe' : lident
-          console.log('JSX', lident, labels )
 
           const opens  = findOpens(prev).reverse()
           const openPrefixes = {}

@@ -455,7 +455,7 @@ module Main = {
 
             <div
               className=Css.(style([
-                position(`absolute),
+                /* position(`absolute), */
                 maxHeight(px(400)),
                 overflow(`auto),
                 bottom(zero),

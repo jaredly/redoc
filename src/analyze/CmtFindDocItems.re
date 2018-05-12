@@ -94,7 +94,7 @@ let rec docItemsFromStructure = (parseDoc, structure) => {
       (global, items)
     } else {
       let (docc, contents) = moduleContentsStr(parseDoc, mb_expr);
-      (global, [(txt, docc, Module(contents)), ...items])
+      (global, [(txt, either(docc, findDocAttribute(parseDoc, mb_attributes)), Module(contents)), ...items])
     }
   }
   | _ => (global, items)

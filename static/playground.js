@@ -674,27 +674,24 @@ function make$1() {
                                         return Infix.$pipe$unknown$great$great(Js_primitive.null_undefined_to_opt(item.docs), (function (docs) {
                                                       return React.createElement("div", {
                                                                   className: Css.style(/* :: */[
-                                                                        Css.position(/* absolute */-1013592457),
+                                                                        Css.maxHeight(Css.px(400)),
                                                                         /* :: */[
-                                                                          Css.maxHeight(Css.px(400)),
+                                                                          Css.overflow(/* auto */-1065951377),
                                                                           /* :: */[
-                                                                            Css.overflow(/* auto */-1065951377),
+                                                                            Css.bottom(Css.zero),
                                                                             /* :: */[
-                                                                              Css.bottom(Css.zero),
+                                                                              Css.left(Css.zero),
                                                                               /* :: */[
-                                                                                Css.left(Css.zero),
+                                                                                Css.right(Css.zero),
                                                                                 /* :: */[
-                                                                                  Css.right(Css.zero),
+                                                                                  Css.padding2(Css.px(8), Css.px(16)),
                                                                                   /* :: */[
-                                                                                    Css.padding2(Css.px(8), Css.px(16)),
+                                                                                    Css.backgroundColor(Css.white),
                                                                                     /* :: */[
-                                                                                      Css.backgroundColor(Css.white),
+                                                                                      Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
                                                                                       /* :: */[
-                                                                                        Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
-                                                                                        /* :: */[
-                                                                                          Css.zIndex(1000),
-                                                                                          /* [] */0
-                                                                                        ]
+                                                                                        Css.zIndex(1000),
+                                                                                        /* [] */0
                                                                                       ]
                                                                                     ]
                                                                                   ]

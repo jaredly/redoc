@@ -210,6 +210,7 @@ module Model = {
     custom: list(customPage),
     sidebar: option(list(sidebar)),
     modules: list(topModule),
+    canBundle: bool,
 
     /* For compiling snippets */
     namespaced: bool,
@@ -240,12 +241,20 @@ module Model = {
 module Input = {
   type env = {
     static: string,
+    debug: bool,
   };
+
+  let indent = t => "  " ++ Str.global_replace(Str.regexp_string("\n"), "\n  ", t);
+  let showOption = (value, f) => switch value { | None => "(none)" | Some(v) => f(v) };
+  let showOptionString = v => showOption(v, s => s);
+  let showEnv = ({static, debug}) => Printf.sprintf("static: %S\ndebug: %B", static, debug);
 
   type meta = {
     packageName: string,
     repo: option(string),
   };
+
+  let showMeta = ({packageName, repo}) => Printf.sprintf("packageName: %S\nrepo: %S", packageName, showOptionString(repo));
 
   type packageInput = {
     root: string,
@@ -259,7 +268,31 @@ module Input = {
     moduleFiles: list((string, string)),
     defaultCodeOptions: option(Model.codeOptions),
     namespaced: bool,
+    canBundle: bool,
   };
+
+  let showPackageInput = ({root, meta, backend, sidebarFile, customFiles, moduleFiles, defaultCodeOptions, namespaced}) => Printf.sprintf(
+    {|root: %S
+meta:
+%s
+
+backend: (TODO)
+sidebarFile: %S
+customFiles:
+%s
+moduleFiles:
+%s
+|},
+    root,
+    showMeta(meta) |> indent,
+    sidebarFile |> showOptionString,
+    customFiles |> List.map(
+      ((absMd, relPath, absDest)) => Printf.sprintf("  abs-md: %S  rel-src: %S  abs-dest: %S", absMd, showOptionString(relPath), absDest)
+    ) |> String.concat("\n"),
+    moduleFiles |> List.map(
+      ((absCmt, relPath)) => Printf.sprintf("  abs-cmt: %S  rel-src: %S", absCmt, relPath)
+    ) |> String.concat("\n")
+  );
 
   type target = {
     directory: string,
@@ -275,4 +308,6 @@ module Input = {
     packageInput,
     env,
   };
+
+  let show = ({target, packageInput, env}) => showPackageInput(packageInput) ++ "\nenv:\n" ++ indent(showEnv(env));
 };

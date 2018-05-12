@@ -78,9 +78,10 @@ let processCmt = (name, cmt, isMl) => {
   };
 };
 
-let processModules = moduleFiles => {
+let processModules = (~namespaced, moduleFiles) => {
   moduleFiles |> List.map(((cmt, sourcePath)) => {
     let name = Filename.basename(cmt) |> Filename.chop_extension |> String.capitalize;
+    let name = namespaced ? List.hd(Str.split(Str.regexp_string("-"), name)) : name;
     let isMl = Filename.check_suffix(sourcePath, ".ml") || Filename.check_suffix(sourcePath, ".mli");
     let (stamps, topDocs, items) = processCmt(name, cmt, isMl);
     {
@@ -93,15 +94,16 @@ let processModules = moduleFiles => {
   });
 };
 
-let package = ({State.Input.meta: {packageName, repo}, defaultCodeOptions, backend, root, sidebarFile, customFiles, moduleFiles}) => {
+let package = (~namespaced, ~canBundle, {State.Input.meta: {packageName, repo}, defaultCodeOptions, backend, root, sidebarFile, customFiles, moduleFiles}) => {
   {
     name: packageName,
     repo,
     sidebar: sidebarFile |?>> parseSidebar,
     custom: List.map(parseCustom(root), customFiles),
-    namespaced: false, /* TODO */
+    namespaced,
+    canBundle,
     backend,
     defaultCodeOptions,
-    modules: processModules(moduleFiles),
+    modules: processModules(~namespaced, moduleFiles),
   }
 };

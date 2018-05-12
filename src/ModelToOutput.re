@@ -220,7 +220,7 @@ let makeCodeBlocksMap = codeBlocks => {
 };
 
 let searchHref = (names, doc) => {
-  switch (Docs.formatHref("", names, doc)) {
+  switch (Docs.formatHref(~warnMissing=false, "", names, doc)) {
   | None => None
   | Some(href) => Some("./api/" ++ href)
   }

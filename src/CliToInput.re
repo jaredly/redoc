@@ -121,7 +121,12 @@ let isSourceFile = name =>
   || Filename.check_suffix(name, ".ml")
   || Filename.check_suffix(name, ".mli");
 
-let compiledName = name => Filename.chop_extension(name) ++ (name.[String.length(name) - 1] == 'i' ? ".cmti" : ".cmt");
+let compiledNameSpace = name => Str.split(Str.regexp_string("-"), name) |> List.map(String.capitalize) |> String.concat("");
+
+let compiledName = (~namespace, name) =>
+  Filename.chop_extension(name)
+  ++ (switch namespace { | None => "" | Some(n) => "-" ++ compiledNameSpace(n) })
+  ++ (name.[String.length(name) - 1] == 'i' ? ".cmti" : ".cmt");
 
 let getName = x => Filename.basename(x) |> Filename.chop_extension;
 let filterDuplicates = cmts => {
@@ -135,8 +140,14 @@ let filterDuplicates = cmts => {
   });
 };
 
+let ifDebug = (debug, name, fn, v) => {
+  if (debug) {
+    print_endline(name ++ ": " ++ fn(v))
+  };
+  v
+};
 
-let findProjectFiles = root => {
+let findProjectFiles = (~debug, ~namespace, root) => {
   let config = Json.parse(Files.readFile(root /+ "bsconfig.json") |! "No bsconfig.json found");
   let isNative = isNative(config);
   let compiledBase = oneShouldExist("Cannot find directory for compiled artifacts.",
@@ -145,15 +156,22 @@ let findProjectFiles = root => {
       : [root /+ "lib/bs", root /+ "lib/ocaml"]
   );
   getSourceDirectories(root, config)
+  |> ifDebug(debug, "Source directories from bsconfig", items => String.concat("\n", items))
   |> List.map(Infix.fileConcat(root))
-  |> List.map(name => Files.collect(name, isSourceFile))
+  |> List.sort(compare)
+  |> ifDebug(debug, "With root", items => String.concat("\n", items))
+  |> List.map(name => Files.collect(name, isSourceFile) |> List.sort(compare))
   |> List.concat
+  |> ifDebug(debug, "Source files found", String.concat(" : "))
   |> filterDuplicates
   |> List.map(path => {
     let rel = Files.relpath(root, path);
-    (compiledBase /+ compiledName(rel), rel)
-  }) |> List.filter(((full, rel)) => Files.exists(full))
+    (compiledBase /+ compiledName(~namespace, rel), rel)
+  })
+  |> ifDebug(debug, "With compiled base", (items) =>String.concat("\n", List.map(((a, b)) => a ++ " : " ++ b, items)))
+  |> List.filter(((full, rel)) => Files.exists(full))
 };
+
 
 let findDependencyDirectories = root => {
   let config = Json.parse(Files.readFile(root /+ "bsconfig.json") |! "No bsconfig.json found");
@@ -193,6 +211,8 @@ Usage: docre [options]
       specified as /abs/path/to/.cmt:rel/path/from/repo/root
   --skip-stdlib-completions
       don't include completions for the stdlib in the playground
+  --no-bundle
+      don't bundle the code examples. This disables editor support
   --ignore-code-errors
       don't print warnings about parse & type errors in code blocks
   --project-directory
@@ -206,6 +226,11 @@ Usage: docre [options]
       assume code snippets are in ocaml syntax, not reason
   -h, --help
       print this help
+
+  --just-input
+      just parse the options & show the debug output of parsing cli args
+  --debug
+      output debugging information
 |};
 
 let fail = (msg) => {
@@ -215,8 +240,14 @@ let fail = (msg) => {
 };
 
 let parse = Minimist.parse(
-  ~alias=[("h", "help"), ("test", "doctest")],
-  ~presence=["help", "doctest", "ml", "ignore-code-errors", "skip-stdlib-completions"],
+  ~alias=[("h", "help"), ("test", "doctest"), ("d", "debug")],
+  ~presence=[
+    "help", "doctest", "ml",
+    "ignore-code-errors",
+    "skip-stdlib-completions",
+    "debug", "just-input",
+    "no-bundle",
+  ],
   ~multi=["project-file", "dependency-directory", "project-directory"],
   ~strings=["target", "root", "name", "bs-root"]
 );
@@ -280,9 +311,13 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
 
   let packageJson = Files.ifExists(root /+ "package.json") |?>> (Files.readFile |.! "Unable to read package.json") |?>> Json.parse;
   let static = Filename.dirname(selfPath) /+ "../../../static";
+  let debug = has("debug", presence);
+  let bsConfig = Files.readFile(root /+ "bsconfig.json") |?>> (contents => Json.parse(contents));
+  let namespaced = bsConfig |?> Json.get("namespace") |?> Json.bool |? false;
   {
     env: {
-      static: static
+      static: static,
+      debug,
     },
     target: {
       directory: target,
@@ -300,7 +335,8 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
         lang: OCaml
       }) : None,
       root,
-      namespaced: Files.readFile(root /+ "bsconfig.json") |?> (contents => Json.parse(contents) |> Json.get("namespace") |?> Json.bool) |? false,
+      namespaced,
+      canBundle: has("no-bundle", presence) ? false : true,
       backend: (packageJson |?> getPackageJsonName |?> packageJsonName => bsRoot |?> bsRoot => refmt |?>> refmt => State.Bucklescript({
         let version = getBsbVersion(bsRoot);
         {
@@ -317,7 +353,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
       })) |? NoBackend,
       sidebarFile: None,
       customFiles: findMarkdownFiles(projectName, target, root),
-      moduleFiles: projectFiles == [] ? findProjectFiles(root) : projectFiles,
+      moduleFiles: projectFiles == [] ? findProjectFiles(~debug, ~namespace=namespaced ? Some(projectName) : None, root) : projectFiles,
     },
   };
 };
@@ -335,7 +371,15 @@ let parse = argv => {
       print_endline(help);
       exit(0);
     } else {
-      optsToInput(selfPath, opts)
+      let input = optsToInput(selfPath, opts);
+      if (input.env.debug) {
+        print_endline(State.Input.show(input))
+      };
+      if (Minimist.has("just-input", opts.presence)) {
+        exit(0);
+      } else {
+        input
+      }
     }
   }
   }

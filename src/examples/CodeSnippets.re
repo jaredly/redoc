@@ -115,18 +115,24 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
 
   let syntax = options.lang == State.Model.OCaml ? "ml" : "re";
 
-  let after = switch status {
-  | Skipped => ""
-  | ParseError(text) => sprintf("<div class='parse-error'>Parse Error:\n%s</div>", html(text))
-  | TypeError(text, _) => sprintf("<div class='type-error'>Type Error:\n%s</div>", html(text))
-  | Success(cmt, js) => !shouldBundle(options.expectation) ? "" : Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%s'>%s</script>|},
-      switch options.context {
-      | Node => ""
-      | _ => sprintf({|<div data-block-id='%s' data-context=%S data-block-syntax=%S class='block-target'></div>|}, id, contextString(options.context),     syntax)
-      },
-      id,
-      bundle(js)
-    )
+  let (after, editingEnabled) = switch status {
+  | Skipped => ("", false)
+  | ParseError(text) => (sprintf("<div class='parse-error'>Parse Error:\n%s</div>", html(text)), editingEnabled)
+  | TypeError(text, _) => (sprintf("<div class='type-error'>Type Error:\n%s</div>", html(text)), editingEnabled)
+  | Success(cmt, js) => (!editingEnabled || !shouldBundle(options.expectation)) ? ("", false) : {
+    switch (bundle(js)) {
+    | None => ("", false)
+    | Some(compiledJs) =>
+      (Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%s'>%s</script>|},
+        switch options.context {
+        | Node => ""
+        | _ => sprintf({|<div data-block-id='%s' data-context=%S data-block-syntax=%S class='block-target'></div>|}, id, contextString(options.context),     syntax)
+        },
+        id,
+        compiledJs
+      ), editingEnabled)
+    }
+    }
   };
 
   let preCode = pre == "" ? "" : "<div class='code-pre'>" ++ html(pre) ++ "</div>";

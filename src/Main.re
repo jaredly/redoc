@@ -15,14 +15,18 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
     ~base=packageRoot
   );
   let jsFiles = ref([]);
+
+  let editingEnabled = browserCompilerPath != None && package.Model.canBundle;
+  print_endline(Printf.sprintf("EditingEnabled %B", editingEnabled));
+
   let codeBlocks = ProcessCode.codeFromPackage(package) |> List.mapi(CompileCode.block(
-    ~editingEnabled=browserCompilerPath != None,
+    ~editingEnabled,
     ~bundle=js => {
       jsFiles := [js, ...jsFiles^];
-      let res = try(pack(~mode=Packre.Types.ExternalEverything, [js])) {
-      | Failure(message) => "alert('Failed to bundle " ++ message ++ "')"
-      };
-      res
+      try(Some(pack(~mode=Packre.Types.ExternalEverything, [js]))) {
+      | Failure(message) => None
+      /* "alert('Failed to bundle " ++ message ++ "')" */
+      }
     },
     bucklescript,
     package
@@ -32,30 +36,35 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
   let stdlib = bucklescript.bsRoot /+ "lib/js";
   let stdlibRequires = Files.exists(stdlib) ? (Files.readDirectory(stdlib) |> List.filter(invert(startsWith("node_"))) |> List.map(name => stdlib /+ name)) : [];
 
-  let bundles = if (jsFiles != []) {
-    let runtimeDeps = try (pack(
+  let bundles = if (jsFiles != [] && editingEnabled) {
+    let runtimeDeps = try (Some(pack(
       ~mode=Packre.Types.JustExternals,
       ~extraRequires=stdlibRequires,
       jsFiles
-    )) {
+    ))) {
       | Failure(message) => {
         print_endline("Failed to bundle!!! " ++ message);
-        "alert('Failed to bundle " ++ message ++ "')"
+        /* "alert('Failed to bundle " ++ message ++ "')" */
+        None
       }
     };
-    let compilerDeps = browserCompilerPath |?>> browserCompilerPath => {
-      let buffer = Buffer.create(10000);
-      /* TODO maybe write directly to the target? This indirection might not be worth it. */
-      CodeSnippets.writeDeps(
-        ~output_string=Buffer.add_string(buffer),
-        ~dependencyDirs=bucklescript.compiledDependencyDirectories,
-        ~stdlibRequires,
-        ~bsRoot=bucklescript.bsRoot,
-        ~base=packageRoot
-      );
-      (browserCompilerPath, buffer)
-    };
-    Some((runtimeDeps, compilerDeps));
+    switch runtimeDeps {
+    | None => None
+    | Some(runtimeDeps) =>
+      let compilerDeps = browserCompilerPath |?>> browserCompilerPath => {
+        let buffer = Buffer.create(10000);
+        /* TODO maybe write directly to the target? This indirection might not be worth it. */
+        CodeSnippets.writeDeps(
+          ~output_string=Buffer.add_string(buffer),
+          ~dependencyDirs=bucklescript.compiledDependencyDirectories,
+          ~stdlibRequires,
+          ~bsRoot=bucklescript.bsRoot,
+          ~base=packageRoot
+        );
+        (browserCompilerPath, buffer)
+      };
+      Some((runtimeDeps, compilerDeps));
+    }
   } else {
     None
   };
@@ -90,7 +99,7 @@ let compilePackage = (package) => {
 let main = () => {
   let input = CliToInput.parse(Sys.argv);
   print_endline("<<< Converting input to model!");
-  let package = InputToModel.package(input.Input.packageInput);
+  let package = InputToModel.package(~canBundle=input.Input.packageInput.canBundle, ~namespaced=input.Input.packageInput.namespaced, input.Input.packageInput);
   print_endline("<<< Compiling!");
   let compilationResults = compilePackage(package);
   print_endline("<<< Compiled!");

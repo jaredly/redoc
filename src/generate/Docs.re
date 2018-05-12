@@ -1,12 +1,14 @@
 
 let allGlobals = ["int", "float", "string", "list", "option", "bool", "unit", "array", "char", "int64"];
 
-let formatHref = (name, projectNames, (modName, inner, ptype)) => {
+let formatHref = (~warnMissing, name, projectNames, (modName, inner, ptype)) => {
   let modName = if (modName == "<global>") {
     switch inner {
     | [name] when List.mem(name, allGlobals) => "globals"
     | _ => {
-      print_endline("Cant find " ++ GenerateDoc.makeId(inner, ptype) ++ " in " ++ modName);
+      if (warnMissing) {
+        print_endline("Cant find " ++ GenerateDoc.makeId(inner, ptype) ++ " in " ++ modName);
+      };
       "globals"
     }
     }
@@ -56,7 +58,7 @@ let generate = (~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~processDocStri
   | Some(doc) => doc
   };
 
-  let printer = GenerateDoc.printer(formatHref(name, projectNames), stamps);
+  let printer = GenerateDoc.printer(formatHref(~warnMissing=false, name, projectNames), stamps);
   let (html, tocs) = GenerateDoc.docsForModule(printer, processDocString, [], 0, name, mainMarkdown, allDocs);
 
   let projectListing = projectNames |> List.map(name => (name ++ ".html", name));

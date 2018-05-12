@@ -96,7 +96,7 @@ let resolveShared = codeBlocks => {
   processed;
 };
 
-let openPrefix = (syntax, name) => "#open " ++ name ++ (syntax == State.Model.OCaml ? "" : ";") ++ "\n";
+let openPrefix = (syntax, name) => "#open " ++ name ++ (syntax == State.Model.OCaml ? ";;" : ";") ++ "\n";
 let otherSyntax = syntax => syntax == State.Model.OCaml ? State.Model.Reason : State.Model.OCaml;
 
 let codeFromPackage = ({

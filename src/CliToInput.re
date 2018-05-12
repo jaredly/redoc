@@ -97,10 +97,10 @@ let getDependencyDirs = (base, config) => {
           : [loc /+ "lib/bs", loc /+ "lib/ocaml"]
       );
       if (List.mem("js", allowedKinds)) {
-        getSourceDirectories(loc, inner) |> List.map(name => (
+        [(compiledBase, loc /+ "lib/js"), ...(getSourceDirectories(loc, inner) |> List.map(name => (
           compiledBase /+ name,
           loc /+ "lib/js" /+ name,
-        ));
+        )))];
       } else {
         []
       }

@@ -45,6 +45,7 @@ let withSections = (transformer, code) => {
 open State.Model;
 
 let block = (
+  ~debug,
   ~editingEnabled,
   ~bundle,
   {State.bsRoot, refmt, tmp, compiledDependencyDirectories, browserCompilerPath, silentFailures},
@@ -57,6 +58,7 @@ let block = (
   let comment = options.lang == OCaml ? "(* " ++ name ++ " *)" : "/* " ++ name ++ " */";
   let plainContent = CodeSnippets.removeHashes(fullContent);
   let compilationResult = CodeSnippets.processBlock(
+    ~debug,
     ~silentFailures=silentFailures,
     bsRoot, tmp,
     name, refmt,
@@ -73,6 +75,7 @@ let block = (
     let comment = altOptions.lang == OCaml ? "(* " ++ name ++ " *)" : "/* " ++ name ++ " */";
     let plainContent = CodeSnippets.removeHashes(fullContent);
     let compilationResult = CodeSnippets.processBlock(
+      ~debug,
       ~silentFailures,
       bsRoot, tmp,
       altName, refmt,
@@ -89,6 +92,7 @@ let block = (
     | TypeError(_, _) | Success(_, _) => {
         let altContent = options.lang == OCaml ? toReason(refmt, plainContent) : toMl(refmt, bsRoot, tmp, name, plainContent);
         let compilationResult = CodeSnippets.processBlock(
+          ~debug,
           ~silentFailures,
           bsRoot, tmp,
           altName, refmt,

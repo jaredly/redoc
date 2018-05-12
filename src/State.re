@@ -40,6 +40,10 @@ I want to mess with the sidebar to allow showing more or less of each section
 
 */
 
+let indent = t => "  " ++ Str.global_replace(Str.regexp_string("\n"), "\n  ", t);
+let showOption = (value, f) => switch value { | None => "(none)" | Some(v) => f(v) };
+let showOptionString = v => showOption(v, s => s);
+
 type bucklescriptOptions = {
   packageRoot: string,
   bsRoot: string,
@@ -53,7 +57,30 @@ type bucklescriptOptions = {
   packageJsonName: string,
 };
 
+let showBucklescriptOptions = ({
+  packageRoot,
+  bsRoot,
+  refmt,
+  version,
+  browserCompilerPath,
+  silentFailures,
+  tmp,
+  compiledDependencyDirectories,
+  packageJsonName,
+}) => Printf.sprintf({|packgeRoot: %s
+bsRoot: %s
+compiledDependencyDirectories:
+%s
+|}, packageRoot, bsRoot,
+  compiledDependencyDirectories |> List.map(((cmt, js)) => "  " ++ cmt ++ " : " ++ js) |> String.concat("\n")
+);
+
 type backend = NoBackend | Bucklescript(bucklescriptOptions);
+
+let showBackend = backend => switch backend {
+| NoBackend => "no backend"
+| Bucklescript(options) => showBucklescriptOptions(options)
+};
 
 module Model = {
   type codeContext = Normal | Node | Window | Iframe | Canvas | Div | Log;
@@ -244,9 +271,6 @@ module Input = {
     debug: bool,
   };
 
-  let indent = t => "  " ++ Str.global_replace(Str.regexp_string("\n"), "\n  ", t);
-  let showOption = (value, f) => switch value { | None => "(none)" | Some(v) => f(v) };
-  let showOptionString = v => showOption(v, s => s);
   let showEnv = ({static, debug}) => Printf.sprintf("static: %S\ndebug: %B", static, debug);
 
   type meta = {
@@ -276,7 +300,8 @@ module Input = {
 meta:
 %s
 
-backend: (TODO)
+backend:
+%s
 sidebarFile: %S
 customFiles:
 %s
@@ -285,6 +310,7 @@ moduleFiles:
 |},
     root,
     showMeta(meta) |> indent,
+    showBackend(backend) |> indent,
     sidebarFile |> showOptionString,
     customFiles |> List.map(
       ((absMd, relPath, absDest)) => Printf.sprintf("  abs-md: %S  rel-src: %S  abs-dest: %S", absMd, showOptionString(relPath), absDest)

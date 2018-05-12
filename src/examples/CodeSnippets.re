@@ -342,7 +342,7 @@ let justBscCommand = (base, sourceFile, includes) => {
   )
 };
 
-let processBlock = (~silentFailures=false, bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs) => {
+let processBlock = (~debug=false, ~silentFailures=false, bsRoot, tmp, name, refmt, options, reasonContent, dependencyDirs) => {
   let re = tmp /+ name ++ ".re";
   let cmt = tmp /+ name ++ ".re_ppx.cmt";
   let js = tmp /+ name ++ ".re_ppx.js";
@@ -350,8 +350,12 @@ let processBlock = (~silentFailures=false, bsRoot, tmp, name, refmt, options, re
 
   Files.writeFile(re, reasonContent) |> ignore;
 
-  let cmd = refmtCommand(bsRoot, re, refmt, options.lang == OCaml ? "ml" : "re");
-  let (output, err, success) = Commands.execFull(cmd);
+  let parseCmd = refmtCommand(bsRoot, re, refmt, options.lang == OCaml ? "ml" : "re");
+  if (debug) {
+    print_endline(name);
+    print_endline("  parse: " ++ parseCmd);
+  };
+  let (output, err, success) = Commands.execFull(parseCmd);
   open State.Model;
   if (!success && options.inferred) {
     /* If we inferred that it was code, but it didn't parse, then assume it wasn't code. */
@@ -369,6 +373,9 @@ let processBlock = (~silentFailures=false, bsRoot, tmp, name, refmt, options, re
   } else {
     let includes = dependencyDirs;
     let cmd = justBscCommand(bsRoot, re ++ "_ppx.ast", includes);
+    if (debug) {
+      print_endline("  bsc:   " ++ cmd);
+    };
     let (output, err, success) = Commands.execFull(cmd);
     if (!success) {
       let out = String.concat("\n", output) ++ String.concat("\n", err);

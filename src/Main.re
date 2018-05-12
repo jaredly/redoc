@@ -8,7 +8,7 @@ let startsWith = (prefix, string) => {
 };
 let invert = (f, a) => !f(a);
 
-let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerPath} as bucklescript, package) => {
+let compileBucklescript = (~debug, {State.packageRoot, packageJsonName, browserCompilerPath} as bucklescript, package) => {
   Files.mkdirp(bucklescript.State.tmp);
   let pack = Packre.Pack.process(
     ~renames=[(packageJsonName, packageRoot)],
@@ -17,9 +17,9 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
   let jsFiles = ref([]);
 
   let editingEnabled = browserCompilerPath != None && package.Model.canBundle;
-  print_endline(Printf.sprintf("EditingEnabled %B", editingEnabled));
 
   let codeBlocks = ProcessCode.codeFromPackage(package) |> List.mapi(CompileCode.block(
+    ~debug,
     ~editingEnabled,
     ~bundle=js => {
       jsFiles := [js, ...jsFiles^];
@@ -43,9 +43,11 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
       jsFiles
     ))) {
       | Failure(message) => {
-        print_endline("Failed to bundle!!! " ++ message);
-        /* "alert('Failed to bundle " ++ message ++ "')" */
-        None
+        print_newline();
+        print_endline(message);
+        print_newline();
+        print_endline("Failed to bundle!!! Pass --no-bundle to acknowledge that editing & interactive codeblocks & the playground will be disabled.");
+        exit(1);
       }
     };
     switch runtimeDeps {
@@ -72,12 +74,12 @@ let compileBucklescript = ({State.packageRoot, packageJsonName, browserCompilerP
   (codeBlocks, bundles)
 };
 
-let compilePackage = (package) => {
+let compilePackage = (~debug, package) => {
   open Model;
   switch package.backend {
   | NoBackend => None
   | Bucklescript(bucklescript) => {
-    let (codeBlocks, bundles) = compileBucklescript(bucklescript, package);
+    let (codeBlocks, bundles) = compileBucklescript(~debug, bucklescript, package);
     let (parseFail, typeFail, good, skip) = List.fold_left(
       (((parse, typ, good, skip), {langLine, raw, page, filePath, compilationResult}) => {
         switch compilationResult {
@@ -101,7 +103,7 @@ let main = () => {
   print_endline("<<< Converting input to model!");
   let package = InputToModel.package(~canBundle=input.Input.packageInput.canBundle, ~namespaced=input.Input.packageInput.namespaced, input.Input.packageInput);
   print_endline("<<< Compiling!");
-  let compilationResults = compilePackage(package);
+  let compilationResults = compilePackage(~debug=input.Input.env.debug, package);
   print_endline("<<< Compiled!");
   /* outputPackage(package, allCodeBlocks, input.Input.target); */
   ModelToOutput.package(package, compilationResults, input.Input.target, input.Input.env);

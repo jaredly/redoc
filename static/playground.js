@@ -13,16 +13,17 @@ var Curry = require(4);
 var Infix = require(63);
 var Utils = require(79);
 var React = require(80);
+var Bundle = require(87);
 var Js_exn = require(62);
 var Caml_obj = require(7);
-var LzString = require(87);
+var LzString = require(91);
 var Caml_array = require(5);
-var ReactDOMRe = require(88);
+var ReactDOMRe = require(92);
 var Caml_format = require(13);
-var ReasonReact = require(98);
-var Js_primitive = require(100);
+var ReasonReact = require(102);
+var Js_primitive = require(104);
 var Caml_primitive = require(9);
-var ExamplesDropdown = require(101);
+var ExamplesDropdown = require(105);
 var Caml_builtin_exceptions = require(6);
 
 Css.$$global(".CodeMirror", /* :: */[
@@ -72,7 +73,7 @@ var previewPane = Css.style(/* :: */[
           /* :: */[
             Css.alignItems(/* center */98248149),
             /* :: */[
-              Css.minWidth(Css.px(300)),
+              Css.minWidth(Css.px(500)),
               /* :: */[
                 Css.overflow(/* auto */-1065951377),
                 /* :: */[
@@ -459,6 +460,283 @@ var HighlightResult = /* module */[
   /* make */make
 ];
 
+function previewPane$1(toggleExpand, canvasSize, onChange, clearSearch, onChangeCanvas, searching, expandJs, resultJs, logs) {
+  var match = searching !== "";
+  var match$1 = searching !== "";
+  var tmp;
+  if (match$1) {
+    var results = Utils.searchIndex(searching).slice(0, 20);
+    var results$1 = $$Array.mapi((function (i, result) {
+            return React.createElement("div", {
+                        key: String(i),
+                        className: "result"
+                      }, React.createElement("div", {
+                            className: Css.style(/* :: */[
+                                  Css.display(/* flex */-1010954439),
+                                  /* :: */[
+                                    Css.justifyContent(/* spaceBetween */516682146),
+                                    /* [] */0
+                                  ]
+                                ])
+                          }, React.createElement("div", {
+                                className: "title"
+                              }, result.doc.title), React.createElement("div", {
+                                className: "breadcrumb"
+                              }, result.doc.breadcrumb)), ReasonReact.element(/* None */0, /* None */0, make(result.doc.rendered, searching.split((/\s+/g)), /* array */[])));
+          }), results);
+    tmp = React.createElement("div", {
+          className: Css.style(/* :: */[
+                Css.position(/* absolute */-1013592457),
+                /* :: */[
+                  Css.top(Css.px(50)),
+                  /* :: */[
+                    Css.bottom(Css.zero),
+                    /* :: */[
+                      Css.overflow(/* auto */-1065951377),
+                      /* :: */[
+                        Css.left(Css.zero),
+                        /* :: */[
+                          Css.right(Css.zero),
+                          /* :: */[
+                            Css.backgroundColor(Css.white),
+                            /* [] */0
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ])
+        }, Caml_obj.caml_equal(results$1, /* array */[]) ? "No results" : results$1);
+  } else {
+    tmp = null;
+  }
+  return React.createElement("div", {
+              className: previewPane,
+              style: {
+                width: String(canvasSize) + "px"
+              }
+            }, React.createElement("div", {
+                  className: Css.style(/* :: */[
+                        Css.position(/* relative */903134412),
+                        /* :: */[
+                          Css.alignSelf(/* stretch */-162316795),
+                          /* [] */0
+                        ]
+                      ])
+                }, React.createElement("input", {
+                      className: Css.style(/* :: */[
+                            Css.border(Css.px(1), /* solid */12956715, Css.hex("ccc")),
+                            /* :: */[
+                              Css.padding2(Css.px(8), Css.px(16)),
+                              /* :: */[
+                                Css.borderStyle(/* none */-922086728),
+                                /* :: */[
+                                  Css.width(/* `percent */[
+                                        -119887163,
+                                        100
+                                      ]),
+                                  /* :: */[
+                                    Css.boxSizing(/* borderBox */9307263),
+                                    /* [] */0
+                                  ]
+                                ]
+                              ]
+                            ]
+                          ]),
+                      placeholder: "Search the docs inline",
+                      value: searching,
+                      onChange: onChange
+                    }), match ? React.createElement("button", {
+                        className: Css.style(/* :: */[
+                              Css.position(/* absolute */-1013592457),
+                              /* :: */[
+                                Css.top(Css.px(5)),
+                                /* :: */[
+                                  Css.right(Css.px(5)),
+                                  /* :: */[
+                                    Css.fontSize(Css.px(16)),
+                                    /* :: */[
+                                      Css.fontWeight(600),
+                                      /* :: */[
+                                        Css.borderStyle(/* none */-922086728),
+                                        /* :: */[
+                                          Css.cursor(/* pointer */-786317123),
+                                          /* :: */[
+                                            Css.zIndex(20),
+                                            /* [] */0
+                                          ]
+                                        ]
+                                      ]
+                                    ]
+                                  ]
+                                ]
+                              ]
+                            ]),
+                        onClick: (function () {
+                            return Curry._1(clearSearch, /* () */0);
+                          })
+                      }, "x") : null), React.createElement("div", undefined, React.createElement("h1", {
+                      className: Css.style(/* :: */[
+                            Css.fontSize(Css.px(30)),
+                            /* :: */[
+                              Css.lineHeight(1.1),
+                              /* :: */[
+                                Css.textAlign(/* center */98248149),
+                                /* [] */0
+                              ]
+                            ]
+                          ])
+                    }, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
+                  className: line
+                }), React.createElement("div", undefined, "A", React.createElement("input", {
+                      className: Css.style(/* :: */[
+                            Css.width(Css.px(40)),
+                            /* [] */0
+                          ]),
+                      type: "number",
+                      value: String(canvasSize),
+                      onChange: onChangeCanvas
+                    }), "x " + (String(canvasSize) + " canvas w/ id #canvas")), React.createElement("canvas", {
+                  className: canvas,
+                  id: "canvas",
+                  height: String(canvasSize) + "px",
+                  width: String(canvasSize) + "px"
+                }), React.createElement("div", {
+                  className: line
+                }), React.createElement("div", undefined, "A div w/ id #target"), React.createElement("div", {
+                  className: Css.style(/* :: */[
+                        Css.padding2(Css.px(4), Css.px(8)),
+                        /* :: */[
+                          Css.margin2(Css.px(8), Css.zero),
+                          /* :: */[
+                            Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
+                            /* [] */0
+                          ]
+                        ]
+                      ])
+                }, React.createElement("div", {
+                      id: "target"
+                    }, "Render to #target to replace this content")), React.createElement("div", {
+                  className: line
+                }), "The Javascript Output", React.createElement("pre", {
+                  className: Css.style(/* :: */[
+                        Css.whiteSpace(/* preWrap */660870029),
+                        /* :: */[
+                          Css.wordBreak(/* breakAll */-323760734),
+                          /* :: */[
+                            Css.padding(Css.px(8)),
+                            /* :: */[
+                              Css.minHeight(Css.px(100)),
+                              /* :: */[
+                                Css.overflow(/* auto */-1065951377),
+                                expandJs ? /* :: */[
+                                    Css.position(/* absolute */-1013592457),
+                                    /* :: */[
+                                      Css.top(Css.px(50)),
+                                      /* :: */[
+                                        Css.bottom(Css.px(10)),
+                                        /* :: */[
+                                          Css.height(/* auto */-1065951377),
+                                          /* :: */[
+                                            Css.left(Css.px(5)),
+                                            /* :: */[
+                                              Css.right(Css.px(5)),
+                                              /* :: */[
+                                                Css.width(/* auto */-1065951377),
+                                                /* [] */0
+                                              ]
+                                            ]
+                                          ]
+                                        ]
+                                      ]
+                                    ]
+                                  ] : /* :: */[
+                                    Css.maxHeight(Css.px(200)),
+                                    /* :: */[
+                                      Css.position(/* relative */903134412),
+                                      /* :: */[
+                                        Css.width(/* `percent */[
+                                              -119887163,
+                                              100
+                                            ]),
+                                        /* [] */0
+                                      ]
+                                    ]
+                                  ]
+                              ]
+                            ]
+                          ]
+                        ]
+                      ])
+                }, React.createElement("div", {
+                      className: Css.style(/* :: */[
+                            Css.position(/* absolute */-1013592457),
+                            /* :: */[
+                              Css.top(Css.px(5)),
+                              /* :: */[
+                                Css.zIndex(100),
+                                /* :: */[
+                                  Css.cursor(/* pointer */-786317123),
+                                  /* :: */[
+                                    Css.right(Css.px(10)),
+                                    /* [] */0
+                                  ]
+                                ]
+                              ]
+                            ]
+                          ]),
+                      onClick: (function () {
+                          return Curry._1(toggleExpand, /* () */0);
+                        })
+                    }, "⇱"), React.createElement("code", undefined, resultJs)), React.createElement("div", {
+                  className: line
+                }), "Log output", React.createElement("div", {
+                  className: Css.style(/* :: */[
+                        Css.alignSelf(/* stretch */-162316795),
+                        /* :: */[
+                          Css.width(/* `percent */[
+                                -119887163,
+                                100
+                              ]),
+                          /* :: */[
+                            Css.marginTop(Css.px(16)),
+                            /* [] */0
+                          ]
+                        ]
+                      ])
+                }, $$Array.mapi((function (i, param) {
+                        var typ = param[0];
+                        var match = typ === "warn";
+                        var tmp;
+                        if (match) {
+                          tmp = Css.hex("faf");
+                        } else {
+                          var match$1 = typ === "error";
+                          tmp = match$1 ? Css.hex("faa") : Css.white;
+                        }
+                        return React.createElement("div", {
+                                    key: String(i),
+                                    className: Css.style(/* :: */[
+                                          Css.backgroundColor(tmp),
+                                          /* :: */[
+                                            Css.wordBreak(/* breakAll */-323760734),
+                                            /* :: */[
+                                              Css.overflow(/* auto */-1065951377),
+                                              /* :: */[
+                                                Css.borderTop(Css.px(1), /* solid */12956715, Css.hex("eee")),
+                                                /* :: */[
+                                                  Css.padding(Css.px(4)),
+                                                  /* [] */0
+                                                ]
+                                              ]
+                                            ]
+                                          ]
+                                        ])
+                                  }, param[1]);
+                      }), $$Array.of_list(List.rev(logs)))), tmp);
+}
+
 var match = parseUrl(location.href);
 
 var canvasSize = match[2];
@@ -508,14 +786,7 @@ function make$1() {
                                     epos
                                   ])]));
                 } else {
-                  var js = match$1[0];
-                  runCode(js, (function (typ, text) {
-                          return Curry._1(send, /* AddLog */Block.__(4, [
-                                        typ,
-                                        text
-                                      ]));
-                        }));
-                  return Curry._1(send, /* Js */Block.__(2, [js]));
+                  return Curry._1(send, /* Js */Block.__(2, [Bundle.bundle(match$1[0], { })]));
                 }
               };
               var match = state[/* status */11];
@@ -534,57 +805,6 @@ function make$1() {
                       className: error,
                       dangerouslySetInnerHTML: inner
                     });
-              }
-              var match$1 = state[/* searching */8] !== "";
-              var match$2 = state[/* expandJs */7];
-              var match$3 = state[/* searching */8] !== "";
-              var tmp$1;
-              if (match$3) {
-                var results = Utils.searchIndex(state[/* searching */8]).slice(0, 20);
-                var results$1 = $$Array.mapi((function (i, result) {
-                        return React.createElement("div", {
-                                    key: String(i),
-                                    className: "result"
-                                  }, React.createElement("div", {
-                                        className: Css.style(/* :: */[
-                                              Css.display(/* flex */-1010954439),
-                                              /* :: */[
-                                                Css.justifyContent(/* spaceBetween */516682146),
-                                                /* [] */0
-                                              ]
-                                            ])
-                                      }, React.createElement("div", {
-                                            className: "title"
-                                          }, result.doc.title), React.createElement("div", {
-                                            className: "breadcrumb"
-                                          }, result.doc.breadcrumb)), ReasonReact.element(/* None */0, /* None */0, make(result.doc.rendered, state[/* searching */8].split((/\s+/g)), /* array */[])));
-                      }), results);
-                tmp$1 = React.createElement("div", {
-                      className: Css.style(/* :: */[
-                            Css.position(/* absolute */-1013592457),
-                            /* :: */[
-                              Css.top(Css.px(50)),
-                              /* :: */[
-                                Css.bottom(Css.zero),
-                                /* :: */[
-                                  Css.overflow(/* auto */-1065951377),
-                                  /* :: */[
-                                    Css.left(Css.zero),
-                                    /* :: */[
-                                      Css.right(Css.zero),
-                                      /* :: */[
-                                        Css.backgroundColor(Css.white),
-                                        /* [] */0
-                                      ]
-                                    ]
-                                  ]
-                                ]
-                              ]
-                            ]
-                          ])
-                    }, Caml_obj.caml_equal(results$1, /* array */[]) ? "No results" : results$1);
-              } else {
-                tmp$1 = null;
               }
               return React.createElement("div", {
                           className: container
@@ -708,234 +928,15 @@ function make$1() {
                                                                       }
                                                                     }));
                                                     }));
-                                      })), null)), React.createElement("div", {
-                              className: previewPane,
-                              style: {
-                                width: String(state[/* canvasSize */3]) + "px"
-                              }
-                            }, React.createElement("div", {
-                                  className: Css.style(/* :: */[
-                                        Css.position(/* relative */903134412),
-                                        /* :: */[
-                                          Css.alignSelf(/* stretch */-162316795),
-                                          /* [] */0
-                                        ]
-                                      ])
-                                }, React.createElement("input", {
-                                      className: Css.style(/* :: */[
-                                            Css.border(Css.px(1), /* solid */12956715, Css.hex("ccc")),
-                                            /* :: */[
-                                              Css.padding2(Css.px(8), Css.px(16)),
-                                              /* :: */[
-                                                Css.borderStyle(/* none */-922086728),
-                                                /* :: */[
-                                                  Css.width(/* `percent */[
-                                                        -119887163,
-                                                        100
-                                                      ]),
-                                                  /* :: */[
-                                                    Css.boxSizing(/* borderBox */9307263),
-                                                    /* [] */0
-                                                  ]
-                                                ]
-                                              ]
-                                            ]
-                                          ]),
-                                      placeholder: "Search the docs inline",
-                                      value: state[/* searching */8],
-                                      onChange: (function (evt) {
-                                          return Curry._1(send, /* SetSearch */Block.__(6, [Utils.getInputValue(evt)]));
-                                        })
-                                    }), match$1 ? React.createElement("button", {
-                                        className: Css.style(/* :: */[
-                                              Css.position(/* absolute */-1013592457),
-                                              /* :: */[
-                                                Css.top(Css.px(5)),
-                                                /* :: */[
-                                                  Css.right(Css.px(5)),
-                                                  /* :: */[
-                                                    Css.fontSize(Css.px(16)),
-                                                    /* :: */[
-                                                      Css.fontWeight(600),
-                                                      /* :: */[
-                                                        Css.borderStyle(/* none */-922086728),
-                                                        /* :: */[
-                                                          Css.cursor(/* pointer */-786317123),
-                                                          /* :: */[
-                                                            Css.zIndex(20),
-                                                            /* [] */0
-                                                          ]
-                                                        ]
-                                                      ]
-                                                    ]
-                                                  ]
-                                                ]
-                                              ]
-                                            ]),
-                                        onClick: (function () {
-                                            return Curry._1(send, /* SetSearch */Block.__(6, [""]));
-                                          })
-                                      }, "x") : null), React.createElement("div", undefined, React.createElement("h1", {
-                                      className: Css.style(/* :: */[
-                                            Css.fontSize(Css.px(30)),
-                                            /* :: */[
-                                              Css.lineHeight(1.1),
-                                              /* :: */[
-                                                Css.textAlign(/* center */98248149),
-                                                /* [] */0
-                                              ]
-                                            ]
-                                          ])
-                                    }, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
-                                  className: line
-                                }), React.createElement("div", undefined, "A", React.createElement("input", {
-                                      className: Css.style(/* :: */[
-                                            Css.width(Css.px(40)),
-                                            /* [] */0
-                                          ]),
-                                      type: "number",
-                                      value: String(state[/* canvasSize */3]),
-                                      onChange: (function (evt) {
-                                          return Curry._1(send, /* SetCanvasSize */Block.__(3, [Caml_primitive.caml_int_min(800, Caml_primitive.caml_int_max(50, Caml_format.caml_int_of_string(Utils.getInputValue(evt))))]));
-                                        })
-                                    }), "x " + (String(state[/* canvasSize */3]) + " canvas w/ id #canvas")), React.createElement("canvas", {
-                                  className: canvas,
-                                  id: "canvas",
-                                  height: String(state[/* canvasSize */3]) + "px",
-                                  width: String(state[/* canvasSize */3]) + "px"
-                                }), React.createElement("div", {
-                                  className: line
-                                }), React.createElement("div", undefined, "A div w/ id #target"), React.createElement("div", {
-                                  className: Css.style(/* :: */[
-                                        Css.padding2(Css.px(4), Css.px(8)),
-                                        /* :: */[
-                                          Css.margin2(Css.px(8), Css.zero),
-                                          /* :: */[
-                                            Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
-                                            /* [] */0
-                                          ]
-                                        ]
-                                      ])
-                                }, React.createElement("div", {
-                                      id: "target"
-                                    }, "Render to #target to replace this content")), React.createElement("div", {
-                                  className: line
-                                }), "The Javascript Output", React.createElement("pre", {
-                                  className: Css.style(/* :: */[
-                                        Css.whiteSpace(/* preWrap */660870029),
-                                        /* :: */[
-                                          Css.wordBreak(/* breakAll */-323760734),
-                                          /* :: */[
-                                            Css.padding(Css.px(8)),
-                                            /* :: */[
-                                              Css.minHeight(Css.px(100)),
-                                              /* :: */[
-                                                Css.overflow(/* auto */-1065951377),
-                                                match$2 ? /* :: */[
-                                                    Css.position(/* absolute */-1013592457),
-                                                    /* :: */[
-                                                      Css.top(Css.px(50)),
-                                                      /* :: */[
-                                                        Css.bottom(Css.px(10)),
-                                                        /* :: */[
-                                                          Css.height(/* auto */-1065951377),
-                                                          /* :: */[
-                                                            Css.left(Css.px(5)),
-                                                            /* :: */[
-                                                              Css.right(Css.px(5)),
-                                                              /* :: */[
-                                                                Css.width(/* auto */-1065951377),
-                                                                /* [] */0
-                                                              ]
-                                                            ]
-                                                          ]
-                                                        ]
-                                                      ]
-                                                    ]
-                                                  ] : /* :: */[
-                                                    Css.maxHeight(Css.px(200)),
-                                                    /* :: */[
-                                                      Css.position(/* relative */903134412),
-                                                      /* :: */[
-                                                        Css.width(/* `percent */[
-                                                              -119887163,
-                                                              100
-                                                            ]),
-                                                        /* [] */0
-                                                      ]
-                                                    ]
-                                                  ]
-                                              ]
-                                            ]
-                                          ]
-                                        ]
-                                      ])
-                                }, React.createElement("div", {
-                                      className: Css.style(/* :: */[
-                                            Css.position(/* absolute */-1013592457),
-                                            /* :: */[
-                                              Css.top(Css.px(5)),
-                                              /* :: */[
-                                                Css.zIndex(100),
-                                                /* :: */[
-                                                  Css.cursor(/* pointer */-786317123),
-                                                  /* :: */[
-                                                    Css.right(Css.px(10)),
-                                                    /* [] */0
-                                                  ]
-                                                ]
-                                              ]
-                                            ]
-                                          ]),
-                                      onClick: (function () {
-                                          return Curry._1(send, /* ToggleJsExpand */0);
-                                        })
-                                    }, "⇱"), React.createElement("code", undefined, state[/* resultJs */6])), React.createElement("div", {
-                                  className: line
-                                }), "Log output", React.createElement("div", {
-                                  className: Css.style(/* :: */[
-                                        Css.alignSelf(/* stretch */-162316795),
-                                        /* :: */[
-                                          Css.width(/* `percent */[
-                                                -119887163,
-                                                100
-                                              ]),
-                                          /* :: */[
-                                            Css.marginTop(Css.px(16)),
-                                            /* [] */0
-                                          ]
-                                        ]
-                                      ])
-                                }, $$Array.mapi((function (i, param) {
-                                        var typ = param[0];
-                                        var match = typ === "warn";
-                                        var tmp;
-                                        if (match) {
-                                          tmp = Css.hex("faf");
-                                        } else {
-                                          var match$1 = typ === "error";
-                                          tmp = match$1 ? Css.hex("faa") : Css.white;
-                                        }
-                                        return React.createElement("div", {
-                                                    key: String(i),
-                                                    className: Css.style(/* :: */[
-                                                          Css.backgroundColor(tmp),
-                                                          /* :: */[
-                                                            Css.wordBreak(/* breakAll */-323760734),
-                                                            /* :: */[
-                                                              Css.overflow(/* auto */-1065951377),
-                                                              /* :: */[
-                                                                Css.borderTop(Css.px(1), /* solid */12956715, Css.hex("eee")),
-                                                                /* :: */[
-                                                                  Css.padding(Css.px(4)),
-                                                                  /* [] */0
-                                                                ]
-                                                              ]
-                                                            ]
-                                                          ]
-                                                        ])
-                                                  }, param[1]);
-                                      }), $$Array.of_list(List.rev(state[/* logs */5])))), tmp$1));
+                                      })), null)), previewPane$1((function () {
+                                return Curry._1(send, /* ToggleJsExpand */0);
+                              }), state[/* canvasSize */3], (function (evt) {
+                                return Curry._1(send, /* SetSearch */Block.__(6, [Utils.getInputValue(evt)]));
+                              }), (function () {
+                                return Curry._1(send, /* SetSearch */Block.__(6, [""]));
+                              }), (function (evt) {
+                                return Curry._1(send, /* SetCanvasSize */Block.__(3, [Caml_primitive.caml_int_min(800, Caml_primitive.caml_int_max(50, Caml_format.caml_int_of_string(Utils.getInputValue(evt))))]));
+                              }), state[/* searching */8], state[/* expandJs */7], state[/* resultJs */6], state[/* logs */5]));
             }),
           /* initialState */(function () {
               return /* record */[
@@ -1284,18 +1285,19 @@ exports.makeUrl = makeUrl;
 exports.runCode = runCode;
 exports.str = str;
 exports.HighlightResult = HighlightResult;
+exports.previewPane = previewPane$1;
 exports.Main = Main;
 /*  Not a pure module */
 // from ./lib/js/src/Main.js
 },
-  101: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
+  105: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
 'use strict';
 
 var Css = require(2);
 var $$Array = require(61);
 var Curry = require(4);
 var React = require(80);
-var ReasonReact = require(98);
+var ReasonReact = require(102);
 
 Css.$$global("body", /* :: */[
       Css.fontFamily("system-ui, sans-serif"),
@@ -1415,7 +1417,7 @@ exports.make = make;
 /*  Not a pure module */
 // from ./lib/js/src/ExamplesDropdown.js
 },
-  100: function(module, exports, require) {'use strict';
+  104: function(module, exports, require) {'use strict';
 
 
 function is_nil_undef(x) {
@@ -1475,13 +1477,13 @@ exports.option_get_unwrap = option_get_unwrap;
 /* No side effect */
 // from ./node_modules/bs-platform/lib/js/js_primitive.js
 },
-  98: function(module, exports, require) {'use strict';
+  102: function(module, exports, require) {'use strict';
 
 var List = require(3);
 var Curry = require(4);
 var React = require(80);
 var Caml_builtin_exceptions = require(6);
-var ReasonReactOptimizedCreateClass = require(99);
+var ReasonReactOptimizedCreateClass = require(103);
 
 function createDomElement(s, props, children) {
   var vararg = /* array */[
@@ -2151,7 +2153,7 @@ exports.Router = Router;
 /* dummyInteropComponent Not a pure module */
 // from ./node_modules/reason-react/lib/js/src/ReasonReact.js
 },
-  99: function(module, exports, require) {'use strict';
+  103: function(module, exports, require) {'use strict';
 
 var React = require(80);
 
@@ -3049,9 +3051,9 @@ exports.createClass = createClass;
 /*  Not a pure module */
 // from ./node_modules/reason-react/lib/js/src/ReasonReactOptimizedCreateClass.js
 },
-  88: function(module, exports, require) {'use strict';
+  92: function(module, exports, require) {'use strict';
 
-var ReactDom = require(89);
+var ReactDom = require(93);
 var Caml_builtin_exceptions = require(6);
 
 function renderToElementWithClassName(reactElement, className) {
@@ -3129,7 +3131,7 @@ exports.Style = Style;
 /* react-dom Not a pure module */
 // from ./node_modules/reason-react/lib/js/src/ReactDOMRe.js
 },
-  89: function(module, exports, require) {'use strict';
+  93: function(module, exports, require) {'use strict';
 
 function checkDCE() {
   /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
@@ -3163,13 +3165,13 @@ if (process.env.NODE_ENV === 'production') {
   // DCE check should happen before ReactDOM bundle executes so that
   // DevTools can report bad minification during injection.
   checkDCE();
-  module.exports = require(90);
+  module.exports = require(94);
 } else {
-  module.exports = require(97);
+  module.exports = require(101);
 }
 // from ./node_modules/react-dom/index.js
 },
-  97: function(module, exports, require) {/** @license React v16.3.2
+  101: function(module, exports, require) {/** @license React v16.3.2
  * react-dom.development.js
  *
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -3189,13 +3191,13 @@ if (process.env.NODE_ENV !== "production") {
 var invariant = require(82);
 var React = require(80);
 var warning = require(32);
-var ExecutionEnvironment = require(91);
+var ExecutionEnvironment = require(95);
 var _assign = require(25);
 var emptyFunction = require(33);
 var checkPropTypes = require(85);
-var getActiveElement = require(92);
-var shallowEqual = require(93);
-var containsNode = require(94);
+var getActiveElement = require(96);
+var shallowEqual = require(97);
+var containsNode = require(98);
 var emptyObject = require(83);
 var hyphenateStyleName = require(34);
 var camelizeStyleName = require(28);
@@ -19825,7 +19827,7 @@ module.exports = reactDom;
 }
 // from ./node_modules/react-dom/cjs/react-dom.development.js
 },
-  90: function(module, exports, require) {/** @license React v16.3.2
+  94: function(module, exports, require) {/** @license React v16.3.2
  * react-dom.production.min.js
  *
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -19837,7 +19839,7 @@ module.exports = reactDom;
 /*
  Modernizr 3.0.0pre (Custom Build) | MIT
 */
-'use strict';var ba=require(82),ea=require(80),m=require(91),A=require(25),C=require(33),fa=require(92),ha=require(93),ja=require(94),ka=require(83);
+'use strict';var ba=require(82),ea=require(80),m=require(95),A=require(25),C=require(33),fa=require(96),ha=require(97),ja=require(98),ka=require(83);
 function D(a){for(var b=arguments.length-1,c="http://reactjs.org/docs/error-decoder.html?invariant\x3d"+a,d=0;d<b;d++)c+="\x26args[]\x3d"+encodeURIComponent(arguments[d+1]);ba(!1,"Minified React error #"+a+"; visit %s for the full message or use the non-minified dev environment for full errors and additional helpful warnings. ",c)}ea?void 0:D("227");
 function ma(a,b,c,d,e,f,h,g,k){this._hasCaughtError=!1;this._caughtError=null;var v=Array.prototype.slice.call(arguments,3);try{b.apply(c,v)}catch(l){this._caughtError=l,this._hasCaughtError=!0}}
 var E={_caughtError:null,_hasCaughtError:!1,_rethrowError:null,_hasRethrowError:!1,invokeGuardedCallback:function(a,b,c,d,e,f,h,g,k){ma.apply(E,arguments)},invokeGuardedCallbackAndCatchFirstError:function(a,b,c,d,e,f,h,g,k){E.invokeGuardedCallback.apply(this,arguments);if(E.hasCaughtError()){var v=E.clearCaughtError();E._hasRethrowError||(E._hasRethrowError=!0,E._rethrowError=v)}},rethrowCaughtError:function(){return na.apply(E,arguments)},hasCaughtError:function(){return E._hasCaughtError},clearCaughtError:function(){if(E._hasCaughtError){var a=
@@ -20073,7 +20075,7 @@ null})}),!0):!1},unstable_createPortal:function(){return Fg.apply(void 0,argumen
 X.injectIntoDevTools({findFiberByHostInstance:Ua,bundleType:0,version:"16.3.2",rendererPackageName:"react-dom"});var Hg=Object.freeze({default:Gg}),Ig=Hg&&Gg||Hg;module.exports=Ig["default"]?Ig["default"]:Ig;
 // from ./node_modules/react-dom/cjs/react-dom.production.min.js
 },
-  94: function(module, exports, require) {'use strict';
+  98: function(module, exports, require) {'use strict';
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -20084,7 +20086,7 @@ X.injectIntoDevTools({findFiberByHostInstance:Ua,bundleType:0,version:"16.3.2",r
  * 
  */
 
-var isTextNode = require(95);
+var isTextNode = require(99);
 
 /*eslint-disable no-bitwise */
 
@@ -20112,7 +20114,7 @@ function containsNode(outerNode, innerNode) {
 module.exports = containsNode;
 // from ./node_modules/fbjs/lib/containsNode.js
 },
-  95: function(module, exports, require) {'use strict';
+  99: function(module, exports, require) {'use strict';
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -20123,7 +20125,7 @@ module.exports = containsNode;
  * @typechecks
  */
 
-var isNode = require(96);
+var isNode = require(100);
 
 /**
  * @param {*} object The object to check.
@@ -20136,7 +20138,7 @@ function isTextNode(object) {
 module.exports = isTextNode;
 // from ./node_modules/fbjs/lib/isTextNode.js
 },
-  96: function(module, exports, require) {'use strict';
+  100: function(module, exports, require) {'use strict';
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -20160,7 +20162,7 @@ function isNode(object) {
 module.exports = isNode;
 // from ./node_modules/fbjs/lib/isNode.js
 },
-  93: function(module, exports, require) {/**
+  97: function(module, exports, require) {/**
  * Copyright (c) 2013-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
@@ -20227,7 +20229,7 @@ function shallowEqual(objA, objB) {
 module.exports = shallowEqual;
 // from ./node_modules/fbjs/lib/shallowEqual.js
 },
-  92: function(module, exports, require) {'use strict';
+  96: function(module, exports, require) {'use strict';
 
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -20265,7 +20267,7 @@ function getActiveElement(doc) /*?DOMElement*/{
 module.exports = getActiveElement;
 // from ./node_modules/fbjs/lib/getActiveElement.js
 },
-  91: function(module, exports, require) {/**
+  95: function(module, exports, require) {/**
  * Copyright (c) 2013-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
@@ -20300,7 +20302,7 @@ var ExecutionEnvironment = {
 module.exports = ExecutionEnvironment;
 // from ./node_modules/fbjs/lib/ExecutionEnvironment.js
 },
-  87: function(module, exports, require) {// Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
+  91: function(module, exports, require) {// Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
 // This work is free. You can redistribute it and/or modify it
 // under the terms of the WTFPL, Version 2
 // For more information see LICENSE.txt or http://www.wtfpl.net/
@@ -20802,6 +20804,1090 @@ if (typeof define === 'function' && define.amd) {
   module.exports = LZString
 }
 // from ./node_modules/lz-string/libs/lz-string.js
+},
+  87: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 3.0.0, PLEASE EDIT WITH CARE
+'use strict';
+
+var List = require(3);
+var Block = require(8);
+var Curry = require(4);
+var Printf = require(66);
+var $$String = require(21);
+var Hashtbl = require(88);
+
+function serialize(modules, mainId) {
+  var modules$1 = Hashtbl.fold((function (id, text, res) {
+          return /* :: */[
+                  /* tuple */[
+                    id,
+                    text
+                  ],
+                  res
+                ];
+        }), modules, /* [] */0);
+  var contents = $$String.concat("", List.map((function (param) {
+              return Curry._2(Printf.sprintf(/* Format */[
+                              /* String_literal */Block.__(11, [
+                                  "\n    \"",
+                                  /* Int */Block.__(4, [
+                                      /* Int_d */0,
+                                      /* No_padding */0,
+                                      /* No_precision */0,
+                                      /* String_literal */Block.__(11, [
+                                          "\": function(module, exports, packed$require) {\n      ",
+                                          /* String */Block.__(2, [
+                                              /* No_padding */0,
+                                              /* String_literal */Block.__(11, [
+                                                  "\n    },\n",
+                                                  /* End_of_format */0
+                                                ])
+                                            ])
+                                        ])
+                                    ])
+                                ]),
+                              "\n    \"%d\": function(module, exports, packed$require) {\n      %s\n    },\n"
+                            ]), param[0], param[1]);
+            }), modules$1));
+  return ";(function() {var allModules = {" + (contents + Curry._1(Printf.sprintf(/* Format */[
+                    /* String_literal */Block.__(11, [
+                        "\n  };\n  var loaded = {}\n  var load = id => {\n    if (!loaded[id]) {\n      var module = {exports: {}};\n      loaded[id] = module;\n      allModules[id](module, module.exports, load)\n    }\n    return loaded[id].exports\n  }\n  ",
+                        /* Int */Block.__(4, [
+                            /* Int_d */0,
+                            /* No_padding */0,
+                            /* No_precision */0,
+                            /* String_literal */Block.__(11, [
+                                "\n})();\n",
+                                /* End_of_format */0
+                              ])
+                          ])
+                      ]),
+                    "\n  };\n  var loaded = {}\n  var load = id => {\n    if (!loaded[id]) {\n      var module = {exports: {}};\n      loaded[id] = module;\n      allModules[id](module, module.exports, load)\n    }\n    return loaded[id].exports\n  }\n  %d\n})();\n"
+                  ]), mainId));
+}
+
+function fixRequires(text, resolveRequire) {
+  return text.replace((/\brequire\(['"]([^'"]+)['"]\)/g), (function (full, requirePath) {
+                var match = Curry._1(resolveRequire, requirePath);
+                if (match) {
+                  return Curry._1(Printf.sprintf(/* Format */[
+                                  /* String_literal */Block.__(11, [
+                                      "packed$require(",
+                                      /* Int */Block.__(4, [
+                                          /* Int_d */0,
+                                          /* No_padding */0,
+                                          /* No_precision */0,
+                                          /* Char_literal */Block.__(12, [
+                                              /* ")" */41,
+                                              /* End_of_format */0
+                                            ])
+                                        ])
+                                    ]),
+                                  "packed$require(%d)"
+                                ]), match[0]);
+                } else {
+                  return full;
+                }
+              }));
+}
+
+function bundle(text, includedSourceModules) {
+  var modules = Hashtbl.create(/* None */0, 100);
+  var ids = Hashtbl.create(/* None */0, 100);
+  var id = [0];
+  var processModule = function (moduleName, text) {
+    var next = id[0];
+    id[0] = next + 1 | 0;
+    Hashtbl.replace(ids, moduleName, next);
+    Hashtbl.replace(modules, next, fixRequires(text, (function (requirePath) {
+                console.log(requirePath);
+                var parts = requirePath.split("/");
+                if (parts.length < 2) {
+                  return /* None */0;
+                } else {
+                  var match = parts.pop();
+                  if (match !== undefined) {
+                    var moduleName = match;
+                    if (Hashtbl.mem(ids, moduleName)) {
+                      return /* Some */[Hashtbl.find(ids, moduleName)];
+                    } else {
+                      var match$1 = includedSourceModules[moduleName];
+                      if (match$1 !== undefined) {
+                        return /* Some */[processModule(moduleName, match$1)];
+                      } else {
+                        return /* None */0;
+                      }
+                    }
+                  } else {
+                    return /* None */0;
+                  }
+                }
+              })));
+    return next;
+  };
+  var mainId = processModule("$main$", text);
+  return serialize(modules, mainId);
+}
+
+exports.serialize = serialize;
+exports.fixRequires = fixRequires;
+exports.bundle = bundle;
+/* No side effect */
+// from ./lib/js/src/Bundle.js
+},
+  88: function(module, exports, require) {'use strict';
+
+var $$Array = require(61);
+var Block = require(8);
+var Curry = require(4);
+var Random = require(70);
+var Caml_obj = require(7);
+var Caml_hash = require(89);
+var Caml_array = require(5);
+var Caml_primitive = require(9);
+var CamlinternalLazy = require(76);
+var Caml_missing_polyfill = require(19);
+var Caml_builtin_exceptions = require(6);
+
+function hash(x) {
+  return Caml_hash.caml_hash(10, 100, 0, x);
+}
+
+function hash_param(n1, n2, x) {
+  return Caml_hash.caml_hash(n1, n2, 0, x);
+}
+
+function seeded_hash(seed, x) {
+  return Caml_hash.caml_hash(10, 100, seed, x);
+}
+
+var randomized = [false];
+
+function randomize() {
+  randomized[0] = true;
+  return /* () */0;
+}
+
+var prng = Block.__(246, [(function () {
+        return Random.State[/* make_self_init */1](/* () */0);
+      })]);
+
+function power_2_above(_x, n) {
+  while(true) {
+    var x = _x;
+    if (x >= n || (x << 1) < x) {
+      return x;
+    } else {
+      _x = (x << 1);
+      continue ;
+    }
+  };
+}
+
+function create($staropt$star, initial_size) {
+  var random = $staropt$star ? $staropt$star[0] : randomized[0];
+  var s = power_2_above(16, initial_size);
+  var seed;
+  if (random) {
+    var tag = prng.tag | 0;
+    seed = Random.State[/* bits */3](tag === 250 ? prng[0] : (
+            tag === 246 ? CamlinternalLazy.force_lazy_block(prng) : prng
+          ));
+  } else {
+    seed = 0;
+  }
+  return /* record */[
+          /* size */0,
+          /* data */Caml_array.caml_make_vect(s, /* Empty */0),
+          /* seed */seed,
+          /* initial_size */s
+        ];
+}
+
+function clear(h) {
+  h[/* size */0] = 0;
+  var len = h[/* data */1].length;
+  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+    Caml_array.caml_array_set(h[/* data */1], i, /* Empty */0);
+  }
+  return /* () */0;
+}
+
+function reset(h) {
+  var len = h[/* data */1].length;
+  if (h.length < 4 || len === h[/* initial_size */3]) {
+    return clear(h);
+  } else {
+    h[/* size */0] = 0;
+    h[/* data */1] = Caml_array.caml_make_vect(h[/* initial_size */3], /* Empty */0);
+    return /* () */0;
+  }
+}
+
+function copy(h) {
+  return /* record */[
+          /* size */h[/* size */0],
+          /* data */$$Array.copy(h[/* data */1]),
+          /* seed */h[/* seed */2],
+          /* initial_size */h[/* initial_size */3]
+        ];
+}
+
+function length(h) {
+  return h[/* size */0];
+}
+
+function resize(indexfun, h) {
+  var odata = h[/* data */1];
+  var osize = odata.length;
+  var nsize = (osize << 1);
+  if (nsize >= osize) {
+    var ndata = Caml_array.caml_make_vect(nsize, /* Empty */0);
+    h[/* data */1] = ndata;
+    var insert_bucket = function (param) {
+      if (param) {
+        var key = param[0];
+        insert_bucket(param[2]);
+        var nidx = Curry._2(indexfun, h, key);
+        return Caml_array.caml_array_set(ndata, nidx, /* Cons */[
+                    key,
+                    param[1],
+                    Caml_array.caml_array_get(ndata, nidx)
+                  ]);
+      } else {
+        return /* () */0;
+      }
+    };
+    for(var i = 0 ,i_finish = osize - 1 | 0; i <= i_finish; ++i){
+      insert_bucket(Caml_array.caml_array_get(odata, i));
+    }
+    return /* () */0;
+  } else {
+    return 0;
+  }
+}
+
+function key_index(h, key) {
+  if (h.length >= 3) {
+    return Caml_hash.caml_hash(10, 100, h[/* seed */2], key) & (h[/* data */1].length - 1 | 0);
+  } else {
+    return Caml_missing_polyfill.not_implemented("caml_hash_univ_param") % h[/* data */1].length;
+  }
+}
+
+function add(h, key, info) {
+  var i = key_index(h, key);
+  var bucket_002 = Caml_array.caml_array_get(h[/* data */1], i);
+  var bucket = /* Cons */[
+    key,
+    info,
+    bucket_002
+  ];
+  Caml_array.caml_array_set(h[/* data */1], i, bucket);
+  h[/* size */0] = h[/* size */0] + 1 | 0;
+  if (h[/* size */0] > (h[/* data */1].length << 1)) {
+    return resize(key_index, h);
+  } else {
+    return 0;
+  }
+}
+
+function remove(h, key) {
+  var remove_bucket = function (param) {
+    if (param) {
+      var next = param[2];
+      var k = param[0];
+      if (Caml_obj.caml_equal(k, key)) {
+        h[/* size */0] = h[/* size */0] - 1 | 0;
+        return next;
+      } else {
+        return /* Cons */[
+                k,
+                param[1],
+                remove_bucket(next)
+              ];
+      }
+    } else {
+      return /* Empty */0;
+    }
+  };
+  var i = key_index(h, key);
+  return Caml_array.caml_array_set(h[/* data */1], i, remove_bucket(Caml_array.caml_array_get(h[/* data */1], i)));
+}
+
+function find(h, key) {
+  var match = Caml_array.caml_array_get(h[/* data */1], key_index(h, key));
+  if (match) {
+    if (Caml_obj.caml_equal(key, match[0])) {
+      return match[1];
+    } else {
+      var rest1 = match[2];
+      if (rest1) {
+        if (Caml_obj.caml_equal(key, rest1[0])) {
+          return rest1[1];
+        } else {
+          var rest2 = rest1[2];
+          if (rest2) {
+            if (Caml_obj.caml_equal(key, rest2[0])) {
+              return rest2[1];
+            } else {
+              var key$1 = key;
+              var _param = rest2[2];
+              while(true) {
+                var param = _param;
+                if (param) {
+                  if (Caml_obj.caml_equal(key$1, param[0])) {
+                    return param[1];
+                  } else {
+                    _param = param[2];
+                    continue ;
+                  }
+                } else {
+                  throw Caml_builtin_exceptions.not_found;
+                }
+              };
+            }
+          } else {
+            throw Caml_builtin_exceptions.not_found;
+          }
+        }
+      } else {
+        throw Caml_builtin_exceptions.not_found;
+      }
+    }
+  } else {
+    throw Caml_builtin_exceptions.not_found;
+  }
+}
+
+function find_all(h, key) {
+  var find_in_bucket = function (_param) {
+    while(true) {
+      var param = _param;
+      if (param) {
+        var rest = param[2];
+        if (Caml_obj.caml_equal(param[0], key)) {
+          return /* :: */[
+                  param[1],
+                  find_in_bucket(rest)
+                ];
+        } else {
+          _param = rest;
+          continue ;
+        }
+      } else {
+        return /* [] */0;
+      }
+    };
+  };
+  return find_in_bucket(Caml_array.caml_array_get(h[/* data */1], key_index(h, key)));
+}
+
+function replace(h, key, info) {
+  var replace_bucket = function (param) {
+    if (param) {
+      var next = param[2];
+      var k = param[0];
+      if (Caml_obj.caml_equal(k, key)) {
+        return /* Cons */[
+                key,
+                info,
+                next
+              ];
+      } else {
+        return /* Cons */[
+                k,
+                param[1],
+                replace_bucket(next)
+              ];
+      }
+    } else {
+      throw Caml_builtin_exceptions.not_found;
+    }
+  };
+  var i = key_index(h, key);
+  var l = Caml_array.caml_array_get(h[/* data */1], i);
+  try {
+    return Caml_array.caml_array_set(h[/* data */1], i, replace_bucket(l));
+  }
+  catch (exn){
+    if (exn === Caml_builtin_exceptions.not_found) {
+      Caml_array.caml_array_set(h[/* data */1], i, /* Cons */[
+            key,
+            info,
+            l
+          ]);
+      h[/* size */0] = h[/* size */0] + 1 | 0;
+      if (h[/* size */0] > (h[/* data */1].length << 1)) {
+        return resize(key_index, h);
+      } else {
+        return 0;
+      }
+    } else {
+      throw exn;
+    }
+  }
+}
+
+function mem(h, key) {
+  var _param = Caml_array.caml_array_get(h[/* data */1], key_index(h, key));
+  while(true) {
+    var param = _param;
+    if (param) {
+      if (Caml_obj.caml_equal(param[0], key)) {
+        return true;
+      } else {
+        _param = param[2];
+        continue ;
+      }
+    } else {
+      return false;
+    }
+  };
+}
+
+function iter(f, h) {
+  var do_bucket = function (_param) {
+    while(true) {
+      var param = _param;
+      if (param) {
+        Curry._2(f, param[0], param[1]);
+        _param = param[2];
+        continue ;
+      } else {
+        return /* () */0;
+      }
+    };
+  };
+  var d = h[/* data */1];
+  for(var i = 0 ,i_finish = d.length - 1 | 0; i <= i_finish; ++i){
+    do_bucket(Caml_array.caml_array_get(d, i));
+  }
+  return /* () */0;
+}
+
+function fold(f, h, init) {
+  var do_bucket = function (_b, _accu) {
+    while(true) {
+      var accu = _accu;
+      var b = _b;
+      if (b) {
+        _accu = Curry._3(f, b[0], b[1], accu);
+        _b = b[2];
+        continue ;
+      } else {
+        return accu;
+      }
+    };
+  };
+  var d = h[/* data */1];
+  var accu = init;
+  for(var i = 0 ,i_finish = d.length - 1 | 0; i <= i_finish; ++i){
+    accu = do_bucket(Caml_array.caml_array_get(d, i), accu);
+  }
+  return accu;
+}
+
+function bucket_length(_accu, _param) {
+  while(true) {
+    var param = _param;
+    var accu = _accu;
+    if (param) {
+      _param = param[2];
+      _accu = accu + 1 | 0;
+      continue ;
+    } else {
+      return accu;
+    }
+  };
+}
+
+function stats(h) {
+  var mbl = $$Array.fold_left((function (m, b) {
+          return Caml_primitive.caml_int_max(m, bucket_length(0, b));
+        }), 0, h[/* data */1]);
+  var histo = Caml_array.caml_make_vect(mbl + 1 | 0, 0);
+  $$Array.iter((function (b) {
+          var l = bucket_length(0, b);
+          return Caml_array.caml_array_set(histo, l, Caml_array.caml_array_get(histo, l) + 1 | 0);
+        }), h[/* data */1]);
+  return /* record */[
+          /* num_bindings */h[/* size */0],
+          /* num_buckets */h[/* data */1].length,
+          /* max_bucket_length */mbl,
+          /* bucket_histogram */histo
+        ];
+}
+
+function MakeSeeded(H) {
+  var key_index = function (h, key) {
+    return Curry._2(H[/* hash */1], h[/* seed */2], key) & (h[/* data */1].length - 1 | 0);
+  };
+  var add = function (h, key, info) {
+    var i = key_index(h, key);
+    var bucket_002 = Caml_array.caml_array_get(h[/* data */1], i);
+    var bucket = /* Cons */[
+      key,
+      info,
+      bucket_002
+    ];
+    Caml_array.caml_array_set(h[/* data */1], i, bucket);
+    h[/* size */0] = h[/* size */0] + 1 | 0;
+    if (h[/* size */0] > (h[/* data */1].length << 1)) {
+      return resize(key_index, h);
+    } else {
+      return 0;
+    }
+  };
+  var remove = function (h, key) {
+    var remove_bucket = function (param) {
+      if (param) {
+        var next = param[2];
+        var k = param[0];
+        if (Curry._2(H[/* equal */0], k, key)) {
+          h[/* size */0] = h[/* size */0] - 1 | 0;
+          return next;
+        } else {
+          return /* Cons */[
+                  k,
+                  param[1],
+                  remove_bucket(next)
+                ];
+        }
+      } else {
+        return /* Empty */0;
+      }
+    };
+    var i = key_index(h, key);
+    return Caml_array.caml_array_set(h[/* data */1], i, remove_bucket(Caml_array.caml_array_get(h[/* data */1], i)));
+  };
+  var find = function (h, key) {
+    var match = Caml_array.caml_array_get(h[/* data */1], key_index(h, key));
+    if (match) {
+      var rest1 = match[2];
+      if (Curry._2(H[/* equal */0], key, match[0])) {
+        return match[1];
+      } else if (rest1) {
+        var rest2 = rest1[2];
+        if (Curry._2(H[/* equal */0], key, rest1[0])) {
+          return rest1[1];
+        } else if (rest2) {
+          if (Curry._2(H[/* equal */0], key, rest2[0])) {
+            return rest2[1];
+          } else {
+            var key$1 = key;
+            var _param = rest2[2];
+            while(true) {
+              var param = _param;
+              if (param) {
+                if (Curry._2(H[/* equal */0], key$1, param[0])) {
+                  return param[1];
+                } else {
+                  _param = param[2];
+                  continue ;
+                }
+              } else {
+                throw Caml_builtin_exceptions.not_found;
+              }
+            };
+          }
+        } else {
+          throw Caml_builtin_exceptions.not_found;
+        }
+      } else {
+        throw Caml_builtin_exceptions.not_found;
+      }
+    } else {
+      throw Caml_builtin_exceptions.not_found;
+    }
+  };
+  var find_all = function (h, key) {
+    var find_in_bucket = function (_param) {
+      while(true) {
+        var param = _param;
+        if (param) {
+          var rest = param[2];
+          if (Curry._2(H[/* equal */0], param[0], key)) {
+            return /* :: */[
+                    param[1],
+                    find_in_bucket(rest)
+                  ];
+          } else {
+            _param = rest;
+            continue ;
+          }
+        } else {
+          return /* [] */0;
+        }
+      };
+    };
+    return find_in_bucket(Caml_array.caml_array_get(h[/* data */1], key_index(h, key)));
+  };
+  var replace = function (h, key, info) {
+    var replace_bucket = function (param) {
+      if (param) {
+        var next = param[2];
+        var k = param[0];
+        if (Curry._2(H[/* equal */0], k, key)) {
+          return /* Cons */[
+                  key,
+                  info,
+                  next
+                ];
+        } else {
+          return /* Cons */[
+                  k,
+                  param[1],
+                  replace_bucket(next)
+                ];
+        }
+      } else {
+        throw Caml_builtin_exceptions.not_found;
+      }
+    };
+    var i = key_index(h, key);
+    var l = Caml_array.caml_array_get(h[/* data */1], i);
+    try {
+      return Caml_array.caml_array_set(h[/* data */1], i, replace_bucket(l));
+    }
+    catch (exn){
+      if (exn === Caml_builtin_exceptions.not_found) {
+        Caml_array.caml_array_set(h[/* data */1], i, /* Cons */[
+              key,
+              info,
+              l
+            ]);
+        h[/* size */0] = h[/* size */0] + 1 | 0;
+        if (h[/* size */0] > (h[/* data */1].length << 1)) {
+          return resize(key_index, h);
+        } else {
+          return 0;
+        }
+      } else {
+        throw exn;
+      }
+    }
+  };
+  var mem = function (h, key) {
+    var _param = Caml_array.caml_array_get(h[/* data */1], key_index(h, key));
+    while(true) {
+      var param = _param;
+      if (param) {
+        if (Curry._2(H[/* equal */0], param[0], key)) {
+          return true;
+        } else {
+          _param = param[2];
+          continue ;
+        }
+      } else {
+        return false;
+      }
+    };
+  };
+  return /* module */[
+          /* create */create,
+          /* clear */clear,
+          /* reset */reset,
+          /* copy */copy,
+          /* add */add,
+          /* remove */remove,
+          /* find */find,
+          /* find_all */find_all,
+          /* replace */replace,
+          /* mem */mem,
+          /* iter */iter,
+          /* fold */fold,
+          /* length */length,
+          /* stats */stats
+        ];
+}
+
+function Make(H) {
+  var equal = H[/* equal */0];
+  var key_index = function (h, key) {
+    return Curry._1(H[/* hash */1], key) & (h[/* data */1].length - 1 | 0);
+  };
+  var add = function (h, key, info) {
+    var i = key_index(h, key);
+    var bucket_002 = Caml_array.caml_array_get(h[/* data */1], i);
+    var bucket = /* Cons */[
+      key,
+      info,
+      bucket_002
+    ];
+    Caml_array.caml_array_set(h[/* data */1], i, bucket);
+    h[/* size */0] = h[/* size */0] + 1 | 0;
+    if (h[/* size */0] > (h[/* data */1].length << 1)) {
+      return resize(key_index, h);
+    } else {
+      return 0;
+    }
+  };
+  var remove = function (h, key) {
+    var remove_bucket = function (param) {
+      if (param) {
+        var next = param[2];
+        var k = param[0];
+        if (Curry._2(equal, k, key)) {
+          h[/* size */0] = h[/* size */0] - 1 | 0;
+          return next;
+        } else {
+          return /* Cons */[
+                  k,
+                  param[1],
+                  remove_bucket(next)
+                ];
+        }
+      } else {
+        return /* Empty */0;
+      }
+    };
+    var i = key_index(h, key);
+    return Caml_array.caml_array_set(h[/* data */1], i, remove_bucket(Caml_array.caml_array_get(h[/* data */1], i)));
+  };
+  var find = function (h, key) {
+    var match = Caml_array.caml_array_get(h[/* data */1], key_index(h, key));
+    if (match) {
+      var rest1 = match[2];
+      if (Curry._2(equal, key, match[0])) {
+        return match[1];
+      } else if (rest1) {
+        var rest2 = rest1[2];
+        if (Curry._2(equal, key, rest1[0])) {
+          return rest1[1];
+        } else if (rest2) {
+          if (Curry._2(equal, key, rest2[0])) {
+            return rest2[1];
+          } else {
+            var key$1 = key;
+            var _param = rest2[2];
+            while(true) {
+              var param = _param;
+              if (param) {
+                if (Curry._2(equal, key$1, param[0])) {
+                  return param[1];
+                } else {
+                  _param = param[2];
+                  continue ;
+                }
+              } else {
+                throw Caml_builtin_exceptions.not_found;
+              }
+            };
+          }
+        } else {
+          throw Caml_builtin_exceptions.not_found;
+        }
+      } else {
+        throw Caml_builtin_exceptions.not_found;
+      }
+    } else {
+      throw Caml_builtin_exceptions.not_found;
+    }
+  };
+  var find_all = function (h, key) {
+    var find_in_bucket = function (_param) {
+      while(true) {
+        var param = _param;
+        if (param) {
+          var rest = param[2];
+          if (Curry._2(equal, param[0], key)) {
+            return /* :: */[
+                    param[1],
+                    find_in_bucket(rest)
+                  ];
+          } else {
+            _param = rest;
+            continue ;
+          }
+        } else {
+          return /* [] */0;
+        }
+      };
+    };
+    return find_in_bucket(Caml_array.caml_array_get(h[/* data */1], key_index(h, key)));
+  };
+  var replace = function (h, key, info) {
+    var replace_bucket = function (param) {
+      if (param) {
+        var next = param[2];
+        var k = param[0];
+        if (Curry._2(equal, k, key)) {
+          return /* Cons */[
+                  key,
+                  info,
+                  next
+                ];
+        } else {
+          return /* Cons */[
+                  k,
+                  param[1],
+                  replace_bucket(next)
+                ];
+        }
+      } else {
+        throw Caml_builtin_exceptions.not_found;
+      }
+    };
+    var i = key_index(h, key);
+    var l = Caml_array.caml_array_get(h[/* data */1], i);
+    try {
+      return Caml_array.caml_array_set(h[/* data */1], i, replace_bucket(l));
+    }
+    catch (exn){
+      if (exn === Caml_builtin_exceptions.not_found) {
+        Caml_array.caml_array_set(h[/* data */1], i, /* Cons */[
+              key,
+              info,
+              l
+            ]);
+        h[/* size */0] = h[/* size */0] + 1 | 0;
+        if (h[/* size */0] > (h[/* data */1].length << 1)) {
+          return resize(key_index, h);
+        } else {
+          return 0;
+        }
+      } else {
+        throw exn;
+      }
+    }
+  };
+  var mem = function (h, key) {
+    var _param = Caml_array.caml_array_get(h[/* data */1], key_index(h, key));
+    while(true) {
+      var param = _param;
+      if (param) {
+        if (Curry._2(equal, param[0], key)) {
+          return true;
+        } else {
+          _param = param[2];
+          continue ;
+        }
+      } else {
+        return false;
+      }
+    };
+  };
+  var create$1 = function (sz) {
+    return create(/* Some */[false], sz);
+  };
+  return /* module */[
+          /* create */create$1,
+          /* clear */clear,
+          /* reset */reset,
+          /* copy */copy,
+          /* add */add,
+          /* remove */remove,
+          /* find */find,
+          /* find_all */find_all,
+          /* replace */replace,
+          /* mem */mem,
+          /* iter */iter,
+          /* fold */fold,
+          /* length */length,
+          /* stats */stats
+        ];
+}
+
+var seeded_hash_param = Caml_hash.caml_hash;
+
+exports.create = create;
+exports.clear = clear;
+exports.reset = reset;
+exports.copy = copy;
+exports.add = add;
+exports.find = find;
+exports.find_all = find_all;
+exports.mem = mem;
+exports.remove = remove;
+exports.replace = replace;
+exports.iter = iter;
+exports.fold = fold;
+exports.length = length;
+exports.randomize = randomize;
+exports.stats = stats;
+exports.Make = Make;
+exports.MakeSeeded = MakeSeeded;
+exports.hash = hash;
+exports.seeded_hash = seeded_hash;
+exports.hash_param = hash_param;
+exports.seeded_hash_param = seeded_hash_param;
+/* No side effect */
+// from ./node_modules/bs-platform/lib/js/hashtbl.js
+},
+  89: function(module, exports, require) {'use strict';
+
+var Caml_int32 = require(14);
+var Caml_queue = require(90);
+var Caml_builtin_exceptions = require(6);
+
+function rotl32(x, n) {
+  return (x << n) | (x >>> (32 - n | 0));
+}
+
+function caml_hash_mix_int(h, d) {
+  var d$1 = d;
+  d$1 = Caml_int32.imul(d$1, 3432918353);
+  d$1 = rotl32(d$1, 15);
+  d$1 = Caml_int32.imul(d$1, 461845907);
+  var h$1 = h ^ d$1;
+  h$1 = rotl32(h$1, 13);
+  return (h$1 + (h$1 << 2) | 0) + 3864292196 | 0;
+}
+
+function caml_hash_final_mix(h) {
+  var h$1 = h ^ (h >>> 16);
+  h$1 = Caml_int32.imul(h$1, 2246822507);
+  h$1 = h$1 ^ (h$1 >>> 13);
+  h$1 = Caml_int32.imul(h$1, 3266489909);
+  return h$1 ^ (h$1 >>> 16);
+}
+
+function caml_hash_mix_string(h, s) {
+  var len = s.length;
+  var block = (len / 4 | 0) - 1 | 0;
+  var hash = h;
+  for(var i = 0; i <= block; ++i){
+    var j = (i << 2);
+    var w = s.charCodeAt(j) | (s.charCodeAt(j + 1 | 0) << 8) | (s.charCodeAt(j + 2 | 0) << 16) | (s.charCodeAt(j + 3 | 0) << 24);
+    hash = caml_hash_mix_int(hash, w);
+  }
+  var modulo = len & 3;
+  if (modulo !== 0) {
+    var w$1 = modulo === 3 ? (s.charCodeAt(len - 1 | 0) << 16) | (s.charCodeAt(len - 2 | 0) << 8) | s.charCodeAt(len - 3 | 0) : (
+        modulo === 2 ? (s.charCodeAt(len - 1 | 0) << 8) | s.charCodeAt(len - 2 | 0) : s.charCodeAt(len - 1 | 0)
+      );
+    hash = caml_hash_mix_int(hash, w$1);
+  }
+  hash = hash ^ len;
+  return hash;
+}
+
+function caml_hash(count, _, seed, obj) {
+  var hash = seed;
+  if (typeof obj === "number") {
+    var u = obj | 0;
+    hash = caml_hash_mix_int(hash, (u + u | 0) + 1 | 0);
+    return caml_hash_final_mix(hash);
+  } else if (typeof obj === "string") {
+    hash = caml_hash_mix_string(hash, obj);
+    return caml_hash_final_mix(hash);
+  } else {
+    var queue = /* record */[
+      /* length */0,
+      /* tail : None */0
+    ];
+    var num = count;
+    Caml_queue.push(obj, queue);
+    num = num - 1 | 0;
+    while(queue[/* length */0] !== 0 && num > 0) {
+      var obj$1 = Caml_queue.unsafe_pop(queue);
+      if (typeof obj$1 === "number") {
+        var u$1 = obj$1 | 0;
+        hash = caml_hash_mix_int(hash, (u$1 + u$1 | 0) + 1 | 0);
+        num = num - 1 | 0;
+      } else if (typeof obj$1 === "string") {
+        hash = caml_hash_mix_string(hash, obj$1);
+        num = num - 1 | 0;
+      } else if (typeof obj$1 !== "boolean") {
+        if (typeof obj$1 !== "undefined") {
+          if (typeof obj$1 === "symbol") {
+            throw [
+                  Caml_builtin_exceptions.assert_failure,
+                  [
+                    "caml_hash.ml",
+                    135,
+                    8
+                  ]
+                ];
+          } else if (typeof obj$1 !== "function") {
+            var size = obj$1.length;
+            if (size !== undefined) {
+              var obj_tag = obj$1.tag | 0;
+              var tag = (size << 10) | obj_tag;
+              if (tag === 248) {
+                hash = caml_hash_mix_int(hash, obj$1[1]);
+              } else {
+                hash = caml_hash_mix_int(hash, tag);
+                var v = size - 1 | 0;
+                var block = v < num ? v : num;
+                for(var i = 0; i <= block; ++i){
+                  Caml_queue.push(obj$1[i], queue);
+                }
+              }
+            }
+            
+          }
+          
+        }
+        
+      }
+      
+    };
+    return caml_hash_final_mix(hash);
+  }
+}
+
+exports.caml_hash_mix_int = caml_hash_mix_int;
+exports.caml_hash_mix_string = caml_hash_mix_string;
+exports.caml_hash_final_mix = caml_hash_final_mix;
+exports.caml_hash = caml_hash;
+/* No side effect */
+// from ./node_modules/bs-platform/lib/js/caml_hash.js
+},
+  90: function(module, exports, require) {'use strict';
+
+
+function create() {
+  return /* record */[
+          /* length */0,
+          /* tail : None */0
+        ];
+}
+
+function push(x, q) {
+  if (q[/* length */0] === 0) {
+    var cell = [];
+    cell[0] = x;
+    cell[1] = cell;
+    q[/* length */0] = 1;
+    q[/* tail */1] = cell;
+    return /* () */0;
+  } else {
+    var tail = q[/* tail */1];
+    var head = tail[/* next */1];
+    var cell$1 = /* record */[
+      /* content */x,
+      /* next */head
+    ];
+    q[/* length */0] = q[/* length */0] + 1 | 0;
+    tail[/* next */1] = cell$1;
+    q[/* tail */1] = cell$1;
+    return /* () */0;
+  }
+}
+
+function unsafe_pop(q) {
+  q[/* length */0] = q[/* length */0] - 1 | 0;
+  var tail = q[/* tail */1];
+  var head = tail[/* next */1];
+  if (head === tail) {
+    q[/* tail */1] = /* None */0;
+  } else {
+    tail[/* next */1] = head[/* next */1];
+  }
+  return head[/* content */0];
+}
+
+function is_empty(q) {
+  return q[/* length */0] === 0;
+}
+
+exports.create = create;
+exports.push = push;
+exports.unsafe_pop = unsafe_pop;
+exports.is_empty = is_empty;
+/* No side effect */
+// from ./node_modules/bs-platform/lib/js/caml_queue.js
 },
   80: function(module, exports, require) {'use strict';
 
@@ -46766,21 +47852,25 @@ exports.undefined_recursive_module = undefined_recursive_module;
 };
 let nameMap = {
   "./lib/js/src/Main.js": 1,
-  "./lib/js/src/ExamplesDropdown.js": 101,
-  "./node_modules/bs-platform/lib/js/js_primitive.js": 100,
-  "./node_modules/reason-react/lib/js/src/ReasonReact.js": 98,
-  "./node_modules/reason-react/lib/js/src/ReasonReactOptimizedCreateClass.js": 99,
-  "./node_modules/reason-react/lib/js/src/ReactDOMRe.js": 88,
-  "./node_modules/react-dom/index.js": 89, "react-dom": 89,
-  "./node_modules/react-dom/cjs/react-dom.development.js": 97,
-  "./node_modules/react-dom/cjs/react-dom.production.min.js": 90,
-  "./node_modules/fbjs/lib/containsNode.js": 94,
-  "./node_modules/fbjs/lib/isTextNode.js": 95,
-  "./node_modules/fbjs/lib/isNode.js": 96,
-  "./node_modules/fbjs/lib/shallowEqual.js": 93,
-  "./node_modules/fbjs/lib/getActiveElement.js": 92,
-  "./node_modules/fbjs/lib/ExecutionEnvironment.js": 91,
-  "./node_modules/lz-string/libs/lz-string.js": 87, "lz-string": 87,
+  "./lib/js/src/ExamplesDropdown.js": 105,
+  "./node_modules/bs-platform/lib/js/js_primitive.js": 104,
+  "./node_modules/reason-react/lib/js/src/ReasonReact.js": 102,
+  "./node_modules/reason-react/lib/js/src/ReasonReactOptimizedCreateClass.js": 103,
+  "./node_modules/reason-react/lib/js/src/ReactDOMRe.js": 92,
+  "./node_modules/react-dom/index.js": 93, "react-dom": 93,
+  "./node_modules/react-dom/cjs/react-dom.development.js": 101,
+  "./node_modules/react-dom/cjs/react-dom.production.min.js": 94,
+  "./node_modules/fbjs/lib/containsNode.js": 98,
+  "./node_modules/fbjs/lib/isTextNode.js": 99,
+  "./node_modules/fbjs/lib/isNode.js": 100,
+  "./node_modules/fbjs/lib/shallowEqual.js": 97,
+  "./node_modules/fbjs/lib/getActiveElement.js": 96,
+  "./node_modules/fbjs/lib/ExecutionEnvironment.js": 95,
+  "./node_modules/lz-string/libs/lz-string.js": 91, "lz-string": 91,
+  "./lib/js/src/Bundle.js": 87,
+  "./node_modules/bs-platform/lib/js/hashtbl.js": 88,
+  "./node_modules/bs-platform/lib/js/caml_hash.js": 89,
+  "./node_modules/bs-platform/lib/js/caml_queue.js": 90,
   "./node_modules/react/index.js": 80, "react": 80,
   "./node_modules/react/cjs/react.development.js": 84,
   "./node_modules/prop-types/checkPropTypes.js": 85,

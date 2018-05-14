@@ -38,7 +38,7 @@ module Styles = {
     display(`flex),
     flexDirection(`column),
     alignItems(`center),
-    minWidth(px(300)),
+    minWidth(px(500)),
     overflow(`auto),
     zIndex(10),
     boxShadow(~blur=px(3), hex("aaa")),
@@ -241,6 +241,178 @@ module HighlightResult = {
   };
 };
 
+let previewPane = (
+  ~toggleExpand,
+  ~canvasSize,
+  ~onChange,
+  ~clearSearch,
+  ~onChangeCanvas,
+  ~searching,
+  ~expandJs,
+  ~resultJs,
+  ~logs,
+) =>
+  <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(canvasSize) ++ "px", ())>
+  <div className=Css.(style([
+    /* display(`flex), */
+    /* flexDirection(`row), */
+    /* alignItems(`center), */
+    position(`relative),
+    alignSelf(`stretch),
+  ]))>
+  <input
+    className=Css.(style([
+    border(px(1), `solid, hex("ccc")),
+      padding2(~v=px(8), ~h=px(16)),
+      borderStyle(`none),
+      /* flex(1), */
+      width(`percent(100.)),
+      boxSizing(`borderBox),
+    ]))
+    value=searching
+    onChange=onChange
+    placeholder="Search the docs inline"
+  />
+  (searching != ""
+  ? <button onClick=(_evt => clearSearch()) className=Css.(style([
+    position(`absolute),
+    top(px(5)),
+    right(px(5)),
+    fontSize(px(16)),
+    fontWeight(600),
+    borderStyle(`none),
+    cursor(`pointer),
+    zIndex(20),
+  ]))>(str("x"))</button>
+  : ReasonReact.nullElement)
+  </div>
+  <div>
+    <h1 className=Css.(style([
+    fontSize(px(30)),
+    lineHeight(1.1),
+    textAlign(`center),
+    ]))>(str("Welcome to the Playground!"))</h1>
+    (str("Press ctrl+enter or cmd+enter to evaluate"))
+  </div>
+  <div className=Styles.line />
+  <div>
+    (str("A"))
+    <input
+      onChange=onChangeCanvas
+      className=Css.(style([width(px(40))]))
+      value=(string_of_int(canvasSize))
+      _type="number"
+    />
+    (str("x " ++ string_of_int(canvasSize) ++ " canvas w/ id #canvas"))
+  </div>
+  <canvas id="canvas" width=(string_of_int(canvasSize) ++ "px") height=(string_of_int(canvasSize) ++ "px") className=Styles.canvas/>
+  <div className=Styles.line />
+  <div>
+  (str("A div w/ id #target"))
+  </div>
+  <div className=Css.(style([
+    padding2(~v=px(4), ~h=px(8)),
+    margin2(~v=px(8), ~h=zero),
+    boxShadow(~blur=px(3), hex("aaa")),
+    ]))>
+  <div id="target">
+    (str("Render to #target to replace this content"))
+  </div>
+  </div>
+  <div className=Styles.line />
+  (str("The Javascript Output"))
+  <pre className=Css.(style([
+    whiteSpace(`preWrap),
+    wordBreak(`breakAll),
+    padding(px(8)),
+    minHeight(px(100)),
+    overflow(`auto),
+    ...(expandJs ? [
+      position(`absolute),
+      top(px(50)),
+      bottom(px(10)),
+      height(`auto),
+      left(px(5)),
+      right(px(5)),
+      width(`auto)
+    ] : [
+      maxHeight(px(200)),
+      position(`relative),
+      width(`percent(100.)),
+    ])
+  ]))>
+  <div className=Css.(style([
+    position(`absolute),
+    top(px(5)),
+    zIndex(100),
+    cursor(`pointer),
+    right(px(10)),
+  ])) onClick=(_evt => toggleExpand())>
+    (str({j|⇱|j}))
+  </div>
+  <code>(str(resultJs))</code></pre>
+  <div className=Styles.line />
+  (str("Log output"))
+  <div className=Css.(style([
+  alignSelf(`stretch),
+  width(`percent(100.)),
+  marginTop(px(16))
+  ]))>
+  {ReasonReact.arrayToElement(
+    List.rev(logs)
+    |> Array.of_list
+    |> Array.mapi((i, (typ, item)) => (
+      <div key=(string_of_int(i)) className=Css.(style([
+        backgroundColor(typ == "warn" ? hex("faf") : (typ == "error" ? hex("faa") : white)),
+        wordBreak(`breakAll),
+        overflow(`auto),
+        borderTop(px(1), `solid, hex("eee")),
+        padding(px(4))
+      ]))>
+        (str(item))
+      </div>
+    ))
+  )}
+  </div>
+  {searching != ""
+  ?
+  <div className=Css.(style([
+    position(`absolute),
+    top(px(50)),
+    bottom(zero),
+    overflow(`auto),
+    left(zero),
+    right(zero),
+    backgroundColor(white),
+  ]))>
+  ({
+    let results = searchIndex(searching) |> Js.Array.slice(~start=0, ~end_=20);
+    let results = results |> Array.mapi((i, result) => (
+      <div className="result" key=(string_of_int(i))>
+        <div className=Css.(style([
+          display(`flex),
+          justifyContent(`spaceBetween),
+        ]))>
+          <div className="title">(str(result##doc##title))</div>
+          <div className="breadcrumb">(str(result##doc##breadcrumb))</div>
+        </div>
+          <HighlightResult
+            rendered=(result##doc##rendered)
+            tokens=(searching |> Js.String.splitByRe([%bs.re {|/\s+/g|}]))
+          />
+      </div>
+    ));
+    if (results == [||]) {
+      str("No results")
+    } else {
+      ReasonReact.arrayToElement(results)
+    }
+  })
+  </div>
+  : ReasonReact.nullElement}
+</div>
+;
+
 module Main = {
   type state = {
     text: string,
@@ -257,6 +429,8 @@ module Main = {
     syntax,
     status,
   };
+
+
   type action =
     | Text(string)
     | Reset(string)
@@ -359,11 +533,10 @@ module Main = {
         state.cm |?< cm => clearMarks(cm);
         switch (state.syntax == Reason ? reasonCompile(text) : ocamlCompile(text)) {
         | Ok(js) => {
-          runCode(js, (. typ, text) => {
-            /* Js.log2(typ, text); */
+          /* runCode(js, (. typ, text) => {
             send(AddLog(typ, text))
-          });
-          send(Js(js))
+          }); */
+          send(Js(Bundle.bundle(js, Js.Dict.empty())))
         }
         | Error((text, spos, epos)) => {
           state.cm |?< cm => markText(cm, jsPos(spos), jsPos(epos), {"className": Styles.codeMirrorMark});
@@ -477,167 +650,18 @@ module Main = {
           })) |? ReasonReact.nullElement}
         </div>
 
+        (previewPane(
+          ~toggleExpand=() => send(ToggleJsExpand),
+          ~canvasSize=state.canvasSize,
+          ~searching=state.searching,
+          ~expandJs=state.expandJs,
+          ~resultJs=state.resultJs,
+          ~logs=state.logs,
+          ~onChange=(evt => send(SetSearch(getInputValue(evt)))),
+          ~clearSearch=() => send(SetSearch("")),
+          ~onChangeCanvas=(evt => send(SetCanvasSize(min(800, max(50, int_of_string(getInputValue(evt))))))),
+        ))
 
-
-        <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(state.canvasSize) ++ "px", ())>
-          <div className=Css.(style([
-            /* display(`flex), */
-            /* flexDirection(`row), */
-            /* alignItems(`center), */
-            position(`relative),
-            alignSelf(`stretch),
-          ]))>
-          <input
-            className=Css.(style([
-            border(px(1), `solid, hex("ccc")),
-              padding2(~v=px(8), ~h=px(16)),
-              borderStyle(`none),
-              /* flex(1), */
-              width(`percent(100.)),
-              boxSizing(`borderBox),
-            ]))
-            value=state.searching
-            onChange=(evt => send(SetSearch(getInputValue(evt))))
-            placeholder="Search the docs inline"
-          />
-          (state.searching != ""
-          ? <button onClick=(_evt => send(SetSearch(""))) className=Css.(style([
-            position(`absolute),
-            top(px(5)),
-            right(px(5)),
-            fontSize(px(16)),
-            fontWeight(600),
-            borderStyle(`none),
-            cursor(`pointer),
-            zIndex(20),
-          ]))>(str("x"))</button>
-          : ReasonReact.nullElement)
-          </div>
-          <div>
-            <h1 className=Css.(style([
-            fontSize(px(30)),
-            lineHeight(1.1),
-            textAlign(`center),
-            ]))>(str("Welcome to the Playground!"))</h1>
-            (str("Press ctrl+enter or cmd+enter to evaluate"))
-          </div>
-          <div className=Styles.line />
-          <div>
-            (str("A"))
-            <input
-              onChange=(evt => send(SetCanvasSize(min(800, max(50, int_of_string(getInputValue(evt)))))))
-              className=Css.(style([width(px(40))]))
-              value=(string_of_int(state.canvasSize))
-              _type="number"
-            />
-            (str("x " ++ string_of_int(state.canvasSize) ++ " canvas w/ id #canvas"))
-          </div>
-          <canvas id="canvas" width=(string_of_int(state.canvasSize) ++ "px") height=(string_of_int(state.canvasSize) ++ "px") className=Styles.canvas/>
-          <div className=Styles.line />
-          <div>
-          (str("A div w/ id #target"))
-          </div>
-          <div className=Css.(style([
-            padding2(~v=px(4), ~h=px(8)),
-            margin2(~v=px(8), ~h=zero),
-            boxShadow(~blur=px(3), hex("aaa")),
-            ]))>
-          <div id="target">
-            (str("Render to #target to replace this content"))
-          </div>
-          </div>
-          <div className=Styles.line />
-          (str("The Javascript Output"))
-          <pre className=Css.(style([
-            whiteSpace(`preWrap),
-            wordBreak(`breakAll),
-            padding(px(8)),
-            minHeight(px(100)),
-            overflow(`auto),
-            ...(state.expandJs ? [
-              position(`absolute),
-              top(px(50)),
-              bottom(px(10)),
-              height(`auto),
-              left(px(5)),
-              right(px(5)),
-              width(`auto)
-            ] : [
-              maxHeight(px(200)),
-              position(`relative),
-              width(`percent(100.)),
-            ])
-          ]))>
-          <div className=Css.(style([
-            position(`absolute),
-            top(px(5)),
-            zIndex(100),
-            cursor(`pointer),
-            right(px(10)),
-          ])) onClick=(_evt => send(ToggleJsExpand))>
-            (str({j|⇱|j}))
-          </div>
-          <code>(str(state.resultJs))</code></pre>
-          <div className=Styles.line />
-          (str("Log output"))
-          <div className=Css.(style([
-          alignSelf(`stretch),
-          width(`percent(100.)),
-          marginTop(px(16))
-          ]))>
-          {ReasonReact.arrayToElement(
-            List.rev(state.logs)
-            |> Array.of_list
-            |> Array.mapi((i, (typ, item)) => (
-              <div key=(string_of_int(i)) className=Css.(style([
-                backgroundColor(typ == "warn" ? hex("faf") : (typ == "error" ? hex("faa") : white)),
-                wordBreak(`breakAll),
-                overflow(`auto),
-                borderTop(px(1), `solid, hex("eee")),
-                padding(px(4))
-              ]))>
-                (str(item))
-              </div>
-            ))
-          )}
-          </div>
-          {state.searching != ""
-          ?
-          <div className=Css.(style([
-            position(`absolute),
-            top(px(50)),
-            bottom(zero),
-            overflow(`auto),
-            left(zero),
-            right(zero),
-            backgroundColor(white),
-          ]))>
-          ({
-            let results = searchIndex(state.searching) |> Js.Array.slice(~start=0, ~end_=20);
-            let results = results |> Array.mapi((i, result) => (
-              <div className="result" key=(string_of_int(i))>
-                <div className=Css.(style([
-                  display(`flex),
-                  justifyContent(`spaceBetween),
-                ]))>
-                  <div className="title">(str(result##doc##title))</div>
-                  <div className="breadcrumb">(str(result##doc##breadcrumb))</div>
-                </div>
-                  <HighlightResult
-                    rendered=(result##doc##rendered)
-                    tokens=(state.searching |> Js.String.splitByRe([%bs.re {|/\s+/g|}]))
-                  />
-              </div>
-            ));
-            if (results == [||]) {
-              str("No results")
-            } else {
-              ReasonReact.arrayToElement(results)
-            }
-          })
-          </div>
-          : ReasonReact.nullElement}
-        </div>
       </div>
     }
   };

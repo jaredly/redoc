@@ -15,7 +15,6 @@ var Utils = require(79);
 var React = require(80);
 var Bundle = require(87);
 var Js_exn = require(62);
-var Caml_obj = require(7);
 var LzString = require(91);
 var Caml_array = require(5);
 var ReactDOMRe = require(92);
@@ -460,166 +459,13 @@ var HighlightResult = /* module */[
   /* make */make
 ];
 
-function previewPane$1(toggleExpand, canvasSize, onChange, clearSearch, onChangeCanvas, searching, expandJs, resultJs, logs) {
-  var match = searching !== "";
-  var match$1 = searching !== "";
-  var tmp;
-  if (match$1) {
-    var results = Utils.searchIndex(searching).slice(0, 20);
-    var results$1 = $$Array.mapi((function (i, result) {
-            return React.createElement("div", {
-                        key: String(i),
-                        className: "result"
-                      }, React.createElement("div", {
-                            className: Css.style(/* :: */[
-                                  Css.display(/* flex */-1010954439),
-                                  /* :: */[
-                                    Css.justifyContent(/* spaceBetween */516682146),
-                                    /* [] */0
-                                  ]
-                                ])
-                          }, React.createElement("div", {
-                                className: "title"
-                              }, result.doc.title), React.createElement("div", {
-                                className: "breadcrumb"
-                              }, result.doc.breadcrumb)), ReasonReact.element(/* None */0, /* None */0, make(result.doc.rendered, searching.split((/\s+/g)), /* array */[])));
-          }), results);
-    tmp = React.createElement("div", {
-          className: Css.style(/* :: */[
-                Css.position(/* absolute */-1013592457),
-                /* :: */[
-                  Css.top(Css.px(50)),
-                  /* :: */[
-                    Css.bottom(Css.zero),
-                    /* :: */[
-                      Css.overflow(/* auto */-1065951377),
-                      /* :: */[
-                        Css.left(Css.zero),
-                        /* :: */[
-                          Css.right(Css.zero),
-                          /* :: */[
-                            Css.backgroundColor(Css.white),
-                            /* [] */0
-                          ]
-                        ]
-                      ]
-                    ]
-                  ]
-                ]
-              ])
-        }, Caml_obj.caml_equal(results$1, /* array */[]) ? "No results" : results$1);
-  } else {
-    tmp = null;
-  }
+function previewPane$1(_, canvasSize, _$1, _$2, _$3, _$4, _$5, resultJs, _$6) {
   return React.createElement("div", {
               className: previewPane,
               style: {
                 width: String(canvasSize) + "px"
               }
-            }, React.createElement("div", {
-                  className: Css.style(/* :: */[
-                        Css.position(/* relative */903134412),
-                        /* :: */[
-                          Css.alignSelf(/* stretch */-162316795),
-                          /* [] */0
-                        ]
-                      ])
-                }, React.createElement("input", {
-                      className: Css.style(/* :: */[
-                            Css.border(Css.px(1), /* solid */12956715, Css.hex("ccc")),
-                            /* :: */[
-                              Css.padding2(Css.px(8), Css.px(16)),
-                              /* :: */[
-                                Css.borderStyle(/* none */-922086728),
-                                /* :: */[
-                                  Css.width(/* `percent */[
-                                        -119887163,
-                                        100
-                                      ]),
-                                  /* :: */[
-                                    Css.boxSizing(/* borderBox */9307263),
-                                    /* [] */0
-                                  ]
-                                ]
-                              ]
-                            ]
-                          ]),
-                      placeholder: "Search the docs inline",
-                      value: searching,
-                      onChange: onChange
-                    }), match ? React.createElement("button", {
-                        className: Css.style(/* :: */[
-                              Css.position(/* absolute */-1013592457),
-                              /* :: */[
-                                Css.top(Css.px(5)),
-                                /* :: */[
-                                  Css.right(Css.px(5)),
-                                  /* :: */[
-                                    Css.fontSize(Css.px(16)),
-                                    /* :: */[
-                                      Css.fontWeight(600),
-                                      /* :: */[
-                                        Css.borderStyle(/* none */-922086728),
-                                        /* :: */[
-                                          Css.cursor(/* pointer */-786317123),
-                                          /* :: */[
-                                            Css.zIndex(20),
-                                            /* [] */0
-                                          ]
-                                        ]
-                                      ]
-                                    ]
-                                  ]
-                                ]
-                              ]
-                            ]),
-                        onClick: (function () {
-                            return Curry._1(clearSearch, /* () */0);
-                          })
-                      }, "x") : null), React.createElement("div", undefined, React.createElement("h1", {
-                      className: Css.style(/* :: */[
-                            Css.fontSize(Css.px(30)),
-                            /* :: */[
-                              Css.lineHeight(1.1),
-                              /* :: */[
-                                Css.textAlign(/* center */98248149),
-                                /* [] */0
-                              ]
-                            ]
-                          ])
-                    }, "Welcome to the Playground!"), "Press ctrl+enter or cmd+enter to evaluate"), React.createElement("div", {
-                  className: line
-                }), React.createElement("div", undefined, "A", React.createElement("input", {
-                      className: Css.style(/* :: */[
-                            Css.width(Css.px(40)),
-                            /* [] */0
-                          ]),
-                      type: "number",
-                      value: String(canvasSize),
-                      onChange: onChangeCanvas
-                    }), "x " + (String(canvasSize) + " canvas w/ id #canvas")), React.createElement("canvas", {
-                  className: canvas,
-                  id: "canvas",
-                  height: String(canvasSize) + "px",
-                  width: String(canvasSize) + "px"
-                }), React.createElement("div", {
-                  className: line
-                }), React.createElement("div", undefined, "A div w/ id #target"), React.createElement("div", {
-                  className: Css.style(/* :: */[
-                        Css.padding2(Css.px(4), Css.px(8)),
-                        /* :: */[
-                          Css.margin2(Css.px(8), Css.zero),
-                          /* :: */[
-                            Css.boxShadow(/* None */0, /* None */0, /* Some */[Css.px(3)], /* None */0, /* None */0, Css.hex("aaa")),
-                            /* [] */0
-                          ]
-                        ]
-                      ])
-                }, React.createElement("div", {
-                      id: "target"
-                    }, "Render to #target to replace this content")), React.createElement("div", {
-                  className: line
-                }), "The Javascript Output", React.createElement("pre", {
+            }, "The Javascript Output", React.createElement("textarea", {
                   className: Css.style(/* :: */[
                         Css.whiteSpace(/* preWrap */660870029),
                         /* :: */[
@@ -630,111 +476,29 @@ function previewPane$1(toggleExpand, canvasSize, onChange, clearSearch, onChange
                               Css.minHeight(Css.px(100)),
                               /* :: */[
                                 Css.overflow(/* auto */-1065951377),
-                                expandJs ? /* :: */[
-                                    Css.position(/* absolute */-1013592457),
-                                    /* :: */[
-                                      Css.top(Css.px(50)),
-                                      /* :: */[
-                                        Css.bottom(Css.px(10)),
-                                        /* :: */[
-                                          Css.height(/* auto */-1065951377),
-                                          /* :: */[
-                                            Css.left(Css.px(5)),
-                                            /* :: */[
-                                              Css.right(Css.px(5)),
-                                              /* :: */[
-                                                Css.width(/* auto */-1065951377),
-                                                /* [] */0
-                                              ]
-                                            ]
-                                          ]
-                                        ]
-                                      ]
-                                    ]
-                                  ] : /* :: */[
-                                    Css.maxHeight(Css.px(200)),
-                                    /* :: */[
-                                      Css.position(/* relative */903134412),
-                                      /* :: */[
-                                        Css.width(/* `percent */[
-                                              -119887163,
-                                              100
-                                            ]),
-                                        /* [] */0
-                                      ]
-                                    ]
-                                  ]
-                              ]
-                            ]
-                          ]
-                        ]
-                      ])
-                }, React.createElement("div", {
-                      className: Css.style(/* :: */[
-                            Css.position(/* absolute */-1013592457),
-                            /* :: */[
-                              Css.top(Css.px(5)),
-                              /* :: */[
-                                Css.zIndex(100),
                                 /* :: */[
-                                  Css.cursor(/* pointer */-786317123),
+                                  Css.width(/* `percent */[
+                                        -119887163,
+                                        100
+                                      ]),
                                   /* :: */[
-                                    Css.right(Css.px(10)),
-                                    /* [] */0
+                                    Css.fontFamily("monospace"),
+                                    /* :: */[
+                                      Css.flex(1),
+                                      /* [] */0
+                                    ]
                                   ]
                                 ]
                               ]
                             ]
-                          ]),
-                      onClick: (function () {
-                          return Curry._1(toggleExpand, /* () */0);
-                        })
-                    }, "⇱"), React.createElement("code", undefined, resultJs)), React.createElement("div", {
-                  className: line
-                }), "Log output", React.createElement("div", {
-                  className: Css.style(/* :: */[
-                        Css.alignSelf(/* stretch */-162316795),
-                        /* :: */[
-                          Css.width(/* `percent */[
-                                -119887163,
-                                100
-                              ]),
-                          /* :: */[
-                            Css.marginTop(Css.px(16)),
-                            /* [] */0
                           ]
                         ]
-                      ])
-                }, $$Array.mapi((function (i, param) {
-                        var typ = param[0];
-                        var match = typ === "warn";
-                        var tmp;
-                        if (match) {
-                          tmp = Css.hex("faf");
-                        } else {
-                          var match$1 = typ === "error";
-                          tmp = match$1 ? Css.hex("faa") : Css.white;
-                        }
-                        return React.createElement("div", {
-                                    key: String(i),
-                                    className: Css.style(/* :: */[
-                                          Css.backgroundColor(tmp),
-                                          /* :: */[
-                                            Css.wordBreak(/* breakAll */-323760734),
-                                            /* :: */[
-                                              Css.overflow(/* auto */-1065951377),
-                                              /* :: */[
-                                                Css.borderTop(Css.px(1), /* solid */12956715, Css.hex("eee")),
-                                                /* :: */[
-                                                  Css.padding(Css.px(4)),
-                                                  /* [] */0
-                                                ]
-                                              ]
-                                            ]
-                                          ]
-                                        ])
-                                  }, param[1]);
-                      }), $$Array.of_list(List.rev(logs)))), tmp);
+                      ]),
+                  value: resultJs,
+                  onChange: (function () {
+                      return /* () */0;
+                    })
+                }));
 }
 
 var match = parseUrl(location.href);

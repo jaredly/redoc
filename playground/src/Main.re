@@ -413,6 +413,35 @@ let previewPane = (
 </div>
 ;
 
+let previewPane = (
+  ~toggleExpand,
+  ~canvasSize,
+  ~onChange,
+  ~clearSearch,
+  ~onChangeCanvas,
+  ~searching,
+  ~expandJs,
+  ~resultJs,
+  ~logs,
+) => (
+  <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(canvasSize) ++ "px", ())>
+    (str("The Javascript Output"))
+    <textarea className=Css.(style([
+      whiteSpace(`preWrap),
+      wordBreak(`breakAll),
+      padding(px(8)),
+      minHeight(px(100)),
+      overflow(`auto),
+      width(`percent(100.)),
+      fontFamily("monospace"),
+      flex(1),
+    ]))
+    value={resultJs}
+    onChange=(evt => ())
+    />
+  </div>
+);
+
 [@bs.val] external packagedModules: Js.Dict.t(Js.Dict.t(string)) = "";
 [@bs.val] external flatModules: Js.Dict.t(string) = "";
 

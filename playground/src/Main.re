@@ -425,6 +425,7 @@ let previewPane = (
   ~logs,
 ) => (
   <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(canvasSize) ++ "px", ())>
+    <Snack bundledJs={resultJs} />
     (str("The Javascript Output"))
     <textarea className=Css.(style([
       whiteSpace(`preWrap),
@@ -498,7 +499,7 @@ module Main = {
         div: false,
         log: false,
       }),
-      resultJs: "/* Evaluate to see generated js */",
+      resultJs: "var ReactNative = require('react-native'); var React = require('react'); module.exports = () => React.createElement(ReactNative.Text, {}, 'Evaluate to see content')",
       status: Clean,
       syntax,
       cm: None
@@ -603,7 +604,7 @@ module Main = {
               (str("Auto Format"))
             </button>
             (spacer(8))
-            (str("Syntax:"))
+            /* (str("Syntax:"))
             (spacer(8))
             <button
               disabled=(state.syntax == OCaml)
@@ -618,7 +619,7 @@ module Main = {
               onClick=(evt => send(ToReason))
             >
               (str("Reason"))
-            </button>
+            </button> */
             <input
               ref={r => Js.toOption(r) |?< node => state.shareInput = Some(node)}
               style=ReactDOMRe.Style.make(~width="0", ~visibility="hidden", ())

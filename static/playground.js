@@ -20853,18 +20853,18 @@ function serialize(modules, mainId) {
             }), modules$1));
   return ";(function() {var allModules = {" + (contents + Curry._1(Printf.sprintf(/* Format */[
                     /* String_literal */Block.__(11, [
-                        "\n  };\n  var loaded = {}\n  var load = id => {\n    if (!loaded[id]) {\n      var module = {exports: {}};\n      loaded[id] = module;\n      allModules[id](module, module.exports, load)\n    }\n    return loaded[id].exports\n  }\n  ",
+                        "\n  };\n  var loaded = {}\n  var load = id => {\n    if (!loaded[id]) {\n      var module = {exports: {}};\n      loaded[id] = module;\n      allModules[id](module, module.exports, load)\n    }\n    return loaded[id].exports\n  }\n  module.exports = load(",
                         /* Int */Block.__(4, [
                             /* Int_d */0,
                             /* No_padding */0,
                             /* No_precision */0,
                             /* String_literal */Block.__(11, [
-                                "\n})();\n",
+                                ")\n})();\n",
                                 /* End_of_format */0
                               ])
                           ])
                       ]),
-                    "\n  };\n  var loaded = {}\n  var load = id => {\n    if (!loaded[id]) {\n      var module = {exports: {}};\n      loaded[id] = module;\n      allModules[id](module, module.exports, load)\n    }\n    return loaded[id].exports\n  }\n  %d\n})();\n"
+                    "\n  };\n  var loaded = {}\n  var load = id => {\n    if (!loaded[id]) {\n      var module = {exports: {}};\n      loaded[id] = module;\n      allModules[id](module, module.exports, load)\n    }\n    return loaded[id].exports\n  }\n  module.exports = load(%d)\n})();\n"
                   ]), mainId));
 }
 
@@ -20949,6 +20949,7 @@ function bundle(text, packagedModules, flatModules) {
         if (match$2 !== undefined) {
           return /* Some */[processModule(packageName, moduleName, match$2)];
         } else {
+          console.log("Missing in package!!!" + (packageName + (" " + moduleName)));
           return /* None */0;
         }
       } else {
@@ -20956,6 +20957,7 @@ function bundle(text, packagedModules, flatModules) {
         if (match$3 !== undefined) {
           return /* Some */[processModule("", moduleName, match$3)];
         } else {
+          console.log("No flat " + moduleName);
           return /* None */0;
         }
       }
@@ -20969,18 +20971,19 @@ function bundle(text, packagedModules, flatModules) {
           moduleName
         ], next);
     Hashtbl.replace(modules, next, fixRequires(text, (function (requirePath) {
-                console.log(requirePath);
                 var parts = requirePath.split("/");
                 if (parts.length < 2) {
                   return /* None */0;
                 } else {
                   var moduleName = Caml_array.caml_array_get(parts, parts.length - 1 | 0);
                   var moduleName$1 = $$String.capitalize(moduleName);
-                  var match = Caml_string.get(requirePath, 0) === /* "." */46;
-                  var packageName$1 = match ? packageName : Caml_array.caml_array_get(parts, 0);
+                  var match = moduleName$1.endsWith(".js");
+                  var moduleName$2 = match ? $$String.sub(moduleName$1, 0, moduleName$1.length - 3 | 0) : moduleName$1;
+                  var match$1 = Caml_string.get(requirePath, 0) === /* "." */46;
+                  var packageName$1 = match$1 ? packageName : Caml_array.caml_array_get(parts, 0);
                   if (packageName$1 === "stdlib") {
-                    var match$1 = moduleName$1.split("-");
-                    var len = match$1.length;
+                    var match$2 = moduleName$2.split("-");
+                    var len = match$2.length;
                     if (len >= 3) {
                       return /* None */0;
                     } else {
@@ -20988,23 +20991,28 @@ function bundle(text, packagedModules, flatModules) {
                         case 0 : 
                             return /* None */0;
                         case 1 : 
-                            var single = match$1[0];
+                            var single = match$2[0];
                             return getId("", single);
                         case 2 : 
-                            var moduleName$2 = match$1[0];
-                            var packageName$2 = match$1[1];
-                            return getId(packageName$2, moduleName$2);
+                            var moduleName$3 = match$2[0];
+                            var packageName$2 = match$2[1];
+                            return getId(packageName$2, moduleName$3);
                         
                       }
                     }
                   } else {
-                    return getId(packageName$1, moduleName$1);
+                    return getId(packageName$1, moduleName$2);
                   }
                 }
               })));
     return next;
   };
   var mainId = processModule("$top-package$", "$main$", text);
+  console.log("all modules");
+  Hashtbl.iter((function (k, _) {
+          console.log(k);
+          return /* () */0;
+        }), ids);
   return serialize(modules, mainId);
 }
 

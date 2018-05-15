@@ -26,7 +26,7 @@ let serialize = (modules, mainId) => {
     }
     return loaded[id].exports
   }
-  %d
+  module.exports = load(%d)
 })();
 |}, mainId);
 };
@@ -61,11 +61,17 @@ let bundle = (text, packagedModules, flatModules) => {
   | None =>
     switch (Js.Dict.get(packagedModules, packageName)) {
     | None => switch (Js.Dict.get(flatModules, moduleName)) {
-      | None => None
+      | None => {
+        Js.log("No flat " ++ moduleName);
+        None
+      }
       | Some(text) => Some(processModule("", moduleName, text))
       }
     | Some(package) => switch (Js.Dict.get(package, moduleName)) {
-      | None => None
+      | None => {
+        Js.log("Missing in package!!!" ++ packageName ++ " " ++ moduleName);
+        None
+      }
       | Some(text) => Some(processModule(packageName, moduleName, text))
       }
     }
@@ -76,12 +82,13 @@ let bundle = (text, packagedModules, flatModules) => {
     id := next + 1;
     Hashtbl.replace(ids, (packageName, moduleName), next);
     Hashtbl.replace(modules, next, fixRequires(text, requirePath => {
-      Js.log(requirePath);
+      /* Js.log(requirePath); */
       let parts = Js.String.split("/", requirePath);
       /* Not an absolute require */
       if (Array.length(parts) < 2) { None } else {
         let moduleName = parts[Array.length(parts) - 1];
         let moduleName = String.capitalize(moduleName);
+        let moduleName = Js.String.endsWith(".js", moduleName) ? String.sub(moduleName, 0, String.length(moduleName) - 3) : moduleName;
         let packageName = requirePath.[0] == '.' ? packageName : parts[0];
         if (packageName == "stdlib") {
           switch(Js.String.split("-", moduleName)) {
@@ -99,5 +106,9 @@ let bundle = (text, packagedModules, flatModules) => {
 
   /* let main = "$main$"; */
   let mainId = processModule("$top-package$", "$main$", text);
+  Js.log("all modules");
+  Hashtbl.iter((k, v) => {
+    Js.log(k);
+  }, ids);
   serialize(modules, mainId)
 };

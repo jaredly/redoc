@@ -5,7 +5,7 @@
     "start": "bsb -make-world -w",
     "build": "bsb -make-world",
     "clean": "bsb -clean-world",
-    "bundle": "webpack",
+    "bundle": "./node_modules/.bin/webpack --mode development --entry ./lib/js/src/Main.js --output ../static/playground.js",
     "bundle-bad": "../node_modules/pack.re-bin/pack.re.sh ./lib/js/src/Main.js > ../static/playground.js"
   },
   "dependencies": {
@@ -13,7 +13,7 @@
     "bs-platform": "3",
     "lz-string": "^1.4.4",
     "reason-react": "*",
-    "snack-sdk": "^1.0.10",
+    "snack-sdk": "expo/snack-sdk",
     "webpack": "^4.8.3"
   },
   "devDependencies": {

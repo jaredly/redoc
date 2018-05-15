@@ -786,7 +786,7 @@ function make$1() {
                                     epos
                                   ])]));
                 } else {
-                  return Curry._1(send, /* Js */Block.__(2, [Bundle.bundle(match$1[0], { })]));
+                  return Curry._1(send, /* Js */Block.__(2, [Bundle.bundle(match$1[0], packagedModules, flatModules)]));
                 }
               };
               var match = state[/* status */11];
@@ -20814,6 +20814,9 @@ var Curry = require(4);
 var Printf = require(66);
 var $$String = require(21);
 var Hashtbl = require(88);
+var Caml_array = require(5);
+var Caml_string = require(17);
+var Caml_builtin_exceptions = require(6);
 
 function serialize(modules, mainId) {
   var modules$1 = Hashtbl.fold((function (id, text, res) {
@@ -20890,41 +20893,118 @@ function fixRequires(text, resolveRequire) {
               }));
 }
 
-function bundle(text, includedSourceModules) {
+function bundle(text, packagedModules, flatModules) {
   var modules = Hashtbl.create(/* None */0, 100);
   var ids = Hashtbl.create(/* None */0, 100);
   var id = [0];
-  var processModule = function (moduleName, text) {
+  var getProcessed = function (packageName, moduleName) {
+    var exit = 0;
+    var x;
+    try {
+      x = Hashtbl.find(ids, /* tuple */[
+            packageName,
+            moduleName
+          ]);
+      exit = 1;
+    }
+    catch (exn){
+      if (exn === Caml_builtin_exceptions.not_found) {
+        var exit$1 = 0;
+        var x$1;
+        try {
+          x$1 = Hashtbl.find(ids, /* tuple */[
+                "",
+                moduleName
+              ]);
+          exit$1 = 2;
+        }
+        catch (exn$1){
+          if (exn$1 === Caml_builtin_exceptions.not_found) {
+            return /* None */0;
+          } else {
+            throw exn$1;
+          }
+        }
+        if (exit$1 === 2) {
+          return /* Some */[x$1];
+        }
+        
+      } else {
+        throw exn;
+      }
+    }
+    if (exit === 1) {
+      return /* Some */[x];
+    }
+    
+  };
+  var getId = function (packageName, moduleName) {
+    var match = getProcessed(packageName, moduleName);
+    if (match) {
+      return /* Some */[match[0]];
+    } else {
+      var match$1 = packagedModules[packageName];
+      if (match$1 !== undefined) {
+        var match$2 = match$1[moduleName];
+        if (match$2 !== undefined) {
+          return /* Some */[processModule(packageName, moduleName, match$2)];
+        } else {
+          return /* None */0;
+        }
+      } else {
+        var match$3 = flatModules[moduleName];
+        if (match$3 !== undefined) {
+          return /* Some */[processModule("", moduleName, match$3)];
+        } else {
+          return /* None */0;
+        }
+      }
+    }
+  };
+  var processModule = function (packageName, moduleName, text) {
     var next = id[0];
     id[0] = next + 1 | 0;
-    Hashtbl.replace(ids, moduleName, next);
+    Hashtbl.replace(ids, /* tuple */[
+          packageName,
+          moduleName
+        ], next);
     Hashtbl.replace(modules, next, fixRequires(text, (function (requirePath) {
                 console.log(requirePath);
                 var parts = requirePath.split("/");
                 if (parts.length < 2) {
                   return /* None */0;
                 } else {
-                  var match = parts.pop();
-                  if (match !== undefined) {
-                    var moduleName = match;
-                    if (Hashtbl.mem(ids, moduleName)) {
-                      return /* Some */[Hashtbl.find(ids, moduleName)];
+                  var moduleName = Caml_array.caml_array_get(parts, parts.length - 1 | 0);
+                  var moduleName$1 = $$String.capitalize(moduleName);
+                  var match = Caml_string.get(requirePath, 0) === /* "." */46;
+                  var packageName$1 = match ? packageName : Caml_array.caml_array_get(parts, 0);
+                  if (packageName$1 === "stdlib") {
+                    var match$1 = moduleName$1.split("-");
+                    var len = match$1.length;
+                    if (len >= 3) {
+                      return /* None */0;
                     } else {
-                      var match$1 = includedSourceModules[moduleName];
-                      if (match$1 !== undefined) {
-                        return /* Some */[processModule(moduleName, match$1)];
-                      } else {
-                        return /* None */0;
+                      switch (len) {
+                        case 0 : 
+                            return /* None */0;
+                        case 1 : 
+                            var single = match$1[0];
+                            return getId("", single);
+                        case 2 : 
+                            var moduleName$2 = match$1[0];
+                            var packageName$2 = match$1[1];
+                            return getId(packageName$2, moduleName$2);
+                        
                       }
                     }
                   } else {
-                    return /* None */0;
+                    return getId(packageName$1, moduleName$1);
                   }
                 }
               })));
     return next;
   };
-  var mainId = processModule("$main$", text);
+  var mainId = processModule("$top-package$", "$main$", text);
   return serialize(modules, mainId);
 }
 

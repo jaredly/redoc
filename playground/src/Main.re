@@ -413,6 +413,9 @@ let previewPane = (
 </div>
 ;
 
+[@bs.val] external packagedModules: Js.Dict.t(Js.Dict.t(string)) = "";
+[@bs.val] external flatModules: Js.Dict.t(string) = "";
+
 module Main = {
   type state = {
     text: string,
@@ -536,7 +539,10 @@ module Main = {
           /* runCode(js, (. typ, text) => {
             send(AddLog(typ, text))
           }); */
-          send(Js(Bundle.bundle(js, Js.Dict.empty())))
+          send(Js(Bundle.bundle(js,
+            packagedModules,
+            flatModules
+          )))
         }
         | Error((text, spos, epos)) => {
           state.cm |?< cm => markText(cm, jsPos(spos), jsPos(epos), {"className": Styles.codeMirrorMark});

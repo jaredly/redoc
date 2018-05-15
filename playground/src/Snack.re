@@ -3,9 +3,9 @@
 let appJs = "import React from 'react'; import Reason from './reason.js'; export default class App extends React.Component { render() { return <Reason /> } }";
 
 type file = {. "type": string, "contents": string};
+type files = {. "app.js": file, "reason.js": file};
 type config = {.
-  "files": {. "app.js": file, "reason.js": file},
-  "dependencies": Js.Dict.t(string),
+  "files": files,
   "sdkVersion": string,
   "deviceId": string,
   "name": string,
@@ -17,8 +17,24 @@ type snackSession;
 [@bs.send] external addLogListener: snackSession => ('a => unit) => unit = "";
 [@bs.send] external addErrorListener: snackSession => ('a => unit) => unit = "";
 [@bs.send] external addPresenceListener: snackSession => ('a => unit) => unit = "";
+[@bs.send] external updateFiles: snackSession => files => Js.Promise.t(unit) = "sendCodeAsync";
 
-let files = reasonBundle => { "app.js": {"type": "CODE", "contents":appJs}, "reason.js": {"type": "CODE", "contents":reasonBundle} };
+let files = reasonBundle => { "app.js": {
+  "type": "CODE", "contents":appJs},
+  "reason.js": {"type": "CODE",
+    "contents": reasonBundle
+  } };
+
+let newSession = (bundledJs, deviceId) => {
+  let session = snackSession({
+    "files": files(bundledJs),
+    "sdkVersion": "27.0.0",
+    "deviceId": deviceId,
+    "name": "Reason Snack",
+  });
+  [%bs.raw {|(window.ss = session)|}];
+  session
+};
 
 type state = {
   session: snackSession,
@@ -35,7 +51,7 @@ type action =
   | Started
   ;
 
-let component = ReasonReact.reducerComponent("Snack");
+/* let component = ReasonReact.reducerComponent("Snack"); */
 
 let module IdForm = {
   let component = ReasonReact.reducerComponent("Snack");
@@ -57,10 +73,9 @@ let module IdForm = {
       </button>
     </div>
   }
-
 };
 
-let make = (~bundledJs, _children) => {
+/* let make = (~bundledJs, _children) => {
   ...component,
   initialState: () => None,
   reducer: (action, state) => switch state {
@@ -76,23 +91,7 @@ let make = (~bundledJs, _children) => {
   render: ({state, send}) => {
     <div>
       <IdForm onSubmit=(deviceId => {
-        /* [%bs.debugger]; */
-        let session = snackSession({
-          "files": files(bundledJs),
-          "sdkVersion": "24.0.0",
-          "dependencies": Js.Dict.fromList([("react", "~16.0.0")]),
-          "deviceId": deviceId,
-          "name": "Reason Snack",
-        });
-        [%bs.raw {|(window.ss = session)|}];
-        send(UseSession(session));
-        addLogListener(session, log => Js.log(log));
-        addErrorListener(session, log => Js.log(log));
-        addPresenceListener(session, log => Js.log(log));
-        startAsync(session) |> Js.Promise.then_(() => {
-          send(Started);
-          Js.Promise.resolve(())
-        }) |> ignore;
+        ()
       }) />
       (switch state {
       | None => ReasonReact.nullElement
@@ -103,4 +102,4 @@ let make = (~bundledJs, _children) => {
       })
     </div>
   }
-};
+}; */

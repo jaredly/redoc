@@ -422,10 +422,14 @@ let previewPane = (
   ~searching,
   ~expandJs,
   ~resultJs,
+  ~onConnect,
   ~logs,
 ) => (
   <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(canvasSize) ++ "px", ())>
-    <Snack bundledJs={resultJs} />
+    <Snack.IdForm
+      onSubmit=onConnect
+    />
+    /* <Snack bundledJs={resultJs} /> */
     (str("The Javascript Output"))
     <textarea className=Css.(style([
       whiteSpace(`preWrap),
@@ -451,6 +455,7 @@ module Main = {
     text: string,
     /* autorun: bool, */
     mutable cm: option(codemirror),
+    mutable snackSession: option(Snack.snackSession),
     context,
     canvasSize: int,
     mutable shareInput: option(Dom.element),
@@ -491,6 +496,7 @@ module Main = {
       searching: "",
       canvasSize,
       expandJs: false,
+      snackSession: None,
       currentCompletion: None,
       /* autorun: true, */
       shareInput: None,
@@ -566,13 +572,18 @@ module Main = {
         state.cm |?< cm => clearMarks(cm);
         switch (state.syntax == Reason ? reasonCompile(text) : ocamlCompile(text)) {
         | Ok(js) => {
+          let bundled = Bundle.bundle(js,
+            packagedModules,
+            flatModules
+          );
+          switch (state.snackSession) {
+          | None => ()
+          | Some(session) => Snack.updateFiles(session, Snack.files(bundled)) |> ignore
+          };
           /* runCode(js, (. typ, text) => {
             send(AddLog(typ, text))
           }); */
-          send(Js(Bundle.bundle(js,
-            packagedModules,
-            flatModules
-          )))
+          send(Js(bundled))
         }
         | Error((text, spos, epos)) => {
           state.cm |?< cm => markText(cm, jsPos(spos), jsPos(epos), {"className": Styles.codeMirrorMark});
@@ -696,6 +707,14 @@ module Main = {
           ~onChange=(evt => send(SetSearch(getInputValue(evt)))),
           ~clearSearch=() => send(SetSearch("")),
           ~onChangeCanvas=(evt => send(SetCanvasSize(min(800, max(50, int_of_string(getInputValue(evt))))))),
+          ~onConnect=(deviceId => {
+            let session = Snack.newSession(state.resultJs, deviceId);
+            state.snackSession = Some(session);
+            Snack.startAsync(session) |> Js.Promise.then_(() => {
+              /* send(Started); */
+              Js.Promise.resolve(())
+            }) |> ignore;
+          })
         ))
 
       </div>

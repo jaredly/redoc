@@ -106,9 +106,5 @@ let bundle = (text, packagedModules, flatModules) => {
 
   /* let main = "$main$"; */
   let mainId = processModule("$top-package$", "$main$", text);
-  Js.log("all modules");
-  Hashtbl.iter((k, v) => {
-    Js.log(k);
-  }, ids);
   serialize(modules, mainId)
 };

@@ -6,10 +6,13 @@ type file = {. "type": string, "contents": string};
 type files = {. "app.js": file, "reason.js": file};
 type config = {.
   "files": files,
+  "sessionId": string,
   "sdkVersion": string,
   "deviceId": string,
   "name": string,
 };
+
+let sessionId = [%bs.raw {|window.localStorage.snackSessionId || (window.localStorage.snackSessionId = Math.random().toString(32).slice(2))|}];
 
 type snackSession;
 [@bs.new] [@bs.module "snack-sdk"] external snackSession : config => snackSession = "SnackSession";
@@ -21,13 +24,14 @@ type snackSession;
 
 let files = reasonBundle => { "app.js": {
   "type": "CODE", "contents":appJs},
-  "reason.js": {"type": "CODE",
+  "reason.js": {"type": "BUNDLED_CODE",
     "contents": reasonBundle
   } };
 
 let newSession = (bundledJs, deviceId) => {
   let session = snackSession({
     "files": files(bundledJs),
+    "sessionId": sessionId,
     "sdkVersion": "27.0.0",
     "deviceId": deviceId,
     "name": "Reason Snack",
@@ -57,8 +61,11 @@ let module IdForm = {
   let component = ReasonReact.reducerComponent("Snack");
   let make = (~onSubmit, _children) => {
     ...component,
-    initialState: () => "",
-    reducer: (newState, _) => ReasonReact.Update(newState),
+    initialState: () => [%bs.raw "window.localStorage.snackDeviceId || ''"],
+    reducer: (newState, _) => {
+      [%bs.raw "window.localStorage.snackDeviceId = newState"];
+      ReasonReact.Update(newState)
+    },
     render: ({state, send}) => <div>
       (ReasonReact.stringToElement("Enter your deviceId to connect"))
       <input

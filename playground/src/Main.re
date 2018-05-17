@@ -423,14 +423,38 @@ let previewPane = (
   ~expandJs,
   ~resultJs,
   ~onConnect,
+  /* ~bundleTime, */
   ~logs,
 ) => (
   <div className=Styles.previewPane style=ReactDOMRe.Style.make(~width=string_of_int(canvasSize) ++ "px", ())>
     <Snack.IdForm
       onSubmit=onConnect
     />
+    /* <div>(ReasonReact.stringToElement(bundleTime))</div> */
+    (str("Log output"))
+    <div className=Css.(style([
+      alignSelf(`stretch),
+      width(`percent(100.)),
+      marginTop(px(16))
+    ]))>
+    {ReasonReact.arrayToElement(
+      List.rev(logs)
+      |> Array.of_list
+      |> Array.mapi((i, (typ, item)) => (
+        <div key=(string_of_int(i)) className=Css.(style([
+          backgroundColor(typ == "warn" ? hex("faf") : (typ == "error" ? hex("faa") : white)),
+          wordBreak(`breakAll),
+          overflow(`auto),
+          borderTop(px(1), `solid, hex("eee")),
+          padding(px(4))
+        ]))>
+          (str(item))
+        </div>
+      ))
+    )}
+    </div>
     /* <Snack bundledJs={resultJs} /> */
-    (str("The Javascript Output"))
+    /* (str("The Javascript Output"))
     <textarea className=Css.(style([
       whiteSpace(`preWrap),
       wordBreak(`breakAll),
@@ -443,12 +467,14 @@ let previewPane = (
     ]))
     value={resultJs}
     onChange=(evt => ())
-    />
+    /> */
   </div>
 );
 
 [@bs.val] external packagedModules: Js.Dict.t(Js.Dict.t(string)) = "";
 [@bs.val] external flatModules: Js.Dict.t(string) = "";
+
+[@bs.val] external stringifyAny: 'a => string = "JSON.stringify";
 
 module Main = {
   type state = {
@@ -458,6 +484,7 @@ module Main = {
     mutable snackSession: option(Snack.snackSession),
     context,
     canvasSize: int,
+    /* bundleTime: string, */
     mutable shareInput: option(Dom.element),
     logs: list((string, string)),
     resultJs: string,
@@ -467,7 +494,6 @@ module Main = {
     syntax,
     status,
   };
-
 
   type action =
     | Text(string)
@@ -494,6 +520,7 @@ module Main = {
       text,
       logs: [],
       searching: "",
+      /* bundleTime: "", */
       canvasSize,
       expandJs: false,
       snackSession: None,
@@ -513,7 +540,7 @@ module Main = {
 
     reducer: (action, state) => Update(switch action {
     | Text(text) => {...state, text}
-    | Js(js) => {...state, status: Clean, resultJs: js}
+    | Js(js) => {...state, status: Clean, resultJs: js, logs: [("log", "Bundled at " ++ [%bs.raw "new Date().toLocaleTimeString()"]), ...state.logs]}
     | SetSearch(searching) => {...state, searching}
     | Reset(text) => {
       state.cm |?< cm => setValue(cm, text);
@@ -568,7 +595,6 @@ module Main = {
       let run = text => {
         let url = makeUrl(text, state.syntax, state.canvasSize);
         replaceState(url);
-        send(ClearLogs);
         state.cm |?< cm => clearMarks(cm);
         switch (state.syntax == Reason ? reasonCompile(text) : ocamlCompile(text)) {
         | Ok(js) => {
@@ -580,9 +606,7 @@ module Main = {
           | None => ()
           | Some(session) => Snack.updateFiles(session, Snack.files(bundled)) |> ignore
           };
-          /* runCode(js, (. typ, text) => {
-            send(AddLog(typ, text))
-          }); */
+          [%bs.raw "(window.bundledJs = bundled)"];
           send(Js(bundled))
         }
         | Error((text, spos, epos)) => {
@@ -657,6 +681,7 @@ module Main = {
                 let cm = fromTextArea(. node, run);
                 state.cm = Some(cm);
                 setCm(Utils.window, cm);
+                Js.Global.setTimeout(() => [%bs.raw "cm.refresh()"], 100) |> ignore;
                 let onSelect = item => send(CompletionSelected(item));
                 let onClose = () => send(CompletionCleared);
                 registerComplete(cm, cm => autoComplete(cm, onSelect, onClose));
@@ -710,13 +735,19 @@ module Main = {
           ~onConnect=(deviceId => {
             let session = Snack.newSession(state.resultJs, deviceId);
             state.snackSession = Some(session);
+            send(AddLog("log", "Session initializing..."));
             Snack.startAsync(session) |> Js.Promise.then_(() => {
               /* send(Started); */
+              send(AddLog("log", "Session connected, session id: " ++ Snack.sessionId));
               Js.Promise.resolve(())
             }) |> ignore;
+            Snack.addLogListener(session, l => send(AddLog("log", stringifyAny(l))));
+            Snack.addErrorListener(session, l => send(AddLog("error", stringifyAny(l))));
+            Snack.addPresenceListener(session, l => send(AddLog("presence",
+              "Presence: " ++ l##device##name ++ " (" ++ l##device##platform ++ ") " ++ l##status
+            )));
           })
         ))
-
       </div>
     }
   };

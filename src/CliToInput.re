@@ -30,7 +30,10 @@ let startsWith = (text, prefix) => String.length(prefix) <= String.length(text)
 
 let findMarkdownFiles = (projectName, target, base) => {
   let targetIsInBase = startsWith(target, base);
-  let foundFiles = Files.collect(target, name => Filename.check_suffix(name, ".md"))
+  let foundFiles = Files.collect(~checkDir=name => {
+    print_endline(name);
+    name != target /+ "fonts"
+  }, target, name => Filename.check_suffix(name, ".md"))
   |> List.map(path => {
     (path, if (targetIsInBase) { Some(Files.relpath(base, path)) } else {None},
       Files.relpath(target, String.lowercase(Filename.basename(path)) == "readme.md"
@@ -181,19 +184,10 @@ let findDependencyDirectories = root => {
       ? [root /+ "lib/bs/js", root /+ "lib/bs/native"]
       : [root /+ "lib/bs", root /+ "lib/ocaml"]
   );
-  let jsBase = Files.ifExists(root /+ "lib/js") |! "lib/js not found";
+  let jsBase = root /+ "lib/js";
   let mine = [compiledBase, ...Files.collectDirs(compiledBase)] |> List.map(path => (path, jsBase /+ Files.relpath(compiledBase, path)));
   mine @ getDependencyDirs(root, config)
 };
-
-
-
-
-
-
-
-
-
 
 
 let help = {|
@@ -261,11 +255,6 @@ let getRefmt = bsRoot => {
 let getPackageJsonName = config => {
   Json.get("name", config) |?>> (Json.string |.! "name must be a string")
 };
-
-/* let unique = list => {
-  let hash = Hashtbl.create(10);
-  list |> List.filter(item => Hashtbl.mem(hash, item) ? false : {Hashtbl.add(hash, item, true); true})
-}; */
 
 let getBsbVersion = base => {
   let (out, success) = Commands.execSync(base /+ "lib/bsb.exe -version");

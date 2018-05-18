@@ -103,42 +103,14 @@ For all other files:
 
 ## Example of inline scratchboxes
 
-```reason
+```
+\```reason
 print_endline("Hello");
+\```
 ```
 
 When you execute, will trap the console & display below (should also send to real console).
 Default is to run in a worker. If you don't want that, you can do
-
-```reason;window
-type document;
-[@bs.val] external document: document = "";
-Js.log2("We can access document", document);
-```
-
-You might also want it to execute in an iframe!
-
-```reason;iframe
-Js.log("Iframe")
-```
-
-```reason;each-iframe
-Js.log("This script gets its own iframe.");
-```
-
-If you want a setup to happen
-
-```each-setup
-Js.log("Gets run before every script. variables are accessible by scripts");
-```
-
-```setup
-Js.log("Gets run at the very start. variables are not accessible");
-```
-
-```each-setup;canvas
-Js.log("A canvas is created for each. you can access it as canvasId");
-```
 
 ```setup;canvas
 Js.log("A shared canvas is created, and maybe floats somewhere? idk");

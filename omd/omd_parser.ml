@@ -1278,6 +1278,14 @@ struct
           code_block (b::accu) tl
       | Tag(_, _)::tl ->
         code_block accu tl
+
+      | Backslash :: (Backquote as t) :: tl ->
+        code_block (t :: accu) tl
+      | Backslash :: Backquotes 0 :: tl -> (* \````... *)
+        code_block (Backquote :: accu) tl
+      | Backslash :: Backquotes n :: tl -> assert (n >= 0); (* \````... *)
+        code_block (Backquotes n :: accu) tl
+
       | e::tl ->
         code_block (e::accu) tl
     in

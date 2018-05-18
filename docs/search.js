@@ -1,5 +1,6 @@
 
 (function() {
+  
   var node = (tag, attrs, children) => {
     var node = document.createElement(tag)
     for (var attr in attrs) {
@@ -25,7 +26,8 @@
   var render = (target, node) => {
     target.innerHTML = ''
     target.appendChild(node)
-  }
+  };
+
 
   var input = document.getElementById('search-input');
   var index = elasticlunr.Index.load(window.searchindex);
@@ -78,10 +80,13 @@
     var results = index.search(text, config).slice(0, 30);
     render(document.getElementById('search-results'), div(
       {},
-      results.map(({ref, score, doc: {href, title, contents, rendered}}) => div(
+      results.map(({ref, score, doc: {href, title, contents, rendered, breadcrumb}}) => div(
         {class: 'result'},
         [
-          a({href, class: 'title'}, [title]),
+          div({style: {display: 'flex', justifyContent: 'space-between'}}, [
+            a({href, class: 'title'}, [title]),
+            span({class: 'breadcrumb'}, [breadcrumb])
+          ]),
           div({}, [
             highlightingNode(rendered, text.split(/\s+/g))
             // raw(text.split(/\s+/g).reduce(

@@ -352,7 +352,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
           packageJsonName,
         }
       })) |? NoBackend,
-      sidebarFile: None,
+      sidebarFile: Files.ifExists(target /+ "sidebar.json"),
       customFiles: findMarkdownFiles(projectName, target, root),
       moduleFiles: projectFiles == [] ? findProjectFiles(~debug, ~namespace=namespaced ? Some(projectName) : None, root) : projectFiles,
     },

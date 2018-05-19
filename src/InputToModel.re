@@ -2,17 +2,23 @@
 open Infix;
 open! State.Model;
 
+let rec parsePages = item => switch item {
+| Json.String(path) => State.Model.SidebarItem(path)
+| Json.Object(contents) => State.Model.SidebarHeader(
+  List.assoc("title", contents) |> Json.string |! "Title must be a string",
+  List.assoc("contents", contents) |> Json.array |! "Contents must be a list" |> List.map(parsePages)
+)
+| _ => failwith("Invalid sidebar file")
+};
+
 let parseSidebar = path => {
-  let contents = Json.parse(Files.readFile(path) |! "Sidebar file does not exist") |> Json.array |! "Sidebar json must be an array";
-  let rec loop = item => switch item {
-  | Json.String(path) => State.Model.SidebarItem(path)
-  | Json.Object(contents) => State.Model.SidebarHeader(
-    List.assoc("title", contents) |> Json.string |! "Title must be a string",
-    List.assoc("contents", contents) |> Json.array |! "Contents must be a list" |> List.map(loop)
-  )
-  | _ => failwith("Invalid sidebar file")
+  let contents = Json.parse(Files.readFile(path) |! "Sidebar file does not exist");
+  let pages = switch (Json.get("pages", contents)) {
+  | Some(Json.Array(items)) => List.map(parsePages, items)
+  | _ => []
   };
-  List.map(loop, contents)
+  pages
+  /* List.map(parsePages, contents) */
 };
 
 let getName = x => Filename.basename(x) |> Filename.chop_extension;

@@ -88,7 +88,8 @@ let block = (
   | None => {
     let altOptions = {...options, lang: altLang};
     let (altCode, altResult) = switch compilationResult {
-    | Skipped | ParseError(_) => ("Unable to refmt code with a syntax error", Skipped)
+    | Skipped => ("This code was skipped", Skipped)
+    | ParseError(parseError) => (plainContent, ParseError("Unable to refmt code with a syntax error. The original error was\n\n" ++ parseError))
     | TypeError(_, _) | Success(_, _) => {
         let altContent = options.lang == OCaml ? toReason(refmt, plainContent) : toMl(refmt, bsRoot, tmp, name, plainContent);
         let compilationResult = CodeSnippets.processBlock(

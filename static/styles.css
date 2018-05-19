@@ -45,7 +45,7 @@ blockquote {
 }
 
 pre {
-  margin: 0;
+  margin: 16px 0;
   padding: 8px 16px;
   background-color: #f1f8ff;
   overflow: auto;
@@ -107,6 +107,8 @@ div.compile-error {
 .code-post {
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
+  margin-bottom: 16px;
+  margin-top: -16px;
 }
 
 .code-pre {
@@ -637,11 +639,13 @@ pre.code {
   background: #ffd2d2;
   padding: 4px 8px;
   white-space: pre;
+  margin-top: -16px;
 }
 .type-error {
   background: #ff9a9a;
   padding: 4px 8px;
   white-space: pre;
+  margin-top: -16px;
 }
 
 @font-face{

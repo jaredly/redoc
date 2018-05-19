@@ -1,4 +1,6 @@
 docs/*.html binary
+docs/searchables.json binary
+docs/searchables.json.index.js binary
 docs/*/*.html binary
 docs/descartes/index.html -binary
 docs/descartes/graph.html -binary

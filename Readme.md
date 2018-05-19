@@ -7,31 +7,191 @@ A clean & easy documentation generator for reason/bucklescript/ocaml.
 
 get the binary (either by [downloading it](https://github.com/jaredly/docre/releases/), or building it yourself).
 
-```txt
-# docre - a clean & easy documentation generator
-
-Usage: docre [options]
-
-  --root (default: current directory)
-      expected to contain bsconfig.json, and bs-platform in the node_modules
-  --target (default: {root}/docs)
-      where we should write out the docs
-  --name (default: the name of the directory, capitalized)
-      what this project is called
-  --doctest (default: false)
-      execute the documentation snippets to make sure they run w/o erroring
-  -h, --help
-      print this help
-```
-
-## How to build
+To build:
 
 ```bash
 npm install
 npm start
 ```
 
-The binary is then in `./lib/bs/native/main.native`.
+The binary is then in `./lib/bs/native/main.native`. You can run `./docre.sh`, which delegates to that.
+
+### Common options
+
+```txt
+  --root (default: current directory)
+      expected to contain bsconfig.json, and bs-platform in the node_modules
+  --target (default: {root}/docs)
+      where we should write out the docs
+  --name (default: the name of the directory, capitalized)
+      what this project is called
+  --ignore-code-errors
+      don't print warnings about parse & type errors in code blocks
+  --ml
+      assume code snippets are in ocaml syntax, not reason
+  -h, --help
+      print this help
+```
+
+### Less used options
+
+```txt
+  --project-file (can be used multiple times)
+      specified as /abs/path/to/.cmt:rel/path/from/repo/root
+  --project-directory (can be used multiple times)
+      path/to/cmt/directory:rel/path/from/root
+  --dependency-directory (can be used multiple times)
+      a directory containing ".cmj" files that should be '-I'd when compiling snippets
+  --bs-root (default: root/node_modules/bs-platform)
+  --skip-stdlib-completions
+      don't include completions for the stdlib in the playground
+  --no-bundle
+      don't bundle the code examples. This disables editor support
+  --just-input
+      just parse the options & show the debug output of parsing cli args
+  --debug
+      output debugging information
+```
+
+## Example of inline scratchboxes
+
+If you put this in your doc-comments:
+
+```txt
+\```reason
+print_endline("Hello");
+\```
+```
+
+Then you get this, with full type-for-hover, and in-browser running & editing. (In this example there's not editing, because this app is compiled natively).
+
+```reason
+print_endline("Hello");
+```
+
+When you execute, will trap the console & display below (should also send to real console).
+
+### Displaying errors
+
+```txt
+\```re
+This is a syntax error
+\```
+```
+
+```re;parse-fail
+This is a syntax error
+```
+
+If you *intend* to have a syntax error, add `parse-fail` to the header, like `re;parse-fail`. Other wise you'll get a big warning when you run docre.
+
+```txt
+\```re
+3 + "type error"
+\```
+```
+
+```re;type-fail
+3 + "type error"
+```
+
+Similarly, if you *intend* to have a type error, add `type-fail` to the header, like `re;type-fail`.
+
+### More fancy output options
+
+#### `#` Hiding prefix & suffix lines
+
+```txt
+\```
+#let x = "this line will be hidden";
+#let y = "this line will also be hidden";
+let z = x ++ y; /* wow where did that come from */
+# /* also this line will be hidden */
+!#Js.log("And this line will be visible, but read-only at the end.");
+\```
+```
+
+```re
+#let x = "this line will be hidden";
+#let y = "this line will also be hidden";
+let z = x ++ y; /* wow where did that come from */
+# /* also this line will be hidden */
+!#Js.log("And this line will be visible, but read-only at the end.");
+```
+
+
+#### `canvas` Have a canvas
+
+```txt
+\```canvas
+Js.log("A shared canvas is created, and floats over to the right. The canvasId is available as 'sandboxId'.");
+[@bs.val] external sandboxId: string = "";
+\```
+```
+
+#### `shared(name)` Share something
+
+```txt
+\```shared(awesome)
+let something = "A string I want to use later";
+\```
+```
+
+```shared(awesome)
+let something = "A string I want to use later";
+```
+
+And then use it later:
+
+```txt
+\```use(awesome)
+Js.log(something);
+\```
+```
+
+```use(awesome)
+/* Yay now this type checks */
+Js.log(something);
+```
+
+#### `hide` Hide a code block
+Nice if you want a shared block that doesn't make sense on its own:
+
+```txt
+\```hide
+let x = 10;
+\```
+```
+
+```hide
+let x = 10;
+```
+
+#### Write the source in OCaml
+
+This will show up as reason
+
+```txt
+\```ml
+Js.log "this was written in ocaml";
+\```
+```
+
+```ml
+Js.log "this was written in ocaml";
+```
+
+
+
+## Related work
+
+http://davidchristiansen.dk/drafts/final-pretty-printer-draft.pdf
+
+ooh check this out
+https://github.com/martinklepsch/cljdoc
+
+
+# Contributing
 
 ## Things still to be implemented
 
@@ -100,26 +260,3 @@ For all other files:
 - should the api docs be placed in `./docs/api`? Maybe. Probably.
 - maybe allow you to `@doc` include bits of docs from the api? That could be fun.
 - probably want to allow "splat"ing in code from different places. Like example code, etc.
-
-## Example of inline scratchboxes
-
-```
-\```reason
-print_endline("Hello");
-\```
-```
-
-When you execute, will trap the console & display below (should also send to real console).
-Default is to run in a worker. If you don't want that, you can do
-
-```setup;canvas
-Js.log("A shared canvas is created, and maybe floats somewhere? idk");
-```
-
-
-## Related work
-
-http://davidchristiansen.dk/drafts/final-pretty-printer-draft.pdf
-
-ooh check this out
-https://github.com/martinklepsch/cljdoc

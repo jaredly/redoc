@@ -1,0 +1,209 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Pretty</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#type-doc" class='level-0 type'>doc</a>
+<a href="#value-append" class='level-0 value'>append</a>
+<a href="#value-empty" class='level-0 value'>empty</a>
+<a href="#value-group" class='level-0 value'>group</a>
+<a href="#value-indent" class='level-0 value'>indent</a>
+<a href="#value-line" class='level-0 value'>line</a>
+<a href="#value-text" class='level-0 value'>text</a>
+<a href="#value-back" class='level-0 value'>back</a>
+<a href="#value-print" class='level-0 value'>print</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/src/generate/Pretty.mli" class="edit-link">Edit</a>
+    <p>Pretty-prints documents. This module is similar in purpose to OCaml standard Format module, but is based on the combinators described in Wadler&#39;s paper <a href='http://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf'>&quot;A prettier printer.&quot;</a> Unlike Wadler&#39;s implementation, the present code does not admit lazy document nodes and therefore pretty printing always uses O(N) space where N is the size of the document. <em>References</em> Philip Wadler, <a href='http://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf'>&quot;A prettier printer.&quot;</a> The Fun of Programming. A symposium in honour of Professor Richard Bird&#39;s 60th birthday Examination Schools, Oxford, 24-25 March 2003.</p>
+<p style='font-style:italic'>other items defined</p><div class='doc-item'><h4 class='item'>type <a href="#type-doc" id="type-doc">doc</a></h4>
+
+<div class='body '><p>Represents documents to be pretty-printed</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-append" id="value-append">append</a>: (<a href="#type-doc">doc</a>, <a href="#type-doc">doc</a>) => <a href="#type-doc">doc</a></h4>
+
+<div class='body '><p>Sequentially appends two documents</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-empty" id="value-empty">empty</a>: <a href="#type-doc">doc</a></h4>
+
+<div class='body '><p>The empty document</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-group" id="value-group">group</a>: <a href="#type-doc">doc</a> => <a href="#type-doc">doc</a></h4>
+
+<div class='body '><p>Constructs a group based on a given document. The printer has two ways to print a group: it either prints exactly as the defining document, or prints as its flattened version where all newlines are collapsed. The choice is made by the printer based on available space.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-indent" id="value-indent">indent</a>: (int, <a href="#type-doc">doc</a>) => <a href="#type-doc">doc</a></h4>
+
+<div class='body '><p>Adds a level of indentation to a document</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-line" id="value-line">line</a>: string => <a href="#type-doc">doc</a></h4>
+
+<div class='body '><p>Constructs a primitive document that prints as a newline unless the printer chooses to flatten the enclosing group. In the later case, the document prints as a given string.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-text" id="value-text">text</a>: (~?len: option(int), string) => <a href="#type-doc">doc</a></h4>
+
+<div class='body '><p>Constructs a primitive document that prints as the given string. For best results, the string should not contain newlines</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-back" id="value-back">back</a>: (int, string) => <a href="#type-doc">doc</a></h4>
+
+<div class='body '><p>Constructs a linebreak that dedents</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-print" id="value-print">print</a>: (
+  ~?width: option(int),
+  ~?output: option(string => unit),
+  ~?indent: option(int => unit),
+  <a href="#type-doc">doc</a>
+) => unit</h4>
+
+<div class='body '><p>Pretty-prints the document. You can override the device width, the &quot;output&quot; function that defines how to output text, and the &quot;indent&quot; function that defines how to print a newline and indent to a desired level. The default arguments print to stdout.</p>
+</div></div>
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

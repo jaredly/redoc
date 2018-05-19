@@ -1,0 +1,429 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Descartes</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#Descartes" class='level-1 header'>Descartes</a>
+<a href="#value-filterNil" class='level-2 value'>filterNil</a>
+<a href="#value-showType" class='level-2 value'>showType</a>
+<a href="#type-tag" class='level-2 type'>tag</a>
+<a href="#value-iterTags" class='level-2 value'>iterTags</a>
+<a href="#value-highlightItem" class='level-2 value'>highlightItem</a>
+<a href="#type-markdownTags" class='level-2 type'>markdownTags</a>
+<a href="#type-node" class='level-2 type'>node</a>
+<a href="#type-item" class='level-2 type'>item</a>
+<a href="#value-chart" class='level-2 value'>chart</a>
+<a href="#value-slice" class='level-2 value'>slice</a>
+<a href="#type-fullItem" class='level-2 type'>fullItem</a>
+<a href="#value-process" class='level-2 value'>process</a>
+<a href="#value-fold" class='level-2 value'>fold</a>
+<a href="#value-flatten" class='level-2 value'>flatten</a>
+<a href="#value-toId" class='level-2 value'>toId</a>
+<a href="#value-deepValue" class='level-2 value'>deepValue</a>
+<a href="#value-deepType" class='level-2 value'>deepType</a>
+<a href="#value-resolveValue" class='level-2 value'>resolveValue</a>
+<a href="#value-resolveType" class='level-2 value'>resolveType</a>
+<a href="#value-unique" class='level-2 value'>unique</a>
+<a href="#value-processMany" class='level-2 value'>processMany</a>
+<a href="#value-gatherCmts" class='level-2 value'>gatherCmts</a>
+<a href="#value-main" class='level-2 value'>main</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/src/descartes/Descartes.re" class="edit-link">Edit</a>
+    <a href="#Descartes" id="Descartes"><h1>Descartes</h1></a>
+
+<p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-filterNil" id="value-filterNil">filterNil</a>: ('a => option('a), list('a)) => list('a)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showType" id="value-showType">showType</a>: Types.type_expr => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-tag" id="type-tag">tag</a> = 
+  | TypeHover(Types.type_expr)
+  | Cls(string)
+  | TypeDef(Ident.t)
+  | ValueDef(Ident.t)
+  | TypeRef(Path.t)
+  | ValueRef(Path.t)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-iterTags" id="value-iterTags">iterTags</a>: (
+  Location.t,
+  list(
+    <a href="#type-tag">tag</a>
+  )
+) => unit => (module TypedtreeIter.IteratorArgument)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-highlightItem" id="value-highlightItem">highlightItem</a>: Typedtree.structure_item => (
+  list((Location.t, list(<a href="#type-tag">tag</a>))),
+  list(Path.t),
+  list(Path.t)
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-markdownTags" id="type-markdownTags">markdownTags</a> = (Location.t, list(<a href="#type-tag">tag</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-node" id="type-node">node</a> = 
+  | Item(
+    Location.t,
+    <a href="#type-item">item</a>,
+    list((Location.t, list(<a href="#type-tag">tag</a>))),
+    list(Path.t),
+    list(Path.t)
+  )
+  | Module(string, list((int, <a href="#type-node">node</a>)))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-item" id="type-item">item</a> = | Value(string, string) | Type(string, string)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-chart" id="value-chart">chart</a>: list(Typedtree.structure_item) => list(
+  (int, <a href="#type-node">node</a>)
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-slice" id="value-slice">slice</a>: (string, int, int) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-fullItem" id="type-fullItem">fullItem</a> = {
+  id: string,
+  name: string,
+  moduleName: string,
+  typ: string,
+  loc: Location.t,
+  tags: list((Location.t, list(<a href="#type-tag">tag</a>))),
+  vals: list(Path.t),
+  typs: list(Path.t),
+  text: string
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-process" id="value-process">process</a>: (
+  string,
+  list(Typedtree.structure_item),
+  string,
+  Hashtbl.t(
+    string,
+    (
+      string,
+      (
+        list((string, string)),
+        list((string, string)),
+        list((string, string))
+      )
+    )
+  ),
+  Hashtbl.t(string, <a href="#type-fullItem">fullItem</a>),
+  Hashtbl.t(string, <a href="#type-fullItem">fullItem</a>)
+) => (
+  list((string, string)),
+  list((string, string)),
+  list((string, string))
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-fold" id="value-fold">fold</a>: ('a, 'a => 'a, option('a)) => 'a</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-flatten" id="value-flatten">flatten</a>: Path.t => (Ident.t, list(string))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-toId" id="value-toId">toId</a>: (string, int) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-deepValue" id="value-deepValue">deepValue</a>: (
+  list('a),
+  ('a, ('a, list(('a, 'a)), list(('a, 'a)))),
+  'a,
+  Hashtbl.t(
+    'a,
+    (
+      'a,
+      (
+        'a,
+        list(('a, 'a)),
+        list(
+          ('a, 'a)
+        )
+      )
+    )
+  )
+) => [&gt; `Global of 'n1 | `Missing ]</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-deepType" id="value-deepType">deepType</a>: (
+  list('a),
+  ('a, (list(('a, 'a)), 'a, list(('a, 'a)))),
+  'a,
+  Hashtbl.t(
+    'a,
+    (
+      'a,
+      (
+        list(('a, 'a)),
+        'a,
+        list(
+          ('a, 'a)
+        )
+      )
+    )
+  )
+) => [&gt; `Global of 'o1 | `Missing ]</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-resolveValue" id="value-resolveValue">resolveValue</a>: (
+  string,
+  Hashtbl.t(string, 'a),
+  Hashtbl.t(
+    string,
+    (
+      'a,
+      (
+        'a,
+        list((string, string)),
+        list((string, string))
+      )
+    )
+  ),
+  Hashtbl.t(
+    string,
+    (
+      'a,
+      (
+        'a,
+        list((string, string)),
+        list((string, string))
+      )
+    )
+  ),
+  Path.t
+) => [&gt; `Global of string | `Local of string | `Missing ]</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-resolveType" id="value-resolveType">resolveType</a>: (
+  string,
+  Hashtbl.t(string, 'a),
+  Hashtbl.t(
+    string,
+    (
+      'a,
+      (
+        list((string, string)),
+        'a,
+        list((string, string))
+      )
+    )
+  ),
+  Hashtbl.t(
+    string,
+    (
+      'a,
+      (
+        list((string, string)),
+        'a,
+        list((string, string))
+      )
+    )
+  ),
+  Path.t
+) => [&gt; `Global of string | `Local of string | `Missing ]</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-unique" id="value-unique">unique</a>: list('a) => list('a)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-processMany" id="value-processMany">processMany</a>: list(
+  (string, list(Typedtree.structure_item), string)
+) => (
+  list(
+    (
+      string,
+      string,
+      string,
+      string,
+      Location.t,
+      string,
+      list(<a href="#type-fullItem">fullItem</a>),
+      list(<a href="#type-fullItem">fullItem</a>)
+    )
+  ),
+  list((string, string, list(string)))
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-gatherCmts" id="value-gatherCmts">gatherCmts</a>: (string, string, list(string)) => list(
+  (string, string)
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-main" id="value-main">main</a>: unit => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

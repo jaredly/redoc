@@ -1,0 +1,503 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>State</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#State" class='level-1 header'>State</a>
+<a href="#value-indent" class='level-2 value'>indent</a>
+<a href="#value-showOption" class='level-2 value'>showOption</a>
+<a href="#value-showOptionString" class='level-2 value'>showOptionString</a>
+<a href="#type-bucklescriptOptions" class='level-2 type'>bucklescriptOptions</a>
+<a href="#value-showBucklescriptOptions" class='level-2 value'>showBucklescriptOptions</a>
+<a href="#type-backend" class='level-2 type'>backend</a>
+<a href="#value-showBackend" class='level-2 value'>showBackend</a>
+<a href="#module-Model" class='level-2 module'>Model</a>
+<a href="#type-Model.codeContext" class='level-3 type'>codeContext</a>
+<a href="#value-Model.contextString" class='level-3 value'>contextString</a>
+<a href="#type-Model.expectation" class='level-3 type'>expectation</a>
+<a href="#type-Model.codeDisplay" class='level-3 type'>codeDisplay</a>
+<a href="#type-Model.lang" class='level-3 type'>lang</a>
+<a href="#value-Model.showLang" class='level-3 value'>showLang</a>
+<a href="#type-Model.codeOptions" class='level-3 type'>codeOptions</a>
+<a href="#value-Model.defaultOptions" class='level-3 value'>defaultOptions</a>
+<a href="#type-Model.compilationResult" class='level-3 type'>compilationResult</a>
+<a href="#type-Model.codeBlock" class='level-3 type'>codeBlock</a>
+<a href="#type-Model.id" class='level-3 type'>id</a>
+<a href="#type-Model.docWithExamples" class='level-3 type'>docWithExamples</a>
+<a href="#module-Model.Docs" class='level-3 module'>Docs</a>
+<a href="#type-Model.Docs.docItem" class='level-4 type'>docItem</a>
+<a href="#type-Model.Docs.moduleContents" class='level-4 type'>moduleContents</a>
+<a href="#type-Model.Docs.doc" class='level-4 type'>doc</a>
+<a href="#value-Model.Docs.itemName" class='level-4 value'>itemName</a>
+<a href="#value-Model.Docs.iter" class='level-4 value'>iter</a>
+<a href="#value-Model.Docs.iterWithPath" class='level-4 value'>iterWithPath</a>
+<a href="#type-Model.customPage" class='level-3 type'>customPage</a>
+<a href="#type-Model.sidebar" class='level-3 type'>sidebar</a>
+<a href="#type-Model.topModule" class='level-3 type'>topModule</a>
+<a href="#type-Model.package" class='level-3 type'>package</a>
+<a href="#type-Model.codeBlocks" class='level-3 type'>codeBlocks</a>
+<a href="#type-Model.world" class='level-3 type'>world</a>
+<a href="#module-Input" class='level-2 module'>Input</a>
+<a href="#type-Input.env" class='level-3 type'>env</a>
+<a href="#value-Input.showEnv" class='level-3 value'>showEnv</a>
+<a href="#type-Input.meta" class='level-3 type'>meta</a>
+<a href="#value-Input.showMeta" class='level-3 value'>showMeta</a>
+<a href="#type-Input.packageInput" class='level-3 type'>packageInput</a>
+<a href="#value-Input.showPackageInput" class='level-3 value'>showPackageInput</a>
+<a href="#type-Input.target" class='level-3 type'>target</a>
+<a href="#type-Input.t" class='level-3 type'>t</a>
+<a href="#value-Input.show" class='level-3 value'>show</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/src/State.re" class="edit-link">Edit</a>
+    <a href="#State" id="State"><h1>State</h1></a>
+
+<p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-indent" id="value-indent">indent</a>: string => string</h4>
+
+<div class='body '><p>Grand theory of everything.</p>
+<p> basic idea is a page
+o, larger than that we have packages
+ let&#39;s talk about pages for now</p>
+<p>kdown page
+ets parsed into bits
+ncluding some code snippets
+ts then represented as <code>(Omd.t, list(lang, block))</code>? maybe</p>
+<p>arkdown page can embed items
+item is a module, type, value, or include
+dule types too probably)</p>
+<p>item can have documentation, which is in turn a markdown page(?) or markdown thing</p>
+<p>tom markdown things I want to represent:
+doc [items]
+all
+rest</p>
+<p> @includes? How can I do that...</p>
+<p>o, to what extent do I want to build everything into a globally addressable map?</p>
+<p>h @doc&#39;able item should have a canonical home, where it can be expected to live.
+s possible to display the docs elsewhere, but it has to be shown there as well.</p>
+<p>arkdown page is either part of the custom docs, or the api docs.
+part of the api docs, then listed in the sidebar there, and exists under api/
+in the custom docs, then listed in the custom docs portion
+ch takes up the top section of the sidebar</p>
+<p>ant to mess with the sidebar to allow showing more or less of each section
+stom docs list, table of contents, api docs list)</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showOption" id="value-showOption">showOption</a>: (option('a), 'a => string) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showOptionString" id="value-showOptionString">showOptionString</a>: option(string) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-bucklescriptOptions" id="type-bucklescriptOptions">bucklescriptOptions</a> = {
+  packageRoot: string,
+  bsRoot: string,
+  refmt: string,
+  version: string,
+  browserCompilerPath: option(string),
+  silentFailures: bool,
+  tmp: string,
+  compiledDependencyDirectories: list((string, string)),
+  packageJsonName: string
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showBucklescriptOptions" id="value-showBucklescriptOptions">showBucklescriptOptions</a>: <a href="#type-bucklescriptOptions">bucklescriptOptions</a> => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-backend" id="type-backend">backend</a> = 
+  | NoBackend
+  | Bucklescript(<a href="#type-bucklescriptOptions">bucklescriptOptions</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showBackend" id="value-showBackend">showBackend</a>: <a href="#type-backend">backend</a> => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Model" id="module-Model">Model</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.codeContext" id="type-Model.codeContext">codeContext</a> = 
+  | Normal
+  | Node
+  | Window
+  | Iframe
+  | Canvas
+  | Div
+  | Log</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Model.contextString" id="value-Model.contextString">contextString</a>: <a href="#type-Model.codeContext">codeContext</a> => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.expectation" id="type-Model.expectation">expectation</a> = 
+  | Succeed
+  | Raise
+  | DontRun
+  | TypeFail
+  | DontType
+  | ParseFail
+  | Skip</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.codeDisplay" id="type-Model.codeDisplay">codeDisplay</a> = {
+  prefix: int,
+  suffix: int,
+  noEdit: bool,
+  hide: bool
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.lang" id="type-Model.lang">lang</a> = | Reason | OCaml | Txt | OtherLang(string)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Model.showLang" id="value-Model.showLang">showLang</a>: <a href="#type-Model.lang">lang</a> => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.codeOptions" id="type-Model.codeOptions">codeOptions</a> = {
+  context: <a href="#type-Model.codeContext">codeContext</a>,
+  lang: <a href="#type-Model.lang">lang</a>,
+  expectation: <a href="#type-Model.expectation">expectation</a>,
+  codeDisplay: <a href="#type-Model.codeDisplay">codeDisplay</a>,
+  inferred: bool,
+  sharedAs: option(string),
+  uses: list(string)
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Model.defaultOptions" id="value-Model.defaultOptions">defaultOptions</a>: <a href="#type-Model.codeOptions">codeOptions</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.compilationResult" id="type-Model.compilationResult">compilationResult</a> = 
+  | Skipped
+  | ParseError(string)
+  | TypeError(string, string)
+  | Success(string, string)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.codeBlock" id="type-Model.codeBlock">codeBlock</a> = {
+  langLine: string,
+  raw: string,
+  html: string,
+  page: string,
+  filePath: string,
+  compilationResult: <a href="#type-Model.compilationResult">compilationResult</a>
+}</h4>
+
+<div class='body '><p> This represents the final result of a code block, all that&#39;s needed to render it</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.id" id="type-Model.id">id</a> = string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.docWithExamples" id="type-Model.docWithExamples">docWithExamples</a> = <a href="Omd.html">Omd</a>.<a href="Omd.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Model.Docs" id="module-Model.Docs">Docs</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.Docs.docItem" id="type-Model.Docs.docItem">docItem</a> = 
+  | Value(Types.type_expr)
+  | Type(Types.type_declaration)
+  | Module(<a href="#type-Model.Docs.moduleContents">moduleContents</a>)
+  | Include(option(Path.t), list(<a href="#type-Model.Docs.doc">doc</a>))
+  | StandaloneDoc(<a href="Omd.html">Omd</a>.<a href="Omd.html#type-t">t</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.Docs.moduleContents" id="type-Model.Docs.moduleContents">moduleContents</a> = | Items(list(<a href="#type-Model.Docs.doc">doc</a>)) | Alias(Path.t)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.Docs.doc" id="type-Model.Docs.doc">doc</a> = (string, option(<a href="Omd.html">Omd</a>.<a href="Omd.html#type-t">t</a>), <a href="#type-Model.Docs.docItem">docItem</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Model.Docs.itemName" id="value-Model.Docs.itemName">itemName</a>: <a href="#type-Model.Docs.docItem">docItem</a> => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Model.Docs.iter" id="value-Model.Docs.iter">iter</a>: (
+  (string, option(<a href="Omd.html">Omd</a>.<a href="Omd.html#type-t">t</a>), <a href="#type-Model.Docs.docItem">docItem</a>) => 'a,
+  <a href="#type-Model.Docs.doc">doc</a>
+) => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Model.Docs.iterWithPath" id="value-Model.Docs.iterWithPath">iterWithPath</a>: (
+  ~modulesAtPath: Hashtbl.t(string, list(<a href="#type-Model.Docs.doc">doc</a>)),
+  list(string),
+  (list(string), (string, option(<a href="Omd.html">Omd</a>.<a href="Omd.html#type-t">t</a>), <a href="#type-Model.Docs.docItem">docItem</a>)) => 'a,
+  <a href="#type-Model.Docs.doc">doc</a>
+) => unit</h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.customPage" id="type-Model.customPage">customPage</a> = {
+  title: string,
+  sourcePath: option(string),
+  destPath: string,
+  contents: <a href="#type-Model.docWithExamples">docWithExamples</a>
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.sidebar" id="type-Model.sidebar">sidebar</a> = 
+  | SidebarItem(string)
+  | SidebarHeader(string, list(<a href="#type-Model.sidebar">sidebar</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.topModule" id="type-Model.topModule">topModule</a> = {
+  name: string,
+  sourcePath: string,
+  docs: option(<a href="#type-Model.docWithExamples">docWithExamples</a>),
+  items: list(<a href="#type-Model.Docs.doc" title="Docs.doc">doc</a>),
+  stamps: <a href="CmtFindStamps.html#type-T.stamps" title="CmtFindStamps.T.stamps">stamps</a>
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.package" id="type-Model.package">package</a> = {
+  name: string,
+  repo: option(string),
+  custom: list(<a href="#type-Model.customPage">customPage</a>),
+  sidebar: option(list(<a href="#type-Model.sidebar">sidebar</a>)),
+  modules: list(<a href="#type-Model.topModule">topModule</a>),
+  canBundle: bool,
+  noPlayground: bool,
+  namespaced: bool,
+  backend: <a href="#type-backend">backend</a>,
+  defaultCodeOptions: option(<a href="#type-Model.codeOptions">codeOptions</a>)
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.codeBlocks" id="type-Model.codeBlocks">codeBlocks</a> = Hashtbl.t(
+  (string, string, string),
+  <a href="#type-Model.codeBlock">codeBlock</a>
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.world" id="type-Model.world">world</a> = {packages: list((string, <a href="#type-Model.package">package</a>))}</h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Input" id="module-Input">Input</a></h4><div class='body module-body'><p>Ok folks, so the above is what I think I want as the middle stage</p>
+<p>From this middle stage I&#39;m confident I can produce some nice documentation.
+Not 100% sure when compilation (code block processing) happens tho</p>
+<p>And now, how do I go from &quot;cli args&quot; to &quot;that middle stage&quot;</p>
+<p>There&#39;s probably a &quot;first stage&quot; that we get from cli args</p>
+<p style='font-style:italic'>other items defined</p><div class='doc-item'><h4 class='item'>type <a href="#type-Input.env" id="type-Input.env">env</a> = {static: string, debug: bool}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Input.showEnv" id="value-Input.showEnv">showEnv</a>: <a href="#type-Input.env">env</a> => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Input.meta" id="type-Input.meta">meta</a> = {packageName: string, repo: option(string)}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Input.showMeta" id="value-Input.showMeta">showMeta</a>: <a href="#type-Input.meta">meta</a> => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Input.packageInput" id="type-Input.packageInput">packageInput</a> = {
+  root: string,
+  meta: <a href="#type-Input.meta">meta</a>,
+  backend: <a href="#type-backend">backend</a>,
+  sidebarFile: option(string),
+  customFiles: list((string, option(string), string)),
+  moduleFiles: list((string, string)),
+  defaultCodeOptions: option(<a href="#type-Model.codeOptions" title="Model.codeOptions">codeOptions</a>),
+  namespaced: bool,
+  canBundle: bool,
+  noPlayground: bool
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Input.showPackageInput" id="value-Input.showPackageInput">showPackageInput</a>: <a href="#type-Input.packageInput">packageInput</a> => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Input.target" id="type-Input.target">target</a> = {
+  directory: string,
+  template: option(string),
+  skipStdlibCompletions: bool,
+  search: bool
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Input.t" id="type-Input.t">t</a> = {
+  target: <a href="#type-Input.target">target</a>,
+  packageInput: <a href="#type-Input.packageInput">packageInput</a>,
+  env: <a href="#type-Input.env">env</a>
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Input.show" id="value-Input.show">show</a>: <a href="#type-Input.t">t</a> => string</h4>
+
+<div class='body body-empty'></div></div></div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

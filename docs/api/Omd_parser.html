@@ -1,0 +1,539 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Omd_parser</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#type-r" class='level-0 type'>r</a>
+<a href="#type-p" class='level-0 type'>p</a>
+<a href="#type-l" class='level-0 type'>l</a>
+<a href="#type-main_loop" class='level-0 type'>main_loop</a>
+<a href="#value-default_parse" class='level-0 value'>default_parse</a>
+<a href="#module-Default_env" class='level-0 module'>Default_env</a>
+<a href="#module-Make" class='level-0 module'>Make</a>
+<a href="#value-Make.rc" class='level-1 value'>rc</a>
+<a href="#value-Make.extensions" class='level-1 value'>extensions</a>
+<a href="#value-Make.default_lang" class='level-1 value'>default_lang</a>
+<a href="#value-Make.gh_uemph_or_bold_style" class='level-1 value'>gh_uemph_or_bold_style</a>
+<a href="#value-Make.blind_html" class='level-1 value'>blind_html</a>
+<a href="#value-Make.strict_html" class='level-1 value'>strict_html</a>
+<a href="#value-Make.htmlcodes_set" class='level-1 value'>htmlcodes_set</a>
+<a href="#value-Make.inline_htmltags_set" class='level-1 value'>inline_htmltags_set</a>
+<a href="#value-Make.htmltags_set" class='level-1 value'>htmltags_set</a>
+<a href="#value-Make.unindent_rev" class='level-1 value'>unindent_rev</a>
+<a href="#value-Make.unindent" class='level-1 value'>unindent</a>
+<a href="#value-Make.is_blank" class='level-1 value'>is_blank</a>
+<a href="#value-Make.semph_or_bold" class='level-1 value'>semph_or_bold</a>
+<a href="#value-Make.sm_uemph_or_bold" class='level-1 value'>sm_uemph_or_bold</a>
+<a href="#value-Make.gh_uemph_or_bold" class='level-1 value'>gh_uemph_or_bold</a>
+<a href="#value-Make.uemph_or_bold" class='level-1 value'>uemph_or_bold</a>
+<a href="#value-Make.eat_blank" class='level-1 value'>eat_blank</a>
+<a href="#value-Make.tag__maybe_h1" class='level-1 value'>tag__maybe_h1</a>
+<a href="#value-Make.tag__maybe_h2" class='level-1 value'>tag__maybe_h2</a>
+<a href="#value-Make.tag__md" class='level-1 value'>tag__md</a>
+<a href="#value-Make.tag_setext" class='level-1 value'>tag_setext</a>
+<a href="#value-Make.hr_m" class='level-1 value'>hr_m</a>
+<a href="#value-Make.hr_s" class='level-1 value'>hr_s</a>
+<a href="#value-Make.read_until_gt" class='level-1 value'>read_until_gt</a>
+<a href="#value-Make.read_until_lt" class='level-1 value'>read_until_lt</a>
+<a href="#value-Make.read_until_cparenth" class='level-1 value'>read_until_cparenth</a>
+<a href="#value-Make.read_until_oparenth" class='level-1 value'>read_until_oparenth</a>
+<a href="#value-Make.read_until_dq" class='level-1 value'>read_until_dq</a>
+<a href="#value-Make.read_until_q" class='level-1 value'>read_until_q</a>
+<a href="#value-Make.read_until_obracket" class='level-1 value'>read_until_obracket</a>
+<a href="#value-Make.read_until_cbracket" class='level-1 value'>read_until_cbracket</a>
+<a href="#value-Make.read_until_space" class='level-1 value'>read_until_space</a>
+<a href="#value-Make.read_until_newline" class='level-1 value'>read_until_newline</a>
+<a href="#value-Make.read_title" class='level-1 value'>read_title</a>
+<a href="#value-Make.maybe_extension" class='level-1 value'>maybe_extension</a>
+<a href="#value-Make.emailstyle_quoting" class='level-1 value'>emailstyle_quoting</a>
+<a href="#value-Make.maybe_reference" class='level-1 value'>maybe_reference</a>
+<a href="#value-Make.maybe_link" class='level-1 value'>maybe_link</a>
+<a href="#value-Make.parse_list" class='level-1 value'>parse_list</a>
+<a href="#value-Make.make_paragraphs" class='level-1 value'>make_paragraphs</a>
+<a href="#value-Make.bcode" class='level-1 value'>bcode</a>
+<a href="#value-Make.icode" class='level-1 value'>icode</a>
+<a href="#value-Make.main_loop_rev" class='level-1 value'>main_loop_rev</a>
+<a href="#value-Make.main_loop" class='level-1 value'>main_loop</a>
+<a href="#value-Make.main_parse" class='level-1 value'>main_parse</a>
+<a href="#value-Make.parse" class='level-1 value'>parse</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/omd/omd_parser.mli" class="edit-link">Edit</a>
+    <p>Beware: the functions in this module may raise exceptions! If you use them, you should be careful.</p>
+<p style='font-style:italic'>other items defined</p><div class='doc-item'><h4 class='item'>type <a href="#type-r" id="type-r">r</a> = <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a></h4>
+
+<div class='body '><p>accumulator (beware, reversed tokens)</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-p" id="type-p">p</a> = list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)</h4>
+
+<div class='body '><p>context information: previous elements</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-l" id="type-l">l</a> = list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)</h4>
+
+<div class='body '><p>tokens to parse</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-main_loop" id="type-main_loop">main_loop</a> = (
+  ~?html: option(bool),
+  <a href="#type-r">r</a>,
+  <a href="#type-p">p</a>,
+  <a href="#type-l">l</a>
+) => <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a></h4>
+
+<div class='body '><p>most important loop, which has to be given as an argument</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-default_parse" id="value-default_parse">default_parse</a>: (
+  ~?extensions: option(<a href="Omd_representation.html#type-extensions" title="Omd_representation.extensions">extensions</a>),
+  ~?default_lang: option(string),
+  <a href="#type-l">l</a>
+) => <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a></h4>
+
+<div class='body '><p>Translate tokens to Markdown representation.</p>
+<p>Param: lang<p>language for blocks of code where it was not specified. Default: <code>&quot;&quot;</code>.</p></p>
+</div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Default_env" id="module-Default_env">Default_env</a> : Env</h4></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Make" id="module-Make">Make</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.rc" id="value-Make.rc">rc</a>: <a href="Omd_representation.html#type-ref_container" title="Omd_representation.ref_container">ref_container</a></h4>
+
+<div class='body '><p>reference container</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.extensions" id="value-Make.extensions">extensions</a>: <a href="Omd_representation.html#type-extensions" title="Omd_representation.extensions">extensions</a></h4>
+
+<div class='body '><p>reference container</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.default_lang" id="value-Make.default_lang">default_lang</a>: string</h4>
+
+<div class='body '><p>list of parser extensions</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.gh_uemph_or_bold_style" id="value-Make.gh_uemph_or_bold_style">gh_uemph_or_bold_style</a>: bool</h4>
+
+<div class='body '><p>default language for code blocks</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.blind_html" id="value-Make.blind_html">blind_html</a>: bool</h4>
+
+<div class='body '><p>flag: bold/emph using using underscores is by default github-style, which means that underscores inside words are left as underscore, rather than special characters, because it&#39;s more convenient. However it is also less expressive because then you can&#39;t bold/emph a part of a word. You might want to set this flag to false.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.strict_html" id="value-Make.strict_html">strict_html</a>: bool</h4>
+
+<div class='body '><p>flag: if true, will not check whether a used HTML tag actually exists in HTML.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.htmlcodes_set" id="value-Make.htmlcodes_set">htmlcodes_set</a>: <a href="Omd_utils.html#module-StringSet" title="Omd_utils.StringSet">StringSet</a>.<a href="Omd_utils.html#type-StringSet.t">t</a></h4>
+
+<div class='body '><p>set of known HTML codes</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.inline_htmltags_set" id="value-Make.inline_htmltags_set">inline_htmltags_set</a>: <a href="Omd_utils.html#module-StringSet" title="Omd_utils.StringSet">StringSet</a>.<a href="Omd_utils.html#type-StringSet.t">t</a></h4>
+
+<div class='body '><p>set of known inline HTML tags</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.htmltags_set" id="value-Make.htmltags_set">htmltags_set</a>: <a href="Omd_utils.html#module-StringSet" title="Omd_utils.StringSet">StringSet</a>.<a href="Omd_utils.html#type-StringSet.t">t</a></h4>
+
+<div class='body '><p>All known HTML tags</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.unindent_rev" id="value-Make.unindent_rev">unindent_rev</a>: (int, list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body '><p><code>unindent_rev n l</code> returns the same couple as <code>unindent n l</code> except that the first element (which is a list) is reversed. This function is used for lists.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.unindent" id="value-Make.unindent">unindent</a>: (int, list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body '><p><code>unindent n l</code> returns <code>(unindented, rest)</code> where <code>unindented</code> is the consecutive lines of <code>l</code> that are indented with at least <code>n</code> spaces, and de-indented by <code>n</code> spaces. If <code>l</code> starts with a line that is indented by less than <code>n</code> spaces, then it returns <code>([], l)</code>.</p>
+<p>(* This function is used for lists, so it does not require <code>n</code> *) (* spaces on every single line, but only on some specific ones of them. *)</p>
+<p>This function is used for lists and blockquotes.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.is_blank" id="value-Make.is_blank">is_blank</a>: list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>) => bool</h4>
+
+<div class='body '><p><code>is_blank l</code> returns <code>true</code> if <code>l</code> only contains blanks, which are spaces and newlines.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.semph_or_bold" id="value-Make.semph_or_bold">semph_or_bold</a>: (int, list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)) => option(
+  (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))
+)</h4>
+
+<div class='body '><p><code>semph_or_bold n l</code> returns <code>None</code> if <code>l</code> doesn&#39;t start with a bold/emph phrase (marked using stars), else it returns <code>Some(x,y)</code> where <code>x</code> is the emph and/or bold phrase at the beginning of <code>l</code> and <code>y</code> is the rest of <code>l</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.sm_uemph_or_bold" id="value-Make.sm_uemph_or_bold">sm_uemph_or_bold</a>: (int, list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)) => option(
+  (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))
+)</h4>
+
+<div class='body '><p><code>sm_uemph_or_bold n l</code> returns <code>None</code> if <code>l</code> doesn&#39;t start with a bold/emph phrase (marked using underscores), else it returns <code>Some(x,y)</code> where <code>x</code> is the emph and/or bold phrase at the beginning of <code>l</code> and <code>y</code> is the rest of <code>l</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.gh_uemph_or_bold" id="value-Make.gh_uemph_or_bold">gh_uemph_or_bold</a>: (int, list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)) => option(
+  (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))
+)</h4>
+
+<div class='body '><p><code>gh_uemph_or_bold n l</code> returns <code>None</code> if <code>l</code> doesn&#39;t start with a bold/emph phrase (marked using underscores), else it returns <code>Some(x,y)</code> where <code>x</code> is the emph and/or bold phrase at the beginning of <code>l</code> and <code>y</code> is the rest of <code>l</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.uemph_or_bold" id="value-Make.uemph_or_bold">uemph_or_bold</a>: (int, list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)) => option(
+  (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))
+)</h4>
+
+<div class='body '><p><code>uemph_or_bold n l</code> returns <code>None</code> if <code>l</code> doesn&#39;t start with a bold/emph phrase (marked using underscores), else it returns <code>Some(x,y)</code> where <code>x</code> is the emph and/or bold phrase at the beginning of <code>l</code> and <code>y</code> is the rest of <code>l</code>. N.B. if <code>!gh_uemph_or_bold_style</code> then in Github style (i.e., underscores inside words are considered as underscores).</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.eat_blank" id="value-Make.eat_blank">eat_blank</a>: list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>) => list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)</h4>
+
+<div class='body '><p><code>eat_blank l</code> returns <code>l</code> where all blanks at the beginning of the list have been removed (it stops removing as soon as it meets an element that is not a blank). Blanks are spaces and newlines only.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.tag__maybe_h1" id="value-Make.tag__maybe_h1">tag__maybe_h1</a>: <a href="#type-main_loop">main_loop</a> => <a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a></h4>
+
+<div class='body '><p><code>tag__maybe_h1 main_loop</code> is a tag that is injected everywhere that might preceed a H1 title. It needs <code>main_loop</code> as argument because it is used to parse the contents of the titles.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.tag__maybe_h2" id="value-Make.tag__maybe_h2">tag__maybe_h2</a>: <a href="#type-main_loop">main_loop</a> => <a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a></h4>
+
+<div class='body '><p><code>tag__maybe_h2 main_loop</code> is the same as <code>tag__maybe_h1 main_loop</code> but for H2.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.tag__md" id="value-Make.tag__md">tag__md</a>: <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a> => <a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a></h4>
+
+<div class='body '><p><code>tag__md md</code> encapsulates <code>md</code> to make it a value of type <code>tok</code>. Its purpose is to inject some pre-parsed markdown (i.e., <code>md</code> of type <code>t</code>) in a yet-to-parse token stream of type <code>tok</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.tag_setext" id="value-Make.tag_setext">tag_setext</a>: (<a href="#type-main_loop">main_loop</a>, list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)) => list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)</h4>
+
+<div class='body '><p>Tag used for the lines that *might* be titles using setext-style.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.hr_m" id="value-Make.hr_m">hr_m</a>: <a href="#type-l">l</a> => option(<a href="#type-l">l</a>)</h4>
+
+<div class='body '><p><code>hr_m l</code> returns <code>Some nl</code> where <code>nl</code> is the remaining of <code>l</code> if <code>l</code> contains a horizontal rule &quot;drawn&quot; with dashes. If there&#39;s no HR, then returns <code>None</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.hr_s" id="value-Make.hr_s">hr_s</a>: <a href="#type-l">l</a> => option(<a href="#type-l">l</a>)</h4>
+
+<div class='body '><p><code>hr_s l</code> is the same as <code>hr_m l</code> but for horizontal rules &quot;drawn&quot; with stars instead.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_gt" id="value-Make.read_until_gt">read_until_gt</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_lt" id="value-Make.read_until_lt">read_until_lt</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_cparenth" id="value-Make.read_until_cparenth">read_until_cparenth</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_oparenth" id="value-Make.read_until_oparenth">read_until_oparenth</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_dq" id="value-Make.read_until_dq">read_until_dq</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_q" id="value-Make.read_until_q">read_until_q</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_obracket" id="value-Make.read_until_obracket">read_until_obracket</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_cbracket" id="value-Make.read_until_cbracket">read_until_cbracket</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_space" id="value-Make.read_until_space">read_until_space</a>: (
+  ~?bq: option(bool),
+  ~?no_nl: option(bool),
+  list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>)
+) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_until_newline" id="value-Make.read_until_newline">read_until_newline</a>: list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>) => (list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>), list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>))</h4>
+
+<div class='body '><p><code>read_until_...</code> are functions that read from a token list and return two token lists: the first one is the tokens read until a specific token is met, and the second one is the remainder. The particularity of these functions is that they do consider backslash-escaped characters and closing characters. For instance, <code>read_until_gt &quot;1 &lt; 2 &gt; 3 &gt; 4&quot;</code> returns <code>&quot;1 &lt; 2 &gt; 3 &quot;, &quot; 4&quot;</code>: note that the &quot;&gt;&quot; before &quot; 4&quot; has disappeared and that <code>read_until_gt</code> takes a <code>tok list</code> (not a string) and returns a couple of <code>tok list</code> (not a couple of strings), the string notation is used here for concision.</p>
+<p>Until otherwise noted, those functions do *not* consider backquote-trapped sections. For instance, <code>read_until_gt &quot;1 &lt; 2 &gt; 3 `&gt;` 4&quot;</code> returns <code>&quot;1 &lt; 2 &gt; 3 `&quot;, &quot;` 4&quot;</code>. If you use these functions, you should make sure that they do what you think they do (i.e., do look at the code).</p>
+<p>If the expected characters are not found, the exception <code>Premature_ending</code> is raised. For instance, <code>read_until_gt &quot;1 &lt; &gt; 3&quot;</code> raises <code>Premature_ending</code>.</p>
+<p>If <code>no_nl</code> is <code>true</code> (default value for <code>no_nl</code> is <code>false</code>) and <code>&#39;\n&#39;</code> occurs before the splitting character, then <code>NL_exception</code> is raised.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.read_title" id="value-Make.read_title">read_title</a>: (<a href="#type-main_loop">main_loop</a>, int, <a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>) => option(
+  (<a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>)
+)</h4>
+
+<div class='body '><p><code>read_title main_loop n r p l</code> returns <code>Some(r,p,l)</code> if it succeeds, <code>None</code> otherwise.</p>
+<p><code>read_title main_loop n r p l</code> expects to read a <code>n</code>-level hash-declared title from <code>l</code>, where the hashes have *already* been *removed*. If <code>n</code> is not between 1 and 6 (included), then it returns <code>None</code>.</p>
+<p><code>main_loop</code> is used to parse the contents of the title.</p>
+<p><code>r</code> and <code>p</code> are the classical &quot;result&quot; and &quot;previous&quot; parameters.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.maybe_extension" id="value-Make.maybe_extension">maybe_extension</a>: (<a href="Omd_representation.html#type-extensions" title="Omd_representation.extensions">extensions</a>, <a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>) => option(
+  (<a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>)
+)</h4>
+
+<div class='body '><p><code>maybe_extension e r p l</code> returns <code>None</code> if there is no extension or if extensions haven&#39;t had any effect, returns <code>Some(nr, np, nl)</code> if at least one extension has applied successfully.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.emailstyle_quoting" id="value-Make.emailstyle_quoting">emailstyle_quoting</a>: (<a href="#type-main_loop">main_loop</a>, <a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>) => option(
+  (<a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>)
+)</h4>
+
+<div class='body '><p><code>emailstyle_quoting main_loop r p l</code> returns <code>Some(r,p,l)</code> with <code>r</code> being the updated result, <code>p</code> being the last parsed token and <code>l</code> being the remaining tokens to parse. If <code>emailstyle_quoting</code> fails, then it returns <code>None</code>, in which case its user is advise to investigate why it returns <code>None</code> because there&#39;s possibly a real problem.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.maybe_reference" id="value-Make.maybe_reference">maybe_reference</a>: (
+  <a href="#type-main_loop">main_loop</a>,
+  <a href="Omd_representation.html#type-ref_container" title="Omd_representation.ref_container">ref_container</a>,
+  <a href="#type-r">r</a>,
+  <a href="#type-p">p</a>,
+  <a href="#type-l">l</a>
+) => option((<a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>))</h4>
+
+<div class='body '><p><code>maybe_reference</code> tries to parse a reference, a reference definition or a github-style short reference (e.g., <code>foo</code> as a shortcut for <code>foo</code><code></code>), and returns <code>Some(r,p,l)</code> if it succeeds, <code>None</code> otherwise.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.maybe_link" id="value-Make.maybe_link">maybe_link</a>: (<a href="#type-main_loop">main_loop</a>, <a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>) => option((<a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>))</h4>
+
+<div class='body '><p><code>maybe_link</code> tries to parse a link, and returns <code>Some(r,p,l)</code> if it succeeds, <code>None</code> otherwise.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.parse_list" id="value-Make.parse_list">parse_list</a>: (<a href="#type-main_loop">main_loop</a>, <a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>) => (<a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>)</h4>
+
+<div class='body '><p><code>parse_list main_loop r p l</code> parses a list from <code>l</code>.</p>
+<p>***Important property*** It is considered in Omd that a sub-list is always more indented than the item that contains it (so, 2 items with different indentations cannot have the direct same parent).</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.make_paragraphs" id="value-Make.make_paragraphs">make_paragraphs</a>: <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a> => <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a></h4>
+
+<div class='body '><p>Since <code>Omd_parser.parse</code> doesn&#39;t build paragraphs, if you want Markdown-style paragraphs, you need to apply this function to the result of <code>Omd_parser.parse</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.bcode" id="value-Make.bcode">bcode</a>: (
+  ~?default_lang: option(<a href="Omd_representation.html#type-name" title="Omd_representation.name">name</a>),
+  <a href="#type-r">r</a>,
+  <a href="#type-p">p</a>,
+  <a href="#type-l">l</a>
+) => option((<a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>))</h4>
+
+<div class='body '><p><code>bcode default_lang r p l</code> tries to parse some code that&#39;s delimited by backquotes, and returns <code>Some(r,p,l)</code> if it succeeds, <code>None</code> otherwise.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.icode" id="value-Make.icode">icode</a>: (
+  ~?default_lang: option(<a href="Omd_representation.html#type-name" title="Omd_representation.name">name</a>),
+  <a href="#type-r">r</a>,
+  <a href="#type-p">p</a>,
+  <a href="#type-l">l</a>
+) => option((<a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>))</h4>
+
+<div class='body '><p><code>icode default_lang r p l</code> tries to parse some code that&#39;s delimited by space indentation. It should always return <code>Some(r,p,l)</code>, if it returns <code>None</code> it means that it&#39;s been misused or there&#39;s a bug.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.main_loop_rev" id="value-Make.main_loop_rev">main_loop_rev</a>: (~?html: option(bool), <a href="#type-r">r</a>, <a href="#type-p">p</a>, <a href="#type-l">l</a>) => <a href="#type-r">r</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.main_loop" id="value-Make.main_loop">main_loop</a>: (
+  ~?html: option(bool),
+  <a href="#type-r">r</a>,
+  <a href="#type-p">p</a>,
+  <a href="#type-l">l</a>
+) => <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.main_parse" id="value-Make.main_parse">main_parse</a>: list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>) => <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Make.parse" id="value-Make.parse">parse</a>: list(<a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a>) => <a href="Omd_representation.html">Omd_representation</a>.<a href="Omd_representation.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

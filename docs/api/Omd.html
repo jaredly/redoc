@@ -1,0 +1,323 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Omd</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#module-Representation" class='level-0 module'>Representation</a>
+<a href="#type-t" class='level-0 type'>t</a>
+<a href="#type-ref_container" class='level-0 type'>ref_container</a>
+<a href="#type-element" class='level-0 type'>element</a>
+<a href="#type-fallback" class='level-0 type'>fallback</a>
+<a href="#type-name" class='level-0 type'>name</a>
+<a href="#type-alt" class='level-0 type'>alt</a>
+<a href="#type-src" class='level-0 type'>src</a>
+<a href="#type-href" class='level-0 type'>href</a>
+<a href="#type-title" class='level-0 type'>title</a>
+<a href="#type-code_stylist" class='level-0 type'>code_stylist</a>
+<a href="#value-of_string" class='level-0 value'>of_string</a>
+<a href="#value-of_bigarray" class='level-0 value'>of_bigarray</a>
+<a href="#value-set_default_lang" class='level-0 value'>set_default_lang</a>
+<a href="#value-to_html" class='level-0 value'>to_html</a>
+<a href="#value-to_markdown" class='level-0 value'>to_markdown</a>
+<a href="#value-to_text" class='level-0 value'>to_text</a>
+<a href="#value-toc" class='level-0 value'>toc</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/omd/omd.mli" class="edit-link">Edit</a>
+    <p>A markdown parser in OCaml, with no extra dependencies.</p>
+<p>This module represents this entire Markdown library written in OCaml only.</p>
+<p>Its main purpose is to allow you to use the Markdown library while keeping you away from the other modules.</p>
+<p>If you want to extend the Markdown parser, you can do it without accessing any module of this library but this one, and by doing so, you are free from having to maintain a fork of this library.</p>
+<p>N.B. This module is supposed to be reentrant, if it&#39;s not then please report the bug.</p>
+<p style='font-style:italic'>other items defined</p><div class='doc-item'><h2 id="Representation-of-Markdown-documents">Representation of Markdown documents</h2></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Representation" id="module-Representation">Representation</a> : <a href="Omd_representation.html">Omd_representation</a></h4></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-t" id="type-t">t</a> = list(<a href="#type-element">element</a>)</h4>
+
+<div class='body '><p>Representation of a Markdown document.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-ref_container" id="type-ref_container">ref_container</a> = &lt; add_ref : string -&gt; string -&gt; string -&gt; unit;
+  get_all : (string * (string * string)) list;
+  get_ref : string -&gt; (string * string) option &gt;</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-element" id="type-element">element</a> = 
+  | H1(<a href="#type-t">t</a>)
+  | H2(<a href="#type-t">t</a>)
+  | H3(<a href="#type-t">t</a>)
+  | H4(<a href="#type-t">t</a>)
+  | H5(<a href="#type-t">t</a>)
+  | H6(<a href="#type-t">t</a>)
+  | Paragraph(<a href="#type-t">t</a>)
+  | Text(string)
+  | Emph(<a href="#type-t">t</a>)
+  | Bold(<a href="#type-t">t</a>)
+  | Ul(list(<a href="#type-t">t</a>))
+  | Ol(list(<a href="#type-t">t</a>))
+  | Ulp(list(<a href="#type-t">t</a>))
+  | Olp(list(<a href="#type-t">t</a>))
+  | Code(<a href="#type-name">name</a>, string)
+  | Code_block(<a href="#type-name">name</a>, string)
+  | Br
+  | Hr
+  | NL
+  | Url(<a href="#type-href">href</a>, <a href="#type-t">t</a>, <a href="#type-title">title</a>)
+  | Ref(<a href="#type-ref_container">ref_container</a>, <a href="#type-name">name</a>, string, <a href="#type-fallback">fallback</a>)
+  | Img_ref(<a href="#type-ref_container">ref_container</a>, <a href="#type-name">name</a>, <a href="#type-alt">alt</a>, <a href="#type-fallback">fallback</a>)
+  | Html(<a href="#type-name">name</a>, list((string, option(string))), <a href="#type-t">t</a>)
+  | Html_block(<a href="#type-name">name</a>, list((string, option(string))), <a href="#type-t">t</a>)
+  | Html_comment(string)
+  | Raw(string)
+  | Raw_block(string)
+  | Blockquote(<a href="#type-t">t</a>)
+  | Img(<a href="#type-alt">alt</a>, <a href="#type-src">src</a>, <a href="#type-title">title</a>)
+  | X(
+    &lt; name : string;
+  to_html : ?indent:int -&gt; (t -&gt; string) -&gt; t -&gt; string option;
+  to_sexpr : (t -&gt; string) -&gt; t -&gt; string option; to_t : t -&gt; t option &gt;
+  )
+ = <a href="Omd_representation.html#type-element" title="Omd_representation.element">element</a></h4>
+
+<div class='body '><p>A element of a Markdown document.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-fallback" id="type-fallback">fallback</a> = &lt; to_string : string; to_t : t &gt;</h4>
+
+<div class='body '><p>Fallback for references in case they refer to non-existant references</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-name" id="type-name">name</a> = string</h4>
+
+<div class='body '><p>Markdown reference name.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-alt" id="type-alt">alt</a> = string</h4>
+
+<div class='body '><p>HTML img tag attribute.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-src" id="type-src">src</a> = string</h4>
+
+<div class='body '><p>HTML attribute.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-href" id="type-href">href</a> = string</h4>
+
+<div class='body '><p>HTML attribute.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-title" id="type-title">title</a> = string</h4>
+
+<div class='body '><p>HTML attribute.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-code_stylist" id="type-code_stylist">code_stylist</a> = (~lang: string, string) => string</h4>
+
+<div class='body '><p>Function that takes a language name and some code and returns that code with style.</p>
+</div></div>
+
+<div class='doc-item'><h2 id="Input-and-Output">Input and Output</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-of_string" id="value-of_string">of_string</a>: (
+  ~?extensions: option(<a href="Omd_representation.html#type-extensions" title="Omd_representation.extensions">extensions</a>),
+  ~?default_lang: option(<a href="#type-name">name</a>),
+  string
+) => <a href="#type-t">t</a></h4>
+
+<div class='body '><p><code>of_string s</code> returns the Markdown representation of the string <code>s</code>.</p>
+<p>Param: lang<p>language for blocks of code where it was not specified. Default: <code>&quot;&quot;</code>.</p>
+<p>If you want to use a custom lexer or parser, use lex and parse.</p></p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-of_bigarray" id="value-of_bigarray">of_bigarray</a>: (
+  ~?extensions: option(<a href="Omd_representation.html#type-extensions" title="Omd_representation.extensions">extensions</a>),
+  ~?default_lang: option(<a href="#type-name">name</a>),
+  <a href="Omd_lexer.html#type-bigstring" title="Omd_lexer.bigstring">bigstring</a>
+) => <a href="#type-t">t</a></h4>
+
+<div class='body '><p>As of_string, but read input from a bigarray rather than from a string.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-set_default_lang" id="value-set_default_lang">set_default_lang</a>: (<a href="#type-name">name</a>, <a href="#type-t">t</a>) => <a href="#type-t">t</a></h4>
+
+<div class='body '><p><code>set_default_lang lang md</code> return a copy of <code>md</code> where the language of all <code>Code</code> or <code>Code_block</code> with an empty language is set to <code>lang</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-to_html" id="value-to_html">to_html</a>: (
+  ~?override: option(<a href="Omd_representation.html#type-element" title="Omd_representation.element">element</a> => option(string)),
+  ~?pindent: option(bool),
+  ~?nl2br: option(bool),
+  ~?cs: option(<a href="#type-code_stylist">code_stylist</a>),
+  <a href="#type-t">t</a>
+) => string</h4>
+
+<div class='body '><p>Translate markdown representation into raw HTML. If you need a full HTML representation, you mainly have to figure out how to convert <code>Html of string</code> and <code>Html_block of string</code> into your HTML representation.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-to_markdown" id="value-to_markdown">to_markdown</a>: <a href="#type-t">t</a> => string</h4>
+
+<div class='body '><p>Translate markdown representation into textual markdown.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-to_text" id="value-to_text">to_text</a>: <a href="#type-t">t</a> => string</h4>
+
+<div class='body '><p>Translate markdown representation into raw text.</p>
+</div></div>
+
+<div class='doc-item'><h2 id="Tansforming-Markdown-documents">Tansforming Markdown documents</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-toc" id="value-toc">toc</a>: (
+  ~?start: option(list(int)),
+  ~?depth: option(int),
+  <a href="#type-t">t</a>
+) => <a href="#type-t">t</a></h4>
+
+<div class='body '><p><code>toc md</code> returns <code>toc</code> a table of contents for <code>md</code>.</p>
+<p>Param: start<p>gives the section for which the TOC must be built. For example <code>~start:[2;3]</code> will build the TOC for subsections of the second <code>H1</code> header, and within that section, the third <code>h2</code> header. If a number is <code>0</code>, it means to look for the first section at that level but stop if one encounters any other subsection. If no subsection exists, an empty TOC <code>[]</code> will be returned. Default: <code>[]</code> i.e. list all sections, starting with the first <code>H1</code>.</p></p>
+<p>Param: depth<p>the table of contents. Default: <code>2</code>.</p></p>
+</div></div>
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

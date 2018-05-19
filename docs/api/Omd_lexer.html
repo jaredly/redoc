@@ -1,0 +1,221 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Omd_lexer</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#Omd_lexer" class='level-1 header'>Omd_lexer</a>
+<a href="#type-token" class='level-2 type'>token</a>
+<a href="#type-t" class='level-2 type'>t</a>
+<a href="#value-lex" class='level-2 value'>lex</a>
+<a href="#type-bigstring" class='level-2 type'>bigstring</a>
+<a href="#value-lex_bigarray" class='level-2 value'>lex_bigarray</a>
+<a href="#value-string_of_tokens" class='level-2 value'>string_of_tokens</a>
+<a href="#value-length" class='level-2 value'>length</a>
+<a href="#value-string_of_token" class='level-2 value'>string_of_token</a>
+<a href="#value-make_space" class='level-2 value'>make_space</a>
+<a href="#value-split_first" class='level-2 value'>split_first</a>
+<a href="#value-destring_of_tokens" class='level-2 value'>destring_of_tokens</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/omd/omd_lexer.mli" class="edit-link">Edit</a>
+    <a href="#Omd_lexer" id="Omd_lexer"><h1>Omd_lexer</h1></a>
+
+<p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>type <a href="#type-token" id="type-token">token</a> = <a href="Omd_representation.html#type-tok" title="Omd_representation.tok">tok</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-t" id="type-t">t</a> = list(<a href="#type-token">token</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-lex" id="value-lex">lex</a>: string => <a href="#type-t">t</a></h4>
+
+<div class='body '><p>Translate a raw string into tokens for the parser. To implement an extension to the lexer, one may process its result before giving it to the parser. To implement an extension to the parser, one may extend it using the constructor <code>Tag</code> from type <code>tok</code> and/or using the extensions mechanism of the parser (cf. the optional argument <code>extensions</code>). The main difference is that <code>Tag</code> is processed by the parser in highest priority whereas functions in <code>extensions</code> are applied with lowest priority.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-bigstring" id="type-bigstring">bigstring</a> = Bigarray.Array1.t(
+  char,
+  Bigarray.int8_unsigned_elt,
+  Bigarray.c_layout
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-lex_bigarray" id="value-lex_bigarray">lex_bigarray</a>: <a href="#type-bigstring">bigstring</a> => <a href="#type-t">t</a></h4>
+
+<div class='body '><p>As lex, but read input from a bigarray rather than from a string.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-string_of_tokens" id="value-string_of_tokens">string_of_tokens</a>: <a href="#type-t">t</a> => string</h4>
+
+<div class='body '><p><code>string_of_tokens t</code> return the string corresponding to the token list <code>t</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-length" id="value-length">length</a>: <a href="#type-token">token</a> => int</h4>
+
+<div class='body '><p><code>length t</code> number of characters of the string represented as <code>t</code> (i.e. <code>String.length(string_of_token t)</code>).</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-string_of_token" id="value-string_of_token">string_of_token</a>: <a href="#type-token">token</a> => string</h4>
+
+<div class='body '><p><code>string_of_token tk</code> return the string corresponding to the token <code>tk</code>.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-make_space" id="value-make_space">make_space</a>: int => <a href="#type-token">token</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-split_first" id="value-split_first">split_first</a>: <a href="#type-token">token</a> => (<a href="#type-token">token</a>, <a href="#type-token">token</a>)</h4>
+
+<div class='body '><p><code>split_first(Xs n)</code> returns <code>(X, X(n-1))</code> where <code>X</code> is a token carrying an int count.</p>
+<p>Raises: Invalid_argument<p>is passed a single token.</p></p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-destring_of_tokens" id="value-destring_of_tokens">destring_of_tokens</a>: (~?limit: option(int), <a href="#type-t">t</a>) => string</h4>
+
+<div class='body '><p>Converts the tokens to a simple string representation useful for debugging.</p>
+</div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

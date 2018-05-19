@@ -1,0 +1,349 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Omd_representation</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#Omd_representation" class='level-1 header'>Omd_representation</a>
+<a href="#module-R" class='level-2 module'>R</a>
+<a href="#type-element" class='level-2 type'>element</a>
+<a href="#type-fallback" class='level-2 type'>fallback</a>
+<a href="#type-name" class='level-2 type'>name</a>
+<a href="#type-alt" class='level-2 type'>alt</a>
+<a href="#type-src" class='level-2 type'>src</a>
+<a href="#type-href" class='level-2 type'>href</a>
+<a href="#type-title" class='level-2 type'>title</a>
+<a href="#type-t" class='level-2 type'>t</a>
+<a href="#type-tok" class='level-2 type'>tok</a>
+<a href="#type-extension" class='level-2 type'>extension</a>
+<a href="#type-extensions" class='level-2 type'>extensions</a>
+<a href="#value-empty_extension" class='level-2 value'>empty_extension</a>
+<a href="#value-loose_compare" class='level-2 value'>loose_compare</a>
+<a href="#value-normalise_md" class='level-2 value'>normalise_md</a>
+<a href="#value-visit" class='level-2 value'>visit</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/omd/omd_representation.mli" class="edit-link">Edit</a>
+    <a href="#Omd_representation" id="Omd_representation"><h1>Omd_representation</h1></a>
+
+<p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>module <a href="#module-R" id="module-R">R</a> : Map.S</h4></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-element" id="type-element">element</a> = 
+  | H1(<a href="#type-t">t</a>)
+  | H2(<a href="#type-t">t</a>)
+  | H3(<a href="#type-t">t</a>)
+  | H4(<a href="#type-t">t</a>)
+  | H5(<a href="#type-t">t</a>)
+  | H6(<a href="#type-t">t</a>)
+  | Paragraph(<a href="#type-t">t</a>)
+  | Text(string)
+  | Emph(<a href="#type-t">t</a>)
+  | Bold(<a href="#type-t">t</a>)
+  | Ul(list(<a href="#type-t">t</a>))
+  | Ol(list(<a href="#type-t">t</a>))
+  | Ulp(list(<a href="#type-t">t</a>))
+  | Olp(list(<a href="#type-t">t</a>))
+  | Code(<a href="#type-name">name</a>, string)
+  | Code_block(<a href="#type-name">name</a>, string)
+  | Br
+  | Hr
+  | NL
+  | Url(<a href="#type-href">href</a>, <a href="#type-t">t</a>, <a href="#type-title">title</a>)
+  | Ref(ref_container, <a href="#type-name">name</a>, string, <a href="#type-fallback">fallback</a>)
+  | Img_ref(ref_container, <a href="#type-name">name</a>, <a href="#type-alt">alt</a>, <a href="#type-fallback">fallback</a>)
+  | Html(<a href="#type-name">name</a>, list((string, option(string))), <a href="#type-t">t</a>)
+  | Html_block(<a href="#type-name">name</a>, list((string, option(string))), <a href="#type-t">t</a>)
+  | Html_comment(string)
+  | Raw(string)
+  | Raw_block(string)
+  | Blockquote(<a href="#type-t">t</a>)
+  | Img(<a href="#type-alt">alt</a>, <a href="#type-src">src</a>, <a href="#type-title">title</a>)
+  | X(
+    &lt; name : string;
+  to_html : ?indent:int -&gt; (t -&gt; string) -&gt; t -&gt; string option;
+  to_sexpr : (t -&gt; string) -&gt; t -&gt; string option; to_t : t -&gt; t option &gt;
+  )</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-fallback" id="type-fallback">fallback</a> = &lt; to_string : string; to_t : t &gt;</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-name" id="type-name">name</a> = string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-alt" id="type-alt">alt</a> = string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-src" id="type-src">src</a> = string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-href" id="type-href">href</a> = string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-title" id="type-title">title</a> = string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-t" id="type-t">t</a> = list(<a href="#type-element">element</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-tok" id="type-tok">tok</a> = 
+  | Ampersand
+  | Ampersands(int)
+  | At
+  | Ats(int)
+  | Backquote
+  | Backquotes(int)
+  | Backslash
+  | Backslashs(int)
+  | Bar
+  | Bars(int)
+  | Caret
+  | Carets(int)
+  | Cbrace
+  | Cbraces(int)
+  | Colon
+  | Colons(int)
+  | Comma
+  | Commas(int)
+  | Cparenthesis
+  | Cparenthesiss(int)
+  | Cbracket
+  | Cbrackets(int)
+  | Dollar
+  | Dollars(int)
+  | Dot
+  | Dots(int)
+  | Doublequote
+  | Doublequotes(int)
+  | Exclamation
+  | Exclamations(int)
+  | Equal
+  | Equals(int)
+  | Greaterthan
+  | Greaterthans(int)
+  | Hash
+  | Hashs(int)
+  | Lessthan
+  | Lessthans(int)
+  | Minus
+  | Minuss(int)
+  | Newline
+  | Newlines(int)
+  | Number(string)
+  | Obrace
+  | Obraces(int)
+  | Oparenthesis
+  | Oparenthesiss(int)
+  | Obracket
+  | Obrackets(int)
+  | Percent
+  | Percents(int)
+  | Plus
+  | Pluss(int)
+  | Question
+  | Questions(int)
+  | Quote
+  | Quotes(int)
+  | Semicolon
+  | Semicolons(int)
+  | Slash
+  | Slashs(int)
+  | Space
+  | Spaces(int)
+  | Star
+  | Stars(int)
+  | Tab
+  | Tabs(int)
+  | Tilde
+  | Tildes(int)
+  | Underscore
+  | Underscores(int)
+  | Word(string)
+  | Tag(<a href="#type-name">name</a>, <a href="#type-extension">extension</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-extension" id="type-extension">extension</a> = &lt; parser_extension : t -&gt;
+                     tok list -&gt; tok list -&gt; (t * tok list * tok list) option;
+  to_string : string &gt;</h4>
+
+<div class='body '><ul><li><p><code>parser_extension</code> is a method that takes the current state of the parser&#39;s data and returns None if nothing has been changed, otherwise it returns the new state. The current state of the parser&#39;s data is <code>(r, p, l)</code> where <code>r</code> is the result so far, <code>p</code> is the list of the previous tokens (it&#39;s typically empty or contains information on how many newlines we&#39;ve just seen), and <code>l</code> is the remaining tokens to parse.</p>
+</li><li><p>and <code>to_string</code> is a method that returns directly a string representation of the object (it&#39;s normal if it returns the empty string).</p>
+</li></ul></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-extensions" id="type-extensions">extensions</a> = list(<a href="#type-extension">extension</a>)</h4>
+
+<div class='body '><p>One must use this type to extend the parser. It&#39;s a list of functions of type <code>extension</code>. They are processed in order (the head is applied first), so be careful about it. If you use it wrong, it will behave wrong.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-empty_extension" id="value-empty_extension">empty_extension</a>: <a href="#type-extension">extension</a></h4>
+
+<div class='body '><p>An empty extension</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-loose_compare" id="value-loose_compare">loose_compare</a>: (<a href="#type-t">t</a>, <a href="#type-t">t</a>) => int</h4>
+
+<div class='body '><p><code>loose_compare t1 t2</code> returns <code>0</code> if <code>t1</code> and <code>t2</code> are equivalent, otherwise it returns another number.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-normalise_md" id="value-normalise_md">normalise_md</a>: <a href="#type-t">t</a> => <a href="#type-t">t</a></h4>
+
+<div class='body '><p><code>normalise_md md</code> returns a copy of <code>md</code> where some elements have been factorized.</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-visit" id="value-visit">visit</a>: (<a href="#type-element">element</a> => option(<a href="#type-t">t</a>), <a href="#type-t">t</a>) => <a href="#type-t">t</a></h4>
+
+<div class='body '><p>visitor for structures of type t: <code>visit f md</code> will return a new potentially altered copy of <code>md</code> that has been created by the visit of <code>md</code> by <code>f</code>.</p>
+<p>The function <code>f</code> takes each <code>element</code> (from <code>md</code>) and returns <code>Some t</code> if it has effectively been applied to <code>element</code>, and <code>None</code> otherwise. When it returns <code>Some t</code>, <code>t</code> replaces <code>element</code> in the copy of <code>md</code>, and when it returns <code>None</code>, either <code>element</code> is copied as it is in the copy of <code>md</code> or a visited version is copied instead (well, that depends on if <code>element</code> has elements inside of it or not).</p>
+</div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

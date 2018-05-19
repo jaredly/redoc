@@ -1,0 +1,354 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>CodeSnippets</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#CodeSnippets" class='level-1 header'>CodeSnippets</a>
+<a href="#value-codeBlockPrefix" class='level-2 value'>codeBlockPrefix</a>
+<a href="#value-matchOption" class='level-2 value'>matchOption</a>
+<a href="#value-parseCodeOptions" class='level-2 value'>parseCodeOptions</a>
+<a href="#type-codeBlock" class='level-2 type'>codeBlock</a>
+<a href="#type-compiledBlock" class='level-2 type'>compiledBlock</a>
+<a href="#value-sprintf" class='level-2 value'>sprintf</a>
+<a href="#value-html" class='level-2 value'>html</a>
+<a href="#value-escapeScript" class='level-2 value'>escapeScript</a>
+<a href="#value-shouldBundle" class='level-2 value'>shouldBundle</a>
+<a href="#value-highlight" class='level-2 value'>highlight</a>
+<a href="#value-splitLines" class='level-2 value'>splitLines</a>
+<a href="#value-sliceToEnd" class='level-2 value'>sliceToEnd</a>
+<a href="#value-removeHashes" class='level-2 value'>removeHashes</a>
+<a href="#value-hashAll" class='level-2 value'>hashAll</a>
+<a href="#value-slice" class='level-2 value'>slice</a>
+<a href="#value-startsWith" class='level-2 value'>startsWith</a>
+<a href="#value-fullContent" class='level-2 value'>fullContent</a>
+<a href="#value-optMap" class='level-2 value'>optMap</a>
+<a href="#value-getSourceDirectories" class='level-2 value'>getSourceDirectories</a>
+<a href="#value-isNative" class='level-2 value'>isNative</a>
+<a href="#value-getDependencyDirs" class='level-2 value'>getDependencyDirs</a>
+<a href="#value-invert" class='level-2 value'>invert</a>
+<a href="#value-unique" class='level-2 value'>unique</a>
+<a href="#value-writeDeps" class='level-2 value'>writeDeps</a>
+<a href="#value-refmtCommand" class='level-2 value'>refmtCommand</a>
+<a href="#value-justBscCommand" class='level-2 value'>justBscCommand</a>
+<a href="#value-processBlock" class='level-2 value'>processBlock</a>
+<a href="#value-escape" class='level-2 value'>escape</a>
+<a href="#value-shouldTest" class='level-2 value'>shouldTest</a>
+<a href="#value-snippetLoader" class='level-2 value'>snippetLoader</a>
+<a href="#value-testBlock" class='level-2 value'>testBlock</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/src/examples/CodeSnippets.re" class="edit-link">Edit</a>
+    <a href="#CodeSnippets" id="CodeSnippets"><h1>CodeSnippets</h1></a>
+
+<p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>let <a href="#value-codeBlockPrefix" id="value-codeBlockPrefix">codeBlockPrefix</a>: string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-matchOption" id="value-matchOption">matchOption</a>: (string, string) => option(string)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-parseCodeOptions" id="value-parseCodeOptions">parseCodeOptions</a>: (string, 'a) => option(<a href="State.html#type-Model.codeOptions" title="State.Model.codeOptions">codeOptions</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-codeBlock" id="type-codeBlock">codeBlock</a> = {
+  el: <a href="Omd.html#type-element" title="Omd.element">element</a>,
+  id: int,
+  fileName: string,
+  options: <a href="State.html#type-Model.codeOptions" title="State.Model.codeOptions">codeOptions</a>,
+  content: string
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-compiledBlock" id="type-compiledBlock">compiledBlock</a> = {
+  block: <a href="#type-codeBlock">codeBlock</a>,
+  status: <a href="State.html#type-Model.compilationResult" title="State.Model.compilationResult">compilationResult</a>
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-sprintf" id="value-sprintf">sprintf</a>: Pervasives.format('a, unit, string) => 'a</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-html" id="value-html">html</a>: (~?md: option(bool), string) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-escapeScript" id="value-escapeScript">escapeScript</a>: string => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-shouldBundle" id="value-shouldBundle">shouldBundle</a>: <a href="State.html#type-Model.expectation" title="State.Model.expectation">expectation</a> => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-highlight" id="value-highlight">highlight</a>: (
+  ~editingEnabled: bool,
+  string,
+  string,
+  <a href="State.html#type-Model.codeOptions" title="State.Model.codeOptions">codeOptions</a>,
+  <a href="State.html#type-Model.compilationResult" title="State.Model.compilationResult">compilationResult</a>,
+  string => option(string)
+) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-splitLines" id="value-splitLines">splitLines</a>: string => list(string)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-sliceToEnd" id="value-sliceToEnd">sliceToEnd</a>: (string, int) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-removeHashes" id="value-removeHashes">removeHashes</a>: string => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-hashAll" id="value-hashAll">hashAll</a>: string => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-slice" id="value-slice">slice</a>: (string, int, int) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-startsWith" id="value-startsWith">startsWith</a>: (string, string) => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-fullContent" id="value-fullContent">fullContent</a>: (
+  string => string,
+  <a href="State.html#type-Model.codeOptions" title="State.Model.codeOptions">codeOptions</a>,
+  string
+) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-optMap" id="value-optMap">optMap</a>: ('a => option('a), list('a)) => list('a)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-getSourceDirectories" id="value-getSourceDirectories">getSourceDirectories</a>: (string, Json.t) => list(string)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-isNative" id="value-isNative">isNative</a>: Json.t => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-getDependencyDirs" id="value-getDependencyDirs">getDependencyDirs</a>: (string, Json.t) => list(
+  (string, string)
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-invert" id="value-invert">invert</a>: ('a => bool, 'a) => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-unique" id="value-unique">unique</a>: list('a) => list('a)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-writeDeps" id="value-writeDeps">writeDeps</a>: (
+  ~output_string: string => unit,
+  ~dependencyDirs: list((string, string)),
+  ~stdlibRequires: list(string),
+  ~bsRoot: 'a,
+  ~base: string
+) => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-refmtCommand" id="value-refmtCommand">refmtCommand</a>: (string, string, string, string) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-justBscCommand" id="value-justBscCommand">justBscCommand</a>: (string, string, list(string)) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-processBlock" id="value-processBlock">processBlock</a>: (
+  ~?debug: option(bool),
+  ~?silentFailures: option(bool),
+  string,
+  string,
+  string,
+  string,
+  <a href="State.html#type-Model.codeOptions" title="State.Model.codeOptions">codeOptions</a>,
+  string,
+  list(string)
+) => <a href="State.html#type-Model.compilationResult" title="State.Model.compilationResult">compilationResult</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-escape" id="value-escape">escape</a>: string => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-shouldTest" id="value-shouldTest">shouldTest</a>: <a href="State.html#type-Model.expectation" title="State.Model.expectation">expectation</a> => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-snippetLoader" id="value-snippetLoader">snippetLoader</a>: (string, string, string) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-testBlock" id="value-testBlock">testBlock</a>: (
+  string,
+  ~base: string,
+  <a href="State.html#type-Model.compilationResult" title="State.Model.compilationResult">compilationResult</a>,
+  <a href="State.html#type-Model.codeOptions" title="State.Model.codeOptions">codeOptions</a>,
+  string,
+  int
+) => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

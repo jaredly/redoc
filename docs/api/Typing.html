@@ -1,0 +1,683 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Typing</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#Typing" class='level-1 header'>Typing</a>
+<a href="#type-tag" class='level-2 type'>tag</a>
+<a href="#type-ident" class='level-2 type'>ident</a>
+<a href="#value-mapIdent" class='level-2 value'>mapIdent</a>
+<a href="#value-contents" class='level-2 value'>contents</a>
+<a href="#value-toString" class='level-2 value'>toString</a>
+<a href="#value-showPath" class='level-2 value'>showPath</a>
+<a href="#value-showLident" class='level-2 value'>showLident</a>
+<a href="#value-showLoc" class='level-2 value'>showLoc</a>
+<a href="#value-showType" class='level-2 value'>showType</a>
+<a href="#type-openn" class='level-2 type'>openn</a>
+<a href="#type-open_stack" class='level-2 type'>open_stack</a>
+<a href="#value-pathToLident" class='level-2 value'>pathToLident</a>
+<a href="#value-addLidentToPath" class='level-2 value'>addLidentToPath</a>
+<a href="#value-usesOpen" class='level-2 value'>usesOpen</a>
+<a href="#value-relative" class='level-2 value'>relative</a>
+<a href="#module-F" class='level-2 module'>F</a>
+<a href="#value-F.enter_structure" class='level-3 value'>enter_structure</a>
+<a href="#value-F.enter_value_description" class='level-3 value'>enter_value_description</a>
+<a href="#value-F.enter_type_extension" class='level-3 value'>enter_type_extension</a>
+<a href="#value-F.enter_extension_constructor" class='level-3 value'>enter_extension_constructor</a>
+<a href="#value-F.enter_pattern" class='level-3 value'>enter_pattern</a>
+<a href="#value-F.enter_expression" class='level-3 value'>enter_expression</a>
+<a href="#value-F.enter_package_type" class='level-3 value'>enter_package_type</a>
+<a href="#value-F.enter_signature" class='level-3 value'>enter_signature</a>
+<a href="#value-F.enter_signature_item" class='level-3 value'>enter_signature_item</a>
+<a href="#value-F.enter_module_type_declaration" class='level-3 value'>enter_module_type_declaration</a>
+<a href="#value-F.enter_module_type" class='level-3 value'>enter_module_type</a>
+<a href="#value-F.enter_module_expr" class='level-3 value'>enter_module_expr</a>
+<a href="#value-F.enter_with_constraint" class='level-3 value'>enter_with_constraint</a>
+<a href="#value-F.enter_class_expr" class='level-3 value'>enter_class_expr</a>
+<a href="#value-F.enter_class_signature" class='level-3 value'>enter_class_signature</a>
+<a href="#value-F.enter_class_declaration" class='level-3 value'>enter_class_declaration</a>
+<a href="#value-F.enter_class_description" class='level-3 value'>enter_class_description</a>
+<a href="#value-F.enter_class_type_declaration" class='level-3 value'>enter_class_type_declaration</a>
+<a href="#value-F.enter_class_type" class='level-3 value'>enter_class_type</a>
+<a href="#value-F.enter_class_type_field" class='level-3 value'>enter_class_type_field</a>
+<a href="#value-F.enter_core_type" class='level-3 value'>enter_core_type</a>
+<a href="#value-F.enter_class_structure" class='level-3 value'>enter_class_structure</a>
+<a href="#value-F.enter_class_field" class='level-3 value'>enter_class_field</a>
+<a href="#value-F.enter_structure_item" class='level-3 value'>enter_structure_item</a>
+<a href="#value-F.leave_structure" class='level-3 value'>leave_structure</a>
+<a href="#value-F.leave_value_description" class='level-3 value'>leave_value_description</a>
+<a href="#value-F.leave_type_extension" class='level-3 value'>leave_type_extension</a>
+<a href="#value-F.leave_extension_constructor" class='level-3 value'>leave_extension_constructor</a>
+<a href="#value-F.leave_pattern" class='level-3 value'>leave_pattern</a>
+<a href="#value-F.leave_expression" class='level-3 value'>leave_expression</a>
+<a href="#value-F.leave_package_type" class='level-3 value'>leave_package_type</a>
+<a href="#value-F.leave_signature" class='level-3 value'>leave_signature</a>
+<a href="#value-F.leave_signature_item" class='level-3 value'>leave_signature_item</a>
+<a href="#value-F.leave_module_type_declaration" class='level-3 value'>leave_module_type_declaration</a>
+<a href="#value-F.leave_module_type" class='level-3 value'>leave_module_type</a>
+<a href="#value-F.leave_module_expr" class='level-3 value'>leave_module_expr</a>
+<a href="#value-F.leave_with_constraint" class='level-3 value'>leave_with_constraint</a>
+<a href="#value-F.leave_class_expr" class='level-3 value'>leave_class_expr</a>
+<a href="#value-F.leave_class_signature" class='level-3 value'>leave_class_signature</a>
+<a href="#value-F.leave_class_declaration" class='level-3 value'>leave_class_declaration</a>
+<a href="#value-F.leave_class_description" class='level-3 value'>leave_class_description</a>
+<a href="#value-F.leave_class_type_declaration" class='level-3 value'>leave_class_type_declaration</a>
+<a href="#value-F.leave_class_type" class='level-3 value'>leave_class_type</a>
+<a href="#value-F.leave_class_type_field" class='level-3 value'>leave_class_type_field</a>
+<a href="#value-F.leave_core_type" class='level-3 value'>leave_core_type</a>
+<a href="#value-F.leave_class_structure" class='level-3 value'>leave_class_structure</a>
+<a href="#value-F.leave_class_field" class='level-3 value'>leave_class_field</a>
+<a href="#value-F.leave_structure_item" class='level-3 value'>leave_structure_item</a>
+<a href="#value-F.enter_bindings" class='level-3 value'>enter_bindings</a>
+<a href="#value-F.enter_binding" class='level-3 value'>enter_binding</a>
+<a href="#value-F.leave_binding" class='level-3 value'>leave_binding</a>
+<a href="#value-F.leave_bindings" class='level-3 value'>leave_bindings</a>
+<a href="#value-F.enter_type_declarations" class='level-3 value'>enter_type_declarations</a>
+<a href="#value-F.enter_type_declaration" class='level-3 value'>enter_type_declaration</a>
+<a href="#value-F.leave_type_declaration" class='level-3 value'>leave_type_declaration</a>
+<a href="#value-F.leave_type_declarations" class='level-3 value'>leave_type_declarations</a>
+<a href="#value-F.depth" class='level-3 value'>depth</a>
+<a href="#value-F.root_stack" class='level-3 value'>root_stack</a>
+<a href="#value-F.closed_stacks" class='level-3 value'>closed_stacks</a>
+<a href="#value-F.open_stack" class='level-3 value'>open_stack</a>
+<a href="#value-F.new_stack" class='level-3 value'>new_stack</a>
+<a href="#value-F.pop_stack" class='level-3 value'>pop_stack</a>
+<a href="#value-F.add_open" class='level-3 value'>add_open</a>
+<a href="#value-F.pop_open" class='level-3 value'>pop_open</a>
+<a href="#value-F.add_use" class='level-3 value'>add_use</a>
+<a href="#value-F.dig" class='level-3 value'>dig</a>
+<a href="#value-F.enter_core_type" class='level-3 value'>enter_core_type</a>
+<a href="#value-F.enter_type_declaration" class='level-3 value'>enter_type_declaration</a>
+<a href="#value-F.handleConstructor" class='level-3 value'>handleConstructor</a>
+<a href="#value-F.handleRecord" class='level-3 value'>handleRecord</a>
+<a href="#value-F.enter_pattern" class='level-3 value'>enter_pattern</a>
+<a href="#value-F.enter_structure_item" class='level-3 value'>enter_structure_item</a>
+<a href="#value-F.leave_structure_item" class='level-3 value'>leave_structure_item</a>
+<a href="#value-F.enter_expression" class='level-3 value'>enter_expression</a>
+<a href="#value-F.leave_expression" class='level-3 value'>leave_expression</a>
+<a href="#value-ppos" class='level-2 value'>ppos</a>
+<a href="#value-entry" class='level-2 value'>entry</a>
+<a href="#value-type_to_string" class='level-2 value'>type_to_string</a>
+<a href="#type-externalsUsed" class='level-2 type'>externalsUsed</a>
+<a href="#type-bindings" class='level-2 type'>bindings</a>
+<a href="#value-truncateLoc" class='level-2 value'>truncateLoc</a>
+<a href="#value-collectTypes" class='level-2 value'>collectTypes</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/src/annotate/Typing.re" class="edit-link">Edit</a>
+    <a href="#Typing" id="Typing"><h1>Typing</h1></a>
+
+<p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item'>type <a href="#type-tag" id="type-tag">tag</a> = 
+  | Type
+  | Value
+  | Module
+  | Constructor(string)
+  | Attribute(string)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-ident" id="type-ident">ident</a>('a) = ('a, <a href="#type-tag">tag</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-mapIdent" id="value-mapIdent">mapIdent</a>: ('a => 'a, ('a, 'a)) => ('a, 'a)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-contents" id="value-contents">contents</a>: ('a, 'a) => 'a</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-toString" id="value-toString">toString</a>: ('a => string, ('a, <a href="#type-tag">tag</a>)) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showPath" id="value-showPath">showPath</a>: (
+  ~?paren: option(string => bool),
+  Path.t
+) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showLident" id="value-showLident">showLident</a>: Longident.t => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showLoc" id="value-showLoc">showLoc</a>: Location.t => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-showType" id="value-showType">showType</a>: Types.type_expr => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-openn" id="type-openn">openn</a> = {
+  mut used: list(<a href="#type-ident">ident</a>(Longident.t)),
+  path: Path.t,
+  loc: Location.t
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-open_stack" id="type-open_stack">open_stack</a> = {
+  mut closed: list(<a href="#type-openn">openn</a>),
+  mut opens: list(<a href="#type-openn">openn</a>),
+  parent: option(<a href="#type-open_stack">open_stack</a>)
+}</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-pathToLident" id="value-pathToLident">pathToLident</a>: Path.t => Longident.t</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-addLidentToPath" id="value-addLidentToPath">addLidentToPath</a>: (Path.t, Longident.t) => Path.t</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-usesOpen" id="value-usesOpen">usesOpen</a>: (Longident.t, Path.t) => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-relative" id="value-relative">relative</a>: (Longident.t, Path.t) => Path.t</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-F" id="module-F">F</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>include TypedtreeIter.DefaultIteratorArgument</h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_structure" id="value-F.enter_structure">enter_structure</a>: Typedtree.structure => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_value_description" id="value-F.enter_value_description">enter_value_description</a>: Typedtree.value_description => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_type_extension" id="value-F.enter_type_extension">enter_type_extension</a>: Typedtree.type_extension => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_extension_constructor" id="value-F.enter_extension_constructor">enter_extension_constructor</a>: Typedtree.extension_constructor => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_pattern" id="value-F.enter_pattern">enter_pattern</a>: Typedtree.pattern => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_expression" id="value-F.enter_expression">enter_expression</a>: Typedtree.expression => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_package_type" id="value-F.enter_package_type">enter_package_type</a>: Typedtree.package_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_signature" id="value-F.enter_signature">enter_signature</a>: Typedtree.signature => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_signature_item" id="value-F.enter_signature_item">enter_signature_item</a>: Typedtree.signature_item => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_module_type_declaration" id="value-F.enter_module_type_declaration">enter_module_type_declaration</a>: Typedtree.module_type_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_module_type" id="value-F.enter_module_type">enter_module_type</a>: Typedtree.module_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_module_expr" id="value-F.enter_module_expr">enter_module_expr</a>: Typedtree.module_expr => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_with_constraint" id="value-F.enter_with_constraint">enter_with_constraint</a>: Typedtree.with_constraint => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_expr" id="value-F.enter_class_expr">enter_class_expr</a>: Typedtree.class_expr => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_signature" id="value-F.enter_class_signature">enter_class_signature</a>: Typedtree.class_signature => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_declaration" id="value-F.enter_class_declaration">enter_class_declaration</a>: Typedtree.class_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_description" id="value-F.enter_class_description">enter_class_description</a>: Typedtree.class_description => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_type_declaration" id="value-F.enter_class_type_declaration">enter_class_type_declaration</a>: Typedtree.class_type_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_type" id="value-F.enter_class_type">enter_class_type</a>: Typedtree.class_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_type_field" id="value-F.enter_class_type_field">enter_class_type_field</a>: Typedtree.class_type_field => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_core_type" id="value-F.enter_core_type">enter_core_type</a>: Typedtree.core_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_structure" id="value-F.enter_class_structure">enter_class_structure</a>: Typedtree.class_structure => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_class_field" id="value-F.enter_class_field">enter_class_field</a>: Typedtree.class_field => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_structure_item" id="value-F.enter_structure_item">enter_structure_item</a>: Typedtree.structure_item => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_structure" id="value-F.leave_structure">leave_structure</a>: Typedtree.structure => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_value_description" id="value-F.leave_value_description">leave_value_description</a>: Typedtree.value_description => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_type_extension" id="value-F.leave_type_extension">leave_type_extension</a>: Typedtree.type_extension => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_extension_constructor" id="value-F.leave_extension_constructor">leave_extension_constructor</a>: Typedtree.extension_constructor => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_pattern" id="value-F.leave_pattern">leave_pattern</a>: Typedtree.pattern => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_expression" id="value-F.leave_expression">leave_expression</a>: Typedtree.expression => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_package_type" id="value-F.leave_package_type">leave_package_type</a>: Typedtree.package_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_signature" id="value-F.leave_signature">leave_signature</a>: Typedtree.signature => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_signature_item" id="value-F.leave_signature_item">leave_signature_item</a>: Typedtree.signature_item => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_module_type_declaration" id="value-F.leave_module_type_declaration">leave_module_type_declaration</a>: Typedtree.module_type_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_module_type" id="value-F.leave_module_type">leave_module_type</a>: Typedtree.module_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_module_expr" id="value-F.leave_module_expr">leave_module_expr</a>: Typedtree.module_expr => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_with_constraint" id="value-F.leave_with_constraint">leave_with_constraint</a>: Typedtree.with_constraint => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_expr" id="value-F.leave_class_expr">leave_class_expr</a>: Typedtree.class_expr => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_signature" id="value-F.leave_class_signature">leave_class_signature</a>: Typedtree.class_signature => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_declaration" id="value-F.leave_class_declaration">leave_class_declaration</a>: Typedtree.class_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_description" id="value-F.leave_class_description">leave_class_description</a>: Typedtree.class_description => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_type_declaration" id="value-F.leave_class_type_declaration">leave_class_type_declaration</a>: Typedtree.class_type_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_type" id="value-F.leave_class_type">leave_class_type</a>: Typedtree.class_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_type_field" id="value-F.leave_class_type_field">leave_class_type_field</a>: Typedtree.class_type_field => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_core_type" id="value-F.leave_core_type">leave_core_type</a>: Typedtree.core_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_structure" id="value-F.leave_class_structure">leave_class_structure</a>: Typedtree.class_structure => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_class_field" id="value-F.leave_class_field">leave_class_field</a>: Typedtree.class_field => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_structure_item" id="value-F.leave_structure_item">leave_structure_item</a>: Typedtree.structure_item => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_bindings" id="value-F.enter_bindings">enter_bindings</a>: Asttypes.rec_flag => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_binding" id="value-F.enter_binding">enter_binding</a>: Typedtree.value_binding => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_binding" id="value-F.leave_binding">leave_binding</a>: Typedtree.value_binding => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_bindings" id="value-F.leave_bindings">leave_bindings</a>: Asttypes.rec_flag => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_type_declarations" id="value-F.enter_type_declarations">enter_type_declarations</a>: Asttypes.rec_flag => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_type_declaration" id="value-F.enter_type_declaration">enter_type_declaration</a>: Typedtree.type_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_type_declaration" id="value-F.leave_type_declaration">leave_type_declaration</a>: Typedtree.type_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_type_declarations" id="value-F.leave_type_declarations">leave_type_declarations</a>: Asttypes.rec_flag => unit</h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.depth" id="value-F.depth">depth</a>: Pervasives.ref(int)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.root_stack" id="value-F.root_stack">root_stack</a>: <a href="#type-open_stack">open_stack</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.closed_stacks" id="value-F.closed_stacks">closed_stacks</a>: Pervasives.ref(list(<a href="#type-open_stack">open_stack</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.open_stack" id="value-F.open_stack">open_stack</a>: Pervasives.ref(<a href="#type-open_stack">open_stack</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.new_stack" id="value-F.new_stack">new_stack</a>: unit => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.pop_stack" id="value-F.pop_stack">pop_stack</a>: unit => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.add_open" id="value-F.add_open">add_open</a>: (Path.t, Location.t) => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.pop_open" id="value-F.pop_open">pop_open</a>: unit => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.add_use" id="value-F.add_use">add_use</a>: (
+  ~?inferable: option(bool),
+  (Path.t, <a href="#type-tag">tag</a>),
+  Longident.t,
+  Location.t
+) => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.dig" id="value-F.dig">dig</a>: Types.type_expr => Types.type_expr</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_core_type" id="value-F.enter_core_type">enter_core_type</a>: Typedtree.core_type => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_type_declaration" id="value-F.enter_type_declaration">enter_type_declaration</a>: Typedtree.type_declaration => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.handleConstructor" id="value-F.handleConstructor">handleConstructor</a>: (Path.t, Longident.t) => (
+  string,
+  Longident.t
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.handleRecord" id="value-F.handleRecord">handleRecord</a>: (Path.t, Longident.t) => Longident.t</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_pattern" id="value-F.enter_pattern">enter_pattern</a>: Typedtree.pattern => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_structure_item" id="value-F.enter_structure_item">enter_structure_item</a>: Typedtree.structure_item => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_structure_item" id="value-F.leave_structure_item">leave_structure_item</a>: Typedtree.structure_item => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.enter_expression" id="value-F.enter_expression">enter_expression</a>: Typedtree.expression => unit</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-F.leave_expression" id="value-F.leave_expression">leave_expression</a>: Typedtree.expression => unit</h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-ppos" id="value-ppos">ppos</a>: Lexing.position => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-entry" id="value-entry">entry</a>: (
+  Location.t,
+  ~depth: int,
+  ~?mend: option(Lexing.position),
+  string
+) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-type_to_string" id="value-type_to_string">type_to_string</a>: Types.type_expr => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-externalsUsed" id="type-externalsUsed">externalsUsed</a> = list((Path.t, Location.t))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-bindings" id="type-bindings">bindings</a> = Hashtbl.t(int, list((Ident.t, Location.t)))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-truncateLoc" id="value-truncateLoc">truncateLoc</a>: (int, Location.t) => Location.t</h4>
+
+<div class='body '><p>Ok, so for things that have IDs, e.g. things in this file...
+we will just have a mapping of {id: {declaration: opt(ident), usages: list((ident, loc))}}</p>
+</div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-collectTypes" id="value-collectTypes">collectTypes</a>: Cmt_format.binary_annots => (
+  Hashtbl.t(
+    (Lexing.position, Lexing.position),
+    Types.type_expr
+  ),
+  Hashtbl.t('a, 'a),
+  list('a),
+  list(<a href="#type-openn">openn</a>),
+  Hashtbl.t((int, int), (Path.t, <a href="#type-tag">tag</a>))
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

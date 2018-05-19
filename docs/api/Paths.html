@@ -1,0 +1,709 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='../styles.css'>
+<script defer src='../script.js'></script>
+<title>Paths</title>
+<body>
+<script>window.relativeToRoot=".."</script>
+<script defer src="../block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    <script>window.shouldCheckHashes=true</script>
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="../search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="../index.html">Home</a>
+<a href="../Writing Documentation.html">Writing Documentation</a>
+<a href="../Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#module-Kind" class='level-0 module'>Kind</a>
+<a href="#module-Identifier" class='level-0 module'>Identifier</a>
+<a href="#type-Identifier.kind" class='level-1 type'>kind</a>
+<a href="#type-Identifier.t" class='level-1 type'>t</a>
+<a href="#type-Identifier.any" class='level-1 type'>any</a>
+<a href="#type-Identifier.signature" class='level-1 type'>signature</a>
+<a href="#type-Identifier.class_signature" class='level-1 type'>class_signature</a>
+<a href="#type-Identifier.datatype" class='level-1 type'>datatype</a>
+<a href="#type-Identifier.parent" class='level-1 type'>parent</a>
+<a href="#type-Identifier.label_parent" class='level-1 type'>label_parent</a>
+<a href="#type-Identifier.module_" class='level-1 type'>module_</a>
+<a href="#type-Identifier.module_type" class='level-1 type'>module_type</a>
+<a href="#type-Identifier.type_" class='level-1 type'>type_</a>
+<a href="#type-Identifier.constructor" class='level-1 type'>constructor</a>
+<a href="#type-Identifier.field" class='level-1 type'>field</a>
+<a href="#type-Identifier.extension" class='level-1 type'>extension</a>
+<a href="#type-Identifier.exception_" class='level-1 type'>exception_</a>
+<a href="#type-Identifier.value" class='level-1 type'>value</a>
+<a href="#type-Identifier.class_" class='level-1 type'>class_</a>
+<a href="#type-Identifier.class_type" class='level-1 type'>class_type</a>
+<a href="#type-Identifier.method_" class='level-1 type'>method_</a>
+<a href="#type-Identifier.instance_variable" class='level-1 type'>instance_variable</a>
+<a href="#type-Identifier.label" class='level-1 type'>label</a>
+<a href="#type-Identifier.page" class='level-1 type'>page</a>
+<a href="#type-Identifier.path_module" class='level-1 type'>path_module</a>
+<a href="#type-Identifier.path_module_type" class='level-1 type'>path_module_type</a>
+<a href="#type-Identifier.path_type" class='level-1 type'>path_type</a>
+<a href="#type-Identifier.path_class_type" class='level-1 type'>path_class_type</a>
+<a href="#type-Identifier.fragment_module" class='level-1 type'>fragment_module</a>
+<a href="#type-Identifier.fragment_type" class='level-1 type'>fragment_type</a>
+<a href="#type-Identifier.reference_module" class='level-1 type'>reference_module</a>
+<a href="#type-Identifier.reference_module_type" class='level-1 type'>reference_module_type</a>
+<a href="#type-Identifier.reference_type" class='level-1 type'>reference_type</a>
+<a href="#type-Identifier.reference_constructor" class='level-1 type'>reference_constructor</a>
+<a href="#type-Identifier.reference_field" class='level-1 type'>reference_field</a>
+<a href="#type-Identifier.reference_extension" class='level-1 type'>reference_extension</a>
+<a href="#type-Identifier.reference_exception" class='level-1 type'>reference_exception</a>
+<a href="#type-Identifier.reference_value" class='level-1 type'>reference_value</a>
+<a href="#type-Identifier.reference_class" class='level-1 type'>reference_class</a>
+<a href="#type-Identifier.reference_class_type" class='level-1 type'>reference_class_type</a>
+<a href="#type-Identifier.reference_method" class='level-1 type'>reference_method</a>
+<a href="#type-Identifier.reference_instance_variable" class='level-1 type'>reference_instance_variable</a>
+<a href="#type-Identifier.reference_label" class='level-1 type'>reference_label</a>
+<a href="#type-Identifier.reference_page" class='level-1 type'>reference_page</a>
+<a href="#value-Identifier.signature_of_module" class='level-1 value'>signature_of_module</a>
+<a href="#value-Identifier.signature_of_module_type" class='level-1 value'>signature_of_module_type</a>
+<a href="#value-Identifier.class_signature_of_class" class='level-1 value'>class_signature_of_class</a>
+<a href="#value-Identifier.class_signature_of_class_type" class='level-1 value'>class_signature_of_class_type</a>
+<a href="#value-Identifier.datatype_of_type" class='level-1 value'>datatype_of_type</a>
+<a href="#value-Identifier.parent_of_signature" class='level-1 value'>parent_of_signature</a>
+<a href="#value-Identifier.parent_of_class_signature" class='level-1 value'>parent_of_class_signature</a>
+<a href="#value-Identifier.parent_of_datatype" class='level-1 value'>parent_of_datatype</a>
+<a href="#value-Identifier.label_parent_of_parent" class='level-1 value'>label_parent_of_parent</a>
+<a href="#value-Identifier.label_parent_of_page" class='level-1 value'>label_parent_of_page</a>
+<a href="#value-Identifier.any" class='level-1 value'>any</a>
+<a href="#value-Identifier.equal" class='level-1 value'>equal</a>
+<a href="#value-Identifier.hash" class='level-1 value'>hash</a>
+<a href="#value-Identifier.name" class='level-1 value'>name</a>
+<a href="#value-Identifier.signature_root" class='level-1 value'>signature_root</a>
+<a href="#value-Identifier.module_root" class='level-1 value'>module_root</a>
+<a href="#value-Identifier.module_type_root" class='level-1 value'>module_type_root</a>
+<a href="#value-Identifier.class_signature_root" class='level-1 value'>class_signature_root</a>
+<a href="#value-Identifier.label_parent_root" class='level-1 value'>label_parent_root</a>
+<a href="#module-Fragment" class='level-0 module'>Fragment</a>
+<a href="#module-Fragment.Resolved" class='level-1 module'>Resolved</a>
+<a href="#type-Fragment.Resolved.kind" class='level-2 type'>kind</a>
+<a href="#type-Fragment.Resolved.sort" class='level-2 type'>sort</a>
+<a href="#type-Fragment.Resolved.raw" class='level-2 type'>raw</a>
+<a href="#type-Fragment.Resolved.t" class='level-2 type'>t</a>
+<a href="#type-Fragment.Resolved.any" class='level-2 type'>any</a>
+<a href="#type-Fragment.Resolved.signature" class='level-2 type'>signature</a>
+<a href="#type-Fragment.Resolved.module_" class='level-2 type'>module_</a>
+<a href="#type-Fragment.Resolved.type_" class='level-2 type'>type_</a>
+<a href="#value-Fragment.Resolved.signature_of_module" class='level-2 value'>signature_of_module</a>
+<a href="#value-Fragment.Resolved.any" class='level-2 value'>any</a>
+<a href="#value-Fragment.Resolved.any_sort" class='level-2 value'>any_sort</a>
+<a href="#value-Fragment.Resolved.path" class='level-2 value'>path</a>
+<a href="#value-Fragment.Resolved.identifier" class='level-2 value'>identifier</a>
+<a href="#value-Fragment.Resolved.equal" class='level-2 value'>equal</a>
+<a href="#value-Fragment.Resolved.hash" class='level-2 value'>hash</a>
+<a href="#value-Fragment.Resolved.split" class='level-2 value'>split</a>
+<a href="#type-Fragment.kind" class='level-1 type'>kind</a>
+<a href="#type-Fragment.sort" class='level-1 type'>sort</a>
+<a href="#type-Fragment.raw" class='level-1 type'>raw</a>
+<a href="#type-Fragment.t" class='level-1 type'>t</a>
+<a href="#type-Fragment.any" class='level-1 type'>any</a>
+<a href="#type-Fragment.signature" class='level-1 type'>signature</a>
+<a href="#type-Fragment.module_" class='level-1 type'>module_</a>
+<a href="#type-Fragment.type_" class='level-1 type'>type_</a>
+<a href="#value-Fragment.signature_of_module" class='level-1 value'>signature_of_module</a>
+<a href="#value-Fragment.any_sort" class='level-1 value'>any_sort</a>
+<a href="#value-Fragment.any" class='level-1 value'>any</a>
+<a href="#value-Fragment.path" class='level-1 value'>path</a>
+<a href="#value-Fragment.equal" class='level-1 value'>equal</a>
+<a href="#value-Fragment.hash" class='level-1 value'>hash</a>
+<a href="#value-Fragment.split" class='level-1 value'>split</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+<a href="Comment.html">Comment</a>
+<a href="Error.html">Error</a>
+<a href="Helpers.html">Helpers</a>
+<a href="Lang.html">Lang</a>
+<a href="Location_.html">Location_</a>
+<a href="Odoc_lexer.html">Odoc_lexer</a>
+<a href="Parse_error.html">Parse_error</a>
+<a href="Parser_.html">Parser_</a>
+<a href="Paths.html">Paths</a>
+<a href="Paths_types.html">Paths_types</a>
+<a href="Root.html">Root</a>
+<a href="Semantics.html">Semantics</a>
+<a href="Syntax.html">Syntax</a>
+<a href="Token.html">Token</a>
+<a href="Html_characters.html">Html_characters</a>
+<a href="Omd.html">Omd</a>
+<a href="Omd_backend.html">Omd_backend</a>
+<a href="Omd_html.html">Omd_html</a>
+<a href="Omd_lexer.html">Omd_lexer</a>
+<a href="Omd_parser.html">Omd_parser</a>
+<a href="Omd_representation.html">Omd_representation</a>
+<a href="Omd_types.html">Omd_types</a>
+<a href="Omd_utils.html">Omd_utils</a>
+<a href="Omd_xtxt.html">Omd_xtxt</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CliToInput.html">CliToInput</a>
+<a href="CompileCode.html">CompileCode</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="Main.html">Main</a>
+<a href="Markdown.html">Markdown</a>
+<a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="ModelToOutput.html">ModelToOutput</a>
+<a href="ParseConfig.html">ParseConfig</a>
+<a href="ProcessCode.html">ProcessCode</a>
+<a href="Search.html">Search</a>
+<a href="State.html">State</a>
+<a href="Tests.html">Tests</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a>
+<a href="CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="CmtFindStamps.html">CmtFindStamps</a>
+<a href="PrepareUtils.html">PrepareUtils</a>
+<a href="Typing.html">Typing</a>
+<a href="Descartes.html">Descartes</a>
+<a href="ElasticRaw.html">ElasticRaw</a>
+<a href="MakeIndex.html">MakeIndex</a>
+<a href="CodeHighlight.html">CodeHighlight</a>
+<a href="CodeSnippets.html">CodeSnippets</a>
+<a href="Docs.html">Docs</a>
+<a href="DocsTemplate.html">DocsTemplate</a>
+<a href="GenerateDoc.html">GenerateDoc</a>
+<a href="Pretty.html">Pretty</a>
+<a href="PrintType.html">PrintType</a>
+<a href="Sidebar.html">Sidebar</a>
+<a href="Template.html">Template</a>
+<a href="SearchScript.html">SearchScript</a>
+<a href="Commands.html">Commands</a>
+<a href="Files.html">Files</a>
+<a href="Infix.html">Infix</a>
+<a href="SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/odoc_parser/paths.mli" class="edit-link">Edit</a>
+    <p>Paths of documentation</p>
+<p style='font-style:italic'>other items defined</p><div class='doc-item'><h4 class='item module'>module <a href="#module-Kind" id="module-Kind">Kind</a> : <a href="Paths_types.html#module-Kind" title="Paths_types.Kind">Kind</a></h4></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Identifier" id="module-Identifier">Identifier</a></h4><div class='body module-body'><p>Identifiers for definitions</p>
+<p style='font-style:italic'>other items defined</p><div class='doc-item'><h4 class='item module'>include </h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.kind" id="type-Identifier.kind">kind</a> = <a href="Paths_types.html#type-Kind.identifier" title="Paths_types.Kind.identifier">identifier</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.t" id="type-Identifier.t">t</a>('kind) = 
+  | Root(<a href="Root.html">Root</a>.<a href="Root.html#type-t">t</a>, string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Module ])
+  | Page(<a href="Root.html">Root</a>.<a href="Root.html#type-t">t</a>, string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Page ])
+  | Module(<a href="#type-Identifier.signature">signature</a>, string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Module ])
+  | Argument(<a href="#type-Identifier.signature">signature</a>, int, string): <a href="#type-Identifier.t">t</a>(
+    [&lt; kind &gt; `Module ]
+  )
+  | ModuleType(<a href="#type-Identifier.signature">signature</a>, string): <a href="#type-Identifier.t">t</a>(
+    [&lt; kind &gt; `ModuleType ]
+  )
+  | Type(<a href="#type-Identifier.signature">signature</a>, string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Type ])
+  | CoreType(string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Type ])
+  | Constructor(<a href="#type-Identifier.datatype">datatype</a>, string): <a href="#type-Identifier.t">t</a>(
+    [&lt; kind &gt; `Constructor ]
+  )
+  | Field(<a href="#type-Identifier.parent">parent</a>, string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Field ])
+  | Extension(<a href="#type-Identifier.signature">signature</a>, string): <a href="#type-Identifier.t">t</a>(
+    [&lt; kind &gt; `Extension ]
+  )
+  | Exception(<a href="#type-Identifier.signature">signature</a>, string): <a href="#type-Identifier.t">t</a>(
+    [&lt; kind &gt; `Exception ]
+  )
+  | CoreException(string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Exception ])
+  | Value(<a href="#type-Identifier.signature">signature</a>, string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Value ])
+  | Class(<a href="#type-Identifier.signature">signature</a>, string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Class ])
+  | ClassType(<a href="#type-Identifier.signature">signature</a>, string): <a href="#type-Identifier.t">t</a>(
+    [&lt; kind &gt; `ClassType ]
+  )
+  | Method(<a href="#type-Identifier.class_signature">class_signature</a>, string): <a href="#type-Identifier.t">t</a>(
+    [&lt; kind &gt; `Method ]
+  )
+  | InstanceVariable(<a href="#type-Identifier.class_signature">class_signature</a>, string): <a href="#type-Identifier.t">t</a>(
+    [&lt; kind &gt; `InstanceVariable ]
+  )
+  | Label(<a href="#type-Identifier.label_parent">label_parent</a>, string): <a href="#type-Identifier.t">t</a>([&lt; kind &gt; `Label ])</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.any" id="type-Identifier.any">any</a> = <a href="#type-Identifier.t">t</a>(<a href="#type-Identifier.kind">kind</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.signature" id="type-Identifier.signature">signature</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.signature" title="Paths_types.Kind.signature">signature</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.class_signature" id="type-Identifier.class_signature">class_signature</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.class_signature" title="Paths_types.Kind.class_signature">class_signature</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.datatype" id="type-Identifier.datatype">datatype</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.datatype" title="Paths_types.Kind.datatype">datatype</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.parent" id="type-Identifier.parent">parent</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.parent" title="Paths_types.Kind.parent">parent</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.label_parent" id="type-Identifier.label_parent">label_parent</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.label_parent" title="Paths_types.Kind.label_parent">label_parent</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.module_" id="type-Identifier.module_">module_</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_module" title="Paths_types.Kind.identifier_module">identifier_module</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.module_type" id="type-Identifier.module_type">module_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_module_type" title="Paths_types.Kind.identifier_module_type">identifier_module_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.type_" id="type-Identifier.type_">type_</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_type" title="Paths_types.Kind.identifier_type">identifier_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.constructor" id="type-Identifier.constructor">constructor</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_constructor" title="Paths_types.Kind.identifier_constructor">identifier_constructor</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.field" id="type-Identifier.field">field</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_field" title="Paths_types.Kind.identifier_field">identifier_field</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.extension" id="type-Identifier.extension">extension</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_extension" title="Paths_types.Kind.identifier_extension">identifier_extension</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.exception_" id="type-Identifier.exception_">exception_</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_exception" title="Paths_types.Kind.identifier_exception">identifier_exception</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.value" id="type-Identifier.value">value</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_value" title="Paths_types.Kind.identifier_value">identifier_value</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.class_" id="type-Identifier.class_">class_</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_class" title="Paths_types.Kind.identifier_class">identifier_class</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.class_type" id="type-Identifier.class_type">class_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_class_type" title="Paths_types.Kind.identifier_class_type">identifier_class_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.method_" id="type-Identifier.method_">method_</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_method" title="Paths_types.Kind.identifier_method">identifier_method</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.instance_variable" id="type-Identifier.instance_variable">instance_variable</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_instance_variable" title="Paths_types.Kind.identifier_instance_variable">identifier_instance_variable</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.label" id="type-Identifier.label">label</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_label" title="Paths_types.Kind.identifier_label">identifier_label</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.page" id="type-Identifier.page">page</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.identifier_page" title="Paths_types.Kind.identifier_page">identifier_page</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.path_module" id="type-Identifier.path_module">path_module</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.path_module" title="Paths_types.Kind.path_module">path_module</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.path_module_type" id="type-Identifier.path_module_type">path_module_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.path_module_type" title="Paths_types.Kind.path_module_type">path_module_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.path_type" id="type-Identifier.path_type">path_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.path_type" title="Paths_types.Kind.path_type">path_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.path_class_type" id="type-Identifier.path_class_type">path_class_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.path_class_type" title="Paths_types.Kind.path_class_type">path_class_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.fragment_module" id="type-Identifier.fragment_module">fragment_module</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.fragment_module" title="Paths_types.Kind.fragment_module">fragment_module</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.fragment_type" id="type-Identifier.fragment_type">fragment_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.fragment_type" title="Paths_types.Kind.fragment_type">fragment_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_module" id="type-Identifier.reference_module">reference_module</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_module" title="Paths_types.Kind.reference_module">reference_module</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_module_type" id="type-Identifier.reference_module_type">reference_module_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_module_type" title="Paths_types.Kind.reference_module_type">reference_module_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_type" id="type-Identifier.reference_type">reference_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_type" title="Paths_types.Kind.reference_type">reference_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_constructor" id="type-Identifier.reference_constructor">reference_constructor</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_constructor" title="Paths_types.Kind.reference_constructor">reference_constructor</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_field" id="type-Identifier.reference_field">reference_field</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_field" title="Paths_types.Kind.reference_field">reference_field</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_extension" id="type-Identifier.reference_extension">reference_extension</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_extension" title="Paths_types.Kind.reference_extension">reference_extension</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_exception" id="type-Identifier.reference_exception">reference_exception</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_exception" title="Paths_types.Kind.reference_exception">reference_exception</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_value" id="type-Identifier.reference_value">reference_value</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_value" title="Paths_types.Kind.reference_value">reference_value</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_class" id="type-Identifier.reference_class">reference_class</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_class" title="Paths_types.Kind.reference_class">reference_class</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_class_type" id="type-Identifier.reference_class_type">reference_class_type</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_class_type" title="Paths_types.Kind.reference_class_type">reference_class_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_method" id="type-Identifier.reference_method">reference_method</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_method" title="Paths_types.Kind.reference_method">reference_method</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_instance_variable" id="type-Identifier.reference_instance_variable">reference_instance_variable</a> = <a href="#type-Identifier.t">t</a>(
+  <a href="Paths_types.html#type-Kind.reference_instance_variable" title="Paths_types.Kind.reference_instance_variable">reference_instance_variable</a>
+)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_label" id="type-Identifier.reference_label">reference_label</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_label" title="Paths_types.Kind.reference_label">reference_label</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Identifier.reference_page" id="type-Identifier.reference_page">reference_page</a> = <a href="#type-Identifier.t">t</a>(<a href="Paths_types.html#type-Kind.reference_page" title="Paths_types.Kind.reference_page">reference_page</a>)</h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h2 id="Explicit-coercions">Explicit coercions</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.signature_of_module" id="value-Identifier.signature_of_module">signature_of_module</a>: <a href="#type-Identifier.module_">module_</a> => <a href="#type-Identifier.signature">signature</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.signature_of_module_type" id="value-Identifier.signature_of_module_type">signature_of_module_type</a>: <a href="#type-Identifier.module_type">module_type</a> => <a href="#type-Identifier.signature">signature</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.class_signature_of_class" id="value-Identifier.class_signature_of_class">class_signature_of_class</a>: <a href="#type-Identifier.class_">class_</a> => <a href="#type-Identifier.class_signature">class_signature</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.class_signature_of_class_type" id="value-Identifier.class_signature_of_class_type">class_signature_of_class_type</a>: <a href="#type-Identifier.class_type">class_type</a> => <a href="#type-Identifier.class_signature">class_signature</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.datatype_of_type" id="value-Identifier.datatype_of_type">datatype_of_type</a>: <a href="#type-Identifier.type_">type_</a> => <a href="#type-Identifier.datatype">datatype</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.parent_of_signature" id="value-Identifier.parent_of_signature">parent_of_signature</a>: <a href="#type-Identifier.signature">signature</a> => <a href="#type-Identifier.parent">parent</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.parent_of_class_signature" id="value-Identifier.parent_of_class_signature">parent_of_class_signature</a>: <a href="#type-Identifier.class_signature">class_signature</a> => <a href="#type-Identifier.parent">parent</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.parent_of_datatype" id="value-Identifier.parent_of_datatype">parent_of_datatype</a>: <a href="#type-Identifier.datatype">datatype</a> => <a href="#type-Identifier.parent">parent</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.label_parent_of_parent" id="value-Identifier.label_parent_of_parent">label_parent_of_parent</a>: <a href="#type-Identifier.parent">parent</a> => <a href="#type-Identifier.label_parent">label_parent</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.label_parent_of_page" id="value-Identifier.label_parent_of_page">label_parent_of_page</a>: <a href="#type-Identifier.page">page</a> => <a href="#type-Identifier.label_parent">label_parent</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.any" id="value-Identifier.any">any</a>: <a href="#type-Identifier.t">t</a>('kind) => <a href="#type-Identifier.any">any</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h2 id="Generic-operations">Generic operations</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.equal" id="value-Identifier.equal">equal</a>: (<a href="#type-Identifier.t">t</a>('kind), <a href="#type-Identifier.t">t</a>('kind)) => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.hash" id="value-Identifier.hash">hash</a>: <a href="#type-Identifier.t">t</a>('kind) => int</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h3 id="Printing">Printing</h3></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.name" id="value-Identifier.name">name</a>: <a href="#type-Identifier.t">t</a>('kind) => string</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h2 id="Root-retrieval">Root retrieval</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.signature_root" id="value-Identifier.signature_root">signature_root</a>: <a href="#type-Identifier.signature">signature</a> => <a href="Root.html">Root</a>.<a href="Root.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.module_root" id="value-Identifier.module_root">module_root</a>: <a href="#type-Identifier.module_">module_</a> => <a href="Root.html">Root</a>.<a href="Root.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.module_type_root" id="value-Identifier.module_type_root">module_type_root</a>: <a href="#type-Identifier.module_type">module_type</a> => <a href="Root.html">Root</a>.<a href="Root.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.class_signature_root" id="value-Identifier.class_signature_root">class_signature_root</a>: <a href="#type-Identifier.class_signature">class_signature</a> => <a href="Root.html">Root</a>.<a href="Root.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Identifier.label_parent_root" id="value-Identifier.label_parent_root">label_parent_root</a>: <a href="#type-Identifier.label_parent">label_parent</a> => <a href="Root.html">Root</a>.<a href="Root.html#type-t">t</a></h4>
+
+<div class='body body-empty'></div></div></div></div>
+
+<div class='doc-item'><h4 class='item module'>module <a href="#module-Fragment" id="module-Fragment">Fragment</a></h4><div class='body module-body'><p>OCaml path fragments for specifying module substitutions</p>
+<p style='font-style:italic'>other items defined</p><div class='doc-item'><h4 class='item module'>module <a href="#module-Fragment.Resolved" id="module-Fragment.Resolved">Resolved</a></h4><div class='body module-body'><p><span class='missing'>This module does not have a toplevel documentation block.</span></p>
+<div class='doc-item'><h4 class='item module'>include </h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.Resolved.kind" id="type-Fragment.Resolved.kind">kind</a> = <a href="Paths_types.html#type-Kind.fragment" title="Paths_types.Kind.fragment">fragment</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.Resolved.sort" id="type-Fragment.Resolved.sort">sort</a> = [ `Branch | `Root ]</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.Resolved.raw" id="type-Fragment.Resolved.raw">raw</a>('b, 'c) = 
+  | Root: <a href="#type-Fragment.Resolved.raw">raw</a>('b, [&lt; sort &gt; `Root ])
+  | Subst(<a href="Paths_types.html#type-Resolved_path.module_type" title="Paths_types.Resolved_path.module_type">module_type</a>, <a href="#type-Fragment.Resolved.module_">module_</a>): <a href="#type-Fragment.Resolved.raw">raw</a>(
+    [&lt; kind &gt; `Module ],
+    [&lt; sort &gt; `Branch ]
+  )
+  | SubstAlias(<a href="Paths_types.html#type-Resolved_path.module_" title="Paths_types.Resolved_path.module_">module_</a>, <a href="#type-Fragment.Resolved.module_">module_</a>): <a href="#type-Fragment.Resolved.raw">raw</a>(
+    [&lt; kind &gt; `Module ],
+    [&lt; sort &gt; `Branch ]
+  )
+  | Module(<a href="#type-Fragment.Resolved.signature">signature</a>, string): <a href="#type-Fragment.Resolved.raw">raw</a>(
+    [&lt; kind &gt; `Module ],
+    [&lt; sort &gt; `Branch ]
+  )
+  | Type(<a href="#type-Fragment.Resolved.signature">signature</a>, string): <a href="#type-Fragment.Resolved.raw">raw</a>(
+    [&lt; kind &gt; `Type ],
+    [&lt; sort &gt; `Branch ]
+  )
+  | Class(<a href="#type-Fragment.Resolved.signature">signature</a>, string): <a href="#type-Fragment.Resolved.raw">raw</a>(
+    [&lt; kind &gt; `Class ],
+    [&lt; sort &gt; `Branch ]
+  )
+  | ClassType(<a href="#type-Fragment.Resolved.signature">signature</a>, string): <a href="#type-Fragment.Resolved.raw">raw</a>(
+    [&lt; kind &gt; `ClassType ],
+    [&lt; sort &gt; `Branch ]
+  )</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.Resolved.t" id="type-Fragment.Resolved.t">t</a>('b) = <a href="#type-Fragment.Resolved.raw">raw</a>('b, [ `Branch ])</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.Resolved.any" id="type-Fragment.Resolved.any">any</a> = <a href="#type-Fragment.Resolved.t">t</a>(<a href="#type-Fragment.Resolved.kind">kind</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.Resolved.signature" id="type-Fragment.Resolved.signature">signature</a> = <a href="#type-Fragment.Resolved.raw">raw</a>(<a href="Paths_types.html#type-Kind.fragment_module" title="Paths_types.Kind.fragment_module">fragment_module</a>, [ `Branch | `Root ])</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.Resolved.module_" id="type-Fragment.Resolved.module_">module_</a> = <a href="#type-Fragment.Resolved.t">t</a>(<a href="Paths_types.html#type-Kind.fragment_module" title="Paths_types.Kind.fragment_module">fragment_module</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.Resolved.type_" id="type-Fragment.Resolved.type_">type_</a> = <a href="#type-Fragment.Resolved.t">t</a>(<a href="Paths_types.html#type-Kind.fragment_type" title="Paths_types.Kind.fragment_type">fragment_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h2 id="Explicit-coercions">Explicit coercions</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.Resolved.signature_of_module" id="value-Fragment.Resolved.signature_of_module">signature_of_module</a>: <a href="#type-Fragment.Resolved.module_">module_</a> => <a href="#type-Fragment.Resolved.signature">signature</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.Resolved.any" id="value-Fragment.Resolved.any">any</a>: <a href="#type-Fragment.Resolved.t">t</a>('b) => <a href="#type-Fragment.Resolved.any">any</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.Resolved.any_sort" id="value-Fragment.Resolved.any_sort">any_sort</a>: <a href="#type-Fragment.Resolved.raw">raw</a>('b, 'c) => <a href="#type-Fragment.Resolved.raw">raw</a>('b, <a href="#type-Fragment.Resolved.sort">sort</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h2 id="Attaching-fragments-to-valid-paths">Attaching fragments to valid paths</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.Resolved.path" id="value-Fragment.Resolved.path">path</a>: (Path.module_, <a href="#type-Fragment.Resolved.t">t</a>('b)) => Path.t('b)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.Resolved.identifier" id="value-Fragment.Resolved.identifier">identifier</a>: (<a href="#type-Identifier.signature" title="Identifier.signature">signature</a>, <a href="#type-Fragment.Resolved.t">t</a>('b)) => <a href="#module-Identifier">Identifier</a>.<a href="#type-Identifier.t">t</a>('b)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h2 id="Generic-operations">Generic operations</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.Resolved.equal" id="value-Fragment.Resolved.equal">equal</a>: (<a href="#type-Fragment.Resolved.t">t</a>('b), <a href="#type-Fragment.Resolved.t">t</a>('b)) => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.Resolved.hash" id="value-Fragment.Resolved.hash">hash</a>: <a href="#type-Fragment.Resolved.t">t</a>('b) => int</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.Resolved.split" id="value-Fragment.Resolved.split">split</a>: <a href="#type-Fragment.Resolved.t">t</a>('b) => (string, option(<a href="#type-Fragment.Resolved.t">t</a>('b)))</h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h4 class='item module'>include </h4><div class='body module-body include-body'><div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.kind" id="type-Fragment.kind">kind</a> = <a href="Paths_types.html#type-Kind.fragment" title="Paths_types.Kind.fragment">fragment</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.sort" id="type-Fragment.sort">sort</a> = [ `Branch | `Root ]</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.raw" id="type-Fragment.raw">raw</a>('b, 'c) = 
+  | Resolved(<a href="Paths_types.html#type-Resolved_fragment.raw" title="Paths_types.Resolved_fragment.raw">raw</a>('b, 'c)): <a href="#type-Fragment.raw">raw</a>('b, 'c)
+  | Dot(<a href="#type-Fragment.signature">signature</a>, string): <a href="#type-Fragment.raw">raw</a>(
+    [&lt; kind ],
+    [&lt; sort &gt; `Branch ]
+  )</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.t" id="type-Fragment.t">t</a>('b) = <a href="#type-Fragment.raw">raw</a>('b, [ `Branch ])</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.any" id="type-Fragment.any">any</a> = <a href="#type-Fragment.t">t</a>(<a href="#type-Fragment.kind">kind</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.signature" id="type-Fragment.signature">signature</a> = <a href="#type-Fragment.raw">raw</a>(<a href="Paths_types.html#type-Kind.fragment_module" title="Paths_types.Kind.fragment_module">fragment_module</a>, [ `Branch | `Root ])</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.module_" id="type-Fragment.module_">module_</a> = <a href="#type-Fragment.t">t</a>(<a href="Paths_types.html#type-Kind.fragment_module" title="Paths_types.Kind.fragment_module">fragment_module</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Fragment.type_" id="type-Fragment.type_">type_</a> = <a href="#type-Fragment.t">t</a>(<a href="Paths_types.html#type-Kind.fragment_type" title="Paths_types.Kind.fragment_type">fragment_type</a>)</h4>
+
+<div class='body body-empty'></div></div>
+</div></div>
+
+<div class='doc-item'><h2 id="Explicit-coercions">Explicit coercions</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.signature_of_module" id="value-Fragment.signature_of_module">signature_of_module</a>: <a href="#type-Fragment.module_">module_</a> => <a href="#type-Fragment.signature">signature</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.any_sort" id="value-Fragment.any_sort">any_sort</a>: <a href="#type-Fragment.raw">raw</a>('b, 'c) => <a href="#type-Fragment.raw">raw</a>('b, <a href="#type-Fragment.sort">sort</a>)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.any" id="value-Fragment.any">any</a>: <a href="#type-Fragment.t">t</a>('b) => <a href="#type-Fragment.any">any</a></h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h2 id="Attaching-fragments-to-valid-paths">Attaching fragments to valid paths</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.path" id="value-Fragment.path">path</a>: (Path.module_, <a href="#type-Fragment.t">t</a>('b)) => Path.t('b)</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h2 id="Generic-operations">Generic operations</h2></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.equal" id="value-Fragment.equal">equal</a>: (<a href="#type-Fragment.t">t</a>('b), <a href="#type-Fragment.t">t</a>('b)) => bool</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.hash" id="value-Fragment.hash">hash</a>: <a href="#type-Fragment.t">t</a>('b) => int</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>let <a href="#value-Fragment.split" id="value-Fragment.split">split</a>: <a href="#type-Fragment.t">t</a>('b) => (string, option(<a href="#type-Fragment.t">t</a>('b)))</h4>
+
+<div class='body body-empty'></div></div></div></div>
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

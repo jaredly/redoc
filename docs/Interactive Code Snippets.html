@@ -1,0 +1,627 @@
+
+    
+<!doctype html>
+<meta charset=utf8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel=stylesheet href='./styles.css'>
+<script defer src='./script.js'></script>
+<title>Interactive Code Snippets</title>
+<body>
+<script>window.relativeToRoot="./"</script>
+<script defer src="./block-script.js"></script>
+<div id='error-message'>
+  ⚠️ Oops! This page doesn't appear to define a <span>type</span> called <code>_</code>.
+</div>
+
+    
+    <div class='container'>
+    
+    <div class='sidebar-wrapper'>
+    <div class='sidebar-expander'>Show navigation</div>
+    <div class='sidebar'>
+      <a href="./search.html" style="display: block; padding: 0 8px;">Search</a>
+      
+      <div class='docs-listing'><a href="./index.html">Home</a>
+<a href="./Writing Documentation.html">Writing Documentation</a>
+<a href="./Interactive Code Snippets.html">Interactive Code Snippets</a></div>
+      <div class='toc-header'>Page Contents</div>
+      <div class='table-of-contents'>
+      <a href="#interactive-code-snippets" class='level-1 header'>Interactive Code Snippets</a>
+<a href="#displaying-errors" class='level-3 header'>Displaying errors</a>
+<a href="#more-fancy-output-options" class='level-3 header'>More fancy output options</a>
+<a href="#--hiding-prefix--amp--suffix-lines" class='level-4 header'><code>#</code> Hiding prefix &amp; suffix lines</a>
+<a href="#canvas-have-a-canvas" class='level-4 header'><code>canvas</code> Have a canvas</a>
+<a href="#shared-name--share-something" class='level-4 header'><code>shared(name)</code> Share something</a>
+<a href="#hide-hide-a-code-block" class='level-4 header'><code>hide</code> Hide a code block</a>
+<a href="#write-the-source-in-ocaml" class='level-4 header'>Write the source in OCaml</a>
+      </div>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="./api/Ast.html">Ast</a>
+<a href="./api/Comment.html">Comment</a>
+<a href="./api/Error.html">Error</a>
+<a href="./api/Helpers.html">Helpers</a>
+<a href="./api/Lang.html">Lang</a>
+<a href="./api/Location_.html">Location_</a>
+<a href="./api/Odoc_lexer.html">Odoc_lexer</a>
+<a href="./api/Parse_error.html">Parse_error</a>
+<a href="./api/Parser_.html">Parser_</a>
+<a href="./api/Paths.html">Paths</a>
+<a href="./api/Paths_types.html">Paths_types</a>
+<a href="./api/Root.html">Root</a>
+<a href="./api/Semantics.html">Semantics</a>
+<a href="./api/Syntax.html">Syntax</a>
+<a href="./api/Token.html">Token</a>
+<a href="./api/Html_characters.html">Html_characters</a>
+<a href="./api/Omd.html">Omd</a>
+<a href="./api/Omd_backend.html">Omd_backend</a>
+<a href="./api/Omd_html.html">Omd_html</a>
+<a href="./api/Omd_lexer.html">Omd_lexer</a>
+<a href="./api/Omd_parser.html">Omd_parser</a>
+<a href="./api/Omd_representation.html">Omd_representation</a>
+<a href="./api/Omd_types.html">Omd_types</a>
+<a href="./api/Omd_utils.html">Omd_utils</a>
+<a href="./api/Omd_xtxt.html">Omd_xtxt</a>
+<a href="./api/CliToInput.html">CliToInput</a>
+<a href="./api/CompileCode.html">CompileCode</a>
+<a href="./api/InputToModel.html">InputToModel</a>
+<a href="./api/Main.html">Main</a>
+<a href="./api/Markdown.html">Markdown</a>
+<a href="./api/MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="./api/ModelToOutput.html">ModelToOutput</a>
+<a href="./api/ParseConfig.html">ParseConfig</a>
+<a href="./api/ProcessCode.html">ProcessCode</a>
+<a href="./api/Search.html">Search</a>
+<a href="./api/State.html">State</a>
+<a href="./api/Tests.html">Tests</a>
+<a href="./api/CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="./api/CmtFindStamps.html">CmtFindStamps</a>
+<a href="./api/PrepareUtils.html">PrepareUtils</a>
+<a href="./api/Typing.html">Typing</a>
+<a href="./api/Descartes.html">Descartes</a>
+<a href="./api/ElasticRaw.html">ElasticRaw</a>
+<a href="./api/MakeIndex.html">MakeIndex</a>
+<a href="./api/CodeHighlight.html">CodeHighlight</a>
+<a href="./api/CodeSnippets.html">CodeSnippets</a>
+<a href="./api/Docs.html">Docs</a>
+<a href="./api/DocsTemplate.html">DocsTemplate</a>
+<a href="./api/GenerateDoc.html">GenerateDoc</a>
+<a href="./api/Pretty.html">Pretty</a>
+<a href="./api/PrintType.html">PrintType</a>
+<a href="./api/Sidebar.html">Sidebar</a>
+<a href="./api/Template.html">Template</a>
+<a href="./api/SearchScript.html">SearchScript</a>
+<a href="./api/Commands.html">Commands</a>
+<a href="./api/Files.html">Files</a>
+<a href="./api/Infix.html">Infix</a>
+<a href="./api/SerializeBinary.html">SerializeBinary</a>
+<a href="./api/CliToInput.html">CliToInput</a>
+<a href="./api/CompileCode.html">CompileCode</a>
+<a href="./api/InputToModel.html">InputToModel</a>
+<a href="./api/Main.html">Main</a>
+<a href="./api/Markdown.html">Markdown</a>
+<a href="./api/MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
+<a href="./api/ModelToOutput.html">ModelToOutput</a>
+<a href="./api/ParseConfig.html">ParseConfig</a>
+<a href="./api/ProcessCode.html">ProcessCode</a>
+<a href="./api/Search.html">Search</a>
+<a href="./api/State.html">State</a>
+<a href="./api/Tests.html">Tests</a>
+<a href="./api/CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="./api/CmtFindStamps.html">CmtFindStamps</a>
+<a href="./api/PrepareUtils.html">PrepareUtils</a>
+<a href="./api/Typing.html">Typing</a>
+<a href="./api/Descartes.html">Descartes</a>
+<a href="./api/ElasticRaw.html">ElasticRaw</a>
+<a href="./api/MakeIndex.html">MakeIndex</a>
+<a href="./api/CodeHighlight.html">CodeHighlight</a>
+<a href="./api/CodeSnippets.html">CodeSnippets</a>
+<a href="./api/Docs.html">Docs</a>
+<a href="./api/DocsTemplate.html">DocsTemplate</a>
+<a href="./api/GenerateDoc.html">GenerateDoc</a>
+<a href="./api/Pretty.html">Pretty</a>
+<a href="./api/PrintType.html">PrintType</a>
+<a href="./api/Sidebar.html">Sidebar</a>
+<a href="./api/Template.html">Template</a>
+<a href="./api/SearchScript.html">SearchScript</a>
+<a href="./api/Commands.html">Commands</a>
+<a href="./api/Files.html">Files</a>
+<a href="./api/Infix.html">Infix</a>
+<a href="./api/SerializeBinary.html">SerializeBinary</a>
+<a href="./api/CmtFindDocItems.html">CmtFindDocItems</a>
+<a href="./api/CmtFindStamps.html">CmtFindStamps</a>
+<a href="./api/PrepareUtils.html">PrepareUtils</a>
+<a href="./api/Typing.html">Typing</a>
+<a href="./api/Descartes.html">Descartes</a>
+<a href="./api/ElasticRaw.html">ElasticRaw</a>
+<a href="./api/MakeIndex.html">MakeIndex</a>
+<a href="./api/CodeHighlight.html">CodeHighlight</a>
+<a href="./api/CodeSnippets.html">CodeSnippets</a>
+<a href="./api/Docs.html">Docs</a>
+<a href="./api/DocsTemplate.html">DocsTemplate</a>
+<a href="./api/GenerateDoc.html">GenerateDoc</a>
+<a href="./api/Pretty.html">Pretty</a>
+<a href="./api/PrintType.html">PrintType</a>
+<a href="./api/Sidebar.html">Sidebar</a>
+<a href="./api/Template.html">Template</a>
+<a href="./api/SearchScript.html">SearchScript</a>
+<a href="./api/Commands.html">Commands</a>
+<a href="./api/Files.html">Files</a>
+<a href="./api/Infix.html">Infix</a>
+<a href="./api/SerializeBinary.html">SerializeBinary</a></div>
+    </div>
+    </div>
+  
+    <div class='main'>
+    <a href="https://github.com/jaredly/docre/blob/master/docs/Interactive Code Snippets.md" class="edit-link">Edit</a>
+    <a href="#interactive-code-snippets" id="interactive-code-snippets"><h1>Interactive Code Snippets</h1></a>
+
+<p>If you put this in your doc-comments:</p>
+<pre class='txt'><code class='txt'>```reason
+print_endline(&quot;Hello&quot;);
+```</code></pre>
+
+<p>Then you get this, with full type-for-hover, and in-browser running &amp; editing.</p>
+<div class='code-block' data-block-syntax="re">
+  
+  <pre class='code' data-block-id='7' id='block-7'><code><span class='ident' data-type="string => unit">print_endline</span>(<span class='string' data-type="string">&quot;Hello&quot;</span>);</code></pre>
+  
+  <script type='docre-source' data-block-id="7">print_endline("Hello");</script>
+  <div data-block-id='7' data-context="normal" data-block-syntax="re" class='block-target'></div><script type='docre-bundle' data-block-id='7'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+console.log("Hello");
+
+/*  Not a pure module */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_7.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_7.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div><div class='code-block' data-block-syntax="ml">
+  
+  <pre class='code' data-block-id='7-alt' id='block-7-alt'><code>[@@@ocaml.ppx.context { cookies = [] }]
+let _ = <span class='ident' data-type="string => unit">print_endline</span> <span class='string' data-type="string">&quot;Hello&quot;</span></code></pre>
+  
+  <script type='docre-source' data-block-id="7-alt">[@@@ocaml.ppx.context { cookies = [] }]
+let _ = print_endline "Hello"</script>
+  <div data-block-id='7-alt' data-context="normal" data-block-syntax="ml" class='block-target'></div><script type='docre-bundle' data-block-id='7-alt'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+console.log("Hello");
+
+/*  Not a pure module */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_7_alt.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_7_alt.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div>
+
+<p>When you execute, will trap the console &amp; display below (should also send to real console).</p>
+<a href="#displaying-errors" id="displaying-errors"><h3>Displaying errors</h3></a>
+
+<pre class='txt'><code class='txt'>```re
+This is a syntax error
+```</code></pre>
+
+<div class='code-block' data-block-syntax="re">
+  
+  <pre class='code' data-block-id='6' id='block-6'><code>This is a syntax error</code></pre>
+  
+  <script type='docre-source' data-block-id="6">This is a syntax error</script>
+  <div class='parse-error'>Parse Error:
+File &quot;&quot;, line 1, characters 5-7:
+Error: 1392: syntax error, consider adding a `;&#39; before</div>
+</div><div class='code-block' data-block-syntax="ml">
+  
+  <pre class='code' data-block-id='6-alt' id='block-6-alt'><code>This is a syntax error</code></pre>
+  
+  <script type='docre-source' data-block-id="6-alt">This is a syntax error</script>
+  <div class='parse-error'>Parse Error:
+Unable to refmt code with a syntax error. The original error was
+
+File &quot;&quot;, line 1, characters 5-7:
+Error: 1392: syntax error, consider adding a `;&#39; before</div>
+</div>
+
+<p>If you <em>intend</em> to have a syntax error, add <code>parse-fail</code> to the header, like <code>re;parse-fail</code>. Other wise you&#39;ll get a big warning when you run docre.</p>
+<pre class='txt'><code class='txt'>```re
+3 + &quot;type error&quot;
+```</code></pre>
+
+<div class='code-block' data-block-syntax="re">
+  
+  <pre class='code' data-block-id='5' id='block-5'><code><span class='int' data-type="int">3</span> <span class='operator' data-type="(int, int) => int">+</span> <span class='string' data-type="string">&quot;type error&quot;</span></code></pre>
+  
+  <script type='docre-source' data-block-id="5">3 + "type error"</script>
+  <div class='type-error'>Type Error:
+File &quot;&quot;, line 1, characters 4-16:
+Error: This expression has type string but an expression was expected of type
+         int</div>
+</div><div class='code-block' data-block-syntax="ml">
+  
+  <pre class='code' data-block-id='5-alt' id='block-5-alt'><code>[@@@ocaml.ppx.context { cookies = [] }]
+let _ = <span class='int' data-type="int">3</span> <span class='operator' data-type="(int, int) => int">+</span> <span class='string' data-type="string">&quot;type error&quot;</span></code></pre>
+  
+  <script type='docre-source' data-block-id="5-alt">[@@@ocaml.ppx.context { cookies = [] }]
+let _ = 3 + "type error"</script>
+  <div class='type-error'>Type Error:
+File &quot;&quot;, line 2, characters 12-24:
+Error: This expression has type string but an expression was expected of type
+         int</div>
+</div>
+
+<p>Similarly, if you <em>intend</em> to have a type error, add <code>type-fail</code> to the header, like <code>re;type-fail</code>.</p>
+<a href="#more-fancy-output-options" id="more-fancy-output-options"><h3>More fancy output options</h3></a>
+
+<a href="#--hiding-prefix--amp--suffix-lines" id="--hiding-prefix--amp--suffix-lines"><h4><code>#</code> Hiding prefix &amp; suffix lines</h4></a>
+
+<pre class='txt'><code class='txt'>```
+#let x = &quot;this line will be hidden&quot;;
+#let y = &quot;this line will also be hidden&quot;;
+let z = x ++ y; /* wow where did that come from */
+# /* also this line will be hidden */
+!#Js.log(&quot;And this line will be visible, but read-only at the end.&quot;);
+```</code></pre>
+
+<div class='code-block' data-block-syntax="re">
+  
+  <pre class='code' data-block-id='4' id='block-4'><code>let <span class='pattern-ident' data-type="string">z</span> = <span class='ident' data-type="string">x</span> <span class='operator' data-type="(string, string) => string">++</span> <span class='ident' data-type="string">y</span>; /* wow where did that come from */</code></pre>
+  <div class='code-post'>Js.log(&quot;And this line will be visible, but read-only at the end.&quot;);</div>
+  <script type='docre-source' data-block-id="4">#let x = "this line will be hidden";
+#let y = "this line will also be hidden";
+let z = x ++ y; /* wow where did that come from */
+# /* also this line will be hidden */
+!#Js.log("And this line will be visible, but read-only at the end.");</script>
+  <div data-block-id='4' data-context="normal" data-block-syntax="re" class='block-target'></div><script type='docre-bundle' data-block-id='4'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+var x = "this line will be hidden";
+
+var y = "this line will also be hidden";
+
+var z = "this line will be hiddenthis line will also be hidden";
+
+console.log("And this line will be visible, but read-only at the end.");
+
+exports.x = x;
+exports.y = y;
+exports.z = z;
+/*  Not a pure module */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_4.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_4.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div><div class='code-block' data-block-syntax="ml">
+  
+  <pre class='code' data-block-id='4-alt' id='block-4-alt'><code>[@@@ocaml.ppx.context { cookies = [] }]
+let <span class='pattern-ident' data-type="string">x</span> = <span class='string' data-type="string">&quot;this line will be hidden&quot;</span>
+let <span class='pattern-ident' data-type="string">y</span> = <span class='string' data-type="string">&quot;this line will also be hidden&quot;</span>
+let <span class='pattern-ident' data-type="string">z</span> = <span class='ident' data-type="string">x</span> <span class='operator' data-type="(string, string) => string">^</span> <span class='ident' data-type="string">y</span>
+let _ = <span class='ident' data-type="string => unit">Js.log</span> <span class='string' data-type="string">&quot;And this line will be visible, but read-only at the end.&quot;</span></code></pre>
+  
+  <script type='docre-source' data-block-id="4-alt">[@@@ocaml.ppx.context { cookies = [] }]
+let x = "this line will be hidden"
+let y = "this line will also be hidden"
+let z = x ^ y
+let _ = Js.log "And this line will be visible, but read-only at the end."</script>
+  <div data-block-id='4-alt' data-context="normal" data-block-syntax="ml" class='block-target'></div><script type='docre-bundle' data-block-id='4-alt'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+var x = "this line will be hidden";
+
+var y = "this line will also be hidden";
+
+var z = "this line will be hiddenthis line will also be hidden";
+
+console.log("And this line will be visible, but read-only at the end.");
+
+exports.x = x;
+exports.y = y;
+exports.z = z;
+/*  Not a pure module */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_4_alt.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_4_alt.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div>
+
+<a href="#canvas-have-a-canvas" id="canvas-have-a-canvas"><h4><code>canvas</code> Have a canvas</h4></a>
+
+<pre class='txt'><code class='txt'>```canvas
+Js.log(&quot;A shared canvas is created, and floats over to the right. The canvasId is available as &#39;sandboxId&#39;.&quot;);
+[@bs.val] external sandboxId: string = &quot;&quot;;
+```</code></pre>
+
+<a href="#shared-name--share-something" id="shared-name--share-something"><h4><code>shared(name)</code> Share something</h4></a>
+
+<pre class='txt'><code class='txt'>```shared(awesome)
+let something = &quot;A string I want to use later&quot;;
+```</code></pre>
+
+<div class='code-block' data-block-syntax="re">
+  
+  <pre class='code' data-block-id='3' id='block-3'><code>let <span class='pattern-ident' data-type="string">something</span> = <span class='string' data-type="string">&quot;A string I want to use later&quot;</span>;</code></pre>
+  
+  <script type='docre-source' data-block-id="3">let something = "A string I want to use later";</script>
+  <div data-block-id='3' data-context="normal" data-block-syntax="re" class='block-target'></div><script type='docre-bundle' data-block-id='3'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+var something = "A string I want to use later";
+
+exports.something = something;
+/* No side effect */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_3.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_3.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div><div class='code-block' data-block-syntax="ml">
+  
+  <pre class='code' data-block-id='3-alt' id='block-3-alt'><code>[@@@ocaml.ppx.context { cookies = [] }]
+let <span class='pattern-ident' data-type="string">something</span> = <span class='string' data-type="string">&quot;A string I want to use later&quot;</span></code></pre>
+  
+  <script type='docre-source' data-block-id="3-alt">[@@@ocaml.ppx.context { cookies = [] }]
+let something = "A string I want to use later"</script>
+  <div data-block-id='3-alt' data-context="normal" data-block-syntax="ml" class='block-target'></div><script type='docre-bundle' data-block-id='3-alt'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+var something = "A string I want to use later";
+
+exports.something = something;
+/* No side effect */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_3_alt.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_3_alt.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div>
+
+<p>And then use it later:</p>
+<pre class='txt'><code class='txt'>```use(awesome)
+Js.log(something);
+```</code></pre>
+
+<div class='code-block' data-block-syntax="re">
+  
+  <pre class='code' data-block-id='2' id='block-2'><code>/* Yay now this type checks */
+<span class='ident' data-type="string => unit">Js.log</span>(<span class='ident' data-type="string">something</span>);</code></pre>
+  
+  <script type='docre-source' data-block-id="2">#let something = "A string I want to use later";
+/* Yay now this type checks */
+Js.log(something);</script>
+  <div data-block-id='2' data-context="normal" data-block-syntax="re" class='block-target'></div><script type='docre-bundle' data-block-id='2'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+var something = "A string I want to use later";
+
+console.log(something);
+
+exports.something = something;
+/*  Not a pure module */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_2.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_2.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div><div class='code-block' data-block-syntax="ml">
+  
+  <pre class='code' data-block-id='2-alt' id='block-2-alt'><code>[@@@ocaml.ppx.context { cookies = [] }]
+let <span class='pattern-ident' data-type="string">something</span> = <span class='string' data-type="string">&quot;A string I want to use later&quot;</span>
+let _ = <span class='ident' data-type="string => unit">Js.log</span> <span class='ident' data-type="string">something</span></code></pre>
+  
+  <script type='docre-source' data-block-id="2-alt">[@@@ocaml.ppx.context { cookies = [] }]
+let something = "A string I want to use later"
+let _ = Js.log something</script>
+  <div data-block-id='2-alt' data-context="normal" data-block-syntax="ml" class='block-target'></div><script type='docre-bundle' data-block-id='2-alt'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+var something = "A string I want to use later";
+
+console.log(something);
+
+exports.something = something;
+/*  Not a pure module */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_2_alt.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_2_alt.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div>
+
+<a href="#hide-hide-a-code-block" id="hide-hide-a-code-block"><h4><code>hide</code> Hide a code block</h4></a><p>Nice if you want a shared block that doesn&#39;t make sense on its own:</p>
+<pre class='txt'><code class='txt'>```hide
+let x = 10;
+```</code></pre>
+
+
+
+<a href="#write-the-source-in-ocaml" id="write-the-source-in-ocaml"><h4>Write the source in OCaml</h4></a>
+
+<pre class='txt'><code class='txt'>```ml
+Js.log &quot;this was written in ocaml&quot;;
+```</code></pre>
+
+<div class='code-block' data-block-syntax="ml">
+  
+  <pre class='code' data-block-id='0' id='block-0'><code><span class='ident' data-type="string => unit">Js.log</span> <span class='string' data-type="string">&quot;this was written in ocaml&quot;</span>;</code></pre>
+  
+  <script type='docre-source' data-block-id="0">Js.log "this was written in ocaml";</script>
+  <div data-block-id='0' data-context="normal" data-block-syntax="ml" class='block-target'></div><script type='docre-bundle' data-block-id='0'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+console.log("this was written in ocaml");
+
+/*  Not a pure module */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_0.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_0.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div><div class='code-block' data-block-syntax="re">
+  
+  <pre class='code' data-block-id='0-alt' id='block-0-alt'><code><span class='ident' data-type="string => unit">Js.log</span>(<span class='string' data-type="string">&quot;this was written in ocaml&quot;</span>);</code></pre>
+  
+  <script type='docre-source' data-block-id="0-alt">Js.log("this was written in ocaml");</script>
+  <div data-block-id='0-alt' data-context="normal" data-block-syntax="re" class='block-target'></div><script type='docre-bundle' data-block-id='0-alt'>
+;(function() { // generated by pack.re
+let modules = {}
+let initializers = {
+    1: function(module, exports, require) {// Generated by BUCKLESCRIPT VERSION 2.1.1, PLEASE EDIT WITH CARE
+'use strict';
+
+
+console.log("this was written in ocaml");
+
+/*  Not a pure module */
+//# sourceURL=./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_0_alt.re_ppx.js
+}
+};
+let nameMap = {
+  "./node_modules/.docre/Docre__Interactive_Code_Snippets_md_CODE_BLOCK_0_alt.re_ppx.js": 1
+}
+let require = (id) => {
+  if (!modules[id]) {
+    modules[id] = {exports: {}}
+    initializers[id](modules[id], modules[id].exports, require)
+  }
+  return modules[id].exports
+};
+  require(1)})();</script>
+</div>
+
+<p>If you&#39;re seeing it in <code>reason</code>, toggle the syntax switch in the top right.</p>
+<p>You can have code blocks default to ocaml syntax by passing the <code>--ml</code> flag.</p>
+<p>Also, all snippets in ocamldoc comments (in ml files) will be assumed to be ocaml syntax.</p>
+
+    </div>
+    <div class='right-blank'></div>
+    </div>
+  

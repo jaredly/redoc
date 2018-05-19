@@ -14,6 +14,7 @@ let parseCodeOptions = (lang, defaultOptions) => {
   let parts = Str.split(Str.regexp_string(";"), lang);
   if (List.mem("bash", parts)
   || List.mem("txt", parts)
+  || List.mem("md", parts)
   || List.mem("js", parts)
   || List.mem("javascript", parts)
   || List.mem("sh", parts)) {
@@ -41,7 +42,7 @@ let parseCodeOptions = (lang, defaultOptions) => {
       | "hide" => {...options, codeDisplay: {...options.codeDisplay, hide: true}}
       | "reason" | "re" => {...options, lang: Reason, inferred: false}
       | "ocaml" | "ml" => {...options, lang: OCaml, inferred: false}
-      | "txt" => {...options, lang: Txt}
+      | "txt" | "md" => {...options, lang: Txt}
       | _ => {
         switch (matchOption(item, "shared")) {
         | Some(name) => {...options, sharedAs: Some(name)}
@@ -55,8 +56,8 @@ let parseCodeOptions = (lang, defaultOptions) => {
                 if (parts == [item]) {
                   {...options, lang: OtherLang(item)}
                 } else {
-                  print_endline(Printf.sprintf("Skipping unexpected code option: %S", item));
-                  options
+                  print_endline(Printf.sprintf("Unexpected code option: %S. Assuming it's text", item));
+                  {...options, lang: Txt}
                 }
               }
             }

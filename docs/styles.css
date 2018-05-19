@@ -51,6 +51,13 @@ pre {
   overflow: auto;
 }
 
+pre.code-txt {
+  border-radius: 3px;
+  box-shadow: 0 0.5px 3px #aaa;
+  background-color: white;
+  line-height: 1;
+}
+
 div.compile-error {
   padding: 8px 16px;
   background-color: #ffebeb;
@@ -130,7 +137,7 @@ p code {
   font-family: FiraCode, 'SF Mono', Menlo, monospace;
   letter-spacing: 0;
   font-size: 15px;
-  line-height: 1.5em;
+  line-height: 1.2em;
 
   font-weight: 200;
   color: #585858;
@@ -198,9 +205,18 @@ p code, h1 code, h2 code, h3 code, h4 code {
   box-shadow: 0 0 1px #aaa;
 }
 
+.code-block > .CodeMirror {
+  margin-bottom: 16px;
+}
+
 .block-log {
   font-family: FiraCode, 'sf mono', monospace;
   white-space: pre-wrap;
+  padding: 8px 32px;
+  margin-top: -16px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border: 1px solid #eee;
 }
 
 a {
@@ -435,6 +451,7 @@ pre.code {
   border-radius: 3px;
   box-shadow: 0 0.5px 3px #aaa;
   background-color: white;
+  line-height: 1;
 }
 .code .ident, .code .pattern-ident {
     color: #000;

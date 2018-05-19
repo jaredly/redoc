@@ -273,7 +273,7 @@ let package = (
       | exception Not_found => {
         switch (CodeSnippets.parseCodeOptions(lang, State.Model.defaultOptions)) {
         | Some({codeDisplay: {hide: true}}) => Some("")
-        | _ => None
+        | _ => Some("<pre class='code-txt " ++ lang ++ "'><code class='" ++ lang ++ "'>" ++ Omd_utils.htmlentities(content) ++ "</code></pre>")
         }
       }
       | {raw, html} => Some(html)

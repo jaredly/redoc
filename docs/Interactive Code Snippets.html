@@ -155,7 +155,7 @@
     <a href="#interactive-code-snippets" id="interactive-code-snippets"><h1>Interactive Code Snippets</h1></a>
 
 <p>If you put this in your doc-comments:</p>
-<pre class='txt'><code class='txt'>```reason
+<pre class='code-txt txt'><code class='txt'>```reason
 print_endline(&quot;Hello&quot;);
 ```</code></pre>
 
@@ -227,7 +227,7 @@ let require = (id) => {
 <p>When you execute, will trap the console &amp; display below (should also send to real console).</p>
 <a href="#displaying-errors" id="displaying-errors"><h3>Displaying errors</h3></a>
 
-<pre class='txt'><code class='txt'>```re
+<pre class='code-txt txt'><code class='txt'>```re
 This is a syntax error
 ```</code></pre>
 
@@ -252,7 +252,7 @@ Error: 1392: syntax error, consider adding a `;&#39; before</div>
 </div>
 
 <p>If you <em>intend</em> to have a syntax error, add <code>parse-fail</code> to the header, like <code>re;parse-fail</code>. Other wise you&#39;ll get a big warning when you run docre.</p>
-<pre class='txt'><code class='txt'>```re
+<pre class='code-txt txt'><code class='txt'>```re
 3 + &quot;type error&quot;
 ```</code></pre>
 
@@ -283,7 +283,7 @@ Error: This expression has type string but an expression was expected of type
 
 <a href="#--hiding-prefix--amp--suffix-lines" id="--hiding-prefix--amp--suffix-lines"><h4><code>#</code> Hiding prefix &amp; suffix lines</h4></a>
 
-<pre class='txt'><code class='txt'>```
+<pre class='code-txt txt'><code class='txt'>```
 #let x = &quot;this line will be hidden&quot;;
 #let y = &quot;this line will also be hidden&quot;;
 let z = x ++ y; /* wow where did that come from */
@@ -385,14 +385,14 @@ let require = (id) => {
 
 <a href="#canvas-have-a-canvas" id="canvas-have-a-canvas"><h4><code>canvas</code> Have a canvas</h4></a>
 
-<pre class='txt'><code class='txt'>```canvas
+<pre class='code-txt txt'><code class='txt'>```canvas
 Js.log(&quot;A shared canvas is created, and floats over to the right. The canvasId is available as &#39;sandboxId&#39;.&quot;);
 [@bs.val] external sandboxId: string = &quot;&quot;;
 ```</code></pre>
 
 <a href="#shared-name--share-something" id="shared-name--share-something"><h4><code>shared(name)</code> Share something</h4></a>
 
-<pre class='txt'><code class='txt'>```shared(awesome)
+<pre class='code-txt txt'><code class='txt'>```shared(awesome)
 let something = &quot;A string I want to use later&quot;;
 ```</code></pre>
 
@@ -463,7 +463,7 @@ let require = (id) => {
 </div>
 
 <p>And then use it later:</p>
-<pre class='txt'><code class='txt'>```use(awesome)
+<pre class='code-txt txt'><code class='txt'>```use(awesome)
 Js.log(something);
 ```</code></pre>
 
@@ -543,7 +543,7 @@ let require = (id) => {
 </div>
 
 <a href="#hide-hide-a-code-block" id="hide-hide-a-code-block"><h4><code>hide</code> Hide a code block</h4></a><p>Nice if you want a shared block that doesn&#39;t make sense on its own:</p>
-<pre class='txt'><code class='txt'>```hide
+<pre class='code-txt txt'><code class='txt'>```hide
 let x = 10;
 ```</code></pre>
 
@@ -551,7 +551,7 @@ let x = 10;
 
 <a href="#write-the-source-in-ocaml" id="write-the-source-in-ocaml"><h4>Write the source in OCaml</h4></a>
 
-<pre class='txt'><code class='txt'>```ml
+<pre class='code-txt txt'><code class='txt'>```ml
 Js.log &quot;this was written in ocaml&quot;;
 ```</code></pre>
 

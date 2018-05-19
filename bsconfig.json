@@ -13,6 +13,7 @@
   ],
   "bs-dependencies": ["rex-json", "minimist.re", "pack.re"],
   "ocaml-dependencies": ["compiler-libs", "unix", "bigarray", "str"],
+  "public": ["Main"],
   "entries": [{
     "backend": "native",
     "main-module": "Main"

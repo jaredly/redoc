@@ -1,6 +1,12 @@
 
 open Infix;
 
+/**
+ * # Cli To Input
+ *
+ * This module takes command-line args and turns them into a `State.Input.t`.
+ */;
+
 let fail = (msg) => {
   print_endline(msg);
   exit(1);
@@ -223,6 +229,8 @@ Less used options:
       don't include completions for the stdlib in the playground
   --no-bundle
       don't bundle the code examples. This disables editor support
+  --no-playground
+      don't generate a playground, even if we can bundle
   --just-input
       just parse the options & show the debug output of parsing cli args
   --debug
@@ -243,6 +251,7 @@ let parse = Minimist.parse(
     "skip-stdlib-completions",
     "debug", "just-input",
     "no-bundle",
+    "no-playground"
   ],
   ~multi=["project-file", "dependency-directory", "project-directory"],
   ~strings=["target", "root", "name", "bs-root"]
@@ -328,6 +337,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
       root,
       namespaced,
       canBundle: has("no-bundle", presence) ? false : true,
+      noPlayground: has("no-playground", presence),
       backend: (packageJson |?> getPackageJsonName |?> packageJsonName => bsRoot |?> bsRoot => refmt |?>> refmt => State.Bucklescript({
         let version = getBsbVersion(bsRoot);
         {

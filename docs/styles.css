@@ -187,7 +187,7 @@ h4.module {
   margin-bottom: 8px;
 }
 
-p code {
+p code, h1 code, h2 code, h3 code, h4 code {
   padding: 1px 4px;
   background: #eee;
   border-radius: 3px;
@@ -270,6 +270,10 @@ a, a:visited,
   flex-shrink: 0;
   max-height: 30vh;
   overflow: auto;
+}
+.sidebar .docs-listing a {
+  line-height: 1;
+  padding: 6px 0;
 }
 .sidebar .table-of-contents {
   display: flex;

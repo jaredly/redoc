@@ -19,6 +19,8 @@ let findStars = line => {
       None
     } else if (line.[i] == '*' && line.[i + 1] == ' ') {
       Some(i + 2)
+    } else if (line.[i] != ' ') {
+      None
     } else {
       loop(i + 1)
     }
@@ -43,8 +45,8 @@ let cleanOffStars = doc => {
   let rec loop = (first, lines) => {
     switch lines {
     | [] => None
-    | [one] => (first || String.trim(one) == "") ? None : findStars(one)
-    | [one, ...rest] => (first || String.trim(one) == "") ? loop(false, rest) : combine(findStars(one), loop(false, rest))
+    | [one] => (String.trim(one) == "") ? None : findStars(one)
+    | [one, ...rest] => (String.trim(one) == "") ? loop(false, rest) : combine(findStars(one), loop(false, rest))
     }
   };
   let num = loop(true, lines);
@@ -52,7 +54,13 @@ let cleanOffStars = doc => {
   | None | Some(0) => doc
   | Some(num) => switch lines {
     | [] | [_] => doc
-    | [one, ...rest] => String.trim(one) ++ "\n" ++ String.concat("\n", rest |> List.map(trimFirst(num)))
+    | [one, ...rest] => {
+      if (findStars(one) != None) {
+        trimFirst(num, one)
+      } else {
+        String.trim(one)
+      }
+    } ++ "\n" ++ String.concat("\n", rest |> List.map(trimFirst(num)))
     }
   }
 };

@@ -103,7 +103,7 @@ let getCompletionData = modules => {
   items^
 };
 
-let writeEditorSupport = (~skipStdlibCompletions, static, directory, modules, (browserCompilerPath, compilerDepsBuffer)) => {
+let writeEditorSupport = (~noPlayground, ~skipStdlibCompletions, static, directory, modules, (browserCompilerPath, compilerDepsBuffer)) => {
   Files.copyExn(~source=browserCompilerPath, ~dest=directory /+ "bucklescript.js");
   let out = open_out(directory /+ "bucklescript-deps.js");
   Buffer.output_buffer(out, compilerDepsBuffer);
@@ -122,11 +122,13 @@ let writeEditorSupport = (~skipStdlibCompletions, static, directory, modules, (b
     Files.copyExn(~source=static /+ "bs-3.0.0-completion.js", ~dest=directory /+ "bucklescript-stdlib-completion.js");
   };
 
-  Files.ifExists(directory /+ "examples") |?< examplesDir => Files.collect(examplesDir, name => Filename.check_suffix(name, ".re")) |> List.map(example => {
-    let title = Filename.basename(example) |> Filename.chop_extension;
-    let contents = Files.readFileExn(example);
-    Json.Object([("title", Json.String(title)), ("code", Json.String(contents))])
-  }) |> examples => Files.writeFileExn(directory /+ "playground-examples.js", "window.examplesData = " ++ Json.stringify(Json.Array(examples)));
+  if (!noPlayground) {
+    Files.ifExists(directory /+ "examples") |?< examplesDir => Files.collect(examplesDir, name => Filename.check_suffix(name, ".re")) |> List.map(example => {
+      let title = Filename.basename(example) |> Filename.chop_extension;
+      let contents = Files.readFileExn(example);
+      Json.Object([("title", Json.String(title)), ("code", Json.String(contents))])
+    }) |> examples => Files.writeFileExn(directory /+ "playground-examples.js", "window.examplesData = " ++ Json.stringify(Json.Array(examples)));
+  };
 
   ["jsx-ppx.js",
   "refmt.js",
@@ -229,7 +231,7 @@ let searchHref = (names, doc) => {
 open State;
 
 let package = (
-  {State.Model.name, repo, custom, sidebar, modules},
+  {State.Model.name, repo, custom, sidebar, modules, noPlayground},
   compilationResults,
   {State.Input.directory, template, search, skipStdlibCompletions},
   {State.Input.static}
@@ -238,12 +240,12 @@ let package = (
 
   let (codeBlocks, playgroundEnabled) = compilationResults |?>> (((codeBlocks, bundles)) => {
     Files.copyExn(~source=static /+ "block-script.js", ~dest=directory /+ "block-script.js");
-    let playgroundEnabled = bundles |?>> (((runtimeDeps, compilerDeps)) => {
+    let playgroundEnabled = !noPlayground && (bundles |?>> (((runtimeDeps, compilerDeps)) => {
       Files.writeFileExn(directory /+ "all-deps.js", runtimeDeps ++ ";window.loadedAllDeps = true;");
       /* This is where we handle stuff for the editor. should be named "editorArtifacts" or something */
-      compilerDeps |?< writeEditorSupport(~skipStdlibCompletions, static, directory, modules);
+      compilerDeps |?< writeEditorSupport(~noPlayground, ~skipStdlibCompletions, static, directory, modules);
       true
-    }) |? false;
+    }) |? false);
     (codeBlocks, playgroundEnabled);
   }) |? ([], false);
 

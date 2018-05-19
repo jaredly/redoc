@@ -18,6 +18,9 @@
     "main-module": "Main"
   }, {
     "backend": "native",
+    "main-module": "Tests"
+  }, {
+    "backend": "native",
     "main-module": "Descartes"
   }],
   "refmt": 3

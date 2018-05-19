@@ -94,7 +94,7 @@ let processModules = (~namespaced, moduleFiles) => {
   });
 };
 
-let package = (~namespaced, ~canBundle, {State.Input.meta: {packageName, repo}, defaultCodeOptions, backend, root, sidebarFile, customFiles, moduleFiles}) => {
+let package = (~namespaced, ~canBundle, {State.Input.meta: {packageName, repo}, defaultCodeOptions, backend, root, sidebarFile, customFiles, moduleFiles, noPlayground}) => {
   {
     name: packageName,
     repo,
@@ -102,6 +102,7 @@ let package = (~namespaced, ~canBundle, {State.Input.meta: {packageName, repo}, 
     custom: List.map(parseCustom(root), customFiles),
     namespaced,
     canBundle,
+    noPlayground,
     backend,
     defaultCodeOptions,
     modules: processModules(~namespaced, moduleFiles),

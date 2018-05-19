@@ -238,6 +238,7 @@ module Model = {
     sidebar: option(list(sidebar)),
     modules: list(topModule),
     canBundle: bool,
+    noPlayground: bool,
 
     /* For compiling snippets */
     namespaced: bool,
@@ -293,6 +294,7 @@ module Input = {
     defaultCodeOptions: option(Model.codeOptions),
     namespaced: bool,
     canBundle: bool,
+    noPlayground: bool,
   };
 
   let showPackageInput = ({root, meta, backend, sidebarFile, customFiles, moduleFiles, defaultCodeOptions, namespaced}) => Printf.sprintf(

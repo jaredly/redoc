@@ -7,6 +7,7 @@
     "CliToInput",
     "InputToModel",
     "CompilePackage",
-    "ModelToOutput"
+    "ModelToOutput",
+    "State"
   ]
 }

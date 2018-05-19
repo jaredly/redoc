@@ -1,45 +1,4 @@
 
-/**
- * Grand theory of everything.
-*
-
-The basic idea is a page
-Also, larger than that we have packages
-but let's talk about pages for now
-
-Markdown page
-- gets parsed into bits
-- including some code snippets
-- its then represented as `(Omd.t, list(lang, block))`? maybe
-
-A markdown page can embed items
-an item is a module, type, value, or include
-(module types too probably)
-
-an item can have documentation, which is in turn a markdown page(?) or markdown thing
-
-Custom markdown things I want to represent:
-- @doc [items]
-- @all
-- @rest
-
-umm @includes? How can I do that...
-
-Also, to what extent do I want to build everything into a globally addressable map?
-
-Each @doc'able item should have a canonical home, where it can be expected to live.
-It's possible to display the docs elsewhere, but it has to be shown there as well.
-
-A markdown page is either part of the custom docs, or the api docs.
-If part of the api docs, then listed in the sidebar there, and exists under api/
-if in the custom docs, then listed in the custom docs portion
-which takes up the top section of the sidebar
-
-I want to mess with the sidebar to allow showing more or less of each section
-(custom docs list, table of contents, api docs list)
-
-*/
-
 let indent = t => "  " ++ Str.global_replace(Str.regexp_string("\n"), "\n  ", t);
 let showOption = (value, f) => switch value { | None => "(none)" | Some(v) => f(v) };
 let showOptionString = v => showOption(v, s => s);
@@ -269,7 +228,6 @@ module Model = {
  *
  * There's probably a "first stage" that we get from cli args
 **/
-
 module Input = {
   type env = {
     static: string,

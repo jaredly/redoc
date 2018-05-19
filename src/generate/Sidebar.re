@@ -10,12 +10,22 @@ let fastIn = items => {
   items |> List.iter(i => Hashtbl.replace(map, i, true));
   Hashtbl.mem(map)
 };
+let fastGet = (items, keyFn) => {
+  let map = Hashtbl.create(List.length(items));
+  items |> List.iter(i => Hashtbl.replace(map, keyFn(i), i));
+  key => try (Hashtbl.find(map)) {
+  | Not_found => {
+    print_endline("Unknown markdown file: " ++ key);
+    exit(1);
+  }
+  }
+};
 
 let makeLink = ((htmlName, name)) => Printf.sprintf({|<a href="%s">%s</a>|}, htmlName, name);
 
 let showPackage = (~sidebar, projectListing) => {
   let (topModules, otherModules) = switch sidebar {
-  | Some({State.Model.pages: []})
+  | Some({State.Model.pages: _, modules: []})
   | None => (projectListing, [])
   | Some({State.Model.pages, modules}) => {
     let top = modules |> List.map(name => List.find(((_, n)) => n == name, projectListing));
@@ -39,9 +49,16 @@ let makeMarkdowns = (~sidebar, markdowns) => {
     ""
   } else {
     "<div class='docs-listing'>" ++ {
-      markdowns |> List.map(((path, name)) => {
-        Printf.sprintf({|<a href="%s">%s</a>|}, path, name)
-      }) |> String.concat("\n")
+      switch sidebar {
+      | None |  Some({State.Model.pages: []}) => {
+        markdowns |> List.map(makeLink) |> String.concat("\n")
+      }
+      | Some({pages}) => {
+        /* let get = fastGet(pages, snd);
+        pages |> List.map(get) |> List.map(makeLink) |> String.concat("\n") */
+        failwith("Pages not yet supported")
+      }
+      }
     } ++ "</div>"
   }
 };

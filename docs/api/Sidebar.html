@@ -29,6 +29,7 @@
       <a href="#Sidebar" class='level-1 header'>Sidebar</a>
 <a href="#value-makeToc" class='level-2 value'>makeToc</a>
 <a href="#value-fastIn" class='level-2 value'>fastIn</a>
+<a href="#value-fastGet" class='level-2 value'>fastGet</a>
 <a href="#value-makeLink" class='level-2 value'>makeLink</a>
 <a href="#value-showPackage" class='level-2 value'>showPackage</a>
 <a href="#value-makeMarkdowns" class='level-2 value'>makeMarkdowns</a>
@@ -156,6 +157,10 @@
 
 <div class='body body-empty'></div></div>
 
+<div class='doc-item'><h4 class='item'>let <a href="#value-fastGet" id="value-fastGet">fastGet</a>: (list('a), 'a => 'a, string, 'a) => 'a</h4>
+
+<div class='body body-empty'></div></div>
+
 <div class='doc-item'><h4 class='item'>let <a href="#value-makeLink" id="value-makeLink">makeLink</a>: (string, string) => string</h4>
 
 <div class='body body-empty'></div></div>
@@ -168,7 +173,7 @@
 <div class='body body-empty'></div></div>
 
 <div class='doc-item'><h4 class='item'>let <a href="#value-makeMarkdowns" id="value-makeMarkdowns">makeMarkdowns</a>: (
-  ~sidebar: 'a,
+  ~sidebar: option(<a href="State.html#type-Model.sidebar" title="State.Model.sidebar">sidebar</a>),
   list((string, string))
 ) => string</h4>
 

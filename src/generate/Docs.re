@@ -31,7 +31,7 @@ let formatHref = (~warnMissing, name, projectNames, (modName, inner, ptype)) => 
 };
 
 open Infix;
-let page = (~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~checkHashes=false, name, tocs, projectNames, markdowns, contents) => {
+let page = (~sidebar, ~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~checkHashes=false, name, tocs, projectNames, markdowns, contents) => {
   Printf.sprintf({|
     %s
     %s
@@ -45,14 +45,14 @@ let page = (~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~checkHashes=false,
     </div>
   |}, DocsTemplate.head(~relativeToRoot, name),
   checkHashes ? "<script>window.shouldCheckHashes=true</script>" : "",
-  Sidebar.generate(name, tocs, projectNames, markdowns, Infix.fileConcat(relativeToRoot, "search.html"), playgroundEnabled ? Some(Infix.fileConcat(relativeToRoot, "playground.html")) : None),
+  Sidebar.generate(~sidebar, name, tocs, projectNames, markdowns, Infix.fileConcat(relativeToRoot, "search.html"), ~playgroundPath=playgroundEnabled ? Some(Infix.fileConcat(relativeToRoot, "playground.html")) : None),
   sourceUrl |?>> (url => {
     Printf.sprintf({|<a href="%s" class="edit-link">Edit</a>|}, url)
   }) |? "",
   contents)
 };
 
-let generate = (~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~processDocString, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
+let generate = (~sidebar, ~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~processDocString, name, topdoc, stamps, allDocs, projectNames, markdowns) => {
   let mainMarkdown = switch (topdoc) {
   | None => Omd.of_string(GenerateDoc.defaultMain(~addHeading=true, name))
   | Some(doc) => doc
@@ -62,5 +62,5 @@ let generate = (~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~processDocStri
   let (html, tocs) = GenerateDoc.docsForModule(printer, processDocString, [], 0, name, mainMarkdown, allDocs);
 
   let projectListing = projectNames |> List.map(name => (name ++ ".html", name));
-  page(~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~checkHashes=true, name, List.rev(tocs), projectListing, markdowns, html)
+  page(~sidebar, ~sourceUrl, ~relativeToRoot, ~playgroundEnabled, ~checkHashes=true, name, List.rev(tocs), projectListing, markdowns, html)
 };

@@ -17,8 +17,11 @@ let parseSidebar = path => {
   | Some(Json.Array(items)) => List.map(parsePages, items)
   | _ => []
   };
-  pages
-  /* List.map(parsePages, contents) */
+  let modules = switch (Json.get("modules", contents)) {
+  | Some(Json.Array(items)) => List.map(Json.string |.! "module name must be a string", items)
+  | _ => []
+  };
+  {pages, modules}
 };
 
 let getName = x => Filename.basename(x) |> Filename.chop_extension;

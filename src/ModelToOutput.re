@@ -149,7 +149,7 @@ let writeEditorSupport = (~noPlayground, ~skipStdlibCompletions, static, directo
   });
 };
 
-let makeSearchPage = (~playgroundEnabled, ~markdowns, ~names, dest, searchables) => {
+let makeSearchPage = (~sidebar, ~playgroundEnabled, ~markdowns, ~names, dest, searchables) => {
   let path = dest /+ "search.html";
   let rel = Files.relpath(Filename.dirname(path));
   let markdowns = List.map(({State.Model.title, destPath, contents}) => (destPath, title), markdowns);
@@ -163,7 +163,7 @@ let makeSearchPage = (~playgroundEnabled, ~markdowns, ~names, dest, searchables)
     <script defer src="elasticlunr.js"></script>
     <script defer src="search.js"></script>
   |}, DocsTemplate.searchStyle);
-  let html = Docs.page(~playgroundEnabled, ~sourceUrl=None, ~relativeToRoot=rel(dest), "Search", [], projectListing, markdowns, main);
+  let html = Docs.page(~sidebar, ~playgroundEnabled, ~sourceUrl=None, ~relativeToRoot=rel(dest), "Search", [], projectListing, markdowns, main);
   Files.writeFile(path, html) |> ignore;
   Files.writeFile(dest /+ "search.js", SearchScript.js) |> ignore;
   Files.writeFile(dest /+ "elasticlunr.js", ElasticRaw.raw) |> ignore;
@@ -171,7 +171,7 @@ let makeSearchPage = (~playgroundEnabled, ~markdowns, ~names, dest, searchables)
   MakeIndex.run(dest /+ "elasticlunr.js", dest /+ "searchables.json")
 };
 
-let outputCustom = (~playgroundEnabled, dest, markdowns, searchHref, repo, processDocString, names, {State.Model.title, destPath, sourcePath, contents}) => {
+let outputCustom = (~sidebar, ~playgroundEnabled, dest, markdowns, searchHref, repo, processDocString, names, {State.Model.title, destPath, sourcePath, contents}) => {
   let path = dest /+ destPath;
 
   let rel = Files.relpath(Filename.dirname(path));
@@ -184,12 +184,12 @@ let outputCustom = (~playgroundEnabled, dest, markdowns, searchHref, repo, proce
 
   let markdowns = List.map(({State.Model.title, destPath}) => (rel(dest /+ destPath), title), markdowns);
   let projectListing = names |> List.map(name => (rel(dest /+ "api" /+ name ++ ".html"), name));
-  let html = Docs.page(~playgroundEnabled, ~sourceUrl, ~relativeToRoot=rel(dest), title, List.rev(tocItems^), projectListing, markdowns, main);
+  let html = Docs.page(~sidebar, ~playgroundEnabled, ~sourceUrl, ~relativeToRoot=rel(dest), title, List.rev(tocItems^), projectListing, markdowns, main);
 
   Files.writeFile(path, html) |> ignore;
 };
 
-let outputModule = (~playgroundEnabled, dest, codeBlocksMap, markdowns, searchHref, repo, processDocString, names, {State.Model.name, sourcePath, docs, items, stamps}) => {
+let outputModule = (~sidebar, ~playgroundEnabled, dest, codeBlocksMap, markdowns, searchHref, repo, processDocString, names, {State.Model.name, sourcePath, docs, items, stamps}) => {
   let output = dest /+ "api" /+ name ++ ".html";
   let rel = Files.relpath(Filename.dirname(output));
 
@@ -198,6 +198,7 @@ let outputModule = (~playgroundEnabled, dest, codeBlocksMap, markdowns, searchHr
   let searchPrinter = GenerateDoc.printer(searchHref, stamps);
   let sourceUrl = repo |?>> (url => url /+ sourcePath);
   let text = Docs.generate(
+    ~sidebar,
     ~playgroundEnabled,
     ~sourceUrl,
     ~relativeToRoot=rel(dest),
@@ -237,6 +238,10 @@ let package = (
   {State.Input.static}
 ) => {
   Files.mkdirp(directory);
+  /* let topModules = switch sidebar {
+  | Some({modules}) => modules
+  | None => []
+  }; */
 
   let (codeBlocks, playgroundEnabled) = compilationResults |?>> (((codeBlocks, bundles)) => {
     Files.copyExn(~source=static /+ "block-script.js", ~dest=directory /+ "block-script.js");
@@ -285,11 +290,11 @@ let package = (
 
   Files.mkdirp(directory /+ "api");
 
-  modules |> List.iter(outputModule(~playgroundEnabled, directory, codeBlocks, custom, searchHref(names), repo, processDocString, names));
+  modules |> List.iter(outputModule(~sidebar, ~playgroundEnabled, directory, codeBlocks, custom, searchHref(names), repo, processDocString, names));
 
-  custom |> List.iter(outputCustom(~playgroundEnabled, directory, custom, searchHref(names), repo, processDocString, names));
+  custom |> List.iter(outputCustom(~sidebar, ~playgroundEnabled, directory, custom, searchHref(names), repo, processDocString, names));
 
-  makeSearchPage(~playgroundEnabled, ~markdowns=custom, ~names, directory, searchables);
+  makeSearchPage(~sidebar, ~playgroundEnabled, ~markdowns=custom, ~names, directory, searchables);
 
   print_endline("Ok packaged folks " ++ directory);
 

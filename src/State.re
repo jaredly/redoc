@@ -221,7 +221,11 @@ module Model = {
     contents: docWithExamples,
   };
 
-  type sidebar = SidebarItem(string) | SidebarHeader(string, list(sidebar));
+  type sidebarListing = SidebarItem(string) | SidebarHeader(string, list(sidebarListing));
+  type sidebar = {
+    pages: list(sidebarListing),
+    modules: list(string),
+  };
 
   type topModule = {
     name: string,
@@ -235,7 +239,7 @@ module Model = {
     name: string,
     repo: option(string),
     custom: list(customPage),
-    sidebar: option(list(sidebar)),
+    sidebar: option(sidebar),
     modules: list(topModule),
     canBundle: bool,
     noPlayground: bool,

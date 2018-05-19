@@ -55,6 +55,7 @@
 <a href="#value-Model.Docs.iter" class='level-4 value'>iter</a>
 <a href="#value-Model.Docs.iterWithPath" class='level-4 value'>iterWithPath</a>
 <a href="#type-Model.customPage" class='level-3 type'>customPage</a>
+<a href="#type-Model.sidebarListing" class='level-3 type'>sidebarListing</a>
 <a href="#type-Model.sidebar" class='level-3 type'>sidebar</a>
 <a href="#type-Model.topModule" class='level-3 type'>topModule</a>
 <a href="#type-Model.package" class='level-3 type'>package</a>
@@ -71,7 +72,10 @@
 <a href="#type-Input.t" class='level-3 type'>t</a>
 <a href="#value-Input.show" class='level-3 value'>show</a>
       </div>
-      <div class='project-title'>Package modules</div><div class='project-listing'><a href="Ast.html">Ast</a>
+      <div class='project-title'>Package modules</div><div class='project-listing'><a href="CliToInput.html">CliToInput</a>
+<a href="InputToModel.html">InputToModel</a>
+<a href="CompilePackage.html">CompilePackage</a>
+<a href="ModelToOutput.html">ModelToOutput</a><div style='margin-top:16px;font-style:italic'>Other modules</div><a href="Ast.html">Ast</a>
 <a href="Comment.html">Comment</a>
 <a href="Error.html">Error</a>
 <a href="Helpers.html">Helpers</a>
@@ -96,13 +100,9 @@
 <a href="Omd_types.html">Omd_types</a>
 <a href="Omd_utils.html">Omd_utils</a>
 <a href="Omd_xtxt.html">Omd_xtxt</a>
-<a href="CliToInput.html">CliToInput</a>
 <a href="CompileCode.html">CompileCode</a>
-<a href="InputToModel.html">InputToModel</a>
-<a href="Main.html">Main</a>
 <a href="Markdown.html">Markdown</a>
 <a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
-<a href="ModelToOutput.html">ModelToOutput</a>
 <a href="ParseConfig.html">ParseConfig</a>
 <a href="ProcessCode.html">ProcessCode</a>
 <a href="Search.html">Search</a>
@@ -129,13 +129,9 @@
 <a href="Files.html">Files</a>
 <a href="Infix.html">Infix</a>
 <a href="SerializeBinary.html">SerializeBinary</a>
-<a href="CliToInput.html">CliToInput</a>
 <a href="CompileCode.html">CompileCode</a>
-<a href="InputToModel.html">InputToModel</a>
-<a href="Main.html">Main</a>
 <a href="Markdown.html">Markdown</a>
 <a href="MarkdownOfOCamldoc.html">MarkdownOfOCamldoc</a>
-<a href="ModelToOutput.html">ModelToOutput</a>
 <a href="ParseConfig.html">ParseConfig</a>
 <a href="ProcessCode.html">ProcessCode</a>
 <a href="Search.html">Search</a>
@@ -393,9 +389,16 @@ stom docs list, table of contents, api docs list)</p>
 
 <div class='body body-empty'></div></div>
 
-<div class='doc-item'><h4 class='item'>type <a href="#type-Model.sidebar" id="type-Model.sidebar">sidebar</a> = 
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.sidebarListing" id="type-Model.sidebarListing">sidebarListing</a> = 
   | SidebarItem(string)
-  | SidebarHeader(string, list(<a href="#type-Model.sidebar">sidebar</a>))</h4>
+  | SidebarHeader(string, list(<a href="#type-Model.sidebarListing">sidebarListing</a>))</h4>
+
+<div class='body body-empty'></div></div>
+
+<div class='doc-item'><h4 class='item'>type <a href="#type-Model.sidebar" id="type-Model.sidebar">sidebar</a> = {
+  pages: list(<a href="#type-Model.sidebarListing">sidebarListing</a>),
+  modules: list(string)
+}</h4>
 
 <div class='body body-empty'></div></div>
 
@@ -413,7 +416,7 @@ stom docs list, table of contents, api docs list)</p>
   name: string,
   repo: option(string),
   custom: list(<a href="#type-Model.customPage">customPage</a>),
-  sidebar: option(list(<a href="#type-Model.sidebar">sidebar</a>)),
+  sidebar: option(<a href="#type-Model.sidebar">sidebar</a>),
   modules: list(<a href="#type-Model.topModule">topModule</a>),
   canBundle: bool,
   noPlayground: bool,

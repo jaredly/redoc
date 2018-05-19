@@ -8,6 +8,7 @@
   },
   "sources": [
     {"dir": "src", "subdirs": true},
+    {"dir": "bin", "type": "dev"},
     "omd",
     "odoc_parser"
   ],
@@ -16,7 +17,7 @@
   "public": ["Main"],
   "entries": [{
     "backend": "native",
-    "main-module": "Main"
+    "main-module": "Bin"
   }, {
     "backend": "native",
     "main-module": "Tests"

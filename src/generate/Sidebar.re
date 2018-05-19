@@ -5,13 +5,36 @@ let makeToc = tocItems => {
   }) |> String.concat("\n");
 };
 
-let showPackage = projectListing => {
+let fastIn = items => {
+  let map = Hashtbl.create(List.length(items));
+  items |> List.iter(i => Hashtbl.replace(map, i, true));
+  Hashtbl.mem(map)
+};
+
+let makeLink = ((htmlName, name)) => Printf.sprintf({|<a href="%s">%s</a>|}, htmlName, name);
+
+let showPackage = (~sidebar, projectListing) => {
+  let (topModules, otherModules) = switch sidebar {
+  | Some({State.Model.pages: []})
+  | None => (projectListing, [])
+  | Some({State.Model.pages, modules}) => {
+    let top = modules |> List.map(name => List.find(((_, n)) => n == name, projectListing));
+    let inTop = fastIn(top);
+    (top, List.filter(m => !inTop(m), projectListing))
+  }
+  };
   "<div class='project-title'>Package modules</div><div class='project-listing'>" ++ {
-    projectListing |> List.map(((htmlName, name)) => Printf.sprintf({|<a href="%s">%s</a>|}, htmlName, name)) |> String.concat("\n")
+    (List.map(makeLink, topModules) |> String.concat("\n")) ++
+    (if (otherModules != []) {
+      "<div style='margin-top:16px;font-style:italic'>Other modules</div>" ++
+      (otherModules |> List.map(makeLink) |> String.concat("\n"))
+    } else {
+      ""
+    })
   } ++ "</div>"
 };
 
-let makeMarkdowns = markdowns => {
+let makeMarkdowns = (~sidebar, markdowns) => {
   if (markdowns == []) {
     ""
   } else {
@@ -25,7 +48,7 @@ let makeMarkdowns = markdowns => {
 
 open Infix;
 
-let generate = (name, tocItems, projectListing, markdowns, searchPath, ~playgroundPath) => {
+let generate = (~sidebar, name, tocItems, projectListing, markdowns, searchPath, ~playgroundPath) => {
   Printf.sprintf({|
     <div class='sidebar-wrapper'>
     <div class='sidebar-expander'>Show navigation</div>
@@ -43,8 +66,8 @@ let generate = (name, tocItems, projectListing, markdowns, searchPath, ~playgrou
   |},
   searchPath,
   playgroundPath |?>> Printf.sprintf({|<a href="%s" style="display: block; padding: 0 8px;">Playground</a>|}) |? "",
-  makeMarkdowns(markdowns),
+  makeMarkdowns(~sidebar, markdowns),
   makeToc(tocItems),
-  projectListing == [] ? "" : showPackage(projectListing)
+  projectListing == [] ? "" : showPackage(~sidebar, projectListing)
   )
 };

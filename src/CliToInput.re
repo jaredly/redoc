@@ -34,6 +34,10 @@ let ifOneExists = (items) => {
 let startsWith = (text, prefix) => String.length(prefix) <= String.length(text)
   && String.sub(text, 0, String.length(prefix)) == prefix;
 
+let findReadme = base => try(Some(List.find(name => String.lowercase(name) == "readme.md", Files.readDirectory(base)))) {
+  | Not_found => None
+};
+
 let findMarkdownFiles = (projectName, target, base) => {
   let targetIsInBase = startsWith(target, base);
   let foundFiles = Files.collect(~checkDir=name => {
@@ -50,11 +54,15 @@ let findMarkdownFiles = (projectName, target, base) => {
   let isTopLevelReadme = path =>
     String.lowercase(path) == String.lowercase(target) /+ "readme.md" ||
     String.lowercase(path) == String.lowercase(target) /+ "index.md";
-  if (!List.exists(((path, _, _)) => isTopLevelReadme(path), foundFiles) && Files.exists(base /+ "Readme.md")) {
-    let readme = base /+ "Readme.md";
-    let readmeName = Files.readDirectory(base) |> List.find(name => String.lowercase(name) == "readme.md");
-    let readme = base /+ readmeName;
-    [(base /+ readmeName, Some(readmeName), "./index.html"), ...foundFiles]
+  if (!List.exists(((path, _, _)) => isTopLevelReadme(path), foundFiles)) {
+    switch (findReadme(base)) {
+      | None => foundFiles
+      | Some(readmeName) => {
+        let readme = base /+ readmeName;
+        let readme = base /+ readmeName;
+        [(base /+ readmeName, Some(readmeName), "./index.html"), ...foundFiles]
+      }
+    }
   } else {
     foundFiles
   }

@@ -162,7 +162,7 @@ let findProjectFiles = (~debug, ~namespace, root) => {
   let compiledBase = oneShouldExist("Cannot find directory for compiled artifacts.",
     isNative
       ? [root /+ "lib/bs/js", root /+ "lib/bs/native"]
-      : [root /+ "lib/bs", root /+ "lib/ocaml"]
+      : [root /+ "lib/bs/js", root /+ "lib/bs", root /+ "lib/ocaml"]
   );
   getSourceDirectories(root, config)
   |> ifDebug(debug, "Source directories from bsconfig", items => String.concat("\n", items))
@@ -188,7 +188,7 @@ let findDependencyDirectories = root => {
   let compiledBase = oneShouldExist("Cannot find directory for compiled artifacts.",
     isNative
       ? [root /+ "lib/bs/js", root /+ "lib/bs/native"]
-      : [root /+ "lib/bs", root /+ "lib/ocaml"]
+      : [root /+ "lib/bs/js", root /+ "lib/bs", root /+ "lib/ocaml"]
   );
   let jsBase = root /+ "lib/js";
   let mine = [compiledBase, ...Files.collectDirs(compiledBase)] |> List.map(path => (path, jsBase /+ Files.relpath(compiledBase, path)));

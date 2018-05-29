@@ -96,7 +96,6 @@ let getSourceDirectories = (base, config) => {
   config |> Json.get("sources") |?>> handleItem("") |? []
 };
 
-
 let isNative = config => Json.get("entries", config) != None || Json.get("allowed-build-kinds", config) != None;
 
 let getDependencyDirs = (base, config) => {

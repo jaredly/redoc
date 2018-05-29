@@ -130,7 +130,7 @@ let isSourceFile = name =>
   || Filename.check_suffix(name, ".ml")
   || Filename.check_suffix(name, ".mli");
 
-let compiledNameSpace = name => Str.split(Str.regexp_string("-"), name) |> List.map(String.capitalize) |> String.concat("");
+let compiledNameSpace = name => Str.split(Str.regexp_string("-"), name) |> List.map(String.capitalize) |> String.concat("") |> Str.global_replace(Str.regexp_string("_"), "");
 
 let compiledName = (~namespace, name) =>
   Filename.chop_extension(name)
@@ -313,6 +313,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
   let static = Filename.dirname(selfPath) /+ "../../../static";
   let debug = has("debug", presence);
   let bsConfig = Files.readFile(root /+ "bsconfig.json") |?>> (contents => Json.parse(contents));
+  let packageName = bsConfig |?> Json.get("name") |?> Json.string;
   let namespaced = bsConfig |?> Json.get("namespace") |?> Json.bool |? false;
   {
     env: {
@@ -354,7 +355,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
       })) |? NoBackend,
       sidebarFile: Files.ifExists(target /+ "sidebar.json"),
       customFiles: findMarkdownFiles(projectName, target, root),
-      moduleFiles: projectFiles == [] ? findProjectFiles(~debug, ~namespace=namespaced ? Some(projectName) : None, root) : projectFiles,
+      moduleFiles: projectFiles == [] ? findProjectFiles(~debug, ~namespace=namespaced ? packageName : None, root) : projectFiles,
     },
   };
 };

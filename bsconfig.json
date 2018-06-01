@@ -1,5 +1,5 @@
 {
-  "name": "docre",
+  "name": "redoc",
   "bsc-flags": "-w -27-32 -g",
   "ocaml-flags": ["-g", "-bin-annot"],
   "warnings": {

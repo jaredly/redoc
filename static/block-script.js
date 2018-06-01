@@ -499,8 +499,8 @@ var initBlocks = () => {
 
     const logs = div({class: 'block-logs'}, []);
 
-    const bundleScript = document.querySelector('script[type=docre-bundle][data-block-id="' + id + '"]')
-    const sourceScript = document.querySelector('script[type=docre-source][data-block-id="' + id + '"]')
+    const bundleScript = document.querySelector('script[type=redoc-bundle][data-block-id="' + id + '"]')
+    const sourceScript = document.querySelector('script[type=redoc-source][data-block-id="' + id + '"]')
 
     if (!bundleScript) {
       // not runnable, not editable

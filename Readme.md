@@ -16,7 +16,7 @@ npm install
 npm start
 ```
 
-The binary is then in `./lib/bs/native/main.native`. You can run `./docre.sh`, which delegates to that.
+The binary is then in `./lib/bs/native/main.native`. You can run `./redoc.sh`, which delegates to that.
 
 ### Common options
 

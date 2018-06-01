@@ -1,5 +1,5 @@
 {
-  "name": "docre-playground",
+  "name": "redoc-playground",
   "private": true,
   "scripts": {
     "start": "bsb -make-world -w",

@@ -1,5 +1,5 @@
 
-let codeBlockPrefix = "DOCRE_CODE_BLOCK_";
+let codeBlockPrefix = "REDOC_CODE_BLOCK_";
 
 open Infix;
 
@@ -124,7 +124,7 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
     switch (bundle(js)) {
     | None => ("", false)
     | Some(compiledJs) =>
-      (Printf.sprintf({|%s<script type='docre-bundle' data-block-id='%s'>%s</script>|},
+      (Printf.sprintf({|%s<script type='redoc-bundle' data-block-id='%s'>%s</script>|},
         switch options.context {
         | Node => ""
         | _ => sprintf({|<div data-block-id='%s' data-context=%S data-block-syntax=%S class='block-target'></div>|}, id, contextString(options.context),     syntax)
@@ -153,7 +153,7 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
     id,
     code,
     postCode,
-    (!editingEnabled || options.codeDisplay.noEdit || status == Skipped) ? "" : sprintf({|<script type='docre-source' data-block-id="%s">%s</script>|}, id, escapeScript(content)),
+    (!editingEnabled || options.codeDisplay.noEdit || status == Skipped) ? "" : sprintf({|<script type='redoc-source' data-block-id="%s">%s</script>|}, id, escapeScript(content)),
     after
   )
 };

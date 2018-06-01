@@ -1,13 +1,13 @@
 
-# Docre
+# Redoc
 
 A clean & easy documentation generator for reason/bucklescript/ocaml.
 
-Check out the generated docs at https://jaredforsyth.com/docre.
+Check out the generated docs at https://jaredforsyth.com/redoc.
 
 ## How to use:
 
-get the binary (either by [downloading it](https://github.com/jaredly/docre/releases/), or building it yourself).
+get the binary (either by [downloading it](https://github.com/jaredly/redoc/releases/), or building it yourself).
 
 To build:
 

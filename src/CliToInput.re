@@ -204,9 +204,9 @@ let findDependencyDirectories = root => {
 
 
 let help = {|
-# docre - a clean & easy documentation generator
+# redoc - a clean & easy documentation generator
 
-Usage: docre [options]
+Usage: redoc [options]
 
 Common options:
 
@@ -355,7 +355,7 @@ let optsToInput = (selfPath, {Minimist.strings, multi: multiMap, presence}) => {
           refmt,
           version,
           browserCompilerPath: Files.ifExists(static /+ "bs-" ++ version ++ ".js"),
-          tmp: root /+ "node_modules/.docre",
+          tmp: root /+ "node_modules/.redoc",
           compiledDependencyDirectories: dependencyDirectories == [] ? findDependencyDirectories(root) : dependencyDirectories,
           packageJsonName,
         }

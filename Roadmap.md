@@ -8,7 +8,7 @@
   - [x] to determine the github url
     - [ ] support all types of github specifications https://docs.npmjs.com/files/package.json
   - [x] name, source directories, etc.
-- [ ] Handle ocamldoc (see included octavius source) so we can build ocamly projects too
+- [x] Handle ocamldoc (see included octavius source) so we can build ocamly projects too
 - [ ] Support crowdin translations
 - [ ] Support docs versioning -- hang on to older versions & provide links to them
 - [ ] Better tokenization, split camel-cased words up to tokenize separately
@@ -21,7 +21,7 @@
 - [ ] argument-level documentation (refmt doesn't parse this properly :/)
 - [ ] topologically sort the items in the sidebar - or just allow you to specify order
 - [ ] allow embedding of the docs for another module in a markdown page / module docs
-- [ ] add cli options for debug, verbose mode, etc.
+- [x] add cli options for debug, verbose mode, etc.
 - [ ] add meta tag cards for social media sharing
 - [ ] respect @deprecated (and other things?)
 - [x] aliases - only show the last item of a type path (full on hover)
@@ -30,7 +30,7 @@
   - [x] a table of contents
   - [x] listing of other modules in this package
   - [ ] highlight the currently selected thing in the sidebar. scroll-tracking
-- [ ] have an "edit this file" link on the page
+- [x] have an "edit this file" link on the page
 - [x] make sure mobile looks nice
 - [x] make it easy to build for a whole project
 - [x] collapse top thing when on mobile
@@ -39,7 +39,7 @@
   - [x] will pre-create an elasticlunr index, and load it up when the user selects the search field
   - [x] include the markdown files in the index
   - [ ] maybe allow you to indicate that there are other indexes (e.g. for other libraries) that you'd like to load? So reason's docs could load reasonreact for better cross-searching
-- [ ] inline interactive code samples!
+- [x] inline interactive code samples!
   - make them editable! This may require some gymnastics, but I'm confident pack.re can pull it off.
   - on mobile, dont have them be editable. Have a run link that will take you to the playground with the code pre-filled.
   - I'll want a way to specify a "wrapper" for the code, e.g. if it's "in a reprocessing draw function"

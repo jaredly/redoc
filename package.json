@@ -1,19 +1,19 @@
 {
-  "name": "docre",
+  "name": "redoc",
   "version": "0.0.1",
   "scripts": {
     "start": "bsb -make-world -backend native",
     "watch": "bsb -make-world -backend native -w",
     "postinstall": "bsb -make-world -backend native"
   },
-  "bin": "./docre.sh",
+  "bin": "./redoc.sh",
   "keywords": [
     "BuckleScript",
     "documentation",
     "generator"
   ],
   "repository": {
-    "url": "jaredly/docre",
+    "url": "jaredly/redoc",
     "type": "git"
   },
   "description": "A clean & easy documentation generator for reason/bucklescript/ocaml",

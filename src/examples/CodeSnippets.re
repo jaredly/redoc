@@ -62,11 +62,12 @@ let parseCodeOptions = (lang, defaultOptions) => {
                     switch (matchOption(item, "class")) {
                     | Some(class_) => {...options, classes: [class_, ...options.classes]}
                     | None => 
-                      if (parts == [item]) {{...options, lang: OtherLang(item)}}
-                      else {
-                      print_endline(Printf.sprintf("Unexpected code option: %S. Assuming it's text", item));
-                      {...options, lang: Txt}
-                    }
+                      if (parts == [item]) {
+                        {...options, lang: OtherLang(item)}
+                      } else {
+                        print_endline(Printf.sprintf("Unexpected code option: %S. Assuming it's text", item));
+                        {...options, lang: Txt}
+                      }
                     }
                   }
                 }

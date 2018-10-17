@@ -16,26 +16,21 @@ type bucklescriptOptions = {
   packageJsonName: string,
 };
 
-let showBucklescriptOptions =
-  (
-  {
-    packageRoot,
-    bsRoot,
-    refmt,
-    version,
-    browserCompilerPath,
-    silentFailures,
-    tmp,
-    compiledDependencyDirectories,
-    packageJsonName,
-  }
-) =>
-  Printf.sprintf(
-  {|packgeRoot: %s
-     bsRoot: %s
-     compiledDependencyDirectories:
-     %s
-     |}, packageRoot, bsRoot,
+let showBucklescriptOptions = ({
+  packageRoot,
+  bsRoot,
+  refmt,
+  version,
+  browserCompilerPath,
+  silentFailures,
+  tmp,
+  compiledDependencyDirectories,
+  packageJsonName,
+}) => Printf.sprintf({|packgeRoot: %s
+bsRoot: %s
+compiledDependencyDirectories:
+%s
+|}, packageRoot, bsRoot,
   compiledDependencyDirectories |> List.map(((cmt, js)) => "  " ++ cmt ++ " : " ++ js) |> String.concat("\n")
 );
 

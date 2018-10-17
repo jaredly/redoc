@@ -16,21 +16,26 @@ type bucklescriptOptions = {
   packageJsonName: string,
 };
 
-let showBucklescriptOptions = ({
-  packageRoot,
-  bsRoot,
-  refmt,
-  version,
-  browserCompilerPath,
-  silentFailures,
-  tmp,
-  compiledDependencyDirectories,
-  packageJsonName,
-}) => Printf.sprintf({|packgeRoot: %s
-bsRoot: %s
-compiledDependencyDirectories:
-%s
-|}, packageRoot, bsRoot,
+let showBucklescriptOptions =
+  (
+  {
+    packageRoot,
+    bsRoot,
+    refmt,
+    version,
+    browserCompilerPath,
+    silentFailures,
+    tmp,
+    compiledDependencyDirectories,
+    packageJsonName,
+  }
+) =>
+  Printf.sprintf(
+  {|packgeRoot: %s
+     bsRoot: %s
+     compiledDependencyDirectories:
+     %s
+     |}, packageRoot, bsRoot,
   compiledDependencyDirectories |> List.map(((cmt, js)) => "  " ++ cmt ++ " : " ++ js) |> String.concat("\n")
 );
 
@@ -88,6 +93,7 @@ module Model = {
     /* openModule: bool, */
     sharedAs: option(string),
     uses: list(string),
+    id: option(string),
   };
 
   let defaultOptions = {
@@ -104,6 +110,7 @@ module Model = {
     },
     sharedAs: None,
     uses: [],
+    id: None,
   };
 
   /* This doesn't apply if I only want to parse */

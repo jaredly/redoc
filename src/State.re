@@ -94,6 +94,7 @@ module Model = {
     sharedAs: option(string),
     uses: list(string),
     id: option(string),
+    classes: list(string),
   };
 
   let defaultOptions = {
@@ -111,6 +112,7 @@ module Model = {
     sharedAs: None,
     uses: [],
     id: None,
+    classes: [],
   };
 
   /* This doesn't apply if I only want to parse */

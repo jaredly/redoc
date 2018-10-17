@@ -154,14 +154,13 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
   sprintf(
     {|<div class='code-block' data-block-syntax=%S>
   %s
-  <pre %s class='%s' data-block-id='%s' id='block-%s'><code>%s</code></pre>
+  <pre class='%s' data-block-id='%s' id='block-%s'><code>%s</code></pre>
   %s
   %s
   %s
 </div>|},
     syntax,
     preCode,
-    (switch (options.id) { | None => "" | Some(id) => sprintf("id='%s'", id) }),
     (["code", ...options.classes] |> String.concat(" ")),
     id,
     id,

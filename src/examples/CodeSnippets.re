@@ -44,29 +44,40 @@ let parseCodeOptions = (lang, defaultOptions) => {
       | "ocaml" | "ml" => {...options, lang: OCaml, inferred: false}
       | "txt" | "md" => {...options, lang: Txt}
       | _ => {
-        switch (matchOption(item, "shared")) {
-        | Some(name) => {...options, sharedAs: Some(name)}
-        | None => switch (matchOption(item, "use")) {
-          | Some(name) => {...options, uses: [name, ...options.uses]}
-          | None => switch (matchOption(item, "prefix")) {
-            | Some(content) => {...options, codeDisplay: {...options.codeDisplay, prefix: int_of_string(content)}}
-            | None => switch (matchOption(item, "suffix")) {
-              | Some(content) => {...options, codeDisplay: {...options.codeDisplay, suffix: int_of_string(content)}}
-              | None => {
-                if (parts == [item]) {
-                  {...options, lang: OtherLang(item)}
-                } else {
-                  print_endline(Printf.sprintf("Unexpected code option: %S. Assuming it's text", item));
-                  {...options, lang: Txt}
+          switch (matchOption(item, "shared")) {
+          | Some(name) => {...options, sharedAs: Some(name)}
+          | None =>
+            switch (matchOption(item, "use")) {
+            | Some(name) => {...options, uses: [name, ...options.uses]}
+            | None =>
+              switch (matchOption(item, "prefix")) {
+              | Some(content) => {...options, codeDisplay: {...options.codeDisplay, prefix: int_of_string(content)}}
+              | None =>
+                switch (matchOption(item, "suffix")) {
+                | Some(content) => {...options, codeDisplay: {...options.codeDisplay, suffix: int_of_string(content)}}
+                | None =>
+                  switch (matchOption(item, "id")) {
+                  | Some(id) => {...options, id: Some(id) }
+                  | None =>
+                    switch (matchOption(item, "class")) {
+                    | Some(class_) => {...options, classes: [class_, ...options.classes]}
+                    | None => 
+                      if (parts == [item]) {
+                        {...options, lang: OtherLang(item)}
+                      } else {
+                        print_endline(Printf.sprintf("Unexpected code option: %S. Assuming it's text", item));
+                        {...options, lang: Txt}
+                      }
+                    }
+                  }
                 }
               }
             }
-
           }
         }
-        }
+        
       }
-      }
+        
     }, defaultOptions, parts);
     if (options.lang == Reason || options.lang == OCaml) {
       Some(options)
@@ -111,6 +122,7 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
     let (pre, _, code, post, _) = CodeHighlight.codeSections(content);
     (pre, html(code), post)
   }
+
   | Some(cmt) => CodeHighlight.highlight(content, cmt)
   };
 
@@ -142,13 +154,14 @@ let highlight = (~editingEnabled, id, content, options, status, bundle) => {
   sprintf(
     {|<div class='code-block' data-block-syntax=%S>
   %s
-  <pre class='code' data-block-id='%s' id='block-%s'><code>%s</code></pre>
+  <pre class='%s' data-block-id='%s' id='block-%s'><code>%s</code></pre>
   %s
   %s
   %s
 </div>|},
     syntax,
     preCode,
+    (["code", ...options.classes] |> String.concat(" ")),
     id,
     id,
     code,

@@ -126,5 +126,12 @@ let block = (
     bundle
   );
 
-  {State.Model.langLine, html: html ++ htmlAlt, raw, page, filePath: name, compilationResult}
+  let html =
+    Printf.(sprintf("<div %s class='code-block-pair'>",
+                    (switch (options.id) { | None => "" | Some(id) => sprintf("id='%s'", id) })))
+    ++ html
+    ++ htmlAlt
+    ++ "</div>";
+
+  {State.Model.langLine, html, raw, page, filePath: name, compilationResult}
 };
